@@ -1,0 +1,63 @@
+package de.timesnake.basic.bukkit.util.user.event;
+
+import de.timesnake.basic.bukkit.util.user.User;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.entity.EntityDamageEvent;
+
+import javax.annotation.Nonnull;
+
+
+/**
+ * Called by {@link org.bukkit.event.entity.EntityDamageByEntityEvent} with user check
+ */
+public class EntityDamageByUserEvent extends CancelableUserEvent {
+
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
+    private final Entity entity;
+    private final EntityDamageEvent.DamageCause damageCause;
+    private double damage;
+    private boolean cancelDamage;
+
+    public EntityDamageByUserEvent(Entity entity, User damager, boolean isCanceled, double damage, EntityDamageEvent.DamageCause cause) {
+        super(damager, isCanceled);
+        this.entity = entity;
+        this.damageCause = cause;
+        this.damage = damage;
+        this.cancelDamage = false;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public EntityDamageEvent.DamageCause getDamageCause() {
+        return damageCause;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public boolean isCancelDamage() {
+        return cancelDamage;
+    }
+
+    public void setDamage(double damage) {
+        this.damage = damage;
+    }
+
+    public void setCancelDamage(boolean cancelDamage) {
+        this.cancelDamage = cancelDamage;
+    }
+}
