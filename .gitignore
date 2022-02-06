@@ -1,12 +1,5 @@
 /out/
-*/target/classes
-*/target/generated-sources
-*/target/maven-archiver
-*/target/maven-status
-*/target/apidocs
-*/target/javadoc-bundle-options
-*/target/maven-javadoc-plugin-stale-data.txt
-*/target/*.jar
+/target/
 *.directory
 *.syncthing.*
 /.idea/dataSources.xml
