@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-public class Argument extends de.timesnake.library.basic.util.cmd.Argument {
+public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
     public Argument(Sender sender, String string) {
         super(sender, string);

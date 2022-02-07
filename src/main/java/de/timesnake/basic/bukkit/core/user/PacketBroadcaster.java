@@ -4,8 +4,8 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.*;
 import de.timesnake.basic.packets.util.packet.ExPacket;
-import de.timesnake.library.basic.util.cmd.Arguments;
-import de.timesnake.library.basic.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.cmd.Arguments;
+import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.entity.Player;
 
 import java.util.List;

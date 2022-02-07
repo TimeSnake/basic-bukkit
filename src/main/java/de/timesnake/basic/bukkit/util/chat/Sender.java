@@ -6,7 +6,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.chat.Plugin;
 import org.bukkit.entity.Player;
 
-public class Sender extends de.timesnake.library.basic.util.cmd.Sender {
+public class Sender extends de.timesnake.library.extension.util.cmd.Sender {
 
     public Sender(ExCommandSender cmdSender, Plugin plugin) {
         super(cmdSender, plugin);

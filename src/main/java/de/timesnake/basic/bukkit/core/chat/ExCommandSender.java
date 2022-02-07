@@ -2,7 +2,7 @@ package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.library.basic.util.cmd.CommandSender;
+import de.timesnake.library.extension.util.cmd.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 

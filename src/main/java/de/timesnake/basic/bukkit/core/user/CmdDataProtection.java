@@ -1,7 +1,6 @@
 package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
@@ -10,8 +9,9 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.library.basic.util.chat.Plugin;
-import de.timesnake.library.basic.util.cmd.Arguments;
-import de.timesnake.library.basic.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.extension.util.cmd.Arguments;
+import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -28,7 +28,7 @@ public class CmdDataProtection implements CommandListener, Listener {
                 if (args.get(0).equalsIgnoreCase("accept") || args.get(0).equalsIgnoreCase("agree")) {
 
                     if (user.agreedDataProtection()) {
-                        sender.sendPluginMessage(ChatColor.WARNING + "You already accepted our data protection declaration " + Server.getChat().getMessageCode("H", 740, Plugin.BUKKIT));
+                        sender.sendPluginMessage(ChatColor.WARNING + "You already accepted our data protection declaration " + Chat.getMessageCode("H", 740, Plugin.BUKKIT));
                         return;
                     }
 
