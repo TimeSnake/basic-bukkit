@@ -1,12 +1,10 @@
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.basic.util.chat.Plugin;
-import de.timesnake.library.basic.util.cmd.Arguments;
 import org.bukkit.Location;
 
 import java.util.Set;
 
-public interface ChatManager {
+public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
 
     Chat createChat(String name, String displayName, org.bukkit.ChatColor chatColor, Set<ChatMember> members);
 
@@ -28,20 +26,5 @@ public interface ChatManager {
 
     boolean isBroadcastingJoinQuit();
 
-    String getSplitter();
-
-    String getOtherSplitter();
-
-    String getLineSeparator();
-
-    String getLongLineSeparator();
-
-    String getDoubleLineSeparator();
-
-    String getSenderPlugin(Plugin plugin);
-
-    String getMessageCode(String codeType, int code, Plugin plugin);
-
-    Arguments<de.timesnake.library.basic.util.cmd.Argument> createArguments(de.timesnake.library.basic.util.cmd.Sender sender, de.timesnake.library.basic.util.cmd.Argument... args);
 }
 

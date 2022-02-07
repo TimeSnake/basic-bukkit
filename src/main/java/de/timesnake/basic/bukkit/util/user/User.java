@@ -43,6 +43,7 @@ import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.database.util.user.DbUser;
+import de.timesnake.library.extension.util.chat.Chat;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identified;
@@ -129,7 +130,7 @@ import java.util.function.UnaryOperator;
  * It is recommended to extend these class in a new plugin
  */
 
-public class User implements de.timesnake.library.basic.util.player.User, ChannelUserListener, TablistablePlayer, ChatMember {
+public class User implements de.timesnake.library.extension.util.player.User, ChannelUserListener, TablistablePlayer, ChatMember {
 
     private final Player player;
     private final DbUser dbUser;
@@ -218,11 +219,11 @@ public class User implements de.timesnake.library.basic.util.player.User, Channe
                 ((de.timesnake.basic.bukkit.core.permission.Group) this.group).addUser(this);
             } else {
                 Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-                this.player.kickPlayer("§c§lContact a supporter!!!\n" + Server.getChat().getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+                this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
             }
         } else {
             Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-            this.player.kickPlayer("§c§lContact a supporter!!!\n" + Server.getChat().getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+            this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
         }
 
         this.updateChatName();
@@ -504,7 +505,7 @@ public class User implements de.timesnake.library.basic.util.player.User, Channe
      * @param message The message to send
      */
     public void sendPluginMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String message) {
-        this.getPlayer().sendMessage(Server.getChat().getSenderPlugin(plugin) + message);
+        this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
     }
 
     /**
@@ -642,7 +643,7 @@ public class User implements de.timesnake.library.basic.util.player.User, Channe
      */
     public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info, Action action) {
         TextComponent tc = new TextComponent();
-        tc.setText(Server.getChatManager().getSenderPlugin(plugin) + text);
+        tc.setText(Chat.getSenderPlugin(plugin) + text);
         tc.setClickEvent(new ClickEvent(action, exec));
         tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(info)));
         this.getPlayer().spigot().sendMessage(tc);

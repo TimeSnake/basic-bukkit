@@ -9,8 +9,8 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
-import de.timesnake.library.basic.util.cmd.Arguments;
-import de.timesnake.library.basic.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.cmd.Arguments;
+import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-public class ChatManager extends de.timesnake.library.basic.util.chat.Chat implements Listener, de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
+public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener, de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
 
     public static final org.bukkit.ChatColor COLOR = org.bukkit.ChatColor.GRAY;
 
@@ -120,7 +120,7 @@ public class ChatManager extends de.timesnake.library.basic.util.chat.Chat imple
 
     @Override
     public String getSenderMember(ChatMember member) {
-        return member.getChatName() + this.getSplitter();
+        return member.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter();
     }
 
     @Override
@@ -167,8 +167,8 @@ public class ChatManager extends de.timesnake.library.basic.util.chat.Chat imple
         de.timesnake.basic.bukkit.util.user.User user = e.getUser();
         // catch if user not in database -> error (proxy should added user)
         if (!Database.getUsers().containsUser(user.getUniqueId())) {
-            user.sendMessage(Server.getChat().getSenderPlugin(Plugin.BUKKIT) + ChatColor.WARNING + "§lContact a supporter!!!");
-            user.getPlayer().kickPlayer("§c§lContact a supporter!!!\n" + Server.getChat().getMessageCode("E", 805, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+            user.sendMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.BUKKIT) + ChatColor.WARNING + "§lContact a supporter!!!");
+            user.getPlayer().kickPlayer("§c§lContact a supporter!!!\n" + de.timesnake.library.extension.util.chat.Chat.getMessageCode("E", 805, Plugin.BUKKIT) + "\nDO NOT REJOIN");
             return;
         }
 

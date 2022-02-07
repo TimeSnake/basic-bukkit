@@ -106,7 +106,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     @Override
     public void broadcastPluginMessage(de.timesnake.library.basic.util.chat.Plugin sender, String... msgs) {
         for (String msg : msgs) {
-            this.broadcastMessage(this.chatPrefix + Server.getChat().getSenderPlugin(sender) + msg);
+            this.broadcastMessage(this.chatPrefix + de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender) + msg);
         }
     }
 
@@ -128,7 +128,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
     @Override
     public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String text, String exec, String info, ClickEvent.Action action) {
-        this.broadcastClickableMessage(Server.getChat().getSenderPlugin(plugin) + text, exec, info, action);
+        this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin) + text, exec, info, action);
     }
 
 

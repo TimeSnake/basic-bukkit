@@ -4,6 +4,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.object.Type;
+import de.timesnake.library.extension.util.chat.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +46,7 @@ public class GameInfo {
             try {
                 chatColor = ChatColor.valueOf(chatColorName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Server.getChat().getMessageCode("E", 810, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 810, Plugin.BUKKIT), "Game");
                 chatColor = ChatColor.WHITE;
             }
         } else {
@@ -79,7 +80,7 @@ public class GameInfo {
             if (prefix != null) {
                 meta.setDisplayName(ChatColor.valueOf(chatColorName) + prefix);
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Server.getChat().getMessageCode("E", 809, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 809, Plugin.BUKKIT), "Game");
                 return;
             }
 
@@ -93,7 +94,7 @@ public class GameInfo {
                 }
                 meta.setLore(lore);
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Server.getChat().getMessageCode("E", 811, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 811, Plugin.BUKKIT), "Game");
                 return;
             }
 
@@ -103,11 +104,11 @@ public class GameInfo {
             if (slot != null) {
                 this.slot = slot;
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Server.getChat().getMessageCode("E", 812, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 812, Plugin.BUKKIT), "Game");
                 return;
             }
         } else {
-            Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Server.getChat().getMessageCode("E", 808, Plugin.BUKKIT), "Game");
+            Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 808, Plugin.BUKKIT), "Game");
             return;
         }
 
