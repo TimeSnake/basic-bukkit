@@ -224,16 +224,17 @@ public class ExFile {
         return false;
     }
 
-    public double getDouble(@Nonnull String path) {
+    public Double getDouble(@Nonnull String path) {
         this.load();
         if (this.config.isDouble(path)) {
             return this.config.getDouble(path);
         }
 
         if (this.config.isInt(path)) {
-            return this.config.getInt(path);
+            return ((double) this.config.getInt(path));
         }
-        return 0;
+
+        return null;
     }
 
     public Location getLocation(@Nonnull String path) throws WorldNotExistException {
