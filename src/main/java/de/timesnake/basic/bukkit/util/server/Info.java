@@ -1,9 +1,9 @@
 package de.timesnake.basic.bukkit.util.server;
 
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.Status;
 
 public interface Info {
 

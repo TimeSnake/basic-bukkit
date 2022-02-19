@@ -29,18 +29,20 @@ import de.timesnake.basic.bukkit.util.world.HoloDisplayManager;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.basic.packets.util.PacketManager;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
-import de.timesnake.channel.api.message.ChannelGroupMessage;
-import de.timesnake.channel.api.message.ChannelServerMessage;
-import de.timesnake.channel.channel.Channel;
-import de.timesnake.channel.listener.ChannelGroupListener;
-import de.timesnake.channel.listener.ChannelServerListener;
-import de.timesnake.channel.main.NetworkChannel;
+import de.timesnake.channel.core.Channel;
+import de.timesnake.channel.core.NetworkChannel;
+import de.timesnake.channel.util.listener.ChannelHandler;
+import de.timesnake.channel.util.listener.ChannelListener;
+import de.timesnake.channel.util.listener.ListenerType;
+import de.timesnake.channel.util.message.ChannelGroupMessage;
+import de.timesnake.channel.util.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.object.DbLocation;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.extension.util.cmd.CommandHelp;
@@ -57,14 +59,10 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
-public class ServerManager implements de.timesnake.library.basic.util.server.Server, ChannelServerListener, ChannelGroupListener {
-
+public class ServerManager implements de.timesnake.library.basic.util.server.Server, ChannelListener {
 
     private static ServerManager instance;
 
@@ -141,7 +139,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.entityManager = new EntityManager();
         this.initScoreboardManager();
 
-        getChannel().addGroupListener(this);
+        this.getChannel().addListener(this, () -> Collections.singleton(this.getPort()));
 
         //game and teams
 
@@ -195,7 +193,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public void setStatus(Status.Server status) {
         this.info.setStatus(status);
-        this.printText(Plugin.BUKKIT, "Status: " + this.info.getStatus().getDatabaseValue());
+        this.printText(Plugin.BUKKIT, "Status: " + this.info.getStatus().getName());
     }
 
     public Type.Server<?> getType() {
@@ -619,16 +617,17 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         location.getWorld().dropItem(location, itemStack);
     }
 
-    public final void onGroupMessage(ChannelGroupMessage msg) {
+    @ChannelHandler(type = ListenerType.GROUP)
+    public final void onGroupMessage(ChannelGroupMessage<?> msg) {
         String groupName = msg.getName();
         de.timesnake.basic.bukkit.core.permission.Group group = (de.timesnake.basic.bukkit.core.permission.Group) this.getGroup(groupName);
         if (group == null) {
             return;
         }
 
-        if (msg.getType().equals(ChannelGroupMessage.MessageType.PERMISSION)) {
+        if (msg.getMessageType().equals(MessageType.Group.PERMISSION)) {
             group.updatePermissions();
-        } else if (msg.getType().equals(ChannelGroupMessage.MessageType.ALIAS)) {
+        } else if (msg.getMessageType().equals(MessageType.Group.ALIAS)) {
             group.updatePrefix();
         }
     }
@@ -707,16 +706,19 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    @Override
-    public final void onServerMessage(ChannelServerMessage msg) {
-        ChannelServerMessage.MessageType type = msg.getType();
-        if (type.equals(ChannelServerMessage.MessageType.PERMISSION)) {
+    @ChannelHandler(type = {ListenerType.SERVER_PERMISSION, ListenerType.SERVER_COMMAND})
+    public final void onServerMessage(ChannelServerMessage<?> msg) {
+        MessageType<?> type = msg.getMessageType();
+        if (type.equals(MessageType.Server.PERMISSION)) {
             this.updateUsersPermissions();
-        } else if (type.equals(ChannelServerMessage.MessageType.COMMAND)) {
-            this.runTaskSynchrony(() -> runCommand(msg.getValue()), BasicBukkit.getPlugin());
-        } else if (msg.getPort().equals(this.getPort()) && type.equals(ChannelServerMessage.MessageType.STATUS)) {
-            this.runTaskSynchrony(() -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(), BasicBukkit.getPlugin());
+        } else if (type.equals(MessageType.Server.COMMAND)) {
+            this.runTaskSynchrony(() -> runCommand((String) msg.getValue()), BasicBukkit.getPlugin());
         }
+    }
+
+    @ChannelHandler(type = ListenerType.SERVER_STATUS, filtered = true)
+    public final void onServerStatusMessage(ChannelServerMessage<?> msg) {
+        this.runTaskSynchrony(() -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(), BasicBukkit.getPlugin());
     }
 
     // MANAGER

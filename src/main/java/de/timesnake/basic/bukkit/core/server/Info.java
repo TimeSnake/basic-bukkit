@@ -1,10 +1,10 @@
 package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.*;
+import de.timesnake.library.basic.util.Status;
 
 public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.server.Info {
 

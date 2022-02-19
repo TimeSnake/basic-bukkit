@@ -15,12 +15,12 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.*;
 import de.timesnake.basic.packets.util.PacketManager;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
-import de.timesnake.channel.channel.Channel;
+import de.timesnake.channel.core.Channel;
 import de.timesnake.database.util.object.DbLocation;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.extension.util.cmd.CommandHelp;
@@ -326,7 +326,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      *
      * @return the server port
      */
-    public static int getPort() {
+    public static Integer getPort() {
         return server.getPort();
     }
 

@@ -1,14 +1,10 @@
 package de.timesnake.basic.bukkit.util.server;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.channel.api.message.ChannelServerMessage;
-import de.timesnake.channel.listener.ChannelServerListener;
 
-public interface Network extends ChannelServerListener {
+public interface Network {
 
     Integer PROXY_PORT = 25565;
-
-    void onServerMessage(ChannelServerMessage msg);
 
     Integer getPlayerAmount();
 
