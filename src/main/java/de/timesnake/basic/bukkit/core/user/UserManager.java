@@ -2,7 +2,7 @@ package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.permission.Group;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.database.util.object.Status;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;

@@ -32,20 +32,22 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.entities.entity.bukkit.ExPlayer;
 import de.timesnake.basic.packets.util.packet.*;
-import de.timesnake.channel.api.message.ChannelUserMessage;
-import de.timesnake.channel.listener.ChannelUserListener;
+import de.timesnake.channel.util.listener.ChannelHandler;
+import de.timesnake.channel.util.listener.ChannelListener;
+import de.timesnake.channel.util.listener.ListenerType;
+import de.timesnake.channel.util.message.ChannelUserMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.object.DbLocation;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.database.util.user.DbUser;
+import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.extension.util.chat.Chat;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
@@ -130,7 +132,7 @@ import java.util.function.UnaryOperator;
  * It is recommended to extend these class in a new plugin
  */
 
-public class User implements de.timesnake.library.extension.util.player.User, ChannelUserListener, TablistablePlayer, ChatMember {
+public class User implements de.timesnake.library.extension.util.player.User, ChannelListener, TablistablePlayer, ChatMember {
 
     private final Player player;
     private final DbUser dbUser;
@@ -240,7 +242,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
 
         this.coins = dbLocalUser.getCoins();
 
-        Server.getChannel().addUserListener(this, player.getUniqueId());
+        Server.getChannel().addListener(this, () -> Collections.singleton(player.getUniqueId()));
 
         LocationsFile locs = ((WorldManager) ServerManager.getInstance().getWorldManager()).getLocationsFile();
 
@@ -280,7 +282,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
 
     public final void quit() {
         this.isQuiting = true;
-        Server.getChannel().removeUserListener(this);
+        Server.getChannel().removeListener(this);
         this.onQuit();
     }
 
@@ -765,7 +767,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         if (this.group == null) {
             this.group = Server.getGuestGroup();
             this.getDatabase().setPermGroup(this.group.getName());
-            Server.getChannel().sendMessage(ChannelUserMessage.getGroupMessage(this.getUniqueId(), this.group.getName()));
+            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.GROUP, this.group.getName()));
         }
 
         ((de.timesnake.basic.bukkit.core.permission.Group) this.group).addUser(this);
@@ -1922,15 +1924,15 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     }
 
     //update
-    @Override
-    public void onUserMessage(ChannelUserMessage msg) {
-        ChannelUserMessage.MessageType type = msg.getType();
-        if (type.equals(ChannelUserMessage.MessageType.STATUS)) {
+    @ChannelHandler(type = ListenerType.USER, filtered = true)
+    public void onUserMessage(ChannelUserMessage<?> msg) {
+        MessageType<?> type = msg.getMessageType();
+        if (type.equals(MessageType.User.STATUS)) {
             this.status = this.getDatabase().getStatus();
             this.updatePermissions(false);
-        } else if (type.equals(ChannelUserMessage.MessageType.SERVICE)) {
+        } else if (type.equals(MessageType.User.SERVICE)) {
             this.service = this.dbUser.isService();
-        } else if (type.equals(ChannelUserMessage.MessageType.SOUND)) {
+        } else if (type.equals(MessageType.User.SOUND)) {
             ChannelUserMessage.Sound sound = ChannelUserMessage.Sound.valueOf((String) msg.getValue());
             switch (sound) {
                 case PLING:
@@ -1940,17 +1942,17 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
                     this.playNote(Instrument.PLING, Note.natural(0, Tone.C));
                     break;
             }
-        } else if (type.equals(ChannelUserMessage.MessageType.PERMISSION)) {
+        } else if (type.equals(MessageType.User.PERMISSION)) {
             this.updatePermissions(true);
-        } else if (type.equals(ChannelUserMessage.MessageType.PUNISH)) {
+        } else if (type.equals(MessageType.User.PUNISH)) {
             this.updatePunishment();
-        } else if (type.equals(ChannelUserMessage.MessageType.ALIAS)) {
+        } else if (type.equals(MessageType.User.ALIAS)) {
             this.updateAlias();
-        } else if (type.equals(ChannelUserMessage.MessageType.TASK)) {
+        } else if (type.equals(MessageType.User.TASK)) {
             this.task = this.dbUser.getTask();
-        } else if (type.equals(ChannelUserMessage.MessageType.COMMAND)) {
+        } else if (type.equals(MessageType.User.COMMAND)) {
             this.runCommand((String) msg.getValue());
-        } else if (type.equals(ChannelUserMessage.MessageType.GROUP)) {
+        } else if (type.equals(MessageType.User.GROUP)) {
             this.updateGroup();
         }
     }
@@ -3991,7 +3993,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         return player.name();
     }
 
-    public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(identity, message, type);
     }
 
@@ -4027,23 +4029,23 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         player.sendMessage(source, message);
     }
 
-    public void sendMessage(@NotNull ComponentLike message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull ComponentLike message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(message, type);
     }
 
-    public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(source, message, type);
     }
 
-    public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(source, message, type);
     }
 
-    public void sendMessage(@NotNull Component message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull Component message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(message, type);
     }
 
-    public void sendMessage(@NotNull Identified source, @NotNull Component message, @NotNull MessageType type) {
+    public void sendMessage(@NotNull Identified source, @NotNull Component message, @NotNull net.kyori.adventure.audience.MessageType type) {
         player.sendMessage(source, message, type);
     }
 

@@ -12,14 +12,15 @@ import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.server.Network;
-import de.timesnake.channel.api.message.ChannelServerMessage;
 import de.timesnake.channel.bukkit.main.ChannelBukkit;
-import de.timesnake.channel.main.NetworkChannel;
+import de.timesnake.channel.core.NetworkChannel;
+import de.timesnake.channel.util.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -71,8 +72,6 @@ public class BasicBukkit extends JavaPlugin {
         ServerManager.getInstance().onEnable();
 
 
-        Server.getChannel().addServerListener(ServerManager.getInstance(), Bukkit.getPort());
-
         Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd", "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "channelmsg", List.of("channelmsgs", "channelmessage", "channelmessages"), new ChannelBroadcastCmd(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs", "databasemessages"), new DatabaseBroadcastCmd(), Plugin.DATABASE);
@@ -87,7 +86,7 @@ public class BasicBukkit extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Server.getChannel().sendMessageSynchronized(ChannelServerMessage.getStatusMessage(Server.getPort(), Status.Server.OFFLINE));
+        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATUS, Status.Server.OFFLINE));
 
         ((WorldManager) Server.getWorldManager()).onDisable();
 

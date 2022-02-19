@@ -3,22 +3,26 @@ package de.timesnake.basic.bukkit.core.server;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.channel.api.message.ChannelServerMessage;
-import de.timesnake.channel.api.message.ChannelUserMessage;
-import de.timesnake.channel.listener.ChannelServerListener;
+import de.timesnake.channel.util.listener.ChannelHandler;
+import de.timesnake.channel.util.listener.ChannelListener;
+import de.timesnake.channel.util.listener.ListenerType;
+import de.timesnake.channel.util.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.ChannelUserMessage;
+import de.timesnake.channel.util.message.MessageType;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class Network implements de.timesnake.basic.bukkit.util.server.Network, ChannelServerListener {
+public class Network implements de.timesnake.basic.bukkit.util.server.Network, ChannelListener {
 
     private Integer playerAmount;
     private final Set<UUID> userSwitching = new HashSet<>();
 
     public Network(Integer playerAmount) {
         this.playerAmount = playerAmount;
-        Server.getChannel().addServerListener(this, Network.PROXY_PORT);
+        Server.getChannel().addListener(this, () -> Collections.singleton(Network.PROXY_PORT));
     }
 
     public void setPlayerAmount(Integer playerAmount) {
@@ -26,11 +30,9 @@ public class Network implements de.timesnake.basic.bukkit.util.server.Network, C
     }
 
 
-    @Override
-    public void onServerMessage(ChannelServerMessage msg) {
-        if (msg.getType().equals(ChannelServerMessage.MessageType.ONLINE_PLAYERS)) {
-            this.setPlayerAmount(Integer.valueOf((String) msg.getValue()));
-        }
+    @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
+    public void onServerMessage(ChannelServerMessage<?> msg) {
+        this.setPlayerAmount((Integer) msg.getValue());
     }
 
     @Override
@@ -46,7 +48,7 @@ public class Network implements de.timesnake.basic.bukkit.util.server.Network, C
         }
         this.userSwitching.add(uuid);
 
-        Server.getChannel().sendMessage(ChannelUserMessage.getSwitchMessage(uuid, server));
+        Server.getChannel().sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_PORT, server));
 
         Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20, BasicBukkit.getPlugin());
 
@@ -61,7 +63,7 @@ public class Network implements de.timesnake.basic.bukkit.util.server.Network, C
         }
         this.userSwitching.add(uuid);
 
-        Server.getChannel().sendMessage(ChannelUserMessage.getSwitchMessage(uuid, server));
+        Server.getChannel().sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_NAME, server));
 
         Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20, BasicBukkit.getPlugin());
 
