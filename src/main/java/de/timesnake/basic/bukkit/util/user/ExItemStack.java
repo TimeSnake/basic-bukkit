@@ -625,6 +625,15 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return false;
     }
 
+    @Override
+    public boolean isSimilar(ItemStack item) {
+        try {
+            return this.equals(item);
+        } catch (InvalidItemTypeException e) {
+            return item.getItemMeta() == null;
+        }
+    }
+
     /**
      * Clones the item with new id
      *
