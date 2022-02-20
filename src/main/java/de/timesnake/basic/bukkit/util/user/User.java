@@ -1633,22 +1633,29 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         return this.getInventory().containsAtLeast(item, item.getAmount());
     }
 
-    public boolean containsAtLeast(ItemStack item, int amount, boolean checkCursor) {
+    public int containsAtLeast(ItemStack item, int amount, boolean checkCursor) {
         if (item == null) {
-            return false;
+            return -1;
         } else if (amount <= 0) {
-            return true;
+            return 0;
         } else {
             for (ItemStack i : this.getInventory()) {
-                if (item.isSimilar(i) && (amount -= i.getAmount()) <= 0) {
-                    return true;
+                if (item.isSimilar(i)) {
+                    amount -= i.getAmount();
                 }
             }
 
-            ItemStack onCursor = this.getPlayer().getItemOnCursor();
 
-            return checkCursor && item.isSimilar(onCursor) && amount - onCursor.getAmount() <= 0;
+            if (checkCursor) {
+                ItemStack onCursor = this.getPlayer().getItemOnCursor();
+
+                if (item.isSimilar(onCursor)) {
+                    amount -= onCursor.getAmount();
+                }
+            }
         }
+
+        return -amount;
     }
 
     /**
@@ -1854,7 +1861,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.dbUser.setCoins(coins);
         this.sendPluginMessage(Plugin.TIME_COINS, ChatColor.QUICK_INFO + "Balance changed to " + ChatColor.QUICK_INFO + coins);
         if (sendMessage) {
-            this.sendActionBarText(coins + " TimeCoins");
+            this.sendActionBarText(((int) (coins * 100)) / 100d + " TimeCoins");
         }
     }
 
@@ -1869,7 +1876,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.coins += coins;
         this.dbUser.addCoins(coins);
         if (sendMessage) {
-            this.sendActionBarText("§6+ " + coins + " TimeCoins");
+            this.sendActionBarText("§6+ " + ((int) (coins * 100)) / 100d + " TimeCoins");
         }
     }
 
@@ -1885,7 +1892,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.dbUser.removeCoins(coins);
         this.sendPluginMessage(Plugin.TIME_COINS, ChatColor.QUICK_INFO + "Removed" + ChatColor.QUICK_INFO + coins + ChatColor.QUICK_INFO + " timecoin(s)");
         if (sendMessage) {
-            this.sendActionBarText("§6- " + coins + " TimeCoins");
+            this.sendActionBarText("§6- " + ((int) (coins * 100)) / 100d + " TimeCoins");
         }
     }
 
