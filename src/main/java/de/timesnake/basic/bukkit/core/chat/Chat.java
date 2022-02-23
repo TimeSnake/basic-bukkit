@@ -93,11 +93,11 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     public void broadcastMemberMessage(ChatMember member, String... msgs) {
         if (this.chatPrefix.equals("")) {
             for (String msg : msgs) {
-                this.broadcastMessage(this.chatPrefix + Server.getChat().getSenderMember(member) + ChatManager.COLOR + msg);
+                this.broadcastMessage(this.chatPrefix + Server.getChat().getSenderMember(member) + msg);
             }
         } else {
             for (String msg : msgs) {
-                this.broadcastMessage(this.chatPrefix + " " + Server.getChat().getSenderMember(member) + ChatManager.COLOR + msg);
+                this.broadcastMessage(this.chatPrefix + " " + Server.getChat().getSenderMember(member) + msg);
             }
         }
 

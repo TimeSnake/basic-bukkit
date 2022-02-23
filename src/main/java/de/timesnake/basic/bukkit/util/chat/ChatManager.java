@@ -16,6 +16,8 @@ public interface ChatManager extends de.timesnake.library.extension.util.chat.Ch
 
     String getSenderMember(ChatMember member);
 
+    String getSender(Sender sender);
+
     String getLocationBlockText(Location loc);
 
     String getLocationText(Location loc);
