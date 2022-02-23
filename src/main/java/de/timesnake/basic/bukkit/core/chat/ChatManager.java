@@ -120,7 +120,12 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
     @Override
     public String getSenderMember(ChatMember member) {
-        return member.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter();
+        return member.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter() + ChatManager.COLOR;
+    }
+
+    @Override
+    public String getSender(Sender sender) {
+        return sender.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter() + ChatManager.COLOR;
     }
 
     @Override

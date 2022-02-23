@@ -6,20 +6,25 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.chat.Plugin;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.YamlConfigurationOptions;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 
 public class ExFile {
@@ -38,6 +43,9 @@ public class ExFile {
         } else file.delete();
     }
 
+    public static String toPath(String... sections) {
+        return String.join(".", sections);
+    }
 
     protected final File configFile;
     protected final YamlConfiguration config;
@@ -294,14 +302,6 @@ public class ExFile {
         return false;
     }
 
-    public List<Integer> getIntegerList(@Nonnull String path) {
-        return this.config.getIntegerList(path);
-    }
-
-    public List<String> getStringList(@Nonnull String path) {
-        return this.config.getStringList(path);
-    }
-
     public List<UUID> getUUIDList(@Nonnull String path) {
         ArrayList<UUID> uuids = new ArrayList<>();
         for (String s : this.getStringList(path)) {
@@ -381,5 +381,330 @@ public class ExFile {
 
     public Triple<Double, Double, Double> getDoubleTriple(String path, String a, String b, String c) {
         return new Triple<>(this.getDouble(path + "." + a), this.getDouble(path + "." + b), this.getDouble(path + "." + c));
+    }
+
+
+    @NotNull
+    public String saveToString() {
+        return config.saveToString();
+    }
+
+    public void loadFromString(@NotNull String contents) throws InvalidConfigurationException {
+        config.loadFromString(contents);
+    }
+
+    public @NotNull YamlConfigurationOptions options() {
+        return config.options();
+    }
+
+    public void save(@NotNull File file) throws IOException {
+        config.save(file);
+    }
+
+    public void save(@NotNull String file) throws IOException {
+        config.save(file);
+    }
+
+    public void load(@NotNull File file) throws IOException, InvalidConfigurationException {
+        config.load(file);
+    }
+
+    public void load(@NotNull Reader reader) throws IOException, InvalidConfigurationException {
+        config.load(reader);
+    }
+
+    public void load(@NotNull String file) throws IOException, InvalidConfigurationException {
+        config.load(file);
+    }
+
+    public void addDefaults(@NotNull Map<String, Object> defaults) {
+        config.addDefaults(defaults);
+    }
+
+    public void addDefaults(@NotNull Configuration defaults) {
+        config.addDefaults(defaults);
+    }
+
+    public @Nullable Configuration getDefaults() {
+        return config.getDefaults();
+    }
+
+    public void setDefaults(@NotNull Configuration defaults) {
+        config.setDefaults(defaults);
+    }
+
+    @Nullable
+    public ConfigurationSection getParent() {
+        return config.getParent();
+    }
+
+    @NotNull
+    public Set<String> getKeys(boolean deep) {
+        return config.getKeys(deep);
+    }
+
+    @NotNull
+    public Map<String, Object> getValues(boolean deep) {
+        return config.getValues(deep);
+    }
+
+    public boolean contains(@NotNull String path, boolean ignoreDefault) {
+        return config.contains(path, ignoreDefault);
+    }
+
+    public boolean isSet(@NotNull String path) {
+        return config.isSet(path);
+    }
+
+    @NotNull
+    public String getCurrentPath() {
+        return config.getCurrentPath();
+    }
+
+    @NotNull
+    public String getName() {
+        return config.getName();
+    }
+
+    public @Nullable Configuration getRoot() {
+        return config.getRoot();
+    }
+
+    @Nullable
+    public ConfigurationSection getDefaultSection() {
+        return config.getDefaultSection();
+    }
+
+    @Nullable
+    public Object get(@NotNull String path) {
+        return config.get(path);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public Object get(@NotNull String path, @Nullable Object def) {
+        return config.get(path, def);
+    }
+
+    @NotNull
+    public ConfigurationSection createSection(@NotNull String path) {
+        return config.createSection(path);
+    }
+
+    @NotNull
+    public ConfigurationSection createSection(@NotNull String path, @NotNull Map<?, ?> map) {
+        return config.createSection(path, map);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public String getString(@NotNull String path, @Nullable String def) {
+        return config.getString(path, def);
+    }
+
+    public boolean isString(@NotNull String path) {
+        return config.isString(path);
+    }
+
+    public int getInt(@NotNull String path, int def) {
+        return config.getInt(path, def);
+    }
+
+    public boolean isInt(@NotNull String path) {
+        return config.isInt(path);
+    }
+
+    public boolean getBoolean(@NotNull String path, boolean def) {
+        return config.getBoolean(path, def);
+    }
+
+    public boolean isBoolean(@NotNull String path) {
+        return config.isBoolean(path);
+    }
+
+    public double getDouble(@NotNull String path, double def) {
+        return config.getDouble(path, def);
+    }
+
+    public boolean isDouble(@NotNull String path) {
+        return config.isDouble(path);
+    }
+
+    public long getLong(@NotNull String path) {
+        return config.getLong(path);
+    }
+
+    public long getLong(@NotNull String path, long def) {
+        return config.getLong(path, def);
+    }
+
+    public boolean isLong(@NotNull String path) {
+        return config.isLong(path);
+    }
+
+    @Nullable
+    public List<?> getList(@NotNull String path) {
+        return config.getList(path);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public List<?> getList(@NotNull String path, @Nullable List<?> def) {
+        return config.getList(path, def);
+    }
+
+    public boolean isList(@NotNull String path) {
+        return config.isList(path);
+    }
+
+    @NotNull
+    public List<String> getStringList(@NotNull String path) {
+        return config.getStringList(path);
+    }
+
+    @NotNull
+    public List<Integer> getIntegerList(@NotNull String path) {
+        return config.getIntegerList(path);
+    }
+
+    @NotNull
+    public List<Boolean> getBooleanList(@NotNull String path) {
+        return config.getBooleanList(path);
+    }
+
+    @NotNull
+    public List<Double> getDoubleList(@NotNull String path) {
+        return config.getDoubleList(path);
+    }
+
+    @NotNull
+    public List<Float> getFloatList(@NotNull String path) {
+        return config.getFloatList(path);
+    }
+
+    @NotNull
+    public List<Long> getLongList(@NotNull String path) {
+        return config.getLongList(path);
+    }
+
+    @NotNull
+    public List<Byte> getByteList(@NotNull String path) {
+        return config.getByteList(path);
+    }
+
+    @NotNull
+    public List<Character> getCharacterList(@NotNull String path) {
+        return config.getCharacterList(path);
+    }
+
+    @NotNull
+    public List<Short> getShortList(@NotNull String path) {
+        return config.getShortList(path);
+    }
+
+    @NotNull
+    public List<Map<?, ?>> getMapList(@NotNull String path) {
+        return config.getMapList(path);
+    }
+
+    public <T> @Nullable T getObject(@NotNull String path, @NotNull Class<T> clazz) {
+        return config.getObject(path, clazz);
+    }
+
+    @Contract("_, _, !null -> !null")
+    public <T> @Nullable T getObject(@NotNull String path, @NotNull Class<T> clazz, @Nullable T def) {
+        return config.getObject(path, clazz, def);
+    }
+
+    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path, @NotNull Class<T> clazz) {
+        return config.getSerializable(path, clazz);
+    }
+
+    @Contract("_, _, !null -> !null")
+    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path, @NotNull Class<T> clazz, @Nullable T def) {
+        return config.getSerializable(path, clazz, def);
+    }
+
+    public @Nullable Vector getVector(@NotNull String path) {
+        return config.getVector(path);
+    }
+
+    @Contract("_, !null -> !null")
+    public @Nullable Vector getVector(@NotNull String path, @Nullable Vector def) {
+        return config.getVector(path, def);
+    }
+
+    public boolean isVector(@NotNull String path) {
+        return config.isVector(path);
+    }
+
+    public @Nullable OfflinePlayer getOfflinePlayer(@NotNull String path) {
+        return config.getOfflinePlayer(path);
+    }
+
+    @Contract("_, !null -> !null")
+    public @Nullable OfflinePlayer getOfflinePlayer(@NotNull String path, @Nullable OfflinePlayer def) {
+        return config.getOfflinePlayer(path, def);
+    }
+
+    public boolean isOfflinePlayer(@NotNull String path) {
+        return config.isOfflinePlayer(path);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public ItemStack getItemStack(@NotNull String path, @Nullable ItemStack def) {
+        return config.getItemStack(path, def);
+    }
+
+    public boolean isItemStack(@NotNull String path) {
+        return config.isItemStack(path);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public Color getColor(@NotNull String path, @Nullable Color def) {
+        return config.getColor(path, def);
+    }
+
+    public boolean isColor(@NotNull String path) {
+        return config.isColor(path);
+    }
+
+    @Contract("_, !null -> !null")
+    @Nullable
+    public Location getLocation(@NotNull String path, @Nullable Location def) {
+        return config.getLocation(path, def);
+    }
+
+    public boolean isLocation(@NotNull String path) {
+        return config.isLocation(path);
+    }
+
+    @Nullable
+    public ConfigurationSection getConfigurationSection(@NotNull String path) {
+        return config.getConfigurationSection(path);
+    }
+
+    public boolean isConfigurationSection(@NotNull String path) {
+        return config.isConfigurationSection(path);
+    }
+
+    @NotNull
+    public List<String> getComments(@NotNull String path) {
+        return config.getComments(path);
+    }
+
+    @NotNull
+    public List<String> getInlineComments(@NotNull String path) {
+        return config.getInlineComments(path);
+    }
+
+    public void setComments(@NotNull String path, @Nullable List<String> comments) {
+        config.setComments(path, comments);
+    }
+
+    public void setInlineComments(@NotNull String path, @Nullable List<String> comments) {
+        config.setInlineComments(path, comments);
     }
 }

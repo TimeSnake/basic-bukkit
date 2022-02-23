@@ -631,7 +631,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         tc.setText(text);
         tc.setClickEvent(new ClickEvent(action, exec));
         tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(info)));
-        this.getPlayer().spigot().sendMessage(tc);
+        this.spigot().sendMessage(tc);
     }
 
     /**
@@ -648,7 +648,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         tc.setText(Chat.getSenderPlugin(plugin) + text);
         tc.setClickEvent(new ClickEvent(action, exec));
         tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(info)));
-        this.getPlayer().spigot().sendMessage(tc);
+        this.spigot().sendMessage(tc);
     }
 
     /**
@@ -661,7 +661,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @param stay     The stay time in ms
      */
     public void sendTitle(String title, String subTitle, Duration stay) {
-        this.player.showTitle(Title.title(Component.text(title), Component.text(subTitle), Title.Times.of(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
+        this.showTitle(Title.title(Component.text(title), Component.text(subTitle), Title.Times.of(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
     }
 
     /**
@@ -674,7 +674,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @param fadeOut  The fade-out time
      */
     public void sendTitle(String title, String subTitle, Integer fadeIn, Integer stay, Integer fadeOut) {
-        this.player.sendTitle(title, subTitle, fadeIn, stay, fadeOut);
+        this.sendTitle(title, subTitle, fadeIn, stay, fadeOut);
     }
 
     /**
@@ -704,7 +704,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      */
 
     public void playSound(Sound sound, float volume) {
-        this.player.playSound(this.player.getLocation(), sound, volume, 2);
+        this.playSound(this.player.getLocation(), sound, volume, 2);
     }
 
     /**
@@ -733,7 +733,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @param note       The {@link Note} to play
      */
     public void playNote(Instrument instrument, Note note) {
-        this.player.playNote(this.player.getLocation(), instrument, note);
+        this.playNote(this.player.getLocation(), instrument, note);
     }
 
     // team, group
