@@ -1,8 +1,10 @@
 package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.permission.Group;
+import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.Status;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -39,8 +41,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
         try {
             user = this.preUsers.get(uuid).get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return;
+            user = ServerManager.getInstance().loadUser(Bukkit.getPlayer(uuid));
         }
 
         this.users.put(uuid, user);
