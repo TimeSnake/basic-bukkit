@@ -52,7 +52,6 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
         if (pluginCommand != null) {
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(tabCompleteManager);
-            Server.printText(Plugin.BUKKIT, "Registered command " + cmd + " successfully", "Command");
         } else {
             Server.printWarning(Plugin.BUKKIT, "Error while adding command " + cmd + ". Not registered in " + "plugin.yml", "Command");
         }
