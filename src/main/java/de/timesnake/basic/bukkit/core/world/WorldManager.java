@@ -4,17 +4,25 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 import java.util.*;
@@ -372,5 +380,389 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             Location location = e.getFrom();
             user.setLastLocation(location);
         }
+    }
+
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        ExWorld world = this.getWorld(event.getPlayer().getWorld());
+
+        if (Server.getUser(event.getPlayer()).isService()) {
+            return;
+        }
+
+        Block clickedBlock = event.getClickedBlock();
+        Material blockType = clickedBlock != null ? clickedBlock.getType() : Material.AIR;
+        ItemStack item = event.getItem();
+
+        if (!world.isBlockBreakAllowed()) {
+            if (event.getAction() == Action.PHYSICAL) {
+                if (clickedBlock == null) return;
+                if (blockType == Material.FARMLAND) {
+                    // Deny event and set the block
+                    event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+                    event.setCancelled(true);
+                    clickedBlock.setType(blockType, true);
+                    clickedBlock.setBlockData(clickedBlock.getBlockData());
+                }
+            }
+        }
+
+        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            Set<Material> filledBuckets = Set.of(Material.LAVA_BUCKET, Material.COD_BUCKET, Material.AXOLOTL_BUCKET, Material.POWDER_SNOW_BUCKET, Material.PUFFERFISH_BUCKET, Material.SALMON_BUCKET, Material.TROPICAL_FISH_BUCKET, Material.WATER_BUCKET);
+
+            if (item != null) {
+                if (filledBuckets.contains(item.getType())) {
+                    if (!world.isFluidPlaceAllowed() && !blockType.equals(Material.CAULDRON)) {
+                        event.setCancelled(true);
+                        event.setUseInteractedBlock(Event.Result.DENY);
+                        event.setUseItemInHand(Event.Result.DENY);
+                    }
+                } else if (item.getType().equals(Material.BUCKET)) {
+                    Set<Material> filledCauldrons = Set.of(Material.LAVA_CAULDRON, Material.WATER_CAULDRON);
+
+                    if (!world.isFluidCollectAllowed() && !filledCauldrons.contains(blockType)) {
+                        event.setCancelled(true);
+                        event.setUseInteractedBlock(Event.Result.DENY);
+                        event.setUseItemInHand(Event.Result.DENY);
+                    }
+                } else if (item.getType().equals(Material.FLINT_AND_STEEL)) {
+                    if (world.isFlintAndSteelAllowed()) {
+                        return;
+                    }
+
+                    if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(blockType)) {
+                        return;
+                    }
+
+                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    event.setUseItemInHand(Event.Result.DENY);
+                } else if (item.getType().equals(Material.SPLASH_POTION)) {
+                    if (world.isFirecampInteractionAllowed()) {
+                        return;
+                    }
+
+                    if (!Tag.CAMPFIRES.isTagged(blockType)) {
+                        return;
+                    }
+
+                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    event.setUseItemInHand(Event.Result.DENY);
+                } else {
+                    if (world.isPlaceInBlockAllowed()) {
+                        return;
+                    }
+
+                    if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(Material.END_PORTAL_FRAME)) {
+                        event.setCancelled(true);
+                        event.setUseInteractedBlock(Event.Result.DENY);
+                        event.setUseItemInHand(Event.Result.DENY);
+                        return;
+                    }
+
+                    if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE) || Tag.CANDLES.isTagged(blockType))) {
+                        event.setCancelled(true);
+                        event.setUseInteractedBlock(Event.Result.DENY);
+                        event.setUseItemInHand(Event.Result.DENY);
+                        return;
+                    }
+
+                    if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(Material.SEA_PICKLE)) {
+                        event.setCancelled(true);
+                        event.setUseInteractedBlock(Event.Result.DENY);
+                        event.setUseItemInHand(Event.Result.DENY);
+                        return;
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isDropPickItemAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityDamage(UserDamageEvent e) {
+        ExWorld world = e.getUser().getExWorld();
+
+        if (world.isPlayerDamageAllowed()) {
+            return;
+        }
+
+        if (e.getUser().isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+        e.setCancelDamage(true);
+    }
+
+    @EventHandler
+    public void onPlayerPickUpItem(@Deprecated PlayerPickupItemEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isDropPickItemAllowed()) {
+            return;
+        }
+
+        User user = Server.getUser(e.getPlayer());
+
+        if (user != null && user.isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerPickUpArrow(PlayerPickupArrowEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isDropPickItemAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isBlockBreakAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onArmorStand(PlayerArmorStandManipulateEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBoat(VehicleDestroyEvent e) {
+        ExWorld world = this.getWorld(e.getAttacker().getWorld());
+
+        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (e.getAttacker() instanceof Player && Server.getUser(((Player) e.getAttacker())).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPainting(HangingBreakByEntityEvent e) {
+        ExWorld world = this.getWorld(e.getRemover().getWorld());
+
+        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (world.isExceptService() && e.getRemover() instanceof Player && Server.getUser(((Player) e.getRemover())).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void blockItemFrame(PlayerInteractEntityEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
+            e.setCancelled(true);
+        }
+
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageByUserEvent e) {
+        ExWorld world = this.getWorld(e.getUser().getWorld());
+
+        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (!e.getEntity().getType().equals(EntityType.ARMOR_STAND) && !e.getEntity().getType().equals(EntityType.ITEM_FRAME)) {
+            return;
+        }
+
+        if (e.getUser().isService()) {
+            return;
+        }
+
+        e.setCancelDamage(true);
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent e) {
+        ExWorld world = this.getWorld(e.getEntity().getWorld());
+
+        if (world.isFoodChangeAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getEntity().getUniqueId()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+        if (e.getEntity() instanceof Player) {
+            e.getEntity().setFoodLevel(20);
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        ExWorld world = this.getWorld(e.getEntity().getWorld());
+
+        if (world.isEntityExplodeAllowed()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        ItemStack item = e.getItemInHand();
+        Block block = e.getBlock();
+        Material blockType = block.getType();
+
+        if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(Material.END_PORTAL_FRAME)) {
+            e.setCancelled(!world.isPlaceInBlockAllowed());
+            return;
+        }
+
+        if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE) || Tag.CANDLES.isTagged(blockType))) {
+            e.setCancelled(!world.isPlaceInBlockAllowed());
+            return;
+        }
+
+        if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(Material.SEA_PICKLE)) {
+            e.setCancelled(!world.isPlaceInBlockAllowed());
+            return;
+        }
+
+        if (e.getItemInHand().getType().equals(Material.FLINT_AND_STEEL)) {
+            if (world.isFlintAndSteelAllowed()) {
+                return;
+            }
+
+            if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(e.getBlock().getType())) {
+                return;
+            }
+
+            e.setCancelled(true);
+            e.setBuild(false);
+            return;
+        }
+
+        if (world.isBlockPlaceAllowed()) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+        e.setBuild(false);
+    }
+
+    @EventHandler
+    public void onBlockSpread(BlockSpreadEvent e) {
+        ExWorld world = this.getWorld(e.getBlock().getWorld());
+
+        if (world.isFireSpreadAllowed()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent e) {
+        ExWorld world = this.getWorld(e.getBlock().getWorld());
+
+        if (world.isBlockBurnUpAllowed()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockIgnite(BlockIgniteEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isBlockIgniteAllowed()) {
+            return;
+        }
+
+        if (world.isFlintAndSteelAllowed()) {
+            return;
+        }
+
+        if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(e.getBlock().getType())) {
+            return;
+        }
+
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
     }
 }

@@ -1,11 +1,9 @@
 package de.timesnake.basic.bukkit.util.world;
 
-import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.world.ExWorldFile;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
 import io.papermc.paper.world.MoonPhase;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
@@ -28,16 +26,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.boss.DragonBattle;
 import org.bukkit.entity.*;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.player.*;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
@@ -71,7 +61,9 @@ public class ExWorld implements Listener {
     private boolean exceptService = true;
 
     private boolean allowBlockBreak = true;
+    private boolean allowFluidCollect = true;
     private boolean allowBlockPlace = true;
+    private boolean allowFluidPlace = true;
     private boolean allowEntityBlockBreak = true;
     private boolean allowDropPickItem = true;
     private boolean allowPlayerDamage = true;
@@ -80,6 +72,9 @@ public class ExWorld implements Listener {
     private boolean allowFireSpread = true;
     private boolean allowBlockBurnUp = true;
     private boolean allowBlockIgnite = true;
+    private boolean allowFirecampInteraction = true;
+    private boolean allowFlintAndSteel = true;
+    private boolean allowPlaceInBlock = true;
 
     public ExWorld(org.bukkit.World world, WorldManager.Type type, ExWorldFile file) {
         this.world = world;
@@ -93,8 +88,6 @@ public class ExWorld implements Listener {
             this.setAutoSave(false);
             this.safe = false;
         }
-
-        Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
     public void setBukkitWorld(World world) {
@@ -131,219 +124,141 @@ public class ExWorld implements Listener {
         return file;
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (this.allowBlockBreak) {
-            return;
-        }
+    public boolean isBlockBreakAllowed() {
+        return allowBlockBreak;
+    }
 
-        if (Server.getUser(event.getPlayer()).isService()) {
-            return;
-        }
+    public void allowBlockBreak(boolean allowBlockBreak) {
+        this.allowBlockBreak = allowBlockBreak;
+    }
 
-        if (event.getAction() == Action.PHYSICAL) {
-            Block block = event.getClickedBlock();
-            if (block == null) return;
-            if (block.getType() == Material.FARMLAND) {
-                // Deny event and set the block
-                event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
-                event.setCancelled(true);
-                block.setType(block.getType(), true);
-                block.setBlockData(block.getBlockData());
-            }
+    public boolean isBlockPlaceAllowed() {
+        return allowBlockPlace;
+    }
+
+    public void allowBlockPlace(boolean allowBlockPlace) {
+        this.allowBlockPlace = allowBlockPlace;
+    }
+
+    public boolean isEntityBlockBreakAllowed() {
+        return allowEntityBlockBreak;
+    }
+
+    public void allowEntityBlockBreak(boolean allowEntityBlockBreak) {
+        this.allowEntityBlockBreak = allowEntityBlockBreak;
+        for (ItemFrame frame : this.getEntitiesByClass(ItemFrame.class)) {
+            frame.setFixed(!allowEntityBlockBreak);
         }
     }
 
-    @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent e) {
-        if (this.allowDropPickItem) {
-            return;
-        }
-
-        if (Server.getUser(e.getPlayer()).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isDropPickItemAllowed() {
+        return allowDropPickItem;
     }
 
-    @EventHandler
-    public void onEntityDamage(EntityDamageEvent e) {
-        if (this.allowPlayerDamage) {
-            return;
-        }
-
-        if (e.getEntity() instanceof Player) {
-            if (Server.getUser(((Player) e.getEntity())).isService()) {
-                return;
-            }
-            e.setCancelled(true);
-        }
+    public void allowDropPickItem(boolean allowDropPickItem) {
+        this.allowDropPickItem = allowDropPickItem;
     }
 
-    @EventHandler
-    public void onPlayerPickUpItem(@Deprecated PlayerPickupItemEvent e) {
-        if (this.allowDropPickItem) {
-            return;
-        }
-
-        User user = Server.getUser(e.getPlayer());
-
-        if (user != null && user.isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isPlayerDamageAllowed() {
+        return allowPlayerDamage;
     }
 
-    @EventHandler
-    public void onPlayerPickUpArrow(PlayerPickupArrowEvent e) {
-        if (this.allowDropPickItem) {
-            return;
-        }
-
-        if (Server.getUser(e.getPlayer()).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public void allowPlayerDamage(boolean allowPlayerDamage) {
+        this.allowPlayerDamage = allowPlayerDamage;
     }
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent e) {
-        if (this.allowBlockBreak) {
-            return;
-        }
-
-        if (Server.getUser(e.getPlayer()).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isFoodChangeAllowed() {
+        return allowFoodChange;
     }
 
-    @EventHandler
-    public void onArmorStand(PlayerArmorStandManipulateEvent e) {
-        if (this.allowBlockBreak && this.allowEntityBlockBreak) {
-            return;
-        }
-
-        if (Server.getUser(e.getPlayer()).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public void allowFoodChange(boolean allowFoodChange) {
+        this.allowFoodChange = allowFoodChange;
     }
 
-    @EventHandler
-    public void onBoat(VehicleDestroyEvent e) {
-        if (this.allowBlockBreak && this.allowEntityBlockBreak) {
-            return;
-        }
-
-        if (e.getAttacker() instanceof Player && Server.getUser(((Player) e.getAttacker())).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isEntityExplodeAllowed() {
+        return allowEntityExplode;
     }
 
-    @EventHandler
-    public void onPainting(HangingBreakByEntityEvent e) {
-        if (this.allowBlockBreak && this.allowEntityBlockBreak) {
-            return;
-        }
-
-        if (this.exceptService && e.getRemover() instanceof Player && Server.getUser(((Player) e.getRemover())).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public void allowEntityExplode(boolean allowEntityExplode) {
+        this.allowEntityExplode = allowEntityExplode;
     }
 
-    @EventHandler
-    public void blockItemFrame(PlayerInteractEntityEvent e) {
-        if (this.allowBlockBreak && this.allowEntityBlockBreak) {
-            return;
-        }
-
-        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
-            e.setCancelled(true);
-        }
-
+    public boolean isFireSpreadAllowed() {
+        return allowFireSpread;
     }
 
-    @EventHandler
-    public void onArmorStandDestroy(EntityDamageByUserEvent e) {
-        if (!e.getEntity().getType().equals(EntityType.ARMOR_STAND)) {
-            return;
-        }
-
-        if (this.allowBlockBreak && this.allowEntityBlockBreak) {
-            return;
-        }
-
-        e.setCancelDamage(true);
-        e.setCancelled(true);
+    public void allowFireSpread(boolean allowFireSpread) {
+        this.allowFireSpread = allowFireSpread;
     }
 
-    @EventHandler
-    public void onFoodLevelChange(FoodLevelChangeEvent e) {
-        if (this.allowFoodChange) {
-            return;
-        }
-        e.setCancelled(true);
-        if (e.getEntity() instanceof Player) {
-            e.getEntity().setFoodLevel(20);
-        }
+    public boolean isExceptService() {
+        return exceptService;
     }
 
-    @EventHandler
-    public void onEntityExplode(EntityExplodeEvent e) {
-        if (this.allowEntityExplode) {
-            return;
-        }
-        e.setCancelled(true);
+    public void setExceptService(boolean exceptService) {
+        this.exceptService = exceptService;
     }
 
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent e) {
-        if (allowBlockPlace) {
-            return;
-        }
-
-        if (Server.getUser(e.getPlayer()).isService()) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isBlockBurnUpAllowed() {
+        return allowBlockBurnUp;
     }
 
-    @EventHandler
-    public void onBlockSpread(BlockSpreadEvent e) {
-        if (this.allowFireSpread) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public void allowBlockBurnUp(boolean allowBlockBurnUp) {
+        this.allowBlockBurnUp = allowBlockBurnUp;
     }
 
-    @EventHandler
-    public void onBlockBurn(BlockBurnEvent e) {
-        if (this.allowBlockBurnUp) {
-            return;
-        }
-
-        e.setCancelled(true);
+    public boolean isBlockIgniteAllowed() {
+        return allowBlockIgnite;
     }
 
-    @EventHandler
-    public void onBlockIgnite(BlockIgniteEvent e) {
-        if (this.allowBlockIgnite) {
-            return;
-        }
+    public void allowBlockIgnite(boolean allowBlockIgnite) {
+        this.allowBlockIgnite = allowBlockIgnite;
+    }
 
-        e.setCancelled(true);
+    public boolean isFluidCollectAllowed() {
+        return allowFluidCollect;
+    }
+
+    public boolean isFluidPlaceAllowed() {
+        return allowFluidPlace;
+    }
+
+    /**
+     * Disallows to collect fluids. Except from cauldrons
+     */
+    public void allowFluidCollect(boolean allowFluidCollect) {
+        this.allowFluidCollect = allowFluidCollect;
+    }
+
+    /**
+     * Disallows to place fluids. Except into cauldrons
+     */
+    public void allowFluidPlace(boolean allowFluidPlace) {
+        this.allowFluidPlace = allowFluidPlace;
+    }
+
+    public void allowFirecampInteraction(boolean allowFirecampInteraction) {
+        this.allowFirecampInteraction = allowFirecampInteraction;
+    }
+
+    public boolean isFirecampInteractionAllowed() {
+        return allowFirecampInteraction;
+    }
+
+    public boolean isFlintAndSteelAllowed() {
+        return allowFlintAndSteel;
+    }
+
+    public void allowFlintAndSteel(boolean allowFlintAndSteel) {
+        this.allowFlintAndSteel = allowFlintAndSteel;
+    }
+
+    public boolean isPlaceInBlockAllowed() {
+        return allowPlaceInBlock;
+    }
+
+    public void allowPlaceInBlock(boolean allowPlaceInBlock) {
+        this.allowPlaceInBlock = allowPlaceInBlock;
     }
 
     public Block getBlockAt(int x, int y, int z) {
@@ -1013,97 +928,6 @@ public class ExWorld implements Listener {
 
     public <T> boolean setGameRule(GameRule<T> gameRule, T t) {
         return this.world.setGameRule(gameRule, t);
-    }
-
-    public boolean isBlockBreakAllowed() {
-        return allowBlockBreak;
-    }
-
-    public void allowBlockBreak(boolean allowBlockBreak) {
-        this.allowBlockBreak = allowBlockBreak;
-    }
-
-    public boolean isBlockPlaceAllowed() {
-        return allowBlockPlace;
-    }
-
-    public void setBlockPlaceAllow(boolean allowBlockPlace) {
-        this.allowBlockPlace = allowBlockPlace;
-    }
-
-    public boolean isAllowEntityBlockBreak() {
-        return allowEntityBlockBreak;
-    }
-
-    public void allowEntityBlockBreak(boolean allowEntityBlockBreak) {
-        this.allowEntityBlockBreak = allowEntityBlockBreak;
-        for (ItemFrame frame : this.getEntitiesByClass(ItemFrame.class)) {
-            frame.setFixed(!allowEntityBlockBreak);
-        }
-    }
-
-    public boolean isDropPickItemAllowed() {
-        return allowDropPickItem;
-    }
-
-    public void allowDropPickItem(boolean allowDropPickItem) {
-        this.allowDropPickItem = allowDropPickItem;
-    }
-
-    public boolean isPlayerDamageAllowed() {
-        return allowPlayerDamage;
-    }
-
-    public void allowPlayerDamage(boolean allowPlayerDamage) {
-        this.allowPlayerDamage = allowPlayerDamage;
-    }
-
-    public boolean isFoodChangeAllowed() {
-        return allowFoodChange;
-    }
-
-    public void allowFoodChange(boolean allowFoodChange) {
-        this.allowFoodChange = allowFoodChange;
-    }
-
-    public boolean isEntityExplodeAllowed() {
-        return allowEntityExplode;
-    }
-
-    public void allowEntityExplode(boolean allowEntityExplode) {
-        this.allowEntityExplode = allowEntityExplode;
-    }
-
-    public boolean isFireSpreadAllowed() {
-        return allowFireSpread;
-    }
-
-    public void allowFireSpread(boolean allowFireSpread) {
-        this.allowFireSpread = allowFireSpread;
-    }
-
-    public boolean isExceptService() {
-        return exceptService;
-    }
-
-    public void setExceptService(boolean exceptService) {
-        this.exceptService = exceptService;
-    }
-
-    public boolean isBlockBurnUpAllowed() {
-        return allowBlockBurnUp;
-    }
-
-    public void allowBlockBurnUp(boolean allowBlockBurnUp) {
-        this.allowBlockBurnUp = allowBlockBurnUp;
-    }
-
-    public boolean isBlockIgniteAllowed() {
-        return allowBlockIgnite;
-    }
-
-    public void allowBlockIgnite(boolean allowBlockIgnite) {
-        this.allowBlockIgnite = allowBlockIgnite;
     }
 
     public WorldBorder getWorldBorder() {
