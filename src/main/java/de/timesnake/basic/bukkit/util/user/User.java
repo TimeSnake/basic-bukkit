@@ -1859,7 +1859,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     public void setCoins(float coins, boolean sendMessage) {
         this.coins = coins;
         this.dbUser.setCoins(coins);
-        this.sendPluginMessage(Plugin.TIME_COINS, ChatColor.QUICK_INFO + "Balance changed to " + ChatColor.QUICK_INFO + coins);
+        this.sendPluginMessage(Plugin.TIME_COINS, "§6Balance changed to " + coins + " TimeCoins");
         if (sendMessage) {
             this.sendActionBarText(((int) (coins * 100)) / 100d + " TimeCoins");
         }
@@ -1890,7 +1890,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         coins = coins >= 0 ? coins : -coins;
         this.coins -= coins;
         this.dbUser.removeCoins(coins);
-        this.sendPluginMessage(Plugin.TIME_COINS, ChatColor.QUICK_INFO + "Removed" + ChatColor.QUICK_INFO + coins + ChatColor.QUICK_INFO + " timecoin(s)");
+        this.sendPluginMessage(Plugin.TIME_COINS, "§6Removed" + coins + " timecoin(s)");
         if (sendMessage) {
             this.sendActionBarText("§6- " + ((int) (coins * 100)) / 100d + " TimeCoins");
         }

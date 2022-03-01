@@ -7,6 +7,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.entities.entity.bukkit.ExPlayer;
 import de.timesnake.basic.packets.util.packet.*;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,13 +30,23 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
 
     @Override
     public void spawnPlayer(Collection<? extends User> users, ExPlayer player) {
-        Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
-        Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutTablistTeamPlayerAdd.wrap(FAKE_PLAYER_TEAM_NAME, player.getName()));
+        Location loc = player.getLocation();
 
-        Server.broadcastPacket(ExPacketPlayOutSpawnNamedEntity.wrap(player));
-        Server.broadcastPacket(ExPacketPlayOutEntityMetadata.wrap((Player) player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
+        for (User user : users) {
+            Location userLoc = user.getLocation().add(user.getLocation().getDirection().normalize().multiply(-1));
+            player.setPosition(userLoc.getX(), userLoc.getY(), userLoc.getZ());
+            Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
+            Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutTablistTeamPlayerAdd.wrap(FAKE_PLAYER_TEAM_NAME, player.getName()));
 
-        Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)), 3, BasicBukkit.getPlugin());
+            user.sendPacket(ExPacketPlayOutSpawnNamedEntity.wrap(player));
+            user.sendPacket(ExPacketPlayOutEntityMetadata.wrap((Player) player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
+        }
+
+        Server.runTaskLaterSynchrony(() -> {
+            player.setPosition(loc.getX(), loc.getY(), loc.getZ());
+            users.forEach(u -> u.sendPacket(ExPacketPlayOutEntityTeleport.wrap(player)));
+            Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
+        }, 8, BasicBukkit.getPlugin());
 
     }
 
