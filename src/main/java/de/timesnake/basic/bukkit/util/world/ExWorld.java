@@ -72,7 +72,7 @@ public class ExWorld implements Listener {
     private boolean allowFireSpread = true;
     private boolean allowBlockBurnUp = true;
     private boolean allowBlockIgnite = true;
-    private boolean allowFirecampInteraction = true;
+    private boolean allowLightUpInteraction = true;
     private boolean allowFlintAndSteel = true;
     private boolean allowPlaceInBlock = true;
 
@@ -237,12 +237,12 @@ public class ExWorld implements Listener {
         this.allowFluidPlace = allowFluidPlace;
     }
 
-    public void allowFirecampInteraction(boolean allowFirecampInteraction) {
-        this.allowFirecampInteraction = allowFirecampInteraction;
+    public void allowLightUpInteraction(boolean allowLightUpInteraction) {
+        this.allowLightUpInteraction = allowLightUpInteraction;
     }
 
-    public boolean isFirecampInteractionAllowed() {
-        return allowFirecampInteraction;
+    public boolean isLightUpInteractionAllowed() {
+        return allowLightUpInteraction;
     }
 
     public boolean isFlintAndSteelAllowed() {
