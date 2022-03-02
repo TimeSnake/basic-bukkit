@@ -1876,7 +1876,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.coins += coins;
         this.dbUser.addCoins(coins);
         if (sendMessage) {
-            this.sendActionBarText("§6+ " + ((int) (coins * 100)) / 100d + " TimeCoins");
+            this.sendActionBarText("§6+ " + Chat.roundCoinAmount(this.coins) + " TimeCoins");
         }
     }
 
@@ -1890,9 +1890,8 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         coins = coins >= 0 ? coins : -coins;
         this.coins -= coins;
         this.dbUser.removeCoins(coins);
-        this.sendPluginMessage(Plugin.TIME_COINS, "§6Removed" + coins + " timecoin(s)");
         if (sendMessage) {
-            this.sendActionBarText("§6- " + ((int) (coins * 100)) / 100d + " TimeCoins");
+            this.sendActionBarText("§6 -" + Chat.roundCoinAmount(this.coins) + " TimeCoins");
         }
     }
 

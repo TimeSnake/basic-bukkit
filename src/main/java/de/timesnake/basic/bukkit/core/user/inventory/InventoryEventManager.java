@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -56,6 +57,10 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
 
             } else {
                 item = new ExItemStack(Material.AIR);
+            }
+
+            if (!item.isMoveable()) {
+                e.setCancelled(true);
             }
 
             UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(), e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
@@ -153,6 +158,23 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
     public void onDamage(PlayerItemDamageEvent e) {
         de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
         if (!this.isUserExcluded(user) && user.isInventoryLocked() || user.isInventoryItemMoveLocked()) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onInventoryMoveItem(InventoryMoveItemEvent e) {
+        if (e.getItem().getType().equals(Material.AIR)) {
+            return;
+        }
+
+        ExItemStack item = ExItemStack.getItem(e.getItem(), false);
+
+        if (item == null) {
+            return;
+        }
+
+        if (!item.isMoveable()) {
             e.setCancelled(true);
         }
     }

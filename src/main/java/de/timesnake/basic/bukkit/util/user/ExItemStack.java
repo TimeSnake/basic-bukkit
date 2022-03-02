@@ -73,30 +73,49 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return ExItemStack.getIdFromString(item.getItemMeta().getLocalizedName());
     }
 
-    private static Boolean getDropableFromString(String name) {
-        if (name == null) {
-            return null;
-        }
+    private boolean moveable = true;
 
-        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
-
-        if (attributes.length < 2) {
-            return null;
-        }
-
-        try {
-            return Boolean.parseBoolean(attributes[1]);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable, boolean clone) {
+        super(clone ? item.clone() : item);
+        this.id = id;
+        this.dropable = dropable;
+        this.moveable = moveable;
+        ITEMS_BY_ID.put(id, this);
+        ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
     }
 
-    private static void setAttributes(ItemStack item, Integer id, Boolean dropable) {
-        if (id != null && dropable != null && item.getItemMeta() != null) {
-            ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable);
-            item.setItemMeta(meta);
+    /**
+     * Clones the item stack and tries to read id
+     * If item id is null, it gets a new id
+     *
+     * @param item The item to create
+     */
+    private ExItemStack(ItemStack item, boolean clone) {
+        super(clone ? item.clone() : item);
+
+        // clone from existing
+        if (item instanceof ExItemStack) {
+            this.id = ((ExItemStack) item).getId();
+            this.dropable = ((ExItemStack) item).isDropable();
+            this.moveable = ((ExItemStack) item).isMoveable();
+            ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
+        } else if (item.getItemMeta() != null) {
+            Integer id = getIdFromString(item.getItemMeta().getLocalizedName());
+
+            if (id != null) {
+                this.id = id;
+                this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
+                this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
+            } else {
+                this.id = newItemId();
+                ITEMS_BY_ID.put(this.id, this);
+            }
+
+            ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
+        } else {
+            throw new InvalidItemTypeException("No ItemMeta");
         }
+
     }
 
 
@@ -128,52 +147,37 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     private boolean dropable = true;
 
-    private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean clone) {
-        super(clone ? item.clone() : item);
-        this.id = id;
-        this.dropable = dropable;
-        ITEMS_BY_ID.put(id, this);
-        ExItemStack.setAttributes(this, this.id, this.dropable);
+    public ExItemStack(Integer id, ItemStack item) {
+        this(id, item, true, true, true);
     }
 
-    /**
-     * Clones the item stack and tries to read id
-     * If item id is null, it gets a new id
-     *
-     * @param item The item to create
-     */
-    private ExItemStack(ItemStack item, boolean clone) {
-        super(clone ? item.clone() : item);
+    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean clone) {
+        this(id, item, true, true, clone);
+        this.slot = slot;
+    }
 
-        // clone from existing
-        if (item instanceof ExItemStack) {
-            this.id = ((ExItemStack) item).getId();
-            this.dropable = ((ExItemStack) item).isDropable();
-            ExItemStack.setAttributes(this, this.id, this.dropable);
-        } else if (item.getItemMeta() != null) {
-            Integer id = getIdFromString(item.getItemMeta().getLocalizedName());
-
-            if (id != null) {
-                this.id = id;
-                this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
-            } else {
-                this.id = newItemId();
-                ITEMS_BY_ID.put(this.id, this);
-            }
-
-            ExItemStack.setAttributes(this, this.id, this.dropable);
-        } else {
-            throw new InvalidItemTypeException("No ItemMeta");
-        }
-
+    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable, boolean moveable, boolean clone) {
+        this(id, item, slot, clone);
+        this.dropable = dropable;
+        this.moveable = moveable;
     }
 
     public ExItemStack(ItemStack item) {
         this(item, true);
     }
 
-    public ExItemStack(Integer id, ItemStack item) {
-        this(id, item, true, true);
+    private static Boolean getDropableFromString(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
+
+        if (attributes.length < 2) {
+            return null;
+        }
+
+        return Boolean.parseBoolean(attributes[1]);
     }
 
     public ExItemStack(Integer id, ItemStack item, Integer slot) {
@@ -181,13 +185,26 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this.slot = slot;
     }
 
-    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean clone) {
-        this(id, item, true, clone);
-        this.slot = slot;
+    private static Boolean getMoveableFromString(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
+
+        if (attributes.length < 3) {
+            return null;
+        }
+
+        return Boolean.parseBoolean(attributes[2]);
     }
 
-    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable, boolean clone) {
-        this(id, item, slot, clone);
+    private static void setAttributes(ItemStack item, Integer id, Boolean dropable, Boolean moveable) {
+        if (id != null && dropable != null && item.getItemMeta() != null) {
+            ItemMeta meta = item.getItemMeta();
+            meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
+            item.setItemMeta(meta);
+        }
     }
 
     public ExItemStack(ItemStack item, Integer slot) {
@@ -597,13 +614,25 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     public ExItemStack setDropable(boolean flag) {
         this.dropable = flag;
 
-        ExItemStack.setAttributes(this, this.id, flag);
+        ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
 
         return this;
     }
 
     public boolean isDropable() {
         return this.dropable;
+    }
+
+    public boolean isMoveable() {
+        return moveable;
+    }
+
+    public ExItemStack setMoveable(boolean moveable) {
+        this.moveable = moveable;
+
+        ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
+
+        return this;
     }
 
     /**
@@ -642,7 +671,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     @Override
     public ExItemStack clone() {
         ItemStack item = super.clone();
-        return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable, false);
+        return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable, this.moveable, false);
     }
 
     /**
@@ -660,7 +689,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      */
     public ExItemStack cloneWithId() {
         ItemStack item = super.clone();
-        return new ExItemStack(this.id, item, this.slot, this.dropable, false);
+        return new ExItemStack(this.id, item, this.slot, this.dropable, this.moveable, false);
     }
 
     /**

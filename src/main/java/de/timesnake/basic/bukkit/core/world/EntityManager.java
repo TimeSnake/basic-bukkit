@@ -13,7 +13,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.world.EntityManager {
 
@@ -24,16 +26,21 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
     }
 
     @Override
-    public void spawnPlayer(User user, ExPlayer player) {
-        this.spawnPlayer(List.of(user), player);
+    public void spawnPlayer(User user, ExPlayer player, boolean removeFromTablist) {
+        this.spawnPlayer(List.of(user), player, removeFromTablist);
     }
 
     @Override
-    public void spawnPlayer(Collection<? extends User> users, ExPlayer player) {
-        Location loc = player.getLocation();
+    public void spawnPlayer(Collection<? extends User> users, ExPlayer player, boolean removeFromTablist) {
+        final Location loc = player.getLocation();
+
+        Map<User, Location> locByUser = new HashMap<>();
 
         for (User user : users) {
             Location userLoc = user.getLocation().add(user.getLocation().getDirection().normalize().multiply(-1));
+
+            locByUser.put(user, userLoc);
+
             player.setPosition(userLoc.getX(), userLoc.getY(), userLoc.getZ());
             Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
             Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutTablistTeamPlayerAdd.wrap(FAKE_PLAYER_TEAM_NAME, player.getName()));
@@ -42,11 +49,28 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
             user.sendPacket(ExPacketPlayOutEntityMetadata.wrap((Player) player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
         }
 
-        Server.runTaskLaterSynchrony(() -> {
+        Server.runTaskLaterAsynchrony(() -> {
             player.setPosition(loc.getX(), loc.getY(), loc.getZ());
-            users.forEach(u -> u.sendPacket(ExPacketPlayOutEntityTeleport.wrap(player)));
-            Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
-        }, 8, BasicBukkit.getPlugin());
+
+            for (User user : users) {
+
+                Location userLoc = locByUser.get(user);
+
+                double deltaX = loc.getX() - userLoc.getX();
+                double deltaY = loc.getY() - userLoc.getY();
+                double deltaZ = loc.getZ() - userLoc.getZ();
+
+                if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8 && Math.abs(deltaZ) < 8) {
+                    user.sendPacket(ExPacketPlayOutEntityRelMoveLook.wrap(player, deltaX, deltaY, deltaZ, loc.getYaw(), loc.getPitch(), true));
+                } else {
+                    user.sendPacket(ExPacketPlayOutEntityTeleport.wrap(player));
+
+                }
+            }
+            if (removeFromTablist) {
+                Server.getScoreboardManager().getPacketManager().sendPacket(users, ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
+            }
+        }, 10, BasicBukkit.getPlugin());
 
     }
 

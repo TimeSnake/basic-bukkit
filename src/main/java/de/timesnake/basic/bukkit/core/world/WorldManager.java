@@ -431,7 +431,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         return;
                     }
 
-                    if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(blockType)) {
+                    if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(blockType) || Tag.CANDLES.isTagged(blockType))) {
                         return;
                     }
 
@@ -439,7 +439,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
                 } else if (item.getType().equals(Material.SPLASH_POTION)) {
-                    if (world.isFirecampInteractionAllowed()) {
+                    if (world.isLightUpInteractionAllowed()) {
                         return;
                     }
 
@@ -700,7 +700,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 return;
             }
 
-            if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(e.getBlock().getType())) {
+            if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
                 return;
             }
 
@@ -745,7 +745,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @EventHandler
     public void onBlockIgnite(BlockIgniteEvent e) {
-        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+        ExWorld world = this.getWorld(e.getBlock().getWorld());
 
         if (world.isBlockIgniteAllowed()) {
             return;
@@ -755,7 +755,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (world.isFirecampInteractionAllowed() && Tag.CAMPFIRES.isTagged(e.getBlock().getType())) {
+        if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
             return;
         }
 
