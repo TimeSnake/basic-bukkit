@@ -1861,7 +1861,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.dbUser.setCoins(coins);
         this.sendPluginMessage(Plugin.TIME_COINS, "§6Balance changed to " + coins + " TimeCoins");
         if (sendMessage) {
-            this.sendActionBarText(((int) (coins * 100)) / 100d + " TimeCoins");
+            this.sendActionBarText(Chat.roundCoinAmount(coins) + " TimeCoins");
         }
     }
 
@@ -1876,7 +1876,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.coins += coins;
         this.dbUser.addCoins(coins);
         if (sendMessage) {
-            this.sendActionBarText("§6+ " + Chat.roundCoinAmount(this.coins) + " TimeCoins");
+            this.sendActionBarText("§6+ " + Chat.roundCoinAmount(coins) + " TimeCoins");
         }
     }
 
@@ -1891,7 +1891,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         this.coins -= coins;
         this.dbUser.removeCoins(coins);
         if (sendMessage) {
-            this.sendActionBarText("§6 -" + Chat.roundCoinAmount(this.coins) + " TimeCoins");
+            this.sendActionBarText("§6 -" + Chat.roundCoinAmount(coins) + " TimeCoins");
         }
     }
 
