@@ -57,7 +57,7 @@ public class ExFile {
         //directory creation
         File dir = new File("plugins/" + folder);
         if (!dir.exists()) {
-            dir.mkdir();
+            dir.mkdirs();
         }
 
         //file creation

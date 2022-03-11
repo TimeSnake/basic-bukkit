@@ -1,10 +1,12 @@
 package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.core.world.VoidGenerator;
+import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.World;
 import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
 public interface WorldManager {
 
     List<String> UNSUPPORTED_SYMBOLS = List.of("_backup", ";", ",", ":", "*", "+", "#", "@", "$", "&", "/", "\\");
+
+    void copyWorldFolderFiles(File source, File target);
 
     enum Type {
         NORMAL(World.Environment.NORMAL, WorldType.NORMAL, null), NETHER(World.Environment.NETHER, WorldType.NORMAL, null), END(World.Environment.THE_END, WorldType.NORMAL, null), VOID(null, null, new VoidGenerator()), FLAT(World.Environment.NORMAL, WorldType.FLAT, null), AMPLIFIED(World.Environment.NORMAL, WorldType.AMPLIFIED, null), LARGE_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null);
@@ -65,11 +69,11 @@ public interface WorldManager {
 
     ExWorld getWorld(World world);
 
+    ExLocation getUserLocation(User user, ExWorld world);
+
     WorldBorderManager getWorldBorderManager();
 
     ExWorld getBasicWorld();
-
-    boolean isLastWorldSpawning();
 
     /**
      * Deletes a world
@@ -113,7 +117,6 @@ public interface WorldManager {
      */
     boolean reloadWorld(ExWorld world);
 
-    boolean unloadWorld(ExWorld world);
+    boolean unloadWorld(ExWorld world, boolean save);
 
-    void resetUserLocations();
 }
