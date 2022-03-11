@@ -1903,14 +1903,10 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
         } else if (type.equals(MessageType.User.SERVICE)) {
             this.service = this.dbUser.isService();
         } else if (type.equals(MessageType.User.SOUND)) {
-            ChannelUserMessage.Sound sound = ChannelUserMessage.Sound.valueOf((String) msg.getValue());
+            ChannelUserMessage.Sound sound = (ChannelUserMessage.Sound) msg.getValue();
             switch (sound) {
-                case PLING:
-                    this.playNote(Instrument.PLING, Note.natural(1, Tone.C));
-                    break;
-                case PLONG:
-                    this.playNote(Instrument.PLING, Note.natural(0, Tone.C));
-                    break;
+                case PLING -> this.playNote(Instrument.PLING, Note.natural(1, Tone.C));
+                case PLONG -> this.playNote(Instrument.PLING, Note.natural(0, Tone.C));
             }
         } else if (type.equals(MessageType.User.PERMISSION)) {
             this.updatePermissions(true);
