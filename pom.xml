@@ -159,7 +159,6 @@
                     </artifactItems>
                     <outputDirectory>../../plugins</outputDirectory>
                     <overWriteIfNewer>true</overWriteIfNewer>
-                    <overWriteIfNewer>true</overWriteIfNewer>
                 </configuration>
             </plugin>
 

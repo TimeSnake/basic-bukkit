@@ -10,7 +10,6 @@ import de.timesnake.basic.bukkit.core.permission.ExPermission;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.core.world.LocationsFile;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
@@ -166,8 +165,6 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     private final Set<BossBar> bossBars = new HashSet<>();
 
     private Location lastLocation;
-    private final ExWorld lastWorld;
-    private final HashMap<ExWorld, Location> worldLocations = new HashMap<>();
 
     private Location lockedLocation;
 
@@ -242,17 +239,6 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
 
         this.coins = dbLocalUser.getCoins();
 
-        Server.getChannel().addListener(this, () -> Collections.singleton(player.getUniqueId()));
-
-        LocationsFile locs = ((WorldManager) ServerManager.getInstance().getWorldManager()).getLocationsFile();
-
-        this.lastLocation = locs.getUserLastLocation(this);
-        this.lastWorld = locs.getUserLastWorld(this);
-
-        for (ExWorld world : Server.getWorlds()) {
-            this.worldLocations.put(world, locs.getUserLocation(this, world));
-        }
-
         if (dbUser.getServerLast() != null) {
             this.lastServer = new ServerInfo(dbUser.getServerLast());
         } else {
@@ -269,19 +255,21 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
 
         this.exPlayer = new ExPlayer(this.getPlayer());
 
+        Server.getChannel().addListener(this, () -> Collections.singleton(player.getUniqueId()));
     }
 
     /**
      * Loads the user completely (only after join)
      */
+    @Deprecated
     public void load() {
-        if (this.getLastLocation() != null) {
-            this.teleport(this.getLastLocation());
-        }
+        ((WorldManager) Server.getWorldManager()).loadUserLocations(this);
+        this.lastLocation = Server.getWorldManager().getUserLocation(this, this.getWorld());
     }
 
     public final void quit() {
         this.isQuiting = true;
+        ((WorldManager) Server.getWorldManager()).saveUserLocations(this);
         Server.getChannel().removeListener(this);
         this.onQuit();
     }
@@ -1743,6 +1731,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      *
      * @return the {@link ExWorld}
      */
+    @Deprecated
     public ExWorld getExWorld() {
         return Server.getWorld(this.player.getWorld());
     }
@@ -1781,7 +1770,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @param world The {@link ExWorld} for teleport
      */
     public synchronized void teleport(ExWorld world) {
-        Location loc = this.getWorldLocation(world);
+        Location loc = Server.getWorldManager().getUserLocation(this, world);
         world.loadChunk(loc.getChunk());
         this.teleport(loc);
     }
@@ -1805,39 +1794,14 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     }
 
     /**
-     * Gets the last word of the user
-     *
-     * @return the last {@link ExWorld}
-     */
-    public ExWorld getLastWorld() {
-        return lastWorld;
-    }
-
-    public void setWorldLocation() {
-        this.worldLocations.put(Server.getWorld(this.getLastLocation().getWorld()), this.getLastLocation());
-        LocationsFile file = ((WorldManager) ServerManager.getInstance().getWorldManager()).getLocationsFile();
-        file.setUserLocation(this, this.getLastLocation());
-        file.setUserWorld(this);
-        file.setUserLocation(this);
-    }
-
-    /**
      * Gets the location of a world from the user
      *
      * @param world The {@link ExWorld} for the location
      * @return the last {@link Location} of the world
      */
+    @Deprecated
     public Location getWorldLocation(ExWorld world) {
-        if (worldLocations.containsKey(world)) {
-            Location loc = worldLocations.get(world);
-            if (loc != null) {
-                return loc;
-            }
-        }
-        if (world != null) {
-            return world.getSpawnLocation();
-        }
-        return null;
+        return Server.getWorldManager().getUserLocation(this, world);
     }
 
     public void setLastDamager(UserDamage userDamage) {
@@ -3648,8 +3612,8 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     }
 
     @NotNull
-    public World getWorld() {
-        return player.getWorld();
+    public ExWorld getWorld() {
+        return Server.getWorld(player.getWorld());
     }
 
     public void setRotation(float v, float v1) {

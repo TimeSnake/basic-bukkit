@@ -5,6 +5,7 @@ import de.timesnake.library.basic.util.Triple;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 
 public class ExLocation extends Location {
 
@@ -26,6 +27,11 @@ public class ExLocation extends Location {
 
     public ExLocation(ExWorld world, double x, double y, double z, float yaw, float pitch) {
         super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x, y, z, yaw, pitch);
+        this.world = world;
+    }
+
+    public ExLocation(ExWorld world, Location location) {
+        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         this.world = world;
     }
 
@@ -122,6 +128,17 @@ public class ExLocation extends Location {
     public ExLocation add(double x, double y, double z) {
         super.add(x, y, z);
         return this;
+    }
+
+    @Override
+    public ExLocation add(Vector vector) {
+        super.add(vector);
+        return this;
+    }
+
+    @Override
+    public ExLocation toBlockLocation() {
+        return ExLocation.fromLocation(super.toBlockLocation());
     }
 
 

@@ -6,7 +6,7 @@ import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
@@ -31,11 +31,9 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     private final File backupDir;
 
-    private final LocationsFile locationsFile;
-
     private final Map<String, ExWorld> worldsByName = new HashMap<>();
 
-    private final boolean isLastWorldSpawning;
+    private final Map<UUID, Map<ExWorld, ExLocation>> locationsPerWorldByUuid = new HashMap<>();
 
     public final WorldBorderManager worldBorderManager;
 
@@ -44,11 +42,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
         this.worldBorderManager = new WorldBorderManager();
 
-        this.locationsFile = new LocationsFile("plugins/basic-bukkit");
-
         this.backupDir = new File("plugins/basic-bukkit/world_backups");
-
-        this.isLastWorldSpawning = locationsFile.isLastWorldSpawn();
 
         //add worlds to file
         for (World world : Bukkit.getWorlds()) {
@@ -73,6 +67,39 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 Server.printText(Plugin.WORLDS, "Loaded world " + world.getName());
             }
         }
+
+        this.loadUserLocationsFromFile();
+    }
+
+    private void loadUserLocationsFromFile() {
+        File folder = LocationsFile.getFolder();
+
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        for (String fileName : folder.list()) {
+
+            UUID uuid;
+            try {
+                uuid = UUID.fromString(fileName.replace(".yml", ""));
+            } catch (IllegalArgumentException e) {
+                Server.printWarning(Plugin.WORLDS, "Illegal locations file name " + fileName);
+                continue;
+            }
+
+            LocationsFile file = new LocationsFile(uuid);
+
+            HashMap<ExWorld, ExLocation> locationByWorld = new HashMap<>();
+
+            for (ExWorld world : this.getWorlds()) {
+                locationByWorld.put(world, new ExLocation(world, file.getUserLocation(world)));
+            }
+
+            this.locationsPerWorldByUuid.put(uuid, locationByWorld);
+        }
+
+        Server.printText(Plugin.WORLDS, "Loaded user locations");
     }
 
     public void onDisable() {
@@ -81,23 +108,48 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 this.reloadWorld(exWorld);
             }
         }
+
+        this.saveLocations();
     }
 
-    @Override
-    public boolean isLastWorldSpawning() {
-        return isLastWorldSpawning;
-    }
+    public void loadUserLocations(User user) {
+        if (!this.locationsPerWorldByUuid.containsKey(user.getUniqueId())) {
+            HashMap<ExWorld, ExLocation> locationByWorld = new HashMap<>();
 
-    public LocationsFile getLocationsFile() {
-        return locationsFile;
-    }
+            for (ExWorld world : this.getWorlds()) {
+                locationByWorld.put(world, new ExLocation(world, world.getSpawnLocation()));
+            }
 
-    @Override
-    public void resetUserLocations() {
-        for (de.timesnake.basic.bukkit.util.world.ExWorld world : this.getWorlds()) {
-            this.locationsFile.removeWorld(world);
+            this.locationsPerWorldByUuid.put(user.getUniqueId(), locationByWorld);
         }
     }
+
+    public void saveUserLocations(User user) {
+        user.setLastLocation(user.getLocation());
+        this.locationsPerWorldByUuid.get(user.getUniqueId()).put(user.getWorld(), user.getExLocation());
+    }
+
+    private void saveLocations() {
+        for (Map.Entry<UUID, Map<ExWorld, ExLocation>> entry : this.locationsPerWorldByUuid.entrySet()) {
+            UUID uuid = entry.getKey();
+            LocationsFile file = new LocationsFile(uuid);
+            for (ExLocation location : entry.getValue().values()) {
+                file.setUserLocation(location);
+            }
+        }
+        Server.printText(Plugin.WORLDS, "Saved user locations");
+    }
+
+    @Override
+    public ExLocation getUserLocation(User user, ExWorld world) {
+        ExLocation location = this.locationsPerWorldByUuid.get(user.getUniqueId()).get(world);
+        if (location == null) {
+            location = new ExLocation(world, world.getSpawnLocation());
+            this.locationsPerWorldByUuid.get(user.getUniqueId()).put(world, location);
+        }
+        return location;
+    }
+
 
     @Override
     public WorldBorderManager getWorldBorderManager() {
@@ -267,8 +319,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     @Override
-    public boolean unloadWorld(ExWorld world) {
-        return Bukkit.unloadWorld(world.getName(), false);
+    public boolean unloadWorld(ExWorld world, boolean save) {
+        return Bukkit.unloadWorld(world.getName(), save);
     }
 
     @Override
@@ -291,7 +343,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     private void moveUsersFromWorld(ExWorld world) {
         for (User user : Server.getUsers()) {
-            if (user.getExWorld().equals(world)) {
+            if (user.getWorld().equals(world)) {
                 user.teleport(this.getBasicWorld());
             }
         }
@@ -324,7 +376,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
     }
 
-    private void copyWorldFolderFiles(File source, File target) {
+    @Override
+    public void copyWorldFolderFiles(File source, File target) {
         try {
             ArrayList<String> ignore = new ArrayList<>(Arrays.asList("uid.dat", "session.lock"));
             if (!ignore.contains(source.getName())) {
@@ -353,32 +406,18 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     @EventHandler
-    public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
-        User user = Server.getUser(e.getPlayer());
-        if (user != null) {
-            if (e.getFrom() != null) {
-                user.setWorldLocation();
-                Server.printText(Plugin.BUKKIT, "Saved world " + e.getFrom().getName() + " location of user " + user.getName(), "World");
-            }
-        }
-    }
-
-    @EventHandler
-    public void onUserQuit(UserQuitEvent e) {
-        User user = e.getUser();
-        user.setLastLocation(user.getLocation());
-        this.locationsFile.setUserLocation(user);
-        this.locationsFile.setUserWorld(user);
-        Server.printText(Plugin.BUKKIT, "Saved location " + user.getExWorld().getName() + " of user " + user.getName(), "World");
-    }
-
-
-    @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         User user = Server.getUser(e.getPlayer());
-        if (e.getFrom() != null && user != null) {
-            Location location = e.getFrom();
-            user.setLastLocation(location);
+
+        Location fromLoc = e.getFrom();
+
+        if (fromLoc != null && user != null) {
+            user.setLastLocation(fromLoc);
+        }
+
+        if (fromLoc != null && !fromLoc.getWorld().equals(e.getTo().getWorld())) {
+            ExWorld fromWorld = this.getWorld(fromLoc.getWorld());
+            this.locationsPerWorldByUuid.get(user.getUniqueId()).put(fromWorld, new ExLocation(fromWorld, fromLoc));
         }
     }
 
@@ -499,7 +538,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @EventHandler
     public void onEntityDamage(UserDamageEvent e) {
-        ExWorld world = e.getUser().getExWorld();
+        ExWorld world = e.getUser().getWorld();
 
         if (world.isPlayerDamageAllowed()) {
             return;
