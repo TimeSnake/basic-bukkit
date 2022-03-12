@@ -320,6 +320,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean unloadWorld(ExWorld world, boolean save) {
+        this.moveUsersFromWorld(world);
+        this.worldsByName.remove(world.getName());
         return Bukkit.unloadWorld(world.getName(), save);
     }
 
