@@ -78,6 +78,7 @@ public class ExWorld implements World {
     private boolean allowLightUpInteraction = true;
     private boolean allowFlintAndSteel = true;
     private boolean allowPlaceInBlock = true;
+    private boolean allowFirePunchOut = true;
 
     public ExWorld(org.bukkit.World world, WorldManager.Type type, ExWorldFile file) {
         this.world = world;
@@ -279,6 +280,13 @@ public class ExWorld implements World {
         this.allowPlaceInBlock = allowPlaceInBlock;
     }
 
+    public boolean isFirePunchOutAllowed() {
+        return allowFirePunchOut;
+    }
+
+    public void allowFirePunchOut(boolean allowFirePunchOut) {
+        this.allowFirePunchOut = allowFirePunchOut;
+    }
 
     // delegated
 

@@ -440,7 +440,6 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             if (event.getAction() == Action.PHYSICAL) {
                 if (clickedBlock == null) return;
                 if (blockType == Material.FARMLAND) {
-                    // Deny event and set the block
                     event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
                     event.setCancelled(true);
                     clickedBlock.setType(blockType, true);
@@ -516,6 +515,15 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setUseItemInHand(Event.Result.DENY);
                         return;
                     }
+                }
+            }
+        } else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+
+            if (blockType.equals(Material.FIRE)) {
+                if (!world.isFirePunchOutAllowed()) {
+                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    event.setUseItemInHand(Event.Result.DENY);
                 }
             }
         }
@@ -595,6 +603,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
+        if (e.getBlock().getType().equals(Material.FIRE) && world.isFirePunchOutAllowed()) {
             return;
         }
 
