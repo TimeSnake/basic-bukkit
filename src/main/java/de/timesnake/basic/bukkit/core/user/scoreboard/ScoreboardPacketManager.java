@@ -2,22 +2,23 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutModifyListener;
+import de.timesnake.basic.packets.util.listener.PacketHandler;
+import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.basic.packets.util.packet.ExPacket;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class ScoreboardPacketManager implements PacketPlayOutModifyListener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
+public class ScoreboardPacketManager implements PacketPlayOutListener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
 
     private final Map<Player, Set<ExPacketPlayOut>> packets = new HashMap<>();
 
     public ScoreboardPacketManager() {
-        Server.getPacketManager().addPacketPlayOutListener(ExPacket.Type.PLAY_OUT_TABLIST, this);
+        Server.getPacketManager().addListener(this);
     }
 
-    @Override
+    @PacketHandler(type = ExPacket.Type.PLAY_OUT_TABLIST, modify = true)
     public ExPacketPlayOut onPacketPlayOut(ExPacketPlayOut packet, Player receiver) {
         Set<ExPacketPlayOut> packets = this.packets.get(receiver);
         if (packets != null && packets.contains(packet)) {
