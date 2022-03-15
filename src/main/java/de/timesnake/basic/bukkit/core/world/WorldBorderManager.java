@@ -4,7 +4,8 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutModifyListener;
+import de.timesnake.basic.packets.util.listener.PacketHandler;
+import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.basic.packets.util.packet.ExPacket;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import org.bukkit.entity.Player;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WorldBorderManager implements PacketPlayOutModifyListener, Listener, de.timesnake.basic.bukkit.util.world.WorldBorderManager {
+public class WorldBorderManager implements PacketPlayOutListener, Listener, de.timesnake.basic.bukkit.util.world.WorldBorderManager {
 
     private final HashMap<Player, Set<ExPacketPlayOutWorldBorder>> packetsByPlayer = new HashMap<>();
 
@@ -25,11 +26,11 @@ public class WorldBorderManager implements PacketPlayOutModifyListener, Listener
     private boolean enderpearlThrouBorder = true;
 
     public WorldBorderManager() {
-        Server.getPacketManager().addPacketPlayOutListener(ExPacket.Type.PLAY_OUT_WORLD_BORDER, this);
+        Server.getPacketManager().addListener(this);
         Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
-    @Override
+    @PacketHandler(type = ExPacket.Type.PLAY_OUT_WORLD_BORDER, modify = true)
     public ExPacketPlayOut onPacketPlayOut(ExPacketPlayOut packet, Player receiver) {
         if (packet instanceof ExPacketPlayOutWorldBorder && this.customBorders) {
             Set<ExPacketPlayOutWorldBorder> packets = this.packetsByPlayer.get(receiver);
