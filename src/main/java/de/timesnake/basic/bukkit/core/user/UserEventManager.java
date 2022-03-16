@@ -238,6 +238,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         e.setKeepInventory(userDeathEvent.isKeepInventory());
 
         if (!userDeathEvent.isBroadcastDeathMessage()) {
+            e.setDeathMessage("");
             return;
         }
 
