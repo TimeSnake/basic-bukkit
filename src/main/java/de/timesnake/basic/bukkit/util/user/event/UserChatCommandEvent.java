@@ -20,6 +20,7 @@ public class UserChatCommandEvent extends CancelableUserEvent {
     }
 
     private final String message;
+    private boolean removeLisener = true;
 
     public UserChatCommandEvent(User user, boolean isCanceled, String message) {
         super(user, isCanceled);
@@ -28,5 +29,13 @@ public class UserChatCommandEvent extends CancelableUserEvent {
 
     public String getMessage() {
         return message;
+    }
+
+    public boolean isRemoveLisener() {
+        return removeLisener;
+    }
+
+    public void removeLisener(boolean removeLisener) {
+        this.removeLisener = removeLisener;
     }
 }
