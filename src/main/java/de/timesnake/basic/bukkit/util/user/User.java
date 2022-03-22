@@ -670,7 +670,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      *
      * @param command The command to run
      */
-    public void runCommand(final String command) {
+    public void runCommand(String command) {
         Server.runTaskSynchrony(() -> {
             if (command.startsWith("/say ")) {
                 Server.broadcastMessage(Server.getChat().getSenderMember(this) + command.replaceFirst("/say ", ""));

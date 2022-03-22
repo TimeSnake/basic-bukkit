@@ -89,13 +89,14 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         // air mode
         if (user.isAirMode()) {
             if (!user.getLastChatMessage().equals(msg)) {
-                user.sendPluginMessage(Plugin.BUKKIT, ChatColor.WARNING + "You are in air mode. " + "Resend your chat message to send it.");
+                user.sendPluginMessage(Plugin.BUKKIT, ChatColor.WARNING + "You are in air mode. Resend your chat " +
+                        "message to send it.");
                 return;
             }
         }
 
         // last chat msg
-        user.setLastChatMessage(e.getMessage());
+        user.setLastChatMessage(msg);
 
         // color translate
         if (user.getPlayer().hasPermission("basicsystem.chat.color")) {

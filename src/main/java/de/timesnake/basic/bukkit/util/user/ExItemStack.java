@@ -231,11 +231,10 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     public ExItemStack(Material material, PotionType type, boolean extended, boolean upgraded) {
         this(material);
 
-        if (!(this.getItemMeta() instanceof PotionMeta)) {
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
             throw new InvalidItemTypeException("PotionMeta");
         }
 
-        PotionMeta meta = (PotionMeta) this.getItemMeta();
         meta.setBasePotionData(new PotionData(type, extended, upgraded));
         this.setItemMeta(meta);
     }
@@ -243,11 +242,10 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     public ExItemStack(Material material, PotionType type, Color color, boolean extended, boolean upgraded) {
         this(material, type, extended, upgraded);
 
-        if (!(this.getItemMeta() instanceof PotionMeta)) {
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
             throw new InvalidItemTypeException("PotionMeta");
         }
 
-        PotionMeta meta = (PotionMeta) this.getItemMeta();
         meta.setColor(color);
         this.setItemMeta(meta);
     }
