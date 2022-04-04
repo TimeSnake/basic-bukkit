@@ -661,6 +661,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id);
+    }
+
     /**
      * Clones the item with new id
      *
