@@ -148,6 +148,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     }
 
+    public final void onDisable() {
+        ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
+        this.entityManager.onDisable();
+    }
+
     protected void initNetwork() {
         this.network = new de.timesnake.basic.bukkit.core.server.Network(0);
     }

@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -528,7 +529,17 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             }
         }
 
+    }
 
+    @EventHandler
+    public void onItemFrameChange(PlayerItemFrameChangeEvent e) {
+        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+
+        if (world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        e.setCancelled(true);
     }
 
     @EventHandler
