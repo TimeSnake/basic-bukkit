@@ -98,10 +98,6 @@ public class ExWorld implements World {
         this.world = world;
 
         this.world.setAutoSave(this.safe);
-
-        for (ItemFrame frame : this.getEntitiesByClass(ItemFrame.class)) {
-            frame.setFixed(!allowEntityBlockBreak);
-        }
     }
 
     @Override

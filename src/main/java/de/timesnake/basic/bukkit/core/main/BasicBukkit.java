@@ -6,7 +6,6 @@ import de.timesnake.basic.bukkit.core.permission.CustomPermissibleBase;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
 import de.timesnake.basic.bukkit.core.user.CmdDataProtection;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
-import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
@@ -88,7 +87,7 @@ public class BasicBukkit extends JavaPlugin {
     public void onDisable() {
         Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATUS, Status.Server.OFFLINE));
 
-        ((WorldManager) Server.getWorldManager()).onDisable();
+        ServerManager.getInstance().onDisable();
 
         DatabaseBukkit.disconnect();
         NetworkChannel.stop();

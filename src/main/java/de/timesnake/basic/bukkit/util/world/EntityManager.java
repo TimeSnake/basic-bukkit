@@ -7,9 +7,9 @@ import java.util.Collection;
 
 public interface EntityManager {
 
-    void spawnPlayer(User user, ExPlayer player, boolean removeFromTablist);
+    void registerPlayer(User user, ExPlayer player, boolean removeFromTablist);
 
-    void spawnPlayer(Collection<? extends User> users, ExPlayer player, boolean removeFromTablist);
+    void registerPlayer(Collection<? extends User> users, ExPlayer player, boolean removeFromTablist);
 
     void removePlayer(User user, ExPlayer player);
 
