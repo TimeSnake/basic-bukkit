@@ -1723,11 +1723,17 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @return the  {@link ExLocation}
      */
     public ExLocation getExLocation() {
-        return new ExLocation(this.getExWorld(), this.getLocation().getX(), this.getLocation().getY(), this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
+        return new ExLocation(this.getExWorld(), this.getLocation().getX(), this.getLocation().getY(),
+         this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
+    }
+
+    public boolean teleport(double x, double y, double z) {
+        return this.teleport(new ExLocation(this.getWorld(), x, y, z, this.getLocation().getYaw(),
+         this.getLocation().getPitch()));
     }
 
     /**
-     * Gets the current user world
+     * Use {@link User#getWorld()}
      *
      * @return the {@link ExWorld}
      */

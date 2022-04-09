@@ -17,10 +17,10 @@ public class ExWorldFile extends ExFile {
     public ExWorldFile(File worldDirectory, WorldManager.Type type) {
         super(worldDirectory, NAME);
 
-        super.set(TYPE, type.name());
+        super.set(TYPE, type.name()).save();
 
         if (!super.contains(SAFE)) {
-            super.set(SAFE, true);
+            super.set(SAFE, true).save();
         }
     }
 
@@ -41,6 +41,6 @@ public class ExWorldFile extends ExFile {
     }
 
     public void setSafe(boolean safe) {
-        super.set(SAFE, safe);
+        super.set(SAFE, safe).save();
     }
 }

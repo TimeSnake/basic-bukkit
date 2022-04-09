@@ -50,7 +50,8 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
                 Location loc = user.getLocation();
 
                 for (Tuple<ExPlayer, Boolean> playerLoadedTuple : playerLoadedTuples) {
-                    if (playerLoadedTuple.getA().getLocation().distanceSquared(loc) < TRACKING_RANGE * TRACKING_RANGE) {
+                    Location playerLoc = playerLoadedTuple.getA().getLocation();
+                    if (playerLoc.getWorld().equals(loc.getWorld()) && playerLoc.distanceSquared(loc) < TRACKING_RANGE * TRACKING_RANGE) {
                         if (!playerLoadedTuple.getB()) {
                             this.loadPlayer(user, playerLoadedTuple);
                         }
@@ -73,6 +74,9 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
 
     @Override
     public void registerPlayer(Collection<? extends User> users, ExPlayer player, boolean removeFromTablist) {
+
+        Location playerLoc = player.getLocation();
+
         for (User user : users) {
             Collection<Tuple<ExPlayer, Boolean>> entities = this.playersByUser.computeIfAbsent(user,
                     k -> new LinkedList<>());
@@ -80,7 +84,8 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
             Tuple<ExPlayer, Boolean> playerLoadedTuple = new Tuple<>(player, false);
             entities.add(playerLoadedTuple);
 
-            if (player.getLocation().distanceSquared(user.getLocation()) < TRACKING_RANGE * TRACKING_RANGE) {
+            if (playerLoc.getWorld().equals(user.getWorld().getBukkitWorld())
+                    && playerLoc.distanceSquared(user.getLocation()) < TRACKING_RANGE * TRACKING_RANGE) {
                 this.loadPlayer(user, playerLoadedTuple);
             }
         }
@@ -105,8 +110,8 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
         user.sendPacket(ExPacketPlayOutEntityMetadata.wrap((Player) player,
                 ExPacketPlayOutEntityMetadata.DataType.UPDATE));
 
-        Server.runTaskLaterAsynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
-                ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)), 4,
+        Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
+                        ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)), 6,
                 BasicBukkit.getPlugin());
     }
 
