@@ -137,74 +137,76 @@ public class ExFile {
         this.save();
     }
 
-    public void set(@Nonnull String path, Object value) {
+    public ExFile set(@Nonnull String path, Object value) {
         if (value != null) {
             if (value instanceof Location) {
                 this.setLocation(path, (Location) value, true);
-                return;
+                return this;
             } else if (value instanceof Block) {
                 this.setBlock(path, ((Block) value));
-                return;
+                return this;
             } else if (value instanceof UUID) {
                 this.config.set(path, value.toString());
-                return;
+                return this;
             } else if (value instanceof Player) {
                 this.setPlayer(path, ((Player) value));
-                return;
+                return this;
             } else if (value instanceof User) {
                 this.setPlayer(path, ((User) value).getPlayer());
-                return;
+                return this;
             } else if (value instanceof Color) {
                 this.setHexColor(path, ((Color) value));
-                return;
+                return this;
             }
         }
-        this.load();
+
         this.config.set(path, value);
-        this.save();
+
+        return this;
     }
 
-    public void setLocation(@Nonnull String path, @Nonnull Location location, boolean saveYawPitch) {
+    public ExFile setLocation(@Nonnull String path, @Nonnull Location location, boolean saveYawPitch) {
         setLocBlock(path, location.getWorld(), location.getX(), location.getY(), location.getZ());
         if (saveYawPitch) {
             this.config.set(path + ".yaw", location.getYaw());
             this.config.set(path + ".pitch", location.getPitch());
         }
-        this.save();
+
+        return this;
     }
 
-    private void setLocBlock(@Nonnull String path, World world, double x, double y, double z) {
+    private ExFile setLocBlock(@Nonnull String path, World world, double x, double y, double z) {
         this.config.set(path + ".world", world.getName());
         this.config.set(path + ".x", x);
         this.config.set(path + ".y", y);
         this.config.set(path + ".z", z);
-        this.save();
+
+        return this;
     }
 
-    public void setBlock(@Nonnull String path, @Nonnull Block block) {
+    public ExFile setBlock(@Nonnull String path, @Nonnull Block block) {
         setLocBlock(path, block.getWorld(), block.getX(), block.getY(), block.getZ());
-        this.save();
+        return this;
     }
 
-    public void setPlayer(String path, Player player) {
+    public ExFile setPlayer(String path, Player player) {
         this.config.set(path + ".name", player.getName());
         this.config.set(path + ".uuid", player.getUniqueId().toString());
-        this.save();
+        return this;
     }
 
-    public void setUuidList(String path, List<UUID> uuids) {
+    public ExFile setUuidList(String path, List<UUID> uuids) {
         List<String> strings = new ArrayList<>();
         for (UUID uuid : uuids) {
             strings.add(uuid.toString());
         }
         this.config.set(path, strings);
-        this.save();
+        return this;
     }
 
-    public void setHexColor(String path, Color color) {
-        this.load();
+    public ExFile setHexColor(String path, Color color) {
         this.config.set(path, String.format("%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
-        this.save();
+        return this;
     }
 
     public boolean contains(@Nonnull String path) {

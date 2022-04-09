@@ -105,7 +105,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
             if (id != null) {
                 this.id = id;
                 this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
-                this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
+                this.moveable = getMoveableFromString(item.getItemMeta().getLocalizedName());
             } else {
                 this.id = newItemId();
                 ITEMS_BY_ID.put(this.id, this);

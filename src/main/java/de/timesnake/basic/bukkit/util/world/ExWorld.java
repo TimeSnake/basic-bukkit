@@ -68,6 +68,7 @@ public class ExWorld implements World {
     private boolean allowBlockPlace = true;
     private boolean allowFluidPlace = true;
     private boolean allowEntityBlockBreak = true;
+    private boolean allowItemFrameRotate = true;
     private boolean allowDropPickItem = true;
     private boolean allowPlayerDamage = true;
     private boolean allowFoodChange = true;
@@ -161,9 +162,14 @@ public class ExWorld implements World {
 
     public void allowEntityBlockBreak(boolean allowEntityBlockBreak) {
         this.allowEntityBlockBreak = allowEntityBlockBreak;
-        for (ItemFrame frame : this.getEntitiesByClass(ItemFrame.class)) {
-            frame.setFixed(!allowEntityBlockBreak);
-        }
+    }
+
+    public boolean isItemFrameRotateAllowed() {
+        return this.allowItemFrameRotate;
+    }
+
+    public void allowItemFrameRotate(boolean allowRotate) {
+        this.allowItemFrameRotate = allowRotate;
     }
 
     public boolean isDropPickItemAllowed() {

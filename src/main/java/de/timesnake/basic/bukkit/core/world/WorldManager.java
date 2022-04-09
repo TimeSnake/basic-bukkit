@@ -535,7 +535,16 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onItemFrameChange(PlayerItemFrameChangeEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
+        if (Server.getUser(e.getPlayer()).isService()) {
+            return;
+        }
+
         if (world.isEntityBlockBreakAllowed()) {
+            return;
+        }
+
+        if (e.getAction().equals(PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE)
+                && world.isItemFrameRotateAllowed()) {
             return;
         }
 

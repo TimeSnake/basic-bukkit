@@ -31,12 +31,7 @@ public class LocationsFile extends ExFile {
 
     public void setUserLocation(Location location) {
         String worldName = location.getWorld().getName();
-        super.set(ExFile.toPath(worldName, X), location.getX());
-        super.set(ExFile.toPath(worldName, Y), location.getY());
-        super.set(ExFile.toPath(worldName, Z), location.getZ());
-        super.set(ExFile.toPath(worldName, YAW), location.getYaw());
-        super.set(ExFile.toPath(worldName, PITCH), location.getPitch());
-        this.save();
+        super.setLocation(worldName, location, true).save();
     }
 
     public Location getUserLocation(World world) {

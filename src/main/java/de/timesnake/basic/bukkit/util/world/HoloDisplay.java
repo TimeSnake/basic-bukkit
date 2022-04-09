@@ -13,7 +13,7 @@ public class HoloDisplay {
     private final ExLocation location;
     private final List<String> text;
 
-    private List<ExArmorStand> stands;
+    private final List<ExArmorStand> stands;
 
     private final Set<User> watchers = new HashSet<>();
 
