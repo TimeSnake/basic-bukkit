@@ -449,8 +449,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             }
         }
 
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            Set<Material> filledBuckets = Set.of(Material.LAVA_BUCKET, Material.COD_BUCKET, Material.AXOLOTL_BUCKET, Material.POWDER_SNOW_BUCKET, Material.PUFFERFISH_BUCKET, Material.SALMON_BUCKET, Material.TROPICAL_FISH_BUCKET, Material.WATER_BUCKET);
+        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            Set<Material> filledBuckets = Set.of(Material.LAVA_BUCKET, Material.COD_BUCKET, Material.AXOLOTL_BUCKET,
+                    Material.POWDER_SNOW_BUCKET, Material.PUFFERFISH_BUCKET, Material.SALMON_BUCKET,
+                    Material.TROPICAL_FISH_BUCKET, Material.WATER_BUCKET);
 
             if (item != null) {
                 if (filledBuckets.contains(item.getType())) {
@@ -467,7 +469,28 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
                     }
-                } else if (item.getType().equals(Material.FLINT_AND_STEEL)) {
+                }
+            }
+        }
+
+        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+
+            if (blockType.equals(Material.CAKE)) {
+                if (!world.isCakeEatAllowed()) {
+                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    event.setUseItemInHand(Event.Result.DENY);
+                }
+            }
+
+            if (world.getLockedBlockInventories().contains(blockType)) {
+                event.setCancelled(true);
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.DENY);
+            }
+
+            if (item != null) {
+                if (item.getType().equals(Material.FLINT_AND_STEEL)) {
                     if (world.isFlintAndSteelAllowed()) {
                         return;
                     }
@@ -626,7 +649,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (e.getBlock().getType().equals(Material.FIRE) && world.isFirePunchOutAllowed()) {
+        if ((e.getBlock().getType().equals(Material.FIRE) || Tag.CANDLES.isTagged(e.getBlock().getType())) && world.isFirePunchOutAllowed()) {
             return;
         }
 
@@ -690,7 +713,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
+        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) && !world.isItemFrameRotateAllowed()) {
             e.setCancelled(true);
         }
 
@@ -768,7 +791,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (e.getItemInHand().getType().equals(Material.FLINT_AND_STEEL)) {
+        if (item.getType().equals(Material.FLINT_AND_STEEL)) {
             if (world.isFlintAndSteelAllowed()) {
                 return;
             }
