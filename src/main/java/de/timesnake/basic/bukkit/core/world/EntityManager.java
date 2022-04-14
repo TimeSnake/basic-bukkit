@@ -3,7 +3,7 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
 import de.timesnake.basic.entities.entity.bukkit.ExPlayer;
 import de.timesnake.basic.packets.util.packet.*;
 import de.timesnake.library.basic.util.Tuple;
@@ -18,23 +18,10 @@ import java.util.*;
 
 public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.world.EntityManager {
 
-    private static final double TRACKING_RANGE = 48; // blocks
+    private static final double TRACKING_RANGE_SQUARED = 48 * 48; // blocks
     private static final String FAKE_PLAYER_TEAM_NAME = "fake_players";
 
     private final Map<User, Collection<Tuple<ExPlayer, Boolean>>> playersByUser = new HashMap<>();
-
-    private BukkitTask task;
-
-    public EntityManager() {
-        Server.registerListener(this, BasicBukkit.getPlugin());
-        this.runPlayerLoader();
-    }
-
-    public void onDisable() {
-        if (this.task != null) {
-            this.task.cancel();
-        }
-    }
 
     private void runPlayerLoader() {
         this.task = Server.runTaskTimerAsynchrony(() -> {
@@ -51,7 +38,7 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
 
                 for (Tuple<ExPlayer, Boolean> playerLoadedTuple : playerLoadedTuples) {
                     Location playerLoc = playerLoadedTuple.getA().getLocation();
-                    if (playerLoc.getWorld().equals(loc.getWorld()) && playerLoc.distanceSquared(loc) < TRACKING_RANGE * TRACKING_RANGE) {
+                    if (playerLoc.getWorld().equals(loc.getWorld()) && playerLoc.distanceSquared(loc) < TRACKING_RANGE_SQUARED) {
                         if (!playerLoadedTuple.getB()) {
                             this.loadPlayer(user, playerLoadedTuple);
                         }
@@ -67,9 +54,17 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
         }, 0, 10, BasicBukkit.getPlugin());
     }
 
-    @Override
-    public void registerPlayer(User user, ExPlayer player, boolean removeFromTablist) {
-        this.registerPlayer(List.of(user), player, removeFromTablist);
+    private BukkitTask task;
+
+    public EntityManager() {
+        Server.registerListener(this, BasicBukkit.getPlugin());
+        this.runPlayerLoader();
+    }
+
+    public void onDisable() {
+        if (this.task != null) {
+            this.task.cancel();
+        }
     }
 
     @Override
@@ -85,10 +80,22 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
             entities.add(playerLoadedTuple);
 
             if (playerLoc.getWorld().equals(user.getWorld().getBukkitWorld())
-                    && playerLoc.distanceSquared(user.getLocation()) < TRACKING_RANGE * TRACKING_RANGE) {
+                    && playerLoc.distanceSquared(user.getLocation()) < TRACKING_RANGE_SQUARED) {
                 this.loadPlayer(user, playerLoadedTuple);
             }
         }
+    }
+
+    @Override
+    public void registerPlayer(User user, ExPlayer player, boolean removeFromTablist) {
+        this.registerPlayer(List.of(user), player, removeFromTablist);
+    }
+
+    @EventHandler
+    public void onUserJoin(AsyncUserJoinEvent e) {
+        Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(),
+                ExPacketPlayOutTablistTeamCreation.wrap(FAKE_PLAYER_TEAM_NAME, "", ChatColor.WHITE,
+                        ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER));
     }
 
     private void loadPlayer(User user, Tuple<ExPlayer, Boolean> playerLoadedTuple) {
@@ -138,10 +145,9 @@ public class EntityManager implements Listener, de.timesnake.basic.bukkit.util.w
         }
     }
 
-    @EventHandler
-    public void onUserJoin(UserJoinEvent e) {
-        Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(),
-                ExPacketPlayOutTablistTeamCreation.wrap(FAKE_PLAYER_TEAM_NAME, "", ChatColor.WHITE,
-                        ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER));
+    private enum LoadState {
+        LOADED,
+        UNLOADED,
+        WAIT_FOR_MOVE
     }
 }
