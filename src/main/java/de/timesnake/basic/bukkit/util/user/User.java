@@ -278,6 +278,20 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
 
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.player.getUniqueId());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (o instanceof User) return Objects.equals(this.player.getUniqueId(), ((User) o).getUniqueId());
+        return false;
+    }
+
     public final boolean isQuiting() {
         return this.isQuiting;
     }

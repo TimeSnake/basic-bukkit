@@ -91,20 +91,24 @@ public class ExFile {
         this.config.options().copyDefaults(true);
     }
 
-    public void save() {
+    public ExFile save() {
         try {
             this.config.save(this.configFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    protected void load() {
+    protected ExFile load() {
         try {
             this.config.load(this.configFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
     public boolean exists() {

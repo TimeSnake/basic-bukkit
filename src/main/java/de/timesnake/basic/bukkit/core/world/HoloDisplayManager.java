@@ -3,7 +3,7 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.HoloDisplay;
 import org.bukkit.event.EventHandler;
@@ -57,7 +57,7 @@ public class HoloDisplayManager implements Listener, de.timesnake.basic.bukkit.u
     }
 
     @EventHandler
-    public void onUserJoin(UserJoinEvent e) {
+    public void onUserJoin(AsyncUserJoinEvent e) {
         User user = e.getUser();
 
         Set<HoloDisplay> displays = this.publicDisplaysPerWorld.get(user.getExWorld());
@@ -69,33 +69,36 @@ public class HoloDisplayManager implements Listener, de.timesnake.basic.bukkit.u
         for (HoloDisplay display : displays) {
             display.addWatcher(user);
         }
+
     }
 
     @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
-        User user = Server.getUser(e.getPlayer());
+        Server.runTaskAsynchrony(() -> {
+            User user = Server.getUser(e.getPlayer());
 
-        if (user == null) {
-            return;
-        }
-
-        Set<HoloDisplay> publicDisplays = this.publicDisplaysPerWorld.get(user.getExWorld());
-
-        if (publicDisplays != null) {
-            for (HoloDisplay display : publicDisplays) {
-                display.sendCreationPaketsTo(user);
+            if (user == null) {
+                return;
             }
-        }
 
-        Set<HoloDisplay> displays = this.displaysPerWorld.get(user.getExWorld());
+            Set<HoloDisplay> publicDisplays = this.publicDisplaysPerWorld.get(user.getExWorld());
 
-        if (displays != null) {
-            for (HoloDisplay display : displays) {
-                if (display.getWatchers().contains(user)) {
-                    display.addWatcher(user);
+            if (publicDisplays != null) {
+                for (HoloDisplay display : publicDisplays) {
+                    display.sendCreationPaketsTo(user);
                 }
             }
-        }
+
+            Set<HoloDisplay> displays = this.displaysPerWorld.get(user.getExWorld());
+
+            if (displays != null) {
+                for (HoloDisplay display : displays) {
+                    if (display.getWatchers().contains(user)) {
+                        display.addWatcher(user);
+                    }
+                }
+            }
+        }, BasicBukkit.getPlugin());
 
 
     }
