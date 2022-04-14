@@ -80,6 +80,9 @@ public class ExWorld implements World {
     private boolean allowFlintAndSteel = true;
     private boolean allowPlaceInBlock = true;
     private boolean allowFirePunchOut = true;
+    private boolean allowCakeEat = true;
+
+    private List<Material> lockedBlockInventories = new LinkedList<>();
 
     public ExWorld(org.bukkit.World world, WorldManager.Type type, ExWorldFile file) {
         this.world = world;
@@ -288,6 +291,34 @@ public class ExWorld implements World {
 
     public void allowFirePunchOut(boolean allowFirePunchOut) {
         this.allowFirePunchOut = allowFirePunchOut;
+    }
+
+    public boolean isCakeEatAllowed() {
+        return this.allowCakeEat;
+    }
+
+    public void allowCakeEat(boolean allowCakeEat) {
+        this.allowCakeEat = allowCakeEat;
+    }
+
+    public List<Material> getLockedBlockInventories() {
+        return lockedBlockInventories;
+    }
+
+    public void setLockedBlockInventories(List<Material> lockedBlockInventories) {
+        this.lockedBlockInventories = lockedBlockInventories;
+
+        if (this.lockedBlockInventories == null) {
+            this.lockedBlockInventories = new LinkedList<>();
+        }
+    }
+
+    public void addLockedBlockInventory(Material material) {
+        this.lockedBlockInventories.add(material);
+    }
+
+    public void clearLockedBlockInventories() {
+        this.lockedBlockInventories.clear();
     }
 
     // delegated
