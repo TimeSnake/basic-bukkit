@@ -11,6 +11,11 @@ public abstract class UserEvent extends Event {
         this.user = user;
     }
 
+    protected UserEvent(boolean async, User user) {
+        super(async);
+        this.user = user;
+    }
+
     public User getUser() {
         return user;
     }

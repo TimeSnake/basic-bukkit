@@ -2,14 +2,14 @@ package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerJoinEvent;
 
-/**
- * Called when user is registered, by {@link PlayerJoinEvent}
- */
-public class UserJoinEvent extends UserEvent {
+public class AsyncUserJoinEvent extends UserJoinEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
+
+    public AsyncUserJoinEvent(User user) {
+        super(true, user);
+    }
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
@@ -18,13 +18,5 @@ public class UserJoinEvent extends UserEvent {
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
-    }
-
-    public UserJoinEvent(User user) {
-        super(user);
-    }
-
-    public UserJoinEvent(boolean async, User user) {
-        super(async, user);
     }
 }

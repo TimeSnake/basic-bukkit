@@ -36,9 +36,11 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPreLogin(PlayerLoginEvent e) {
-        if (Bukkit.getOnlinePlayers().size() <= Server.getMaxPlayers() && e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
+        if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
             e.allow();
-        } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers()) && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || e.getPlayer().hasPermission("basicsystem.join.full")) {
+        } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers())
+                && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || e.getPlayer().hasPermission(
+                        "basicsystem.join.full")) {
             e.allow();
         }
         try {
@@ -67,7 +69,12 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
                 user.hideUser(u);
             }
         }
+
+        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)),
+                BasicBukkit.getPlugin());
+
         Bukkit.getPluginManager().callEvent(new UserJoinEvent(user));
+
     }
 
     @EventHandler
