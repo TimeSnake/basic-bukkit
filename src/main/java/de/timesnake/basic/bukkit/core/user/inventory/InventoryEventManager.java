@@ -4,10 +4,7 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
+import de.timesnake.basic.bukkit.util.user.event.*;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,6 +41,10 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
     public void onInventoryClick(InventoryClickEvent e) {
         if (e.getClickedInventory() != null && e.getWhoClicked() instanceof Player) {
 
+            if (e.getClickedInventory().getHolder() instanceof ExcludedInventoryHolder) {
+                return;
+            }
+
             User user = Server.getUser((Player) e.getWhoClicked());
 
             if (!this.isUserExcluded(user) && (user.isInventoryLocked() || user.isInventoryItemMoveLocked())) {
@@ -63,7 +64,8 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
                 e.setCancelled(true);
             }
 
-            UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(), e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
+            UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(),
+                    e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
 
             InventoryHolder holder = e.getClickedInventory().getHolder();
             if (holder != null) {

@@ -1,6 +1,7 @@
 package de.timesnake.basic.bukkit.util.user;
 
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
+import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -17,6 +18,85 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class ExItemStack extends org.bukkit.inventory.ItemStack {
+
+    protected final Integer id;
+    protected Integer slot;
+    private boolean dropable = true;
+
+    @Deprecated
+    public ExItemStack(Material material, Color color) {
+        this(material);
+
+        if (!(this.getItemMeta() instanceof LeatherArmorMeta meta)) {
+            throw new InvalidItemTypeException("LeatherArmorMeta");
+        }
+
+        meta.setColor(color);
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, String displayName, Color color) {
+        this(material, color);
+        this.setDisplayName(displayName);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, PotionType type, boolean extended, boolean upgraded) {
+        this(material);
+
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+            throw new InvalidItemTypeException("PotionMeta");
+        }
+
+        meta.setBasePotionData(new PotionData(type, extended, upgraded));
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, PotionType type, Color color, boolean extended, boolean upgraded) {
+        this(material, type, extended, upgraded);
+
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+            throw new InvalidItemTypeException("PotionMeta");
+        }
+
+        meta.setColor(color);
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, int amount, PotionType type, boolean extended, boolean upgraded) {
+        this(material, type, extended, upgraded);
+        this.setAmount(amount);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, int amount, String displayName, PotionType type, boolean extended,
+                       boolean upgraded) {
+        this(material, amount, type, extended, upgraded);
+        this.setDisplayName(displayName);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, boolean unbreakable) {
+        this(material);
+        ItemMeta meta = this.getItemMeta();
+        meta.setUnbreakable(unbreakable);
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, boolean unbreakable, boolean enchant) {
+        this(material);
+        ItemMeta meta = this.getItemMeta();
+        meta.setUnbreakable(unbreakable);
+        this.setItemMeta(meta);
+        if (enchant) this.enchant();
+    }
+
+
+    // id management, converter
 
     private static final String ATTRIBUTE_SPLITTER = ";";
 
@@ -73,6 +153,90 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return ExItemStack.getIdFromString(item.getItemMeta().getLocalizedName());
     }
 
+    @Deprecated
+    public ExItemStack(Material material, int amount, int damage) {
+        this(material, amount);
+        this.setDamage(damage);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, int damage, boolean enchant) {
+        this(material, 1, damage);
+        if (enchant) this.enchant();
+    }
+
+
+    // tag helper methods
+
+    @Deprecated
+    public ExItemStack(Material material, List<Enchantment> enchantments, List<Integer> levels) {
+        this(material);
+        this.addEnchantments(enchantments, levels);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, String displayName, List<Enchantment> enchantments, List<Integer> levels) {
+        this(material, displayName);
+        this.addEnchantments(enchantments, levels);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, int damage, List<Enchantment> enchantments, List<Integer> levels) {
+        this(material, 1, damage);
+        this.addEnchantments(enchantments, levels);
+    }
+
+    @Deprecated
+    public ExItemStack(Material material, boolean unbreakable, List<Enchantment> enchantments, List<Integer> levels) {
+        this(material, enchantments, levels);
+        ItemMeta meta = this.getItemMeta();
+        meta.setUnbreakable(unbreakable);
+        this.setItemMeta(meta);
+    }
+
+
+    @Deprecated
+    public ExItemStack(boolean splash, String displayName, PotionEffectType effectType, int duration, int level,
+                       int amount) {
+        this((splash ? Material.SPLASH_POTION : Material.POTION));
+        this.setAmount(amount);
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+            throw new InvalidItemTypeException("PotionMeta");
+        }
+        meta.setColor(effectType.getColor());
+        meta.setDisplayName(displayName);
+        meta.addCustomEffect(effectType.createEffect(duration, level), true);
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(boolean splash, String displayName, List<String> lore, PotionEffectType effectType,
+                       int duration, int level, int amount) {
+        this((splash ? Material.SPLASH_POTION : Material.POTION));
+        this.setAmount(amount);
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+            throw new InvalidItemTypeException("PotionMeta");
+        }
+        meta.setColor(effectType.getColor());
+        meta.setDisplayName(displayName);
+        meta.addCustomEffect(effectType.createEffect(duration, level), true);
+        meta.setLore(lore);
+        this.setItemMeta(meta);
+    }
+
+    @Deprecated
+    public ExItemStack(String displayName, PotionEffectType effectType, int duration, int level, int amount) {
+        this(Material.LINGERING_POTION);
+        this.setAmount(amount);
+        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+            throw new InvalidItemTypeException("PotionMeta");
+        }
+        meta.setColor(effectType.getColor());
+        meta.setDisplayName(displayName);
+        meta.addCustomEffect(effectType.createEffect(duration, level), true);
+        this.setItemMeta(meta);
+    }
+
     private boolean moveable = true;
 
     private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable, boolean clone) {
@@ -118,35 +282,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     }
 
-
-    public static ExItemStack getItem(ItemStack item, boolean createIfNotExists) {
-        if (item == null) {
-            return null;
-        }
-
-        if (ExItemStack.hasId(item)) {
-            return ExItemStack.getItemById(ExItemStack.getIdFromItem(item));
-        } else if (createIfNotExists) {
-            return new ExItemStack(item, false);
-        }
-
-        return null;
-    }
-
-    public static ExItemStack getItemByMeta(ItemMeta meta) {
-        return ExItemStack.getItemById(getIdFromString(meta.getLocalizedName()));
-    }
-
-    public static boolean hasId(ItemStack item) {
-        return ExItemStack.getIdFromItem(item) != null;
-    }
-
-
-    protected final Integer id;
-    protected Integer slot;
-
-    private boolean dropable = true;
-
     public ExItemStack(Integer id, ItemStack item) {
         this(id, item, true, true, true);
     }
@@ -166,45 +301,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this(item, true);
     }
 
-    private static Boolean getDropableFromString(String name) {
-        if (name == null) {
-            return null;
-        }
-
-        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
-
-        if (attributes.length < 2) {
-            return null;
-        }
-
-        return Boolean.parseBoolean(attributes[1]);
-    }
-
     public ExItemStack(Integer id, ItemStack item, Integer slot) {
         this(id, item);
         this.slot = slot;
-    }
-
-    private static Boolean getMoveableFromString(String name) {
-        if (name == null) {
-            return null;
-        }
-
-        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
-
-        if (attributes.length < 3) {
-            return null;
-        }
-
-        return Boolean.parseBoolean(attributes[2]);
-    }
-
-    private static void setAttributes(ItemStack item, Integer id, Boolean dropable, Boolean moveable) {
-        if (id != null && dropable != null && item.getItemMeta() != null) {
-            ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
-            item.setItemMeta(meta);
-        }
     }
 
     public ExItemStack(ItemStack item, Integer slot) {
@@ -216,53 +315,62 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this(newItemId(), new ItemStack(material));
     }
 
-    public ExItemStack(Material material, Color color) {
-        this(material);
-
-        if (!(this.getItemMeta() instanceof LeatherArmorMeta)) {
-            throw new InvalidItemTypeException("LeatherArmorMeta");
+    @Deprecated
+    public ExItemStack(Player owner, String displayName) {
+        this(Material.PLAYER_HEAD, displayName);
+        if (!(this.getItemMeta() instanceof SkullMeta meta)) {
+            throw new InvalidItemTypeException("SkullMeta");
         }
-
-        LeatherArmorMeta meta = (LeatherArmorMeta) this.getItemMeta();
-        meta.setColor(color);
+        meta.setOwningPlayer(owner.getPlayer());
         this.setItemMeta(meta);
     }
 
-    public ExItemStack(Material material, PotionType type, boolean extended, boolean upgraded) {
-        this(material);
+    @Deprecated
+    public ExItemStack(Player owner, String displayName, List<String> lore) {
+        this(Material.PLAYER_HEAD, displayName);
+        if (!(this.getItemMeta() instanceof SkullMeta meta)) {
+            throw new InvalidItemTypeException("SkullMeta");
+        }
+        meta.setOwningPlayer(owner.getPlayer());
+        this.setItemMeta(meta);
+        this.setLore(lore);
+    }
 
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+    public static ExItemStack getPotion(Material material, PotionType type, boolean extended, boolean upgraded) {
+        ExItemStack item = new ExItemStack(material);
+
+        if (!(item.getItemMeta() instanceof PotionMeta meta)) {
             throw new InvalidItemTypeException("PotionMeta");
         }
 
         meta.setBasePotionData(new PotionData(type, extended, upgraded));
-        this.setItemMeta(meta);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
-    public ExItemStack(Material material, PotionType type, Color color, boolean extended, boolean upgraded) {
-        this(material, type, extended, upgraded);
+    public static ExItemStack getPotion(Material material, PotionType type, Color color, boolean extended,
+                                        boolean upgraded) {
+        ExItemStack item = ExItemStack.getPotion(material, type, extended, upgraded);
 
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
+        if (!(item.getItemMeta() instanceof PotionMeta meta)) {
             throw new InvalidItemTypeException("PotionMeta");
         }
 
         meta.setColor(color);
-        this.setItemMeta(meta);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
-    public ExItemStack(Material material, int amount, PotionType type, boolean extended, boolean upgraded) {
-        this(material, type, extended, upgraded);
-        this.setAmount(amount);
+    public static ExItemStack getPotion(Material material, int amount, PotionType type, boolean extended,
+                                        boolean upgraded) {
+        return ExItemStack.getPotion(material, type, extended, upgraded).asQuantity(amount);
     }
 
-    public ExItemStack(Material material, int amount, String displayName, PotionType type, boolean extended, boolean upgraded) {
-        this(material, amount, type, extended, upgraded);
-        this.setDisplayName(displayName);
-    }
-
-    public ExItemStack(Material material, String displayName, Color color) {
-        this(material, color);
-        this.setDisplayName(displayName);
+    public static ExItemStack getPotion(Material material, int amount, String displayName, PotionType type,
+                                        boolean extended, boolean upgraded) {
+        return ExItemStack.getPotion(material, amount, type, extended, upgraded).setDisplayName(displayName);
     }
 
     public ExItemStack(Material material, int amount) {
@@ -294,123 +402,123 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this(material, displayName, Arrays.asList(lines));
     }
 
-    public ExItemStack(Material material, boolean unbreakable) {
-        this(material);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-    }
+    public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
+                                        PotionEffectType effectType, int duration, int level) {
+        ExItemStack item = new ExItemStack(type.getMaterial());
 
-    public ExItemStack(Material material, boolean unbreakable, boolean enchant) {
-        this(material);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-        if (enchant) this.enchant();
-    }
+        item.asQuantity(amount);
 
-    public ExItemStack(Material material, int amount, int damage) {
-        this(material, amount);
-        this.setDamage(damage);
-    }
-
-    public ExItemStack(Material material, int damage, boolean enchant) {
-        this(material, 1, damage);
-        if (enchant) this.enchant();
-    }
-
-    public ExItemStack(Material material, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    public ExItemStack(Material material, String displayName, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, displayName);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    public ExItemStack(Material material, int damage, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, 1, damage);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    public ExItemStack(Material material, boolean unbreakable, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, enchantments, levels);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-    }
-
-    public ExItemStack(Material material, String displayName, boolean unbreakable, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, unbreakable, enchantments, levels);
-        this.setDisplayName(displayName);
-    }
-
-    public ExItemStack(Material material, String displayName, int damage, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, 1, damage);
-        this.setDisplayName(displayName);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    public ExItemStack(boolean splash, String displayName, PotionEffectType effectType, int duration, int level, int amount) {
-        this((splash ? Material.SPLASH_POTION : Material.POTION));
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta)) {
+        if (!(item.getItemMeta() instanceof PotionMeta meta)) {
             throw new InvalidItemTypeException("PotionMeta");
         }
-        PotionMeta meta = (PotionMeta) this.getItemMeta();
+
         meta.setColor(effectType.getColor());
         meta.setDisplayName(displayName);
         meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        this.setItemMeta(meta);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
-    public ExItemStack(boolean splash, String displayName, List<String> lore, PotionEffectType effectType, int duration, int level, int amount) {
-        this((splash ? Material.SPLASH_POTION : Material.POTION));
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta)) {
-            throw new InvalidItemTypeException("PotionMeta");
+    public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
+                                        PotionEffectType effectType, int duration, int level, List<String> lore) {
+        return ExItemStack.getPotion(type, amount, displayName, effectType, duration, level).setExLore(lore);
+    }
+
+    public static ExItemStack getLeatherArmor(Material material, Color color) {
+        ExItemStack item = new ExItemStack(material);
+
+        if (!(item.getItemMeta() instanceof LeatherArmorMeta meta)) {
+            throw new InvalidItemTypeException("LeatherArmorMeta");
         }
-        PotionMeta meta = (PotionMeta) this.getItemMeta();
-        meta.setColor(effectType.getColor());
-        meta.setDisplayName(displayName);
-        meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        meta.setLore(lore);
-        this.setItemMeta(meta);
+
+        meta.setColor(color);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
-    public ExItemStack(String displayName, PotionEffectType effectType, int duration, int level, int amount) {
-        this(Material.LINGERING_POTION);
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-        PotionMeta meta = (PotionMeta) this.getItemMeta();
-        meta.setColor(effectType.getColor());
-        meta.setDisplayName(displayName);
-        meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        this.setItemMeta(meta);
+    public static ExItemStack getLeatherArmor(Material material, String displayName, Color color) {
+        return ExItemStack.getLeatherArmor(material, color).setDisplayName(displayName);
     }
 
-    public ExItemStack(Player owner, String displayName) {
-        this(Material.PLAYER_HEAD, displayName);
-        if (!(this.getItemMeta() instanceof SkullMeta)) {
+    public static ExItemStack getHead(Player owner, String displayName) {
+        ExItemStack item = new ExItemStack(Material.PLAYER_HEAD, displayName);
+
+        if (!(item.getItemMeta() instanceof SkullMeta meta)) {
             throw new InvalidItemTypeException("SkullMeta");
         }
-        SkullMeta meta = ((SkullMeta) this.getItemMeta());
+
         meta.setOwningPlayer(owner.getPlayer());
-        this.setItemMeta(meta);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
-    public ExItemStack(Player owner, String displayName, List<String> lore) {
-        this(Material.PLAYER_HEAD, displayName);
-        if (!(this.getItemMeta() instanceof SkullMeta)) {
-            throw new InvalidItemTypeException("SkullMeta");
+    public static ExItemStack getHead(Player owner, String displayName, List<String> lore) {
+        return ExItemStack.getHead(owner, displayName).setExLore(lore);
+    }
+
+    public static ExItemStack getItem(ItemStack item, boolean createIfNotExists) {
+        if (item == null) {
+            return null;
         }
-        SkullMeta meta = ((SkullMeta) this.getItemMeta());
-        meta.setOwningPlayer(owner.getPlayer());
-        this.setItemMeta(meta);
-        this.setLore(lore);
+
+        if (ExItemStack.hasId(item)) {
+            return ExItemStack.getItemById(ExItemStack.getIdFromItem(item));
+        } else if (createIfNotExists) {
+            return new ExItemStack(item, false);
+        }
+
+        return null;
+    }
+
+    public static ExItemStack getItemByMeta(ItemMeta meta) {
+        return ExItemStack.getItemById(getIdFromString(meta.getLocalizedName()));
+    }
+
+    public static boolean hasId(ItemStack item) {
+        return ExItemStack.getIdFromItem(item) != null;
+    }
+
+    private static Boolean getDropableFromString(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
+
+        if (attributes.length < 2) {
+            return null;
+        }
+
+        return Boolean.parseBoolean(attributes[1]);
+    }
+
+    private static Boolean getMoveableFromString(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String[] attributes = name.split(ATTRIBUTE_SPLITTER);
+
+        if (attributes.length < 3) {
+            return null;
+        }
+
+        return Boolean.parseBoolean(attributes[2]);
+    }
+
+    private static void setAttributes(ItemStack item, Integer id, Boolean dropable, Boolean moveable) {
+        if (id != null && dropable != null && item.getItemMeta() != null) {
+            ItemMeta meta = item.getItemMeta();
+            meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
+            item.setItemMeta(meta);
+        }
+    }
+
+    public ExItemStack unbreakable() {
+        return this.setUnbreakable(true);
     }
 
     public ExItemStack(Integer slot, Material material) {
@@ -538,12 +646,20 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
+    @Deprecated
     public ExItemStack addEnchantments(List<Enchantment> enchantments, List<Integer> enchantmentLevels) {
         ItemMeta meta = this.getItemMeta();
         for (int i = 0; i < enchantments.size(); i++) {
             meta.addEnchant(enchantments.get(i), enchantmentLevels.get(i), true);
         }
         this.setItemMeta(meta);
+        return this;
+    }
+
+    @Deprecated
+    public ExItemStack setEnchantments(List<Enchantment> enchantments, List<Integer> enchantmentLevels) {
+        this.removeEnchantments();
+        this.addEnchantments(enchantments, enchantmentLevels);
         return this;
     }
 
@@ -562,9 +678,22 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
-    public ExItemStack setEnchantments(List<Enchantment> enchantments, List<Integer> enchantmentLevels) {
+    @SafeVarargs
+    public final ExItemStack addEnchantments(Tuple<Enchantment, Integer>... enchantments) {
         this.removeEnchantments();
-        this.addEnchantments(enchantments, enchantmentLevels);
+        for (Tuple<Enchantment, Integer> tuple : enchantments) {
+            this.addEnchantment(tuple.getA(), tuple.getB());
+        }
+        return this;
+    }
+
+    public ExItemStack setDamage(int damage) {
+        if (!(this.getItemMeta() instanceof Damageable meta)) {
+            return this;
+        }
+
+        meta.setDamage(damage);
+        this.setItemMeta(meta);
         return this;
     }
 
@@ -589,15 +718,20 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
-    public ExItemStack setDamage(int damage) {
-        if (!(this.getItemMeta() instanceof Damageable)) {
-            return this;
+    public enum PotionMaterial {
+        DRINK(Material.POTION),
+        SPLASH(Material.SPLASH_POTION),
+        LINGERING(Material.LINGERING_POTION);
+
+        private final Material material;
+
+        PotionMaterial(Material material) {
+            this.material = material;
         }
 
-        Damageable meta = (Damageable) this.getItemMeta();
-        meta.setDamage(damage);
-        this.setItemMeta(meta);
-        return this;
+        public Material getMaterial() {
+            return material;
+        }
     }
 
     /**
