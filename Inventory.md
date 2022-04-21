@@ -1,6 +1,6 @@
 ## InventoryManager
 
-### ExInventory
+### ExInventory (`Server#createExInventory(...)`)
 
 The `ExInventory` provides some extra methods on inventories. Like a constructor with item varargs, which calculates
 the needed inventory size.
@@ -35,7 +35,7 @@ If not set, the item is not dropable.
 **Moveable:**
 If not set, the item can not be moved in inventories.
 
-### InventoryListener (see `InventoryEventManager`)
+### InventoryListener (`Server#getInventoryEventManger()`)
 
 The inventory listeners are based on two registration types:
 

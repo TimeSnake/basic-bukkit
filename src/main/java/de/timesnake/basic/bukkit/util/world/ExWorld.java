@@ -1922,6 +1922,11 @@ public class ExWorld implements World {
     }
 
     @Override
+    public @NotNull Biome getComputedBiome(int i, int i1, int i2) {
+        return world.getComputedBiome(i, i1, i2);
+    }
+
+    @Override
     public void setBiome(@NotNull Location location, @NotNull Biome biome) {
         world.setBiome(location, biome);
     }
