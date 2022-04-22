@@ -664,7 +664,7 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      */
     public void sendTitle(String title, String subTitle, Duration stay) {
         this.showTitle(Title.title(Component.text(title), Component.text(subTitle),
-         Title.Times.times(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
+                Title.Times.times(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
     }
 
     /**
