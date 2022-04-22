@@ -112,6 +112,11 @@ public class ExWorld implements World {
         return super.equals(obj);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.world.getName());
+    }
+
     public boolean isSafe() {
         return safe;
     }
