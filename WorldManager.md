@@ -32,7 +32,7 @@ The `ExWorld` class provides many world restrictions to block actions.
 - `allowBlockPlace` - allows players to place blocks
 - `allowBlockIgnite` - allows igniting blocks
 - `allowBlockBurnUp` - allows burning up blocks
-- `allowEntityBlockBreak` - allows players to destroy entity blocks (like item-frames)
+- `allowEntityBlockBreak` - allows players to destroy entity blocks (like item-frames, paintings)
 - `allowPlaceInBlock` - allows players to place blocks into blocks (like turtle eggs, sea pickles, candles, ender eyes)
 - `allowFluidCollect` - allows players to collect fluids from cauldrons
 - `allowFluidPlace` - allows players to place fluids in cauldrons
@@ -44,6 +44,10 @@ The `ExWorld` class provides many world restrictions to block actions.
 - `allowPlayerDamage` - allows players to get damage
 - `allowFoodChange` - allows players to lose food
 - `allowItemFrameRotate` - allows players to rotate item frames
+- `allowEatCake` - allows players to eat cakes (if not set, prevents dropping candles on cakes)
+
+
+- `lockedBlockInventories` - list of materials of blocks with an inventory, which are locked (players can not open it)
 
 ### World-Border
 

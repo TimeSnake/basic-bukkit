@@ -663,7 +663,8 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      * @param stay     The stay time in ms
      */
     public void sendTitle(String title, String subTitle, Duration stay) {
-        this.showTitle(Title.title(Component.text(title), Component.text(subTitle), Title.Times.of(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
+        this.showTitle(Title.title(Component.text(title), Component.text(subTitle),
+         Title.Times.times(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
     }
 
     /**
@@ -1738,12 +1739,16 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
      */
     public ExLocation getExLocation() {
         return new ExLocation(this.getExWorld(), this.getLocation().getX(), this.getLocation().getY(),
-         this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
+                this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
     }
 
     public boolean teleport(double x, double y, double z) {
         return this.teleport(new ExLocation(this.getWorld(), x, y, z, this.getLocation().getYaw(),
-         this.getLocation().getPitch()));
+                this.getLocation().getPitch()));
+    }
+
+    public boolean teleport(double x, double y, double z, float yaw, float pitch) {
+        return this.teleport(new ExLocation(this.getWorld(), x, y, z, yaw, pitch));
     }
 
     /**

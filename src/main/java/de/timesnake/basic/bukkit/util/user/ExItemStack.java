@@ -680,10 +680,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     @SafeVarargs
     public final ExItemStack addEnchantments(Tuple<Enchantment, Integer>... enchantments) {
-        this.removeEnchantments();
-        for (Tuple<Enchantment, Integer> tuple : enchantments) {
-            this.addEnchantment(tuple.getA(), tuple.getB());
+        ItemMeta meta = this.getItemMeta();
+        for (Tuple<Enchantment, Integer> enchantment : enchantments) {
+            meta.addEnchant(enchantment.getA(), enchantment.getB(), true);
         }
+        this.setItemMeta(meta);
         return this;
     }
 
