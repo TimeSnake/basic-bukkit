@@ -23,7 +23,6 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
-import de.timesnake.library.extension.util.cmd.CommandHelp;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -357,10 +356,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
             new BasicBukkit().onDisable();
         }
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-    }
-
-    public static List<CommandHelp> getCommandHelpList() {
-        return server.getCommandHelpList();
     }
 
     public static Collection<ExWorld> getWorlds() {
