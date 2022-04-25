@@ -45,7 +45,6 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
-import de.timesnake.library.extension.util.cmd.CommandHelp;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -113,8 +112,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private Info info;
 
     private PvPManager pvpManager;
-
-    protected List<CommandHelp> commandHelpList = new ArrayList<>();
 
     private HoloDisplayManager holoDisplayManager;
 
@@ -544,15 +541,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      */
     public void runCommand(String cmd) {
         this.consoleManager.runCommand(cmd);
-    }
-
-    /**
-     * Not implemented
-     *
-     * @return the command help list
-     */
-    public final List<CommandHelp> getCommandHelpList() {
-        return commandHelpList;
     }
 
     public Collection<ExWorld> getWorlds() {

@@ -1493,6 +1493,16 @@ public class User implements de.timesnake.library.extension.util.player.User, Ch
     }
 
     /**
+     * Sets an item stack in inventory
+     *
+     * @param slot The {@link EquipmentSlot} to set
+     * @param item The {@link org.bukkit.inventory.ItemStack} to set
+     */
+    public void setItem(EquipmentSlot slot, org.bukkit.inventory.ItemStack item) {
+        this.player.getInventory().setItem(slot, item);
+    }
+
+    /**
      * Adds item stacks in inventory
      *
      * @param item The items to add

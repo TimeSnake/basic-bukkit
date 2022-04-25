@@ -1,4 +1,4 @@
-package de.timesnake.basic.bukkit.util.user.event;
+package de.timesnake.basic.bukkit.util.user;
 
 import org.bukkit.inventory.InventoryHolder;
 

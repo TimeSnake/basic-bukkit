@@ -15,7 +15,6 @@ public class PvPManager implements Listener {
     public static final Integer FULL_ATTACKS_PER_SECOND = 10;
     public static final Integer ATTACK_DAMAGE = 2;
     public static final Integer MAX_NO_DAMAGE_TICKS = 4;
-    public static final Integer ARMOR_POINTS = 5;
 
     private boolean oldPvP;
 
@@ -57,9 +56,11 @@ public class PvPManager implements Listener {
 
     public void broadcastPvPTypeMessage() {
         if (this.oldPvP) {
-            Server.broadcastMessage(Plugin.BUKKIT, ChatColor.WARNING + "§lHint: " + ChatColor.WARNING + "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.");
+            Server.broadcastMessage(Plugin.BUKKIT, ChatColor.WARNING + "§lHint: " + ChatColor.WARNING +
+                    "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.");
         } else {
-            Server.broadcastMessage(Plugin.BUKKIT, ChatColor.WARNING + "§lHint: " + ChatColor.WARNING + "1.9+ pvp is activated, so you should hit slow.");
+            Server.broadcastMessage(Plugin.BUKKIT, ChatColor.WARNING + "§lHint: " + ChatColor.WARNING +
+                    "1.9+ pvp is activated, so you should hit slow.");
         }
     }
 

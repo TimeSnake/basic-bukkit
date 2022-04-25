@@ -3,8 +3,12 @@ package de.timesnake.basic.bukkit.core.user.inventory;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
+import de.timesnake.basic.bukkit.util.user.ExcludedInventoryHolder;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.*;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -96,7 +100,9 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_AIR
+                || e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+
             User user = Server.getUser(e.getPlayer());
 
             if (!this.isUserExcluded(user) && user.isInventoryLocked()) {
