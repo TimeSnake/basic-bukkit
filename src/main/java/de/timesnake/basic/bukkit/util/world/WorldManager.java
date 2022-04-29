@@ -81,7 +81,8 @@ public interface WorldManager {
      * This method deletes the {@link World} and {@link ExWorld}
      * Beware of saved locations, they are invalid after the deletion.
      *
-     * @param world The {@link ExWorld} to delete
+     * @param world       The {@link ExWorld} to delete
+     * @param deleteFiles If set, all world files will be deleted
      * @return true if the deletion was successfully, else false
      */
     boolean deleteWorld(ExWorld world, boolean deleteFiles);
