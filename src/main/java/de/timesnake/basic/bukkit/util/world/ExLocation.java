@@ -5,6 +5,7 @@ import de.timesnake.library.basic.util.Triple;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 public class ExLocation extends Location {
@@ -117,6 +118,29 @@ public class ExLocation extends Location {
             return 315;
         }
         return 0;
+    }
+
+    /**
+     * Gets the {@link BlockFace} facing in the location direction.
+     * The face is rounded to NORTH, EAST, SOUTH, WEST, UP and DOWN.
+     *
+     * @return the {@link BlockFace}
+     */
+    public BlockFace getDirectionAsBlockFace() {
+
+        float yaw = this.getYaw();
+        float pitch = this.getPitch();
+
+        if (pitch < -45) return BlockFace.UP;
+        if (pitch > 45) return BlockFace.DOWN;
+
+        while (yaw < 0) yaw += 360;
+        while (yaw >= 360) yaw -= 360;
+
+        if (yaw < 45) return BlockFace.NORTH;
+        if (yaw < 135) return BlockFace.WEST;
+        if (yaw < 225) return BlockFace.SOUTH;
+        return BlockFace.EAST;
     }
 
     @Override

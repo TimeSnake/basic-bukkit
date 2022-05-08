@@ -305,98 +305,17 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         this.updateChanges();
     }
 
-    /**
-     * The main tablist with team entries sorted by rank
-     */
-    protected class TeamTab extends Tab<TablistTeam> {
-
-        public void addPlayerToEntry(TablistablePlayer player) {
-            String rank = player.getFullRank(teamTypes);
-            for (TablistTeam team : this) {
-                if (team.getRank().equals(rank)) {
-                    String groupRank = player.getFullRank(team.types);
-                    String prefix;
-                    if (player.getTablistPrefix() != null) {
-                        prefix = player.getFullPrefix(teamTypes) + player.getFullPrefix(team.types) + player.getTablistPrefix();
-                    } else {
-                        prefix = player.getFullPrefix(teamTypes) + player.getFullPrefix(team.types);
-                    }
-                    ChatColor chatColor = ChatColor.WHITE;
-                    switch (colorType) {
-                        case TEAM:
-                            chatColor = team.getChatColor();
-                            break;
-
-                        case LAST_GROUP:
-                            if (team.types.size() == 0) {
-                                break;
-                            }
-
-                            TablistableGroup last = player.getTablistGroup(team.types.getLast());
-                            if (last.getTablistChatColor() == null) {
-                                break;
-                            }
-
-                            chatColor = last.getTablistChatColor();
-                            break;
-
-                        case FIRST_GROUP:
-                            if (team.types.size() == 0) {
-                                break;
-                            }
-
-                            TablistableGroup first = player.getTablistGroup(team.types.getFirst());
-                            if (first.getTablistChatColor() == null) {
-                                break;
-                            }
-
-                            chatColor = first.getTablistChatColor();
-                            break;
-                        case WHITE:
-                            chatColor = ChatColor.WHITE;
-                            break;
-                    }
-                    team.addEntry(new Entry(team, rank, groupRank, prefix, chatColor, player));
-                    return;
-                }
+    private void calcTeamsOnly() {
+        Iterator<TablistTeam> it = this.teamTab.iterator();
+        switch (this.teamTab.size()) {
+            case 1 -> calcSingle(it.next());
+            case 2 -> calcDouble(it.next(), it.next());
+            case 3 -> calcTriple(it.next(), it.next(), it.next());
+            case 4 -> calcQuadruple(it.next(), it.next(), it.next(), it.next());
+            case 5 -> calcQuintuple(it.next(), it.next(), it.next(), it.next(), it.next());
+            case 6 -> calcSixtuple(it.next(), it.next(), it.next(), it.next(), it.next(), it.next());
+            default -> {
             }
-        }
-
-        public boolean removePlayerFromEntry(TablistablePlayer player) {
-            if (userRankKey.get(player) == null) {
-                return false;
-            }
-            String rank = userRankKey.get(player).getTeamRank();
-            if (rank == null) {
-                return false;
-            }
-            for (TablistTeam team : this) {
-                if (team.getRank().equals(rank)) {
-                    String groupRank = userRankKey.get(player).getGroupRank();
-                    if (groupRank == null) {
-                        return false;
-                    }
-                    return team.removeEntry(new Entry(team, rank, groupRank, null, null, player));
-                }
-            }
-            return false;
-        }
-
-        public void addHeaderToEntry(String teamRank, String headerRank, String name, ExPacketPlayOutTablist.Head head) {
-            for (TablistTeam team : this) {
-                if (team.getRank().equals(teamRank)) {
-                    team.addHeader(new Entry(team, teamRank, headerRank, null, null, new FakeTablistPlayer(name, head)));
-                }
-            }
-        }
-
-        public boolean removeHeaderFromEntry(String teamRank, String headerRank) {
-            for (TablistTeam team : this) {
-                if (team.getRank().equals(teamRank)) {
-                    return team.removeHeader(headerRank);
-                }
-            }
-            return false;
         }
     }
 
@@ -645,49 +564,55 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
     }
 
-    private void calcTeamsOnly() {
-        Iterator<TablistTeam> it = this.teamTab.iterator();
-        switch (this.teamTab.size()) {
-            case 1:
-                calcSingle(it.next());
-                break;
-            case 2:
-                calcDouble(it.next(), it.next());
-                break;
-            case 3:
-                calcTriple(it.next(), it.next(), it.next());
-                break;
-            case 4:
-                calcQuadruple(it.next(), it.next(), it.next(), it.next());
-                break;
-            case 5:
-                calcQuintuple(it.next(), it.next(), it.next(), it.next(), it.next());
-                break;
-            case 6:
-                calcSixtuple(it.next(), it.next(), it.next(), it.next(), it.next(), it.next());
-                break;
-            default:
-                break;
-        }
-    }
-
     private void calcTeamsAndRemain() {
         Iterator<TablistTeam> it = this.teamTab.iterator();
         switch (this.teamTab.size()) {
-            case 1:
-                calcSingleRemain(it.next(), this.remainTeam);
-                break;
-            case 2:
-                calcDoubleRemain(it.next(), it.next(), this.remainTeam);
-                break;
-            case 3:
-                calcTripleRemain(it.next(), it.next(), it.next(), this.remainTeam);
-                break;
-            case 4:
-                calcQuadrupleRemain(it.next(), it.next(), it.next(), it.next(), this.remainTeam);
-                break;
-            default:
-                break;
+            case 1 -> calcSingleRemain(it.next(), this.remainTeam);
+            case 2 -> calcDoubleRemain(it.next(), it.next(), this.remainTeam);
+            case 3 -> calcTripleRemain(it.next(), it.next(), it.next(), this.remainTeam);
+            case 4 -> calcQuadrupleRemain(it.next(), it.next(), it.next(), it.next(), this.remainTeam);
+            default -> {
+            }
+        }
+    }
+
+    private void calcTriple(TablistTeam first, TablistTeam second, TablistTeam third) {
+        int firstSize = first.getSize();
+        int secondSize = second.getSize();
+        int thirdSize = third.getSize();
+
+        int firstSlots = (firstSize % 20) > 0 ? (firstSize / 20) + 1 : (firstSize / 20);
+        int secondSlots = (secondSize % 20) > 0 ? (secondSize / 20) + 1 : (secondSize / 20);
+        int thirdSlots = (thirdSize % 20) > 0 ? (thirdSize / 20) + 1 : (thirdSize / 20);
+
+        if (firstSlots + secondSlots + thirdSlots > 4) {
+            if (firstSize + secondSize + thirdSize + 2 * (SPACE_LINES) > 80) {
+                //TODO equal distribution
+            } else {
+                first.addSlots(firstSize);
+                this.addBlankSlots();
+                second.addSlots(secondSize);
+                this.addBlankSlots();
+                third.addSlots(thirdSize);
+            }
+        } else {
+            int height = this.max(Math.ceil((double) firstSize / firstSlots),
+                    Math.ceil((double) secondSize / secondSlots),
+                    Math.ceil((double) thirdSize / thirdSlots));
+
+            if (height <= 10) {
+                height = 11;
+            }
+
+            for (int i = 0; i < firstSlots; i++) {
+                first.addSlots(height);
+            }
+            for (int i = 0; i < secondSlots; i++) {
+                second.addSlots(height);
+            }
+            for (int i = 0; i < thirdSlots; i++) {
+                third.addSlots(height);
+            }
         }
     }
 
@@ -734,44 +659,6 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
     }
 
-    private void calcTriple(TablistTeam first, TablistTeam second, TablistTeam third) {
-        int firstSize = first.getSize();
-        int secondSize = second.getSize();
-        int thirdSize = third.getSize();
-
-        int firstSlots = (firstSize % 20) > 0 ? (firstSize / 20) + 1 : (firstSize / 20);
-        int secondSlots = (secondSize % 20) > 0 ? (secondSize / 20) + 1 : (secondSize / 20);
-        int thirdSlots = (thirdSize % 20) > 0 ? (thirdSize / 20) + 1 : (thirdSize / 20);
-
-        if (firstSlots + secondSlots + thirdSlots > 4) {
-            if (firstSize + secondSize + thirdSize + 2 * (SPACE_LINES) > 80) {
-                //TODO equal distribution
-            } else {
-                first.addSlots(firstSize);
-                this.addBlankSlots();
-                second.addSlots(secondSize);
-                this.addBlankSlots();
-                third.addSlots(thirdSize);
-            }
-        } else {
-            int height = this.max(Math.ceil((double) firstSize / firstSlots), Math.ceil((double) secondSize / secondSlots), Math.ceil((double) thirdSize / thirdSlots));
-
-            if (height <= 10) {
-                height = 11;
-            }
-
-            for (int i = 0; i < firstSlots; i++) {
-                first.addSlots(height);
-            }
-            for (int i = 0; i < secondSlots; i++) {
-                second.addSlots(height);
-            }
-            for (int i = 0; i < thirdSlots; i++) {
-                third.addSlots(height);
-            }
-        }
-    }
-
     private void calcQuadruple(TablistTeam first, TablistTeam second, TablistTeam third, TablistTeam fourth) {
         int firstSize = first.getSize();
         int secondSize = second.getSize();
@@ -796,7 +683,9 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                 fourth.addSlots(fourthSize);
             }
         } else {
-            int height = this.max(Math.ceil((double) firstSize / firstSlots), Math.ceil((double) secondSize / secondSlots), Math.ceil((double) thirdSize / thirdSlots), Math.ceil((double) fourthSize / fourthSlots));
+            int height = this.max(Math.ceil((double) firstSize / firstSlots),
+                    Math.ceil((double) secondSize / secondSlots),
+                    Math.ceil((double) thirdSize / thirdSlots), Math.ceil((double) fourthSize / fourthSlots));
 
             if (height <= 10) {
                 height = 11;
@@ -814,6 +703,67 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
             for (int i = 0; i < fourthSlots; i++) {
                 fourth.addSlots(height);
             }
+        }
+    }
+
+    private void calcTripleRemain(TablistTeam first, TablistTeam second, TablistTeam third, TablistTeam remain) {
+        int firstSize = first.getSize();
+        int secondSize = second.getSize();
+        int thirdSize = third.getSize();
+        int remainSize = remain != null ? remain.getSize() : 0;
+
+        if (firstSize + secondSize + thirdSize <= 80 - 4 - 4 * SPACE_LINES && remainSize > 0) { //Remain team can fit
+            while ((3 * this.max(firstSize, secondSize, thirdSize) + remainSize) > (80 - 4 * SPACE_LINES) && (remainSize > 0)) {
+                remainSize--;
+            }
+
+            int remainLines = (remainSize % 4) > 0 ? (remainSize / 4) + 1 : (remainSize / 4);
+            remainLines += SPACE_LINES;
+            int availableLines = 20 - remainLines;
+
+            int firstSlots = (firstSize % availableLines) > 0 ? (firstSize / availableLines) + 1 :
+                    (firstSize / availableLines);
+            int secondSlots = (secondSize % availableLines) > 0 ? (secondSize / availableLines) + 1 :
+                    (secondSize / availableLines);
+            int thirdSlots = (thirdSize % availableLines) > 0 ? (thirdSize / availableLines) + 1 :
+                    (thirdSize / availableLines);
+
+            if (firstSlots + secondSlots + thirdSlots > 4) {
+                if (firstSize + secondSize + thirdSize + 2 * SPACE_LINES > 4 * availableLines) {
+                    //TODO equal distribution
+                } else {
+                    first.addSlots(firstSize);
+                    this.addBlankSlots();
+                    second.addSlots(secondSize);
+                    this.addBlankSlots();
+                    third.addSlots(thirdSize);
+                }
+            } else {
+                int height = this.max(Math.ceil((double) firstSize / firstSlots),
+                        Math.ceil((double) secondSize / secondSlots),
+                        Math.ceil((double) thirdSize / thirdSlots));
+                if (height <= (availableLines / 2)) {
+                    height = (availableLines / 2) + 1;
+                }
+
+                for (int i = 0; i < firstSlots; i++) {
+                    first.addSlots(height);
+                    this.addBlankSlots();
+                    remainTeam.addSlots(remainLines - SPACE_LINES);
+                }
+                for (int i = 0; i < secondSlots; i++) {
+                    second.addSlots(height);
+                    this.addBlankSlots();
+                    remainTeam.addSlots(remainLines - SPACE_LINES);
+                }
+                for (int i = 0; i < thirdSlots; i++) {
+                    third.addSlots(height);
+                    this.addBlankSlots();
+                    remainTeam.addSlots(remainLines - SPACE_LINES);
+                }
+            }
+        } else {                                    //It is impossible to fit the remaining team or is empty
+            calcTriple(first, second, third);
         }
     }
 
@@ -924,62 +874,6 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
     }
 
-    private void calcTripleRemain(TablistTeam first, TablistTeam second, TablistTeam third, TablistTeam remain) {
-        int firstSize = first.getSize();
-        int secondSize = second.getSize();
-        int thirdSize = third.getSize();
-        int remainSize = remain != null ? remain.getSize() : 0;
-
-        if (firstSize + secondSize + thirdSize <= 80 - 4 - 4 * SPACE_LINES && remainSize > 0) { //Remain team can fit
-            while ((3 * this.max(firstSize, secondSize, thirdSize) + remainSize) > (80 - 4 * SPACE_LINES) && (remainSize > 0)) {
-                remainSize--;
-            }
-
-            int remainLines = (remainSize % 4) > 0 ? (remainSize / 4) + 1 : (remainSize / 4);
-            remainLines += SPACE_LINES;
-            int availableLines = 20 - remainLines;
-
-            int firstSlots = (firstSize % availableLines) > 0 ? (firstSize / availableLines) + 1 : (firstSize / availableLines);
-            int secondSlots = (secondSize % availableLines) > 0 ? (secondSize / availableLines) + 1 : (secondSize / availableLines);
-            int thirdSlots = (thirdSize % availableLines) > 0 ? (thirdSize / availableLines) + 1 : (thirdSize / availableLines);
-
-            if (firstSlots + secondSlots + thirdSlots > 4) {
-                if (firstSize + secondSize + thirdSize + 2 * SPACE_LINES > 4 * availableLines) {
-                    //TODO equal distribution
-                } else {
-                    first.addSlots(firstSize);
-                    this.addBlankSlots();
-                    second.addSlots(secondSize);
-                    this.addBlankSlots();
-                    third.addSlots(thirdSize);
-                }
-            } else {
-                int height = this.max(Math.ceil((double) firstSize / firstSlots), Math.ceil((double) secondSize / secondSlots), Math.ceil((double) thirdSize / thirdSlots));
-                if (height <= (availableLines / 2)) {
-                    height = (availableLines / 2) + 1;
-                }
-
-                for (int i = 0; i < firstSlots; i++) {
-                    first.addSlots(height);
-                    this.addBlankSlots();
-                    remainTeam.addSlots(remainLines - SPACE_LINES);
-                }
-                for (int i = 0; i < secondSlots; i++) {
-                    second.addSlots(height);
-                    this.addBlankSlots();
-                    remainTeam.addSlots(remainLines - SPACE_LINES);
-                }
-                for (int i = 0; i < thirdSlots; i++) {
-                    third.addSlots(height);
-                    this.addBlankSlots();
-                    remainTeam.addSlots(remainLines - SPACE_LINES);
-                }
-            }
-        } else {                                    //It is impossible to fit the remaining team or is empty
-            calcTriple(first, second, third);
-        }
-    }
-
     private void calcQuadrupleRemain(TablistTeam first, TablistTeam second, TablistTeam third, TablistTeam fourth, TablistTeam remain) {
         int firstSize = first.getSize();
         int secondSize = second.getSize();
@@ -1014,7 +908,9 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                     fourth.addSlots(fourthSlots);
                 }
             } else {
-                int height = this.max(Math.ceil((double) firstSize / firstSlots), Math.ceil((double) secondSize / secondSlots), Math.ceil((double) thirdSize / thirdSlots), Math.ceil((double) fourthSize / fourthSlots));
+                int height = this.max(Math.ceil((double) firstSize / firstSlots),
+                        Math.ceil((double) secondSize / secondSlots),
+                        Math.ceil((double) thirdSize / thirdSlots), Math.ceil((double) fourthSize / fourthSlots));
                 if (height <= (availableLines / 2)) {
                     height = (availableLines / 2) + 1;
                 }
@@ -1043,6 +939,94 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
             }
         } else {                                    //It is impossible to fit the remaining team or is empty
             calcQuadruple(first, second, third, fourth);
+        }
+    }
+
+    /**
+     * The main tablist with team entries sorted by rank
+     */
+    protected class TeamTab extends Tab<TablistTeam> {
+
+        public void addPlayerToEntry(TablistablePlayer player) {
+            String rank = player.getFullRank(teamTypes);
+            for (TablistTeam team : this) {
+                if (team.getRank().equals(rank)) {
+                    String groupRank = player.getFullRank(team.types);
+                    String prefix;
+                    if (player.getTablistPrefix() != null) {
+                        prefix =
+                                player.getFullPrefix(teamTypes) + player.getFullPrefix(team.types) + player.getTablistPrefix();
+                    } else {
+                        prefix = player.getFullPrefix(teamTypes) + player.getFullPrefix(team.types);
+                    }
+                    ChatColor chatColor = ChatColor.WHITE;
+                    switch (colorType) {
+                        case TEAM -> chatColor = team.getChatColor();
+                        case LAST_GROUP -> {
+                            if (team.types.size() == 0) {
+                                break;
+                            }
+                            TablistableGroup last = player.getTablistGroup(team.types.getLast());
+                            if (last.getTablistChatColor() == null) {
+                                break;
+                            }
+                            chatColor = last.getTablistChatColor();
+                        }
+                        case FIRST_GROUP -> {
+                            if (team.types.size() == 0) {
+                                break;
+                            }
+                            TablistableGroup first = player.getTablistGroup(team.types.getFirst());
+                            if (first.getTablistChatColor() == null) {
+                                break;
+                            }
+                            chatColor = first.getTablistChatColor();
+                        }
+                        case WHITE -> chatColor = ChatColor.WHITE;
+                    }
+                    team.addEntry(new Entry(team, rank, groupRank, prefix, chatColor, player));
+                    return;
+                }
+            }
+        }
+
+        public boolean removePlayerFromEntry(TablistablePlayer player) {
+            if (userRankKey.get(player) == null) {
+                return false;
+            }
+            String rank = userRankKey.get(player).getTeamRank();
+            if (rank == null) {
+                return false;
+            }
+            for (TablistTeam team : this) {
+                if (team.getRank().equals(rank)) {
+                    String groupRank = userRankKey.get(player).getGroupRank();
+                    if (groupRank == null) {
+                        return false;
+                    }
+                    return team.removeEntry(new Entry(team, rank, groupRank, null, null, player));
+                }
+            }
+            return false;
+        }
+
+        public void addHeaderToEntry(String teamRank, String headerRank, String name,
+                                     ExPacketPlayOutTablist.Head head) {
+            for (TablistTeam team : this) {
+                if (team.getRank().equals(teamRank)) {
+                    team.addHeader(new Entry(team, teamRank, headerRank, null, null, new FakeTablistPlayer(name,
+                            head)));
+                }
+            }
+        }
+
+        public boolean removeHeaderFromEntry(String teamRank, String headerRank) {
+            for (TablistTeam team : this) {
+                if (team.getRank().equals(teamRank)) {
+                    return team.removeHeader(headerRank);
+                }
+            }
+            return false;
         }
     }
 

@@ -3,7 +3,6 @@ package de.timesnake.basic.bukkit.core.world;
 import com.destroystokyo.paper.HeightmapType;
 import io.papermc.paper.world.MoonPhase;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identified;
@@ -47,7 +46,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 public class DelegatedWorld implements World {
 
@@ -55,11 +53,6 @@ public class DelegatedWorld implements World {
 
     public DelegatedWorld(World world) {
         this.world = world;
-    }
-
-    @NotNull
-    public static Collector<? super Audience, ?, ForwardingAudience> toAudience() {
-        return Audience.toAudience();
     }
 
     @Override
