@@ -12,7 +12,10 @@ import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
 import de.timesnake.basic.bukkit.util.user.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
-import de.timesnake.basic.bukkit.util.world.*;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.basic.bukkit.util.world.WorldManager;
+import de.timesnake.basic.bukkit.util.world.entity.EntityManager;
 import de.timesnake.basic.packets.util.PacketManager;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.channel.core.Channel;
@@ -578,10 +581,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
     public static void broadcastPvPTypeMessage() {
         server.broadcastPvPTypeMessage();
-    }
-
-    public static HoloDisplayManager getHoloDisplayManager() {
-        return server.getHoloDisplayManager();
     }
 
     public static PacketManager getPacketManager() {
