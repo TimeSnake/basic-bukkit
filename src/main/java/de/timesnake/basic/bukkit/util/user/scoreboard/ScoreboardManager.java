@@ -5,11 +5,19 @@ import java.util.LinkedList;
 
 public interface ScoreboardManager {
 
-    GroupTablist registerNewGroupTablist(String name, Tablist.Type type, LinkedList<TablistGroupType> types, TablistUserJoin userJoin, TablistUserQuit userQuit);
+    GroupTablist registerNewGroupTablist(String name, Tablist.Type type, LinkedList<TablistGroupType> types,
+                                         TablistUserJoin userJoin, TablistUserQuit userQuit);
 
-    TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teamsList, TablistUserJoin userJoin, TablistUserQuit userQuit, LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType);
+    TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
+                                       Collection<? extends TablistableGroup> teamsList, TablistUserJoin userJoin,
+                                       TablistUserQuit userQuit, LinkedList<TablistGroupType> groupTypes,
+                                       TablistGroupType teamType);
 
-    TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teamsList, TablistGroupType teamType, LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam, LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin, TablistUserQuit userQuit);
+    TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
+                                       Collection<? extends TablistableGroup> teamsList, TablistGroupType teamType,
+                                       LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam,
+                                       LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin,
+                                       TablistUserQuit userQuit);
 
     Tablist getTablist(String name);
 

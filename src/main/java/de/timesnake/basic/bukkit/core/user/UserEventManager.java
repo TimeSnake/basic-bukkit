@@ -83,6 +83,10 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         User user = Server.getUser(e.getPlayer());
         user.quit();
         Bukkit.getPluginManager().callEvent(new UserQuitEvent(user));
+
+        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
+                BasicBukkit.getPlugin());
+
         this.chatListener.remove(user);
         ((UserManager) Server.getUserManager()).removeUser(user.getUniqueId());
     }
