@@ -1,24 +1,23 @@
-package de.timesnake.basic.bukkit.util.world;
+package de.timesnake.basic.bukkit.util.world.entity;
 
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.entities.entity.bukkit.ExArmorStand;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutSpawnEntityLiving;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class HoloDisplay {
+public class HoloDisplay extends PacketEntity {
 
-    private final ExLocation location;
     private final List<String> text;
 
     private final List<ExArmorStand> stands;
 
-    private final Set<User> watchers = new HashSet<>();
-
     public HoloDisplay(ExLocation location, List<String> text) {
-        this.location = location;
+        super(location);
         this.text = text;
 
         this.stands = new ArrayList<>();
@@ -41,49 +40,22 @@ public class HoloDisplay {
         }
     }
 
-    public ExLocation getLocation() {
-        return location;
-    }
-
     public List<String> getText() {
         return text;
     }
 
-    public void addWatcher(User user) {
-        this.watchers.add(user);
-        this.sendCreationPaketsTo(user);
-    }
-
-    public void sendCreationPaketsTo(User user) {
+    @Override
+    public void spawn(User user) {
         for (ExArmorStand stand : this.stands) {
             user.sendPacket(ExPacketPlayOutSpawnEntityLiving.wrap(stand));
             user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(stand, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
         }
     }
 
-    public void removeWatcher(User user) {
-        this.watchers.remove(user);
-        this.sendRemovePacketsTo(user);
-    }
-
-    public void sendRemovePacketsTo(User user) {
+    @Override
+    public void despawn(User user) {
         for (ExArmorStand stand : this.stands) {
             user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(stand));
         }
-    }
-
-    public void sendRemovePacketsTo(Collection<? extends User> users) {
-        for (User user : users) {
-            this.sendRemovePacketsTo(user);
-        }
-    }
-
-    public void remove() {
-        this.sendRemovePacketsTo(this.watchers);
-        this.watchers.clear();
-    }
-
-    public Set<User> getWatchers() {
-        return watchers;
     }
 }

@@ -8,7 +8,7 @@ import de.timesnake.basic.bukkit.core.user.PacketBroadcaster;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
 import de.timesnake.basic.bukkit.core.user.UserManager;
 import de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager;
-import de.timesnake.basic.bukkit.core.world.EntityManager;
+import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.CommandManager;
 import de.timesnake.basic.bukkit.util.exceptions.WorldNotExistException;
@@ -25,7 +25,6 @@ import de.timesnake.basic.bukkit.util.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
-import de.timesnake.basic.bukkit.util.world.HoloDisplayManager;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.basic.packets.util.PacketManager;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
@@ -113,9 +112,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     private PvPManager pvpManager;
 
-    private HoloDisplayManager holoDisplayManager;
-
-    private EntityManager entityManager;
+    private PacketEntityManager packetEntityManager;
 
     public final void onEnable() {
         this.database = Database.getServers().getServer(Bukkit.getPort());
@@ -132,8 +129,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.taskManager = new TaskManager();
         this.packetBroadcaster = new PacketBroadcaster();
         this.pvpManager = new PvPManager();
-        this.holoDisplayManager = new de.timesnake.basic.bukkit.core.world.HoloDisplayManager();
-        this.entityManager = new EntityManager();
+        this.packetEntityManager = new PacketEntityManager();
         this.initScoreboardManager();
 
         this.getChannel().addListener(this, () -> Collections.singleton(this.getPort()));
@@ -147,7 +143,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public final void onDisable() {
         ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
-        this.entityManager.onDisable();
     }
 
     protected void initNetwork() {
@@ -764,15 +759,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.pvpManager.broadcastPvPTypeMessage();
     }
 
-    public HoloDisplayManager getHoloDisplayManager() {
-        return holoDisplayManager;
-    }
-
     public PacketManager getPacketManager() {
         return packetManager;
     }
 
-    public EntityManager getEntityManager() {
-        return entityManager;
+    public PacketEntityManager getEntityManager() {
+        return packetEntityManager;
     }
 }
