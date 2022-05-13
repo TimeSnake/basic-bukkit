@@ -66,6 +66,12 @@ public class ExWorld extends DelegatedWorld implements World {
     }
 
     @Override
+    public void setAutoSave(boolean safe) {
+        super.setAutoSave(safe);
+        this.safe = safe;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof World && ((World) obj).getName().equals(this.getName())) {
             return true;
