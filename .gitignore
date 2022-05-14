@@ -4,3 +4,5 @@
 *.syncthing.*
 .idea/dataSources.xml
 .idea/dataSources
+/.gradle/
+/build/
