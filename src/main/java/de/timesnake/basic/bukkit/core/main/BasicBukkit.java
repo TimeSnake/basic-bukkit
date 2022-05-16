@@ -71,21 +71,23 @@ public class BasicBukkit extends JavaPlugin {
         ServerManager.getInstance().onEnable();
 
 
-        Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd", "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
-        Server.getCommandManager().addCommand(this, "channelmsg", List.of("channelmsgs", "channelmessage", "channelmessages"), new ChannelBroadcastCmd(), Plugin.NETWORK);
-        Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs", "databasemessages"), new DatabaseBroadcastCmd(), Plugin.DATABASE);
+        Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd",
+                "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
+        Server.getCommandManager().addCommand(this, "channelmsg", List.of("channelmsgs", "channelmessage",
+                "channelmessages"), new ChannelBroadcastCmd(), Plugin.NETWORK);
+        Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs",
+                "databasemessages"), new DatabaseBroadcastCmd(), Plugin.DATABASE);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
-        Server.getCommandManager().addCommand(this, "global", List.of("g", "all"), ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.BUKKIT);
+        Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
+                ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.BUKKIT);
 
-
-        ServerManager.getInstance().printText(Plugin.BUKKIT, "Loaded successfully");
     }
-
 
     @Override
     public void onDisable() {
-        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATUS, Status.Server.OFFLINE));
+        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getPort(),
+                MessageType.Server.STATUS, Status.Server.OFFLINE));
 
         ServerManager.getInstance().onDisable();
 
