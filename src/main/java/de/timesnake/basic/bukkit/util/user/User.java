@@ -296,11 +296,14 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
                 suffix = this.getSuffix();
             }
 
-            this.chatName = group.getPrefixColor() + group.getPrefix() + "§r" + ChatColor.translateAlternateColorCodes('&', prefix) + "§r" + this.getPlayer().getName() + "§r" + ChatColor.translateAlternateColorCodes('&', suffix) + "§r";
+            this.chatName = group.getPrefixColor() + group.getPrefix() + "§r" +
+                    ChatColor.translateAlternateColorCodes('&', prefix) + "§r" + this.getPlayer().getName() +
+                    ChatColor.translateAlternateColorCodes('&', suffix) + "§r";
 
         } else {
             group = Server.getMemberGroup();
-            this.chatName = "§r" + group.getPrefixColor() + group.getPrefix() + "§r" + ChatColor.translateAlternateColorCodes('&', this.getNick());
+            this.chatName = "§r" + group.getPrefixColor() + group.getPrefix() + "§r" +
+                    ChatColor.translateAlternateColorCodes('&', this.getNick());
 
         }
     }
@@ -309,6 +312,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * Kills the user
      * Sets the health to 0
      */
+    @Deprecated
     public void kill() {
         this.player.setHealth(0);
     }
@@ -351,14 +355,14 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         this.removePotionEffects();
     }
 
+    public boolean isCollitionWithEntites() {
+        return this.player.spigot().getCollidesWithEntities();
+    }
+
     public void setCollitionWithEntites(boolean collition) {
         if (!this.airMode) {
             this.player.spigot().setCollidesWithEntities(collition);
         }
-    }
-
-    public boolean isCollitionWithEntites() {
-        return this.player.spigot().getCollidesWithEntities();
     }
 
     //database
@@ -422,8 +426,10 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      */
     public void forceDataProtectionAgreement() {
         this.sendPluginMessage(Plugin.NETWORK, ChatColor.WARNING + "Please accept our data protection declaration");
-        this.sendPluginMessage(Plugin.NETWORK, ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd agree" + ChatColor.PERSONAL + " to accept");
-        this.sendPluginMessage(Plugin.NETWORK, ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd disagree" + ChatColor.PERSONAL + " to deny");
+        this.sendPluginMessage(Plugin.NETWORK,
+                ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd agree" + ChatColor.PERSONAL + " to accept");
+        this.sendPluginMessage(Plugin.NETWORK,
+                ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd disagree" + ChatColor.PERSONAL + " to deny");
     }
 
     /**
@@ -721,7 +727,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         if (this.group == null) {
             this.group = Server.getGuestGroup();
             this.getDatabase().setPermGroup(this.group.getName());
-            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.GROUP, this.group.getName()));
+            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.GROUP,
+                    this.group.getName()));
         }
 
         ((de.timesnake.basic.bukkit.core.permission.Group) this.group).addUser(this);
@@ -821,7 +828,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param player The {@link TablistablePlayer} to remove
      * @param rank   The rank of the group
      */
-    public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player, String rank) {
+    public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player,
+                                   String rank) {
         this.removeTablistEntry(player);
         this.sendPacket(ExPacketPlayOutTablistTeamPlayerRemove.wrap(rank, player.getTablistName()));
     }
@@ -842,7 +850,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
         this.tablist = tablist;
         if (this.tablist == null) {
-            de.timesnake.basic.bukkit.core.user.scoreboard.Tablist standard = (de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) Server.getScoreboardManager().getTablist(Server.getName());
+            de.timesnake.basic.bukkit.core.user.scoreboard.Tablist standard =
+                    (de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) Server.getScoreboardManager().getTablist(Server.getName());
             this.setTablist(standard);
             return;
         }
@@ -866,7 +875,9 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
                 this.removeSideboardScore(score.getKey(), score.getValue());
             }
 
-            this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), this.sideboard.getTitle(), ExPacketPlayOutScoreboardObjective.Display.REMOVE, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
+            this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(),
+                    this.sideboard.getTitle(), ExPacketPlayOutScoreboardObjective.Display.REMOVE,
+                    ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
 
 
         }
@@ -879,9 +890,12 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
         sideboard.addWatchingUser(this);
 
-        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), this.sideboard.getTitle(), ExPacketPlayOutScoreboardObjective.Display.CREATE, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
+        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), this.sideboard.getTitle(),
+                ExPacketPlayOutScoreboardObjective.Display.CREATE,
+                ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
 
-        this.sendPacket(ExPacketPlayOutScoreboardDisplayObjective.wrap(this.sideboard.getName(), ExPacketPlayOutScoreboardDisplayObjective.Slot.SIDEBOARD));
+        this.sendPacket(ExPacketPlayOutScoreboardDisplayObjective.wrap(this.sideboard.getName(),
+                ExPacketPlayOutScoreboardDisplayObjective.Slot.SIDEBOARD));
 
         for (Map.Entry<Integer, String> entry : sideboard.getScores().entrySet()) {
             this.setSideboardScore(entry.getKey(), entry.getValue());
@@ -894,7 +908,9 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
             return;
         }
 
-        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), title, ExPacketPlayOutScoreboardObjective.Display.UPDATE, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
+        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), title,
+                ExPacketPlayOutScoreboardObjective.Display.UPDATE,
+                ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
     }
 
     /**
@@ -942,7 +958,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         this.setSideboard(null);
 
         for (Map.Entry<Integer, String> score : this.scores.entrySet()) {
-            this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(), score.getKey(), score.getValue()));
+            this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(), score.getKey(),
+                    score.getValue()));
         }
         this.scores.clear();
     }
@@ -959,17 +976,6 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      */
     public void sendActionBarText(String text) {
         this.getPlayer().sendActionBar(Component.text(text));
-    }
-
-    /**
-     * Sets a new {@link BossBar}, removes existing
-     *
-     * @param bossBar The {@link BossBar} to set
-     */
-    public void setBossBar(BossBar bossBar) {
-        this.clearBossBars();
-        this.bossBars.add(bossBar);
-        bossBar.addPlayer(this.getPlayer());
     }
 
     /**
@@ -1071,6 +1077,17 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     /**
+     * Sets a new {@link BossBar}, removes existing
+     *
+     * @param bossBar The {@link BossBar} to set
+     */
+    public void setBossBar(BossBar bossBar) {
+        this.clearBossBars();
+        this.bossBars.add(bossBar);
+        bossBar.addPlayer(this.getPlayer());
+    }
+
+    /**
      * Gets the bars
      *
      * @return the {@link Set} of {@link BossBar}s
@@ -1117,15 +1134,6 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     /**
-     * Checks if the user is ingame
-     *
-     * @return true if status is equals ingame
-     */
-    public boolean isInGame() {
-        return this.getStatus().equals(Status.User.IN_GAME);
-    }
-
-    /**
      * Sets the user status
      *
      * @param status The {@link Status.User} to set
@@ -1137,6 +1145,15 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
         this.status = status;
 
+    }
+
+    /**
+     * Checks if the user is ingame
+     *
+     * @return true if status is equals ingame
+     */
+    public boolean isInGame() {
+        return this.getStatus().equals(Status.User.IN_GAME);
     }
 
     /**
@@ -1729,7 +1746,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      */
     public DbLocation getDbLocation() {
         Location loc = this.getLocation();
-        return new DbLocation(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+        return new DbLocation(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
+                loc.getPitch());
     }
 
     /**
@@ -1762,21 +1780,21 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     /**
-     * Sets the last location of the user
-     *
-     * @param location The last {@link Location} of the user
-     */
-    public void setLastLocation(Location location) {
-        this.lastLocation = location;
-    }
-
-    /**
      * Gets the last location of the user
      *
      * @return the last {@link Location}
      */
     public Location getLastLocation() {
         return lastLocation;
+    }
+
+    /**
+     * Sets the last location of the user
+     *
+     * @param location The last {@link Location} of the user
+     */
+    public void setLastLocation(Location location) {
+        this.lastLocation = location;
     }
 
     /**
@@ -1790,12 +1808,12 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         return Server.getWorldManager().getUserLocation(this, world);
     }
 
-    public void setLastDamager(UserDamage userDamage) {
-        this.lastUserDamage = userDamage;
-    }
-
     public UserDamage getLastDamager() {
         return this.lastUserDamage;
+    }
+
+    public void setLastDamager(UserDamage userDamage) {
+        this.lastUserDamage = userDamage;
     }
 
     //coins

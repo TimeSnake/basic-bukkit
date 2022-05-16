@@ -40,7 +40,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             e.allow();
         } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers())
                 && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || e.getPlayer().hasPermission(
-                        "basicsystem.join.full")) {
+                "basicsystem.join.full")) {
             e.allow();
         }
         try {
@@ -55,10 +55,13 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage("");
+
+        // finalize user creation
         ((UserManager) Server.getUserManager()).registerUser(e.getPlayer().getUniqueId());
 
         User user = Server.getUser(e.getPlayer());
 
+        // air mode
         if (user.isAirMode()) {
             for (de.timesnake.basic.bukkit.util.user.User u : Server.getUsers()) {
                 u.hideUser(user);
@@ -70,9 +73,11 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             }
         }
 
+        // async user join event
         Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)),
                 BasicBukkit.getPlugin());
 
+        // user join event
         Bukkit.getPluginManager().callEvent(new UserJoinEvent(user));
 
     }
@@ -82,10 +87,13 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         e.setQuitMessage("");
         User user = Server.getUser(e.getPlayer());
         user.quit();
-        Bukkit.getPluginManager().callEvent(new UserQuitEvent(user));
 
+        // async user quit event
         Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
                 BasicBukkit.getPlugin());
+
+        // user quit event
+        Bukkit.getPluginManager().callEvent(new UserQuitEvent(user));
 
         this.chatListener.remove(user);
         ((UserManager) Server.getUserManager()).removeUser(user.getUniqueId());
@@ -136,7 +144,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             }
 
             if (userDamager != null) {
-                UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager, e.isCancelled(), e.getDamage(), e.getCause());
+                UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager, e.isCancelled(),
+                        e.getDamage(), e.getCause());
                 Bukkit.getPluginManager().callEvent(userEvent);
 
                 if (userEvent.isCancelDamage()) {
@@ -148,9 +157,11 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
                 if (!e.isCancelled()) {
                     if (damager instanceof Player) {
-                        user.setLastDamager(new UserDamage(user, userDamager, e.getCause(), UserDamage.DamageType.PLAYER));
+                        user.setLastDamager(new UserDamage(user, userDamager, e.getCause(),
+                                UserDamage.DamageType.PLAYER));
                     } else {
-                        user.setLastDamager(new UserDamage(user, userDamager, e.getCause(), UserDamage.DamageType.PLAYER_BOW));
+                        user.setLastDamager(new UserDamage(user, userDamager, e.getCause(),
+                                UserDamage.DamageType.PLAYER_BOW));
                     }
                 }
             }
@@ -176,7 +187,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             return;
         }
 
-        EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager, e.isCancelled(), e.getDamage(), e.getCause());
+        EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager, e.isCancelled(),
+                e.getDamage(), e.getCause());
         Bukkit.getPluginManager().callEvent(userEvent);
         e.setCancelled(userEvent.isCancelled());
 
@@ -193,6 +205,11 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         if (user == null) {
             return;
         }
+
+        // async user move event
+        Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user, e.getFrom().clone(), e.getTo().clone()));
+
+        // user move event
         UserMoveEvent event = new UserMoveEvent(user, e.isCancelled(), e.getFrom(), e.getTo());
         Bukkit.getPluginManager().callEvent(event);
         if (!e.getFrom().getBlock().equals(e.getTo().getBlock()) && user.isLocationLocked()) {
@@ -200,8 +217,6 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         } else {
             e.setCancelled(event.isCancelled());
         }
-
-        // TODO async user move
     }
 
     @EventHandler
@@ -244,7 +259,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             return;
         }
 
-        UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(), e.getKeepInventory(), e.getDrops());
+        // user death event
+        UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(), e.getKeepInventory(),
+                e.getDrops());
         Bukkit.getPluginManager().callEvent(userDeathEvent);
 
         if (userDeathEvent.isAutoRespawn()) {
@@ -258,11 +275,14 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             return;
         }
 
+        // death message
         if (e.getEntity().getKiller() == null) {
             if (user.getLastDamager() != null && user.getLastDamager().getDamageType().equals(UserDamage.DamageType.INSTANT)) {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " has been killed by " + user.getLastDamager().getDamager().getChatName());
+                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
+                        " has been killed by " + user.getLastDamager().getDamager().getChatName());
             } else {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " died");
+                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " " +
+                        "died");
             }
         } else if (e.getEntity().getKiller() instanceof Player) {
 
@@ -272,15 +292,20 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             if (user.getLastDamager() != null) {
                 if (userDamage.getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
                     int distance = userDamage.getDistance().intValue();
-                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " has been shot by " + killer.getChatName() + ChatColor.PUBLIC + " from " + ChatColor.VALUE + distance + ChatColor.PUBLIC + " blocks");
+                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
+                            " has been shot by " + killer.getChatName() + ChatColor.PUBLIC + " from " + ChatColor.VALUE +
+                            distance + ChatColor.PUBLIC + " blocks");
                 } else {
-                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " has been killed by " + killer.getChatName());
+                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
+                            " has been killed by " + killer.getChatName());
                 }
             } else {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " has been killed by " + killer.getChatName());
+                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
+                        " has been killed by " + killer.getChatName());
             }
         } else {
-            e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " has been killed by " + e.getEntity().getLastDamageCause().getCause().name());
+            e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
+                    " has been killed by " + e.getEntity().getLastDamageCause().getCause().name());
         }
 
         user.setLastDamager(null);
@@ -297,8 +322,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
         Location respawnLocation = e.getRespawnLocation();
 
+        // user respawn event
         UserRespawnEvent userEvent = new UserRespawnEvent(user, respawnLocation);
-
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setRespawnLocation(userEvent.getRespawnLocation());
@@ -316,7 +341,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             e.setCancelled(true);
         }
 
-        UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(), e.getBlockPlaced(), e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(), e.canBuild());
+        // user block place event
+        UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(), e.getBlockPlaced(),
+                e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(), e.canBuild());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setCancelled(userEvent.isCancelled());
@@ -335,7 +362,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             e.setCancelled(true);
         }
 
-        UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(), e.getExpToDrop(), e.isDropItems());
+        // user block break event
+        UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(), e.getExpToDrop(),
+                e.isDropItems());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setDropItems(userEvent.isDropItems());
@@ -347,7 +376,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         User user = Server.getUser(e.getPlayer());
 
-        UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(), e.getRightClicked(), e.getHand());
+        // user interact entity event
+        UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(), e.getRightClicked(),
+                e.getHand());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setCancelled(userEvent.isCancelled());
@@ -357,6 +388,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     public void onItemDrop(PlayerDropItemEvent e) {
         User user = Server.getUser(e.getPlayer());
 
+        // user drop item event
         UserDropItemEvent userEvent = new UserDropItemEvent(user, e.isCancelled(), e.getItemDrop());
         Bukkit.getPluginManager().callEvent(userEvent);
 
