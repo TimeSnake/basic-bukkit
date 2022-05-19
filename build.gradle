@@ -40,10 +40,18 @@ version = '1.0-SNAPSHOT'
 description = 'basic-bukkit'
 java.sourceCompatibility = 1.17
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
 publishing {
     publications {
-        maven(MavenPublication) {
-            from(components.java)
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
         }
     }
 }
@@ -53,6 +61,7 @@ tasks.withType(JavaCompile) {
 }
 
 task buildFatJar(type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     baseName = rootProject.name
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
