@@ -35,6 +35,14 @@ public class BasicBukkit extends JavaPlugin {
 
     private static JavaPlugin plugin;
 
+    public static JavaPlugin getPlugin() {
+        return BasicBukkit.plugin;
+    }
+
+    public static void registerEvents(Listener listener) {
+        Bukkit.getPluginManager().registerEvents(listener, BasicBukkit.getPlugin());
+    }
+
     @Override
     public void onEnable() {
         BasicBukkit.plugin = this;
@@ -93,14 +101,6 @@ public class BasicBukkit extends JavaPlugin {
 
         DatabaseBukkit.disconnect();
         NetworkChannel.stop();
-    }
-
-    public static JavaPlugin getPlugin() {
-        return BasicBukkit.plugin;
-    }
-
-    public static void registerEvents(Listener listener) {
-        Bukkit.getPluginManager().registerEvents(listener, BasicBukkit.getPlugin());
     }
 
 }

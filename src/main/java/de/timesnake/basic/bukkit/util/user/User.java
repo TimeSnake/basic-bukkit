@@ -88,46 +88,29 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     private final DbUser dbUser;
 
     private final ExPlayer exPlayer;
-
-    private Status.User status;
-
     private final boolean airMode;
-    private boolean service;
-
-    private String task;
-
-    private boolean isQuiting = false;
-
+    private final HashMap<Integer, String> scores = new HashMap<>();
+    private final Set<BossBar> bossBars = new HashSet<>();
+    private final ServerInfo lastServer;
+    private final ServerInfo lastLobbyServer;
+    private final Set<ExPermission> permissions = new HashSet<>();
     protected String chatName;
-
+    private Status.User status;
+    private boolean service;
+    private String task;
+    private boolean isQuiting = false;
     private boolean isMuted;
     private String lastChatMessage;
-
     private Group group;
-
     private String prefix;
     private String suffix;
     private String nick;
-
     private Tablist tablist;
     private Sideboard sideboard;
-    private final HashMap<Integer, String> scores = new HashMap<>();
-
-    private final Set<BossBar> bossBars = new HashSet<>();
-
     private Location lastLocation;
-
     private Location lockedLocation;
-
-    private final ServerInfo lastServer;
-    private final ServerInfo lastLobbyServer;
-
     private DataProtectionAgreement dataProtectionAgreement;
-
     private float coins;
-
-    private final Set<ExPermission> permissions = new HashSet<>();
-
     private UserDamage lastUserDamage;
 
     private boolean inventoryLocked;
@@ -173,7 +156,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
             }
         } else {
             Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-            this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+            this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
+                    "\nDO NOT REJOIN");
         }
 
         this.updateChatName();
