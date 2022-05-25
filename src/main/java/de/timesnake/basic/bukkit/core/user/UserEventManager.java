@@ -207,7 +207,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // async user move event
-        Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user, e.getFrom().clone(), e.getTo().clone()));
+        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user,
+                e.getFrom().clone(), e.getTo().clone())), BasicBukkit.getPlugin());
+
 
         // user move event
         UserMoveEvent event = new UserMoveEvent(user, e.isCancelled(), e.getFrom(), e.getTo());
