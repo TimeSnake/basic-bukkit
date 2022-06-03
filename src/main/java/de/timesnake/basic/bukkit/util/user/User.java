@@ -56,7 +56,6 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -199,7 +198,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     @Deprecated
     public void load() {
         ((WorldManager) Server.getWorldManager()).loadUserLocations(this);
-        this.lastLocation = Server.getWorldManager().getUserLocation(this, this.getWorld());
+        this.lastLocation = Server.getWorldManager().getUserLocation(this, this.getExWorld());
     }
 
     public final void quit() {
@@ -1389,16 +1388,6 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     /**
      * Opens inventory for user
      *
-     * @param inv The {@link Inventory} to open
-     */
-    public void openInventory(Inventory inv) {
-        this.player.closeInventory();
-        this.player.openInventory(inv);
-    }
-
-    /**
-     * Opens inventory for user
-     *
      * @param inv The {@link de.timesnake.basic.bukkit.core.user.inventory.ExInventory} to open
      */
     public void openInventory(ExInventory inv) {
@@ -1720,6 +1709,11 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      */
     @Deprecated
     public ExWorld getExWorld() {
+        return Server.getWorld(this.player.getWorld());
+    }
+
+    @Override
+    public ExWorld getWorld() {
         return Server.getWorld(this.player.getWorld());
     }
 

@@ -1,11 +1,14 @@
 package de.timesnake.basic.bukkit.core.user;
 
 import com.destroystokyo.paper.ClientOption;
+import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.block.TargetBlockInfo;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
 import com.destroystokyo.paper.profile.PlayerProfile;
-import de.timesnake.basic.bukkit.util.world.ExWorld;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.audience.MessageType;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
@@ -15,7 +18,7 @@ import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.title.Title;
+import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.title.TitlePart;
 import net.kyori.adventure.util.TriState;
 import net.md_5.bungee.api.ChatMessageType;
@@ -47,16 +50,14 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.*;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -65,8 +66,21 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
-public class DelegatedUser {
+public class DelegatedUser implements Player {
+
+    public static @NotNull Audience empty() {return Audience.empty();}
+
+    public static @NotNull Audience audience(@NotNull Audience @NotNull ... audiences) {return Audience.audience(audiences);}
+
+    public static @NotNull ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {return Audience.audience(audiences);}
+
+    public static @NotNull Collector<? super Audience, ?, ForwardingAudience> toAudience() {return Audience.toAudience();}
+
+    public static @Nullable <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {return HoverEventSource.unbox(source);}
+
+    public static net.kyori.adventure.sound.Sound.@NotNull Emitter self() {return net.kyori.adventure.sound.Sound.Emitter.self();}
 
     protected final Player player;
 
@@ -74,2408 +88,1937 @@ public class DelegatedUser {
         this.player = player;
     }
 
-    public @NotNull Identity identity() {
-        return player.identity();
-    }
+    @Override
+    public @NotNull Identity identity() {return player.identity();}
 
-    @NotNull
-    public Component displayName() {
-        return player.displayName();
-    }
+    @Override
+    public @NotNull Component displayName() {return player.displayName();}
 
-    public void displayName(@Nullable Component component) {
-        player.displayName(component);
-    }
+    @Override
+    public void displayName(@Nullable Component displayName) {player.displayName(displayName);}
 
+    @Override
     @Deprecated
     @NotNull
-    public String getDisplayName() {
-        return player.getDisplayName();
-    }
+    public String getDisplayName() {return player.getDisplayName();}
 
+    @Override
     @Deprecated
-    public void setDisplayName(@Nullable String s) {
-        player.setDisplayName(s);
-    }
+    public void setDisplayName(@Nullable String name) {player.setDisplayName(name);}
 
-    public void playerListName(@Nullable Component component) {
-        player.playerListName(component);
-    }
+    @Override
+    public void playerListName(@Nullable Component name) {player.playerListName(name);}
 
-    @NotNull
-    public Component playerListName() {
-        return player.playerListName();
-    }
+    @Override
+    public @NotNull Component playerListName() {return player.playerListName();}
 
-    @Nullable
-    public Component playerListHeader() {
-        return player.playerListHeader();
-    }
+    @Override
+    public @Nullable Component playerListHeader() {return player.playerListHeader();}
 
-    @Nullable
-    public Component playerListFooter() {
-        return player.playerListFooter();
-    }
+    @Override
+    public @Nullable Component playerListFooter() {return player.playerListFooter();}
 
+    @Override
     @Deprecated
     @NotNull
-    public String getPlayerListName() {
-        return player.getPlayerListName();
-    }
+    public String getPlayerListName() {return player.getPlayerListName();}
 
+    @Override
     @Deprecated
-    public void setPlayerListName(@Nullable String s) {
-        player.setPlayerListName(s);
-    }
+    public void setPlayerListName(@Nullable String name) {player.setPlayerListName(name);}
 
+    @Override
     @Deprecated
     @Nullable
-    public String getPlayerListHeader() {
-        return player.getPlayerListHeader();
-    }
+    public String getPlayerListHeader() {return player.getPlayerListHeader();}
 
+    @Override
     @Deprecated
-    public void setPlayerListHeader(@Nullable String s) {
-        player.setPlayerListHeader(s);
-    }
+    public void setPlayerListHeader(@Nullable String header) {player.setPlayerListHeader(header);}
 
+    @Override
     @Deprecated
     @Nullable
-    public String getPlayerListFooter() {
-        return player.getPlayerListFooter();
-    }
+    public String getPlayerListFooter() {return player.getPlayerListFooter();}
 
+    @Override
     @Deprecated
-    public void setPlayerListFooter(@Nullable String s) {
-        player.setPlayerListFooter(s);
-    }
+    public void setPlayerListFooter(@Nullable String footer) {player.setPlayerListFooter(footer);}
 
+    @Override
     @Deprecated
-    public void setPlayerListHeaderFooter(@Nullable String s, @Nullable String s1) {
-        player.setPlayerListHeaderFooter(s, s1);
-    }
+    public void setPlayerListHeaderFooter(@Nullable String header, @Nullable String footer) {player.setPlayerListHeaderFooter(header, footer);}
 
-    @NotNull
-    public Location getCompassTarget() {
-        return player.getCompassTarget();
-    }
+    @Override
+    public @NotNull Location getCompassTarget() {return player.getCompassTarget();}
 
-    public void setCompassTarget(@NotNull Location location) {
-        player.setCompassTarget(location);
-    }
+    @Override
+    public void setCompassTarget(@NotNull Location loc) {player.setCompassTarget(loc);}
 
-    public @Nullable InetSocketAddress getAddress() {
-        return player.getAddress();
-    }
+    @Override
+    public @Nullable InetSocketAddress getAddress() {return player.getAddress();}
 
-    public void sendRawMessage(@NotNull String s) {
-        player.sendRawMessage(s);
-    }
+    @Override
+    public void sendRawMessage(@NotNull String message) {player.sendRawMessage(message);}
 
+    @Override
     @Deprecated
-    public void kickPlayer(@Nullable String s) {
-        player.kickPlayer(s);
+    public void kickPlayer(@Nullable String message) {player.kickPlayer(message);}
+
+    @Override
+    public void kick() {
+        player.kick();
     }
 
-    public void kick(@Nullable Component component) {
-        player.kick(component);
-    }
+    @Override
+    public void kick(@Nullable Component message) {player.kick(message);}
 
-    public void kick(@Nullable Component component, PlayerKickEvent.@NotNull Cause cause) {
-        player.kick(component, cause);
-    }
+    @Override
+    public void kick(@Nullable Component message, PlayerKickEvent.@NotNull Cause cause) {player.kick(message, cause);}
 
-    public void chat(@NotNull String s) {
-        player.chat(s);
-    }
+    @Override
+    public void chat(@NotNull String msg) {player.chat(msg);}
 
-    public boolean performCommand(@NotNull String s) {
-        return player.performCommand(s);
-    }
+    @Override
+    public boolean performCommand(@NotNull String command) {return player.performCommand(command);}
 
+    @Override
     @Deprecated
-    public boolean isOnGround() {
-        return player.isOnGround();
+    public boolean isOnGround() {return player.isOnGround();}
+
+    @Override
+    public boolean isSneaking() {return player.isSneaking();}
+
+    @Override
+    public void setSneaking(boolean sneak) {player.setSneaking(sneak);}
+
+    @Override
+    public boolean isSprinting() {return player.isSprinting();}
+
+    @Override
+    public void setSprinting(boolean sprinting) {player.setSprinting(sprinting);}
+
+    @Override
+    public void saveData() {player.saveData();}
+
+    @Override
+    public void loadData() {player.loadData();}
+
+    @Override
+    public boolean isSleepingIgnored() {return player.isSleepingIgnored();}
+
+    @Override
+    public void setSleepingIgnored(boolean isSleeping) {player.setSleepingIgnored(isSleeping);}
+
+    @Override
+    public @Nullable Location getBedSpawnLocation() {return player.getBedSpawnLocation();}
+
+    @Override
+    public void setBedSpawnLocation(@Nullable Location location) {player.setBedSpawnLocation(location);}
+
+    @Override
+    public void setBedSpawnLocation(@Nullable Location location, boolean force) {
+        player.setBedSpawnLocation(location,
+                force);
     }
 
-    public boolean isSneaking() {
-        return player.isSneaking();
-    }
-
-    public void setSneaking(boolean b) {
-        player.setSneaking(b);
-    }
-
-    public boolean isSprinting() {
-        return player.isSprinting();
-    }
-
-    public void setSprinting(boolean b) {
-        player.setSprinting(b);
-    }
-
-    public void saveData() {
-        player.saveData();
-    }
-
-    public void loadData() {
-        player.loadData();
-    }
-
-    public boolean isSleepingIgnored() {
-        return player.isSleepingIgnored();
-    }
-
-    public void setSleepingIgnored(boolean b) {
-        player.setSleepingIgnored(b);
-    }
-
-    @Nullable
-    public Location getBedSpawnLocation() {
-        return player.getBedSpawnLocation();
-    }
-
-    public void setBedSpawnLocation(@Nullable Location location) {
-        player.setBedSpawnLocation(location);
-    }
-
-    public void setBedSpawnLocation(@Nullable Location location, boolean b) {
-        player.setBedSpawnLocation(location, b);
-    }
-
+    @Override
     @Deprecated
-    public void playNote(@NotNull Location location, byte b, byte b1) {
-        player.playNote(location, b, b1);
-    }
+    public void playNote(@NotNull Location loc, byte instrument, byte note) {player.playNote(loc, instrument, note);}
 
-    public void playNote(@NotNull Location location, @NotNull Instrument instrument, @NotNull Note note) {
-        player.playNote(location, instrument, note);
-    }
+    @Override
+    public void playNote(@NotNull Location loc, @NotNull Instrument instrument, @NotNull Note note) {player.playNote(loc, instrument, note);}
 
-    public void playSound(@NotNull Location location, @NotNull Sound sound, float v, float v1) {
-        player.playSound(location, sound, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Location location, @NotNull Sound sound, float volume, float pitch) {player.playSound(location, sound, volume, pitch);}
 
-    public void playSound(@NotNull Location location, @NotNull String s, float v, float v1) {
-        player.playSound(location, s, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Location location, @NotNull String sound, float volume, float pitch) {player.playSound(location, sound, volume, pitch);}
 
-    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory soundCategory,
-                          float v, float v1) {
-        player.playSound(location, sound, soundCategory, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory category,
+                          float volume, float pitch) {player.playSound(location, sound, category, volume, pitch);}
 
-    public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory,
-                          float v, float v1) {
-        player.playSound(location, s, soundCategory, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Location location, @NotNull String sound, @NotNull SoundCategory category,
+                          float volume, float pitch) {player.playSound(location, sound, category, volume, pitch);}
 
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, float v, float v1) {
-        player.playSound(entity, sound, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, float volume, float pitch) {player.playSound(entity, sound, volume, pitch);}
 
-    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory soundCategory, float v
-            , float v1) {
-        player.playSound(entity, sound, soundCategory, v, v1);
-    }
+    @Override
+    public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory category, float volume
+            , float pitch) {player.playSound(entity, sound, category, volume, pitch);}
 
-    public void stopSound(@NotNull Sound sound) {
-        player.stopSound(sound);
-    }
+    @Override
+    public void stopSound(@NotNull Sound sound) {player.stopSound(sound);}
 
-    public void stopSound(@NotNull String s) {
-        player.stopSound(s);
-    }
+    @Override
+    public void stopSound(@NotNull String sound) {player.stopSound(sound);}
 
-    public void stopSound(@NotNull Sound sound, @Nullable SoundCategory soundCategory) {
-        player.stopSound(sound, soundCategory);
-    }
+    @Override
+    public void stopSound(@NotNull Sound sound, @Nullable SoundCategory category) {player.stopSound(sound, category);}
 
-    public void stopSound(@NotNull String s, @Nullable SoundCategory soundCategory) {
-        player.stopSound(s, soundCategory);
-    }
+    @Override
+    public void stopSound(@NotNull String sound, @Nullable SoundCategory category) {player.stopSound(sound, category);}
 
-    public void stopAllSounds() {
-        player.stopAllSounds();
-    }
+    @Override
+    public void stopAllSounds() {player.stopAllSounds();}
 
+    @Override
     @Deprecated
-    public void playEffect(@NotNull Location location, @NotNull Effect effect, int i) {
-        player.playEffect(location, effect, i);
+    public void playEffect(@NotNull Location loc, @NotNull Effect effect, int data) {
+        player.playEffect(loc, effect,
+                data);
     }
 
-    public <T> void playEffect(@NotNull Location location, @NotNull Effect effect, @Nullable T t) {
-        player.playEffect(location, effect, t);
-    }
+    @Override
+    public <T> void playEffect(@NotNull Location loc, @NotNull Effect effect, @Nullable T data) {player.playEffect(loc, effect, data);}
 
-    public boolean breakBlock(@NotNull Block block) {
-        return player.breakBlock(block);
-    }
+    @Override
+    public boolean breakBlock(@NotNull Block block) {return player.breakBlock(block);}
 
+    @Override
     @Deprecated
-    public void sendBlockChange(@NotNull Location location, @NotNull Material material, byte b) {
-        player.sendBlockChange(location, material, b);
+    public void sendBlockChange(@NotNull Location loc, @NotNull Material material, byte data) {player.sendBlockChange(loc, material, data);}
+
+    @Override
+    public void sendBlockChange(@NotNull Location loc, @NotNull BlockData block) {player.sendBlockChange(loc, block);}
+
+    @Override
+    public void sendBlockDamage(@NotNull Location loc, float progress) {player.sendBlockDamage(loc, progress);}
+
+    @Override
+    public void sendMultiBlockChange(@NotNull Map<Location, BlockData> blockChanges) {player.sendMultiBlockChange(blockChanges);}
+
+    @Override
+    public void sendMultiBlockChange(@NotNull Map<Location, BlockData> blockChanges, boolean suppressLightUpdates) {player.sendMultiBlockChange(blockChanges, suppressLightUpdates);}
+
+    @Override
+    public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull EquipmentSlot slot,
+                                    @NotNull ItemStack item) {player.sendEquipmentChange(entity, slot, item);}
+
+    @Override
+    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines) throws IllegalArgumentException {player.sendSignChange(loc, lines);}
+
+    @Override
+    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {player.sendSignChange(loc, lines, dyeColor);}
+
+    @Override
+    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines, boolean hasGlowingText) throws IllegalArgumentException {player.sendSignChange(loc, lines, hasGlowingText);}
+
+    @Override
+    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines, @NotNull DyeColor dyeColor,
+                               boolean hasGlowingText) throws IllegalArgumentException {
+        player.sendSignChange(loc,
+                lines, dyeColor, hasGlowingText);
     }
 
-    public void sendBlockChange(@NotNull Location location, @NotNull BlockData blockData) {
-        player.sendBlockChange(location, blockData);
-    }
-
-    public void sendBlockDamage(@NotNull Location location, float v) {
-        player.sendBlockDamage(location, v);
-    }
-
-    public void sendEquipmentChange(@NotNull LivingEntity livingEntity, @NotNull EquipmentSlot equipmentSlot,
-                                    @NotNull ItemStack itemStack) {
-        player.sendEquipmentChange(livingEntity, equipmentSlot, itemStack);
-    }
-
-    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines) throws IllegalArgumentException {
-        player.sendSignChange(loc, lines);
-    }
-
-    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
-        player.sendSignChange(loc, lines, dyeColor);
-    }
-
-    public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines, boolean hasGlowingText) throws IllegalArgumentException {
-        player.sendSignChange(loc, lines, hasGlowingText);
-    }
-
-    public void sendSignChange(@NotNull Location location, @Nullable List<Component> list, @NotNull DyeColor dyeColor
-            , boolean b) throws IllegalArgumentException {
-        player.sendSignChange(location, list, dyeColor, b);
-    }
-
+    @Override
     @Deprecated
-    public void sendSignChange(@NotNull Location location, @Nullable String[] strings) throws IllegalArgumentException {
-        player.sendSignChange(location, strings);
-    }
+    public void sendSignChange(@NotNull Location loc, @Nullable String[] lines) throws IllegalArgumentException {player.sendSignChange(loc, lines);}
 
+    @Override
     @Deprecated
-    public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
-        player.sendSignChange(location, strings, dyeColor);
-    }
+    public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {player.sendSignChange(loc, lines, dyeColor);}
 
+    @Override
     @Deprecated
-    public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor,
-                               boolean b) throws IllegalArgumentException {
-        player.sendSignChange(location, strings, dyeColor, b);
+    public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor,
+                               boolean hasGlowingText) throws IllegalArgumentException {
+        player.sendSignChange(loc,
+                lines, dyeColor, hasGlowingText);
     }
 
-    public void sendMap(@NotNull MapView mapView) {
-        player.sendMap(mapView);
+    @Override
+    public void sendMap(@NotNull MapView map) {player.sendMap(map);}
+
+    @Override
+    public @Nullable BanEntry banPlayerFull(@Nullable String reason) {return player.banPlayerFull(reason);}
+
+    @Override
+    public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {return player.banPlayerFull(reason, source);}
+
+    @Override
+    public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {return player.banPlayerFull(reason, expires);}
+
+    @Override
+    public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {return player.banPlayerFull(reason, expires, source);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {return player.banPlayerIP(reason, kickPlayer);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {return player.banPlayerIP(reason, source, kickPlayer);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {return player.banPlayerIP(reason, expires, kickPlayer);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason) {return player.banPlayerIP(reason);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {return player.banPlayerIP(reason, source);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {return player.banPlayerIP(reason, expires);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {return player.banPlayerIP(reason, expires, source);}
+
+    @Override
+    public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source,
+                                          boolean kickPlayer) {
+        return player.banPlayerIP(reason, expires, source,
+                kickPlayer);
     }
 
-    @Nullable
-    public BanEntry banPlayerFull(@Nullable String reason) {
-        return player.banPlayerFull(reason);
-    }
-
-    @Nullable
-    public BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
-        return player.banPlayerFull(reason, source);
-    }
-
-    @Nullable
-    public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
-        return player.banPlayerFull(reason, expires);
-    }
-
-    @Nullable
-    public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-        return player.banPlayerFull(reason, expires, source);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
-        return player.banPlayerIP(reason, kickPlayer);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
-        return player.banPlayerIP(reason, source, kickPlayer);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
-        return player.banPlayerIP(reason, expires, kickPlayer);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason) {
-        return player.banPlayerIP(reason);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
-        return player.banPlayerIP(reason, source);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
-        return player.banPlayerIP(reason, expires);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-        return player.banPlayerIP(reason, expires, source);
-    }
-
-    @Nullable
-    public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source,
-                                boolean kickPlayer) {
-        return player.banPlayerIP(reason, expires, source, kickPlayer);
-    }
-
+    @Override
     @Deprecated
-    public void sendActionBar(@NotNull String s) {
-        player.sendActionBar(s);
-    }
+    public void sendActionBar(@NotNull String message) {player.sendActionBar(message);}
 
+    @Override
     @Deprecated
-    public void sendActionBar(char c, @NotNull String s) {
-        player.sendActionBar(c, s);
+    public void sendActionBar(char alternateChar, @NotNull String message) {
+        player.sendActionBar(alternateChar,
+                message);
     }
 
+    @Override
     @Deprecated
-    public void sendActionBar(@NotNull BaseComponent... baseComponents) {
-        player.sendActionBar(baseComponents);
-    }
+    public void sendActionBar(@NotNull BaseComponent... message) {player.sendActionBar(message);}
 
+    @Override
     @Deprecated
-    public void sendMessage(@NotNull BaseComponent component) {
-        player.sendMessage(component);
-    }
+    public void sendMessage(@NotNull BaseComponent component) {player.sendMessage(component);}
 
+    @Override
     @Deprecated
-    public void sendMessage(@NotNull BaseComponent... components) {
-        player.sendMessage(components);
-    }
+    public void sendMessage(@NotNull BaseComponent... components) {player.sendMessage(components);}
 
+    @Override
     @Deprecated
     public void sendMessage(ChatMessageType position, BaseComponent... components) {
-        player.sendMessage(position, components);
+        player.sendMessage(position,
+                components);
     }
 
+    @Override
     @Deprecated
-    public void setPlayerListHeaderFooter(@Nullable BaseComponent[] baseComponents,
-                                          @Nullable BaseComponent[] baseComponents1) {
-        player.setPlayerListHeaderFooter(baseComponents, baseComponents1);
-    }
+    public void setPlayerListHeaderFooter(@Nullable BaseComponent[] header, @Nullable BaseComponent[] footer) {player.setPlayerListHeaderFooter(header, footer);}
 
+    @Override
     @Deprecated
-    public void setPlayerListHeaderFooter(@Nullable BaseComponent baseComponent,
-                                          @Nullable BaseComponent baseComponent1) {
-        player.setPlayerListHeaderFooter(baseComponent, baseComponent1);
-    }
+    public void setPlayerListHeaderFooter(@Nullable BaseComponent header, @Nullable BaseComponent footer) {player.setPlayerListHeaderFooter(header, footer);}
 
+    @Override
     @Deprecated
-    public void setTitleTimes(int i, int i1, int i2) {
-        player.setTitleTimes(i, i1, i2);
+    public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        player.setTitleTimes(fadeInTicks,
+                stayTicks, fadeOutTicks);
     }
 
+    @Override
     @Deprecated
-    public void setSubtitle(BaseComponent[] baseComponents) {
-        player.setSubtitle(baseComponents);
-    }
+    public void setSubtitle(BaseComponent[] subtitle) {player.setSubtitle(subtitle);}
 
+    @Override
     @Deprecated
-    public void setSubtitle(BaseComponent baseComponent) {
-        player.setSubtitle(baseComponent);
-    }
+    public void setSubtitle(BaseComponent subtitle) {player.setSubtitle(subtitle);}
 
+    @Override
     @Deprecated
-    public void showTitle(@Nullable BaseComponent[] baseComponents) {
-        player.showTitle(baseComponents);
-    }
+    public void showTitle(@Nullable BaseComponent[] title) {player.showTitle(title);}
 
+    @Override
     @Deprecated
-    public void showTitle(@Nullable BaseComponent baseComponent) {
-        player.showTitle(baseComponent);
-    }
+    public void showTitle(@Nullable BaseComponent title) {player.showTitle(title);}
 
+    @Override
     @Deprecated
-    public void showTitle(@Nullable BaseComponent[] baseComponents, @Nullable BaseComponent[] baseComponents1, int i,
-                          int i1, int i2) {
-        player.showTitle(baseComponents, baseComponents1, i, i1, i2);
+    public void showTitle(@Nullable BaseComponent[] title, @Nullable BaseComponent[] subtitle, int fadeInTicks,
+                          int stayTicks, int fadeOutTicks) {
+        player.showTitle(title, subtitle, fadeInTicks, stayTicks,
+                fadeOutTicks);
     }
 
+    @Override
     @Deprecated
-    public void showTitle(@Nullable BaseComponent baseComponent, @Nullable BaseComponent baseComponent1, int i,
-                          int i1, int i2) {
-        player.showTitle(baseComponent, baseComponent1, i, i1, i2);
+    public void showTitle(@Nullable BaseComponent title, @Nullable BaseComponent subtitle, int fadeInTicks,
+                          int stayTicks, int fadeOutTicks) {
+        player.showTitle(title, subtitle, fadeInTicks, stayTicks,
+                fadeOutTicks);
     }
 
+    @Override
     @Deprecated
-    public void sendTitle(com.destroystokyo.paper.@NotNull Title title) {
-        player.sendTitle(title);
-    }
+    public void sendTitle(@NotNull Title title) {player.sendTitle(title);}
 
+    @Override
     @Deprecated
-    public void updateTitle(com.destroystokyo.paper.@NotNull Title title) {
-        player.updateTitle(title);
-    }
+    public void updateTitle(@NotNull Title title) {player.updateTitle(title);}
 
+    @Override
     @Deprecated
-    public void hideTitle() {
-        player.hideTitle();
-    }
+    public void hideTitle() {player.hideTitle();}
 
-    public void updateInventory() {
-        player.updateInventory();
-    }
+    @Override
+    public void updateInventory() {player.updateInventory();}
 
-    public void setPlayerTime(long l, boolean b) {
-        player.setPlayerTime(l, b);
-    }
+    @Override
+    public @Nullable GameMode getPreviousGameMode() {return player.getPreviousGameMode();}
 
-    public long getPlayerTime() {
-        return player.getPlayerTime();
-    }
+    @Override
+    public void setPlayerTime(long time, boolean relative) {player.setPlayerTime(time, relative);}
 
-    public long getPlayerTimeOffset() {
-        return player.getPlayerTimeOffset();
-    }
+    @Override
+    public long getPlayerTime() {return player.getPlayerTime();}
 
-    public boolean isPlayerTimeRelative() {
-        return player.isPlayerTimeRelative();
-    }
+    @Override
+    public long getPlayerTimeOffset() {return player.getPlayerTimeOffset();}
 
-    public void resetPlayerTime() {
-        player.resetPlayerTime();
-    }
+    @Override
+    public boolean isPlayerTimeRelative() {return player.isPlayerTimeRelative();}
 
-    @Nullable
-    public WeatherType getPlayerWeather() {
-        return player.getPlayerWeather();
-    }
+    @Override
+    public void resetPlayerTime() {player.resetPlayerTime();}
 
-    public void setPlayerWeather(@NotNull WeatherType weatherType) {
-        player.setPlayerWeather(weatherType);
-    }
+    @Override
+    public @Nullable WeatherType getPlayerWeather() {return player.getPlayerWeather();}
 
-    public void resetPlayerWeather() {
-        player.resetPlayerWeather();
-    }
+    @Override
+    public void setPlayerWeather(@NotNull WeatherType type) {player.setPlayerWeather(type);}
 
-    public void giveExp(int amount) {
-        player.giveExp(amount);
-    }
+    @Override
+    public void resetPlayerWeather() {player.resetPlayerWeather();}
 
-    public void giveExp(int i, boolean b) {
-        player.giveExp(i, b);
-    }
+    @Override
+    public void giveExp(int amount) {player.giveExp(amount);}
 
-    public int applyMending(int i) {
-        return player.applyMending(i);
-    }
+    @Override
+    public void giveExp(int amount, boolean applyMending) {player.giveExp(amount, applyMending);}
 
-    public void giveExpLevels(int i) {
-        player.giveExpLevels(i);
-    }
+    @Override
+    public int applyMending(int amount) {return player.applyMending(amount);}
 
-    public float getExp() {
-        return player.getExp();
-    }
+    @Override
+    public void giveExpLevels(int amount) {player.giveExpLevels(amount);}
 
-    public void setExp(float v) {
-        player.setExp(v);
-    }
+    @Override
+    public float getExp() {return player.getExp();}
 
-    public int getLevel() {
-        return player.getLevel();
-    }
+    @Override
+    public void setExp(float exp) {player.setExp(exp);}
 
-    public void setLevel(int i) {
-        player.setLevel(i);
-    }
+    @Override
+    public int getLevel() {return player.getLevel();}
 
-    public int getTotalExperience() {
-        return player.getTotalExperience();
-    }
+    @Override
+    public void setLevel(int level) {player.setLevel(level);}
 
-    public void setTotalExperience(int i) {
-        player.setTotalExperience(i);
-    }
+    @Override
+    public int getTotalExperience() {return player.getTotalExperience();}
 
-    public void sendExperienceChange(float v) {
-        player.sendExperienceChange(v);
-    }
+    @Override
+    public void setTotalExperience(int exp) {player.setTotalExperience(exp);}
 
-    public void sendExperienceChange(float v, int i) {
-        player.sendExperienceChange(v, i);
-    }
+    @Override
+    public void sendExperienceChange(float progress) {player.sendExperienceChange(progress);}
 
-    public boolean getAllowFlight() {
-        return player.getAllowFlight();
-    }
+    @Override
+    public void sendExperienceChange(float progress, int level) {player.sendExperienceChange(progress, level);}
 
-    public void setAllowFlight(boolean b) {
-        player.setAllowFlight(b);
-    }
+    @Override
+    public boolean getAllowFlight() {return player.getAllowFlight();}
 
+    @Override
+    public void setAllowFlight(boolean flight) {player.setAllowFlight(flight);}
+
+    @Override
     @Deprecated
-    public void hidePlayer(@NotNull Player player) {
-        this.player.hidePlayer(player);
-    }
+    public void hidePlayer(@NotNull Player player) {this.player.hidePlayer(player);}
 
-    public void hidePlayer(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull Player player) {
-        this.player.hidePlayer(plugin, player);
-    }
+    @Override
+    public void hidePlayer(@NotNull Plugin plugin, @NotNull Player player) {this.player.hidePlayer(plugin, player);}
 
+    @Override
     @Deprecated
-    public void showPlayer(@NotNull Player player) {
-        this.player.showPlayer(player);
-    }
+    public void showPlayer(@NotNull Player player) {this.player.showPlayer(player);}
 
-    public void showPlayer(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull Player player) {
-        this.player.showPlayer(plugin, player);
-    }
+    @Override
+    public void showPlayer(@NotNull Plugin plugin, @NotNull Player player) {this.player.showPlayer(plugin, player);}
 
-    public boolean canSee(@NotNull Player player) {
-        return this.player.canSee(player);
-    }
+    @Override
+    public boolean canSee(@NotNull Player player) {return this.player.canSee(player);}
 
+    @Override
+    @ApiStatus.Experimental
+    public void hideEntity(@NotNull Plugin plugin, @NotNull Entity entity) {player.hideEntity(plugin, entity);}
+
+    @Override
+    @ApiStatus.Experimental
+    public void showEntity(@NotNull Plugin plugin, @NotNull Entity entity) {player.showEntity(plugin, entity);}
+
+    @Override
+    @ApiStatus.Experimental
+    public boolean canSee(@NotNull Entity entity) {return player.canSee(entity);}
+
+    @Override
+    public boolean isFlying() {return player.isFlying();}
+
+    @Override
+    public void setFlying(boolean value) {player.setFlying(value);}
+
+    @Override
+    public float getFlySpeed() {return player.getFlySpeed();}
+
+    @Override
+    public void setFlySpeed(float value) throws IllegalArgumentException {player.setFlySpeed(value);}
+
+    @Override
+    public float getWalkSpeed() {return player.getWalkSpeed();}
+
+    @Override
+    public void setWalkSpeed(float value) throws IllegalArgumentException {player.setWalkSpeed(value);}
+
+    @Override
     @Deprecated
-    public void hideEntity(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull Entity entity) {
-        player.hideEntity(plugin, entity);
-    }
+    public void setTexturePack(@NotNull String url) {player.setTexturePack(url);}
 
+    @Override
     @Deprecated
-    public void showEntity(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull Entity entity) {
-        player.showEntity(plugin, entity);
-    }
+    public void setResourcePack(@NotNull String url) {player.setResourcePack(url);}
 
+    @Override
+    public void setResourcePack(@NotNull String url, @Nullable byte[] hash) {player.setResourcePack(url, hash);}
+
+    @Override
     @Deprecated
-    public boolean canSee(@NotNull Entity entity) {
-        return player.canSee(entity);
-    }
+    public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt) {player.setResourcePack(url, hash, prompt);}
 
-    public boolean isFlying() {
-        return player.isFlying();
-    }
+    @Override
+    public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt) {player.setResourcePack(url, hash, prompt);}
 
-    public void setFlying(boolean b) {
-        player.setFlying(b);
-    }
+    @Override
+    public void setResourcePack(@NotNull String url, @Nullable byte[] hash, boolean force) {player.setResourcePack(url, hash, force);}
 
-    public float getFlySpeed() {
-        return player.getFlySpeed();
-    }
-
-    public void setFlySpeed(float v) throws IllegalArgumentException {
-        player.setFlySpeed(v);
-    }
-
-    public float getWalkSpeed() {
-        return player.getWalkSpeed();
-    }
-
-    public void setWalkSpeed(float v) throws IllegalArgumentException {
-        player.setWalkSpeed(v);
-    }
-
+    @Override
     @Deprecated
-    public void setTexturePack(@NotNull String s) {
-        player.setTexturePack(s);
+    public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt, boolean force) {player.setResourcePack(url, hash, prompt, force);}
+
+    @Override
+    public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt,
+                                boolean force) {player.setResourcePack(url, hash, prompt, force);}
+
+    @Override
+    public @NotNull Scoreboard getScoreboard() {return player.getScoreboard();}
+
+    @Override
+    public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {player.setScoreboard(scoreboard);}
+
+    @Override
+    public @Nullable WorldBorder getWorldBorder() {return player.getWorldBorder();}
+
+    @Override
+    public void setWorldBorder(@Nullable WorldBorder border) {player.setWorldBorder(border);}
+
+    @Override
+    public boolean isHealthScaled() {return player.isHealthScaled();}
+
+    @Override
+    public void setHealthScaled(boolean scale) {player.setHealthScaled(scale);}
+
+    @Override
+    public double getHealthScale() {return player.getHealthScale();}
+
+    @Override
+    public void setHealthScale(double scale) throws IllegalArgumentException {player.setHealthScale(scale);}
+
+    @Override
+    public void sendHealthUpdate(double health, int foodLevel, float saturationLevel) {
+        player.sendHealthUpdate(health
+                , foodLevel, saturationLevel);
     }
 
+    @Override
+    public void sendHealthUpdate() {player.sendHealthUpdate();}
+
+    @Override
+    public @Nullable Entity getSpectatorTarget() {return player.getSpectatorTarget();}
+
+    @Override
+    public void setSpectatorTarget(@Nullable Entity entity) {player.setSpectatorTarget(entity);}
+
+    @Override
     @Deprecated
-    public void setResourcePack(@NotNull String s) {
-        player.setResourcePack(s);
-    }
+    public void sendTitle(@Nullable String title, @Nullable String subtitle) {player.sendTitle(title, subtitle);}
 
-    public void setResourcePack(@NotNull String s, byte[] bytes) {
-        player.setResourcePack(s, bytes);
-    }
-
-    public void setResourcePack(@NotNull String s, byte[] bytes, @Nullable String s1) {
-        player.setResourcePack(s, bytes, s1);
-    }
-
-    public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt) {
-        player.setResourcePack(url, hash, prompt);
-    }
-
-    public void setResourcePack(@NotNull String s, byte[] bytes, boolean b) {
-        player.setResourcePack(s, bytes, b);
-    }
-
-    public void setResourcePack(@NotNull String s, byte[] bytes, @Nullable String s1, boolean b) {
-        player.setResourcePack(s, bytes, s1, b);
-    }
-
-    public void setResourcePack(@NotNull String s, byte @Nullable [] bytes, @Nullable Component component, boolean b) {
-        player.setResourcePack(s, bytes, component, b);
-    }
-
-    public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {
-        player.setScoreboard(scoreboard);
-    }
-
-    public boolean isHealthScaled() {
-        return player.isHealthScaled();
-    }
-
-    public void setHealthScaled(boolean b) {
-        player.setHealthScaled(b);
-    }
-
-    public double getHealthScale() {
-        return player.getHealthScale();
-    }
-
-    public void setHealthScale(double v) throws IllegalArgumentException {
-        player.setHealthScale(v);
-    }
-
-    public void sendHealthUpdate(double v, int i, float v1) {
-        player.sendHealthUpdate(v, i, v1);
-    }
-
-    public void sendHealthUpdate() {
-        player.sendHealthUpdate();
-    }
-
-    public @Nullable Entity getSpectatorTarget() {
-        return player.getSpectatorTarget();
-    }
-
-    public void setSpectatorTarget(@Nullable Entity entity) {
-        player.setSpectatorTarget(entity);
-    }
-
+    @Override
     @Deprecated
-    public void sendTitle(@Nullable String s, @Nullable String s1) {
-        player.sendTitle(s, s1);
+    public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);}
+
+    @Override
+    public void resetTitle() {player.resetTitle();}
+
+    @Override
+    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count) {player.spawnParticle(particle, location, count);}
+
+    @Override
+    public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count) {player.spawnParticle(particle, x, y, z, count);}
+
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
+                                  @Nullable T data) {player.spawnParticle(particle, location, count, data);}
+
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
+                                  @Nullable T data) {player.spawnParticle(particle, x, y, z, count, data);}
+
+    @Override
+    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX,
+                              double offsetY, double offsetZ) {
+        player.spawnParticle(particle, location, count,
+                offsetX, offsetY, offsetZ);
     }
 
-    @Deprecated
-    public void sendTitle(@Nullable String s, @Nullable String s1, int i, int i1, int i2) {
-        player.sendTitle(s, s1, i, i1, i2);
+    @Override
+    public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX,
+                              double offsetY, double offsetZ) {
+        player.spawnParticle(particle, x, y, z, count, offsetX
+                , offsetY, offsetZ);
     }
 
-    public void resetTitle() {
-        player.resetTitle();
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX,
+                                  double offsetY, double offsetZ, @Nullable T data) {
+        player.spawnParticle(particle,
+                location, count, offsetX, offsetY, offsetZ, data);
     }
 
-    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i) {
-        player.spawnParticle(particle, location, i);
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX
+            , double offsetY, double offsetZ, @Nullable T data) {
+        player.spawnParticle(particle, x, y, z, count,
+                offsetX, offsetY, offsetZ, data);
     }
 
-    public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i) {
-        player.spawnParticle(particle, v, v1, v2, i);
+    @Override
+    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX,
+                              double offsetY, double offsetZ, double extra) {
+        player.spawnParticle(particle, location,
+                count, offsetX, offsetY, offsetZ, extra);
     }
 
-    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, @Nullable T t) {
-        player.spawnParticle(particle, location, i, t);
+    @Override
+    public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX,
+                              double offsetY, double offsetZ, double extra) {
+        player.spawnParticle(particle, x, y, z,
+                count, offsetX, offsetY, offsetZ, extra);
     }
 
-    public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, @Nullable T t) {
-        player.spawnParticle(particle, v, v1, v2, i, t);
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX,
+                                  double offsetY, double offsetZ, double extra, @Nullable T data) {player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra, data);}
+
+    @Override
+    public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX
+            , double offsetY, double offsetZ, double extra, @Nullable T data) {
+        player.spawnParticle(particle, x, y, z
+                , count, offsetX, offsetY, offsetZ, extra, data);
     }
 
-    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
-                              double v2) {
-        player.spawnParticle(particle, location, i, v, v1, v2);
-    }
+    @Override
+    public @NotNull AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {return player.getAdvancementProgress(advancement);}
 
-    public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3, double v4
-            , double v5) {
-        player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5);
-    }
+    @Override
+    public int getClientViewDistance() {return player.getClientViewDistance();}
 
-    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
-                                  double v2, @Nullable T t) {
-        player.spawnParticle(particle, location, i, v, v1, v2, t);
-    }
+    @Override
+    public @NotNull Locale locale() {return player.locale();}
 
-    public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3,
-                                  double v4, double v5, @Nullable T t) {
-        player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, t);
-    }
+    @Override
+    public int getPing() {return player.getPing();}
 
-    public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
-                              double v2, double v3) {
-        player.spawnParticle(particle, location, i, v, v1, v2, v3);
-    }
-
-    public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3, double v4
-            , double v5, double v6) {
-        player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6);
-    }
-
-    public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
-                                  double v2, double v3, @Nullable T t) {
-        player.spawnParticle(particle, location, i, v, v1, v2, v3, t);
-    }
-
-    public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3,
-                                  double v4, double v5, double v6, @Nullable T t) {
-        player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6, t);
-    }
-
-    public @NotNull AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
-        return player.getAdvancementProgress(advancement);
-    }
-
-    public int getClientViewDistance() {
-        return player.getClientViewDistance();
-    }
-
-    @NotNull
-    public Locale locale() {
-        return player.locale();
-    }
-
-    public int getPing() {
-        return player.getPing();
-    }
-
+    @Override
     @Deprecated
     @NotNull
-    public String getLocale() {
-        return player.getLocale();
+    public String getLocale() {return player.getLocale();}
+
+    @Override
+    public boolean getAffectsSpawning() {return player.getAffectsSpawning();}
+
+    @Override
+    public void setAffectsSpawning(boolean affects) {player.setAffectsSpawning(affects);}
+
+    @Override
+    public int getViewDistance() {return player.getViewDistance();}
+
+    @Override
+    public void setViewDistance(int viewDistance) {player.setViewDistance(viewDistance);}
+
+    @Override
+    public int getSimulationDistance() {return player.getSimulationDistance();}
+
+    @Override
+    public void setSimulationDistance(int simulationDistance) {player.setSimulationDistance(simulationDistance);}
+
+    @Override
+    @Deprecated
+    public int getNoTickViewDistance() {return player.getNoTickViewDistance();}
+
+    @Override
+    @Deprecated
+    public void setNoTickViewDistance(int viewDistance) {player.setNoTickViewDistance(viewDistance);}
+
+    @Override
+    public int getSendViewDistance() {return player.getSendViewDistance();}
+
+    @Override
+    public void setSendViewDistance(int viewDistance) {player.setSendViewDistance(viewDistance);}
+
+    @Override
+    public void updateCommands() {player.updateCommands();}
+
+    @Override
+    public void openBook(@NotNull ItemStack book) {player.openBook(book);}
+
+    @Override
+    public void openSign(@NotNull Sign sign) {player.openSign(sign);}
+
+    @Override
+    public void showDemoScreen() {player.showDemoScreen();}
+
+    @Override
+    public boolean isAllowingServerListings() {return player.isAllowingServerListings();}
+
+    @Override
+    public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {return player.asHoverEvent(op);}
+
+    @Override
+    public void setResourcePack(@NotNull String url, @NotNull String hash) {player.setResourcePack(url, hash);}
+
+    @Override
+    public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required) {player.setResourcePack(url, hash, required);}
+
+    @Override
+    public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required,
+                                @Nullable Component resourcePackPrompt) {
+        player.setResourcePack(url, hash, required,
+                resourcePackPrompt);
     }
 
-    public boolean getAffectsSpawning() {
-        return player.getAffectsSpawning();
-    }
+    @Override
+    public PlayerResourcePackStatusEvent.@Nullable Status getResourcePackStatus() {return player.getResourcePackStatus();}
 
-    public void setAffectsSpawning(boolean b) {
-        player.setAffectsSpawning(b);
-    }
-
-    public int getViewDistance() {
-        return player.getViewDistance();
-    }
-
-    public void setViewDistance(int i) {
-        player.setViewDistance(i);
-    }
-
-    public int getNoTickViewDistance() {
-        return player.getNoTickViewDistance();
-    }
-
-    public void setNoTickViewDistance(int i) {
-        player.setNoTickViewDistance(i);
-    }
-
-    public int getSendViewDistance() {
-        return player.getSendViewDistance();
-    }
-
-    public void setSendViewDistance(int i) {
-        player.setSendViewDistance(i);
-    }
-
-    public void updateCommands() {
-        player.updateCommands();
-    }
-
-    public void openBook(@NotNull ItemStack itemStack) {
-        player.openBook(itemStack);
-    }
-
-    public void openSign(@NotNull Sign sign) {
-        player.openSign(sign);
-    }
-
-    public void showDemoScreen() {
-        player.showDemoScreen();
-    }
-
-    public boolean isAllowingServerListings() {
-        return player.isAllowingServerListings();
-    }
-
-    public net.kyori.adventure.text.event.@NotNull HoverEvent<net.kyori.adventure.text.event.HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
-        return player.asHoverEvent(op);
-    }
-
-    public void setResourcePack(@NotNull String s, @NotNull String s1) {
-        player.setResourcePack(s, s1);
-    }
-
-    public void setResourcePack(@NotNull String s, @NotNull String s1, boolean b) {
-        player.setResourcePack(s, s1, b);
-    }
-
-    public void setResourcePack(@NotNull String s, @NotNull String s1, boolean b, @Nullable Component component) {
-        player.setResourcePack(s, s1, b, component);
-    }
-
-    public PlayerResourcePackStatusEvent.@Nullable Status getResourcePackStatus() {
-        return player.getResourcePackStatus();
-    }
-
+    @Override
     @Deprecated
     @Nullable
-    public String getResourcePackHash() {
-        return player.getResourcePackHash();
-    }
+    public String getResourcePackHash() {return player.getResourcePackHash();}
 
-    public boolean hasResourcePack() {
-        return player.hasResourcePack();
-    }
+    @Override
+    public boolean hasResourcePack() {return player.hasResourcePack();}
 
-    public @NotNull PlayerProfile getPlayerProfile() {
-        return player.getPlayerProfile();
-    }
+    @Override
+    public @NotNull PlayerProfile getPlayerProfile() {return player.getPlayerProfile();}
 
-    public void setPlayerProfile(@NotNull PlayerProfile playerProfile) {
-        player.setPlayerProfile(playerProfile);
-    }
+    @Override
+    public void setPlayerProfile(@NotNull PlayerProfile profile) {player.setPlayerProfile(profile);}
 
-    public float getCooldownPeriod() {
-        return player.getCooldownPeriod();
-    }
+    @Override
+    public float getCooldownPeriod() {return player.getCooldownPeriod();}
 
-    public float getCooledAttackStrength(float v) {
-        return player.getCooledAttackStrength(v);
-    }
+    @Override
+    public float getCooledAttackStrength(float adjustTicks) {return player.getCooledAttackStrength(adjustTicks);}
 
-    public void resetCooldown() {
-        player.resetCooldown();
-    }
+    @Override
+    public void resetCooldown() {player.resetCooldown();}
 
-    public <T> @NotNull T getClientOption(@NotNull ClientOption<T> clientOption) {
-        return player.getClientOption(clientOption);
-    }
+    @Override
+    public <T> @NotNull T getClientOption(@NotNull ClientOption<T> option) {return player.getClientOption(option);}
 
-    public @Nullable Firework boostElytra(@NotNull ItemStack itemStack) {
-        return player.boostElytra(itemStack);
-    }
+    @Override
+    public @Nullable Firework boostElytra(@NotNull ItemStack firework) {return player.boostElytra(firework);}
 
-    public void sendOpLevel(byte b) {
-        player.sendOpLevel(b);
-    }
+    @Override
+    public void sendOpLevel(byte level) {player.sendOpLevel(level);}
 
+    @Override
     @Nullable
-    public String getClientBrandName() {
-        return player.getClientBrandName();
-    }
+    public String getClientBrandName() {return player.getClientBrandName();}
 
-    public Player.@NotNull Spigot spigot() {
-        return player.spigot();
-    }
-
-    public @NotNull EntityEquipment getEquipment() {
-        return player.getEquipment();
-    }
-
+    @Override
     @NotNull
-    public PlayerInventory getInventory() {
-        return player.getInventory();
-    }
+    public Spigot spigot() {return player.spigot();}
 
+    @Override
+    public @NotNull EntityEquipment getEquipment() {return player.getEquipment();}
+
+    @Override
     @NotNull
-    public Inventory getEnderChest() {
-        return player.getEnderChest();
-    }
+    public String getName() {return player.getName();}
 
-    public @NotNull MainHand getMainHand() {
-        return player.getMainHand();
-    }
+    @Override
+    public @NotNull PlayerInventory getInventory() {return player.getInventory();}
 
-    public boolean setWindowProperty(InventoryView.@NotNull Property property, int i) {
-        return player.setWindowProperty(property, i);
-    }
+    @Override
+    public @NotNull Inventory getEnderChest() {return player.getEnderChest();}
 
-    public @NotNull InventoryView getOpenInventory() {
-        return player.getOpenInventory();
-    }
+    @Override
+    public @NotNull MainHand getMainHand() {return player.getMainHand();}
 
-    public @Nullable InventoryView openWorkbench(@Nullable Location location, boolean b) {
-        return player.openWorkbench(location, b);
-    }
+    @Override
+    public boolean setWindowProperty(InventoryView.@NotNull Property prop, int value) {return player.setWindowProperty(prop, value);}
 
-    public @Nullable InventoryView openEnchanting(@Nullable Location location, boolean b) {
-        return player.openEnchanting(location, b);
-    }
+    @Override
+    public @NotNull InventoryView getOpenInventory() {return player.getOpenInventory();}
 
-    public void openInventory(@NotNull InventoryView inventoryView) {
-        player.openInventory(inventoryView);
-    }
+    @Override
+    public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {return player.openInventory(inventory);}
 
-    public @Nullable InventoryView openMerchant(@NotNull Villager villager, boolean b) {
-        return player.openMerchant(villager, b);
-    }
+    @Override
+    public @Nullable InventoryView openWorkbench(@Nullable Location location, boolean force) {return player.openWorkbench(location, force);}
 
-    public @Nullable InventoryView openMerchant(@NotNull Merchant merchant, boolean b) {
-        return player.openMerchant(merchant, b);
-    }
+    @Override
+    public @Nullable InventoryView openEnchanting(@Nullable Location location, boolean force) {return player.openEnchanting(location, force);}
 
-    public @Nullable InventoryView openAnvil(@Nullable Location location, boolean b) {
-        return player.openAnvil(location, b);
-    }
+    @Override
+    public void openInventory(@NotNull InventoryView inventory) {player.openInventory(inventory);}
 
-    public @Nullable InventoryView openCartographyTable(@Nullable Location location, boolean b) {
-        return player.openCartographyTable(location, b);
-    }
+    @Override
+    public @Nullable InventoryView openMerchant(@NotNull Villager trader, boolean force) {return player.openMerchant(trader, force);}
 
-    public @Nullable InventoryView openGrindstone(@Nullable Location location, boolean b) {
-        return player.openGrindstone(location, b);
-    }
+    @Override
+    public @Nullable InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {return player.openMerchant(merchant, force);}
 
-    public @Nullable InventoryView openLoom(@Nullable Location location, boolean b) {
-        return player.openLoom(location, b);
-    }
+    @Override
+    public @Nullable InventoryView openAnvil(@Nullable Location location, boolean force) {return player.openAnvil(location, force);}
 
-    public @Nullable InventoryView openSmithingTable(@Nullable Location location, boolean b) {
-        return player.openSmithingTable(location, b);
-    }
+    @Override
+    public @Nullable InventoryView openCartographyTable(@Nullable Location location, boolean force) {return player.openCartographyTable(location, force);}
 
-    public @Nullable InventoryView openStonecutter(@Nullable Location location, boolean b) {
-        return player.openStonecutter(location, b);
-    }
+    @Override
+    public @Nullable InventoryView openGrindstone(@Nullable Location location, boolean force) {return player.openGrindstone(location, force);}
 
-    public void closeInventory() {
-        player.closeInventory();
-    }
+    @Override
+    public @Nullable InventoryView openLoom(@Nullable Location location, boolean force) {return player.openLoom(location, force);}
 
-    public void closeInventory(InventoryCloseEvent.@NotNull Reason reason) {
-        player.closeInventory(reason);
-    }
+    @Override
+    public @Nullable InventoryView openSmithingTable(@Nullable Location location, boolean force) {return player.openSmithingTable(location, force);}
 
+    @Override
+    public @Nullable InventoryView openStonecutter(@Nullable Location location, boolean force) {return player.openStonecutter(location, force);}
+
+    @Override
+    public void closeInventory() {player.closeInventory();}
+
+    @Override
+    public void closeInventory(InventoryCloseEvent.@NotNull Reason reason) {player.closeInventory(reason);}
+
+    @Override
     @Deprecated
-    @NotNull
-    public ItemStack getItemInHand() {
-        return player.getItemInHand();
-    }
+    public @NotNull ItemStack getItemInHand() {return player.getItemInHand();}
 
+    @Override
     @Deprecated
-    public void setItemInHand(@Nullable ItemStack itemStack) {
-        player.setItemInHand(itemStack);
-    }
+    public void setItemInHand(@Nullable ItemStack item) {player.setItemInHand(item);}
 
-    @NotNull
-    public ItemStack getItemOnCursor() {
-        return player.getItemOnCursor();
-    }
+    @Override
+    public @NotNull ItemStack getItemOnCursor() {return player.getItemOnCursor();}
 
-    public void setItemOnCursor(@Nullable ItemStack itemStack) {
-        player.setItemOnCursor(itemStack);
-    }
+    @Override
+    public void setItemOnCursor(@Nullable ItemStack item) {player.setItemOnCursor(item);}
 
-    public boolean hasCooldown(@NotNull Material material) {
-        return player.hasCooldown(material);
-    }
+    @Override
+    public boolean hasCooldown(@NotNull Material material) {return player.hasCooldown(material);}
 
-    public int getCooldown(@NotNull Material material) {
-        return player.getCooldown(material);
-    }
+    @Override
+    public int getCooldown(@NotNull Material material) {return player.getCooldown(material);}
 
-    public void setCooldown(@NotNull Material material, int i) {
-        player.setCooldown(material, i);
-    }
+    @Override
+    public void setCooldown(@NotNull Material material, int ticks) {player.setCooldown(material, ticks);}
 
-    public boolean isDeeplySleeping() {
-        return player.isDeeplySleeping();
-    }
+    @Override
+    public boolean isDeeplySleeping() {return player.isDeeplySleeping();}
 
-    public int getSleepTicks() {
-        return player.getSleepTicks();
-    }
+    @Override
+    public int getSleepTicks() {return player.getSleepTicks();}
 
+    @Override
+    public @Nullable Location getPotentialBedLocation() {return player.getPotentialBedLocation();}
+
+    @Override
+    public boolean sleep(@NotNull Location location, boolean force) {return player.sleep(location, force);}
+
+    @Override
+    public void wakeup(boolean setSpawnLocation) {player.wakeup(setSpawnLocation);}
+
+    @Override
+    public @NotNull Location getBedLocation() {return player.getBedLocation();}
+
+    @Override
+    public @NotNull GameMode getGameMode() {return player.getGameMode();}
+
+    @Override
+    public void setGameMode(@NotNull GameMode mode) {player.setGameMode(mode);}
+
+    @Override
+    public boolean isBlocking() {return player.isBlocking();}
+
+    @Override
+    public boolean isHandRaised() {return player.isHandRaised();}
+
+    @Override
+    public @Nullable ItemStack getItemInUse() {return player.getItemInUse();}
+
+    @Override
+    public int getExpToLevel() {return player.getExpToLevel();}
+
+    @Override
+    public @Nullable Entity releaseLeftShoulderEntity() {return player.releaseLeftShoulderEntity();}
+
+    @Override
+    public @Nullable Entity releaseRightShoulderEntity() {return player.releaseRightShoulderEntity();}
+
+    @Override
+    public float getAttackCooldown() {return player.getAttackCooldown();}
+
+    @Override
+    public boolean discoverRecipe(@NotNull NamespacedKey recipe) {return player.discoverRecipe(recipe);}
+
+    @Override
+    public int discoverRecipes(@NotNull Collection<NamespacedKey> recipes) {return player.discoverRecipes(recipes);}
+
+    @Override
+    public boolean undiscoverRecipe(@NotNull NamespacedKey recipe) {return player.undiscoverRecipe(recipe);}
+
+    @Override
+    public int undiscoverRecipes(@NotNull Collection<NamespacedKey> recipes) {return player.undiscoverRecipes(recipes);}
+
+    @Override
+    public boolean hasDiscoveredRecipe(@NotNull NamespacedKey recipe) {return player.hasDiscoveredRecipe(recipe);}
+
+    @Override
+    public @NotNull Set<NamespacedKey> getDiscoveredRecipes() {return player.getDiscoveredRecipes();}
+
+    @Override
+    @Deprecated
+    public @Nullable Entity getShoulderEntityLeft() {return player.getShoulderEntityLeft();}
+
+    @Override
+    @Deprecated
+    public void setShoulderEntityLeft(@Nullable Entity entity) {player.setShoulderEntityLeft(entity);}
+
+    @Override
+    @Deprecated
+    public @Nullable Entity getShoulderEntityRight() {return player.getShoulderEntityRight();}
+
+    @Override
+    @Deprecated
+    public void setShoulderEntityRight(@Nullable Entity entity) {player.setShoulderEntityRight(entity);}
+
+    @Override
+    public boolean dropItem(boolean dropAll) {return player.dropItem(dropAll);}
+
+    @Override
+    public float getExhaustion() {return player.getExhaustion();}
+
+    @Override
+    public void setExhaustion(float value) {player.setExhaustion(value);}
+
+    @Override
+    public float getSaturation() {return player.getSaturation();}
+
+    @Override
+    public void setSaturation(float value) {player.setSaturation(value);}
+
+    @Override
+    public int getFoodLevel() {return player.getFoodLevel();}
+
+    @Override
+    public void setFoodLevel(int value) {player.setFoodLevel(value);}
+
+    @Override
+    public int getSaturatedRegenRate() {return player.getSaturatedRegenRate();}
+
+    @Override
+    public void setSaturatedRegenRate(int ticks) {player.setSaturatedRegenRate(ticks);}
+
+    @Override
+    public int getUnsaturatedRegenRate() {return player.getUnsaturatedRegenRate();}
+
+    @Override
+    public void setUnsaturatedRegenRate(int ticks) {player.setUnsaturatedRegenRate(ticks);}
+
+    @Override
+    public int getStarvationRate() {return player.getStarvationRate();}
+
+    @Override
+    public void setStarvationRate(int ticks) {player.setStarvationRate(ticks);}
+
+    @Override
+    public double getEyeHeight() {return player.getEyeHeight();}
+
+    @Override
+    public double getEyeHeight(boolean ignorePose) {return player.getEyeHeight(ignorePose);}
+
+    @Override
+    public @NotNull Location getEyeLocation() {return player.getEyeLocation();}
+
+    @Override
+    public @NotNull List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {return player.getLineOfSight(transparent, maxDistance);}
+
+    @Override
+    public @NotNull Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {return player.getTargetBlock(transparent, maxDistance);}
+
+    @Override
+    public @Nullable Block getTargetBlock(int maxDistance) {return player.getTargetBlock(maxDistance);}
+
+    @Override
+    public @Nullable Block getTargetBlock(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {return player.getTargetBlock(maxDistance, fluidMode);}
+
+    @Override
+    public @Nullable BlockFace getTargetBlockFace(int maxDistance) {return player.getTargetBlockFace(maxDistance);}
+
+    @Override
+    public @Nullable BlockFace getTargetBlockFace(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {return player.getTargetBlockFace(maxDistance, fluidMode);}
+
+    @Override
+    public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance) {return player.getTargetBlockInfo(maxDistance);}
+
+    @Override
+    public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance,
+                                                        TargetBlockInfo.@NotNull FluidMode fluidMode) {return player.getTargetBlockInfo(maxDistance, fluidMode);}
+
+    @Override
+    public @Nullable Entity getTargetEntity(int maxDistance) {return player.getTargetEntity(maxDistance);}
+
+    @Override
+    public @Nullable Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {return player.getTargetEntity(maxDistance, ignoreBlocks);}
+
+    @Override
+    public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance) {return player.getTargetEntityInfo(maxDistance);}
+
+    @Override
+    public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {return player.getTargetEntityInfo(maxDistance, ignoreBlocks);}
+
+    @Override
+    public @NotNull List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent, int maxDistance) {return player.getLastTwoTargetBlocks(transparent, maxDistance);}
+
+    @Override
+    public @Nullable Block getTargetBlockExact(int maxDistance) {return player.getTargetBlockExact(maxDistance);}
+
+    @Override
+    public @Nullable Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {return player.getTargetBlockExact(maxDistance, fluidCollisionMode);}
+
+    @Override
+    public @Nullable RayTraceResult rayTraceBlocks(double maxDistance) {return player.rayTraceBlocks(maxDistance);}
+
+    @Override
+    public @Nullable RayTraceResult rayTraceBlocks(double maxDistance,
+                                                   @NotNull FluidCollisionMode fluidCollisionMode) {return player.rayTraceBlocks(maxDistance, fluidCollisionMode);}
+
+    @Override
+    public int getRemainingAir() {return player.getRemainingAir();}
+
+    @Override
+    public void setRemainingAir(int ticks) {player.setRemainingAir(ticks);}
+
+    @Override
+    public int getMaximumAir() {return player.getMaximumAir();}
+
+    @Override
+    public void setMaximumAir(int ticks) {player.setMaximumAir(ticks);}
+
+    @Override
+    public int getArrowCooldown() {return player.getArrowCooldown();}
+
+    @Override
+    public void setArrowCooldown(int ticks) {player.setArrowCooldown(ticks);}
+
+    @Override
+    public int getArrowsInBody() {return player.getArrowsInBody();}
+
+    @Override
+    public void setArrowsInBody(int count) {player.setArrowsInBody(count);}
+
+    @Override
+    public int getBeeStingerCooldown() {return player.getBeeStingerCooldown();}
+
+    @Override
+    public void setBeeStingerCooldown(int ticks) {player.setBeeStingerCooldown(ticks);}
+
+    @Override
+    public int getBeeStingersInBody() {return player.getBeeStingersInBody();}
+
+    @Override
+    public void setBeeStingersInBody(int count) {player.setBeeStingersInBody(count);}
+
+    @Override
+    public int getMaximumNoDamageTicks() {return player.getMaximumNoDamageTicks();}
+
+    @Override
+    public void setMaximumNoDamageTicks(int ticks) {player.setMaximumNoDamageTicks(ticks);}
+
+    @Override
+    public double getLastDamage() {return player.getLastDamage();}
+
+    @Override
+    public void setLastDamage(double damage) {player.setLastDamage(damage);}
+
+    @Override
+    public int getNoDamageTicks() {return player.getNoDamageTicks();}
+
+    @Override
+    public void setNoDamageTicks(int ticks) {player.setNoDamageTicks(ticks);}
+
+    @Override
     @Nullable
-    public Location getPotentialBedLocation() {
-        return player.getPotentialBedLocation();
-    }
+    public Player getKiller() {return player.getKiller();}
 
-    public boolean sleep(@NotNull Location location, boolean b) {
-        return player.sleep(location, b);
-    }
+    @Override
+    public void setKiller(@Nullable Player killer) {player.setKiller(killer);}
 
-    public void wakeup(boolean b) {
-        player.wakeup(b);
-    }
+    @Override
+    public boolean addPotionEffect(@NotNull PotionEffect effect) {return player.addPotionEffect(effect);}
 
-    @NotNull
-    public Location getBedLocation() {
-        return player.getBedLocation();
-    }
-
-    @NotNull
-    public GameMode getGameMode() {
-        return player.getGameMode();
-    }
-
-    public void setGameMode(@NotNull GameMode gameMode) {
-        player.setGameMode(gameMode);
-    }
-
-    public boolean isBlocking() {
-        return player.isBlocking();
-    }
-
-    public boolean isHandRaised() {
-        return player.isHandRaised();
-    }
-
-    @Nullable
-    public ItemStack getItemInUse() {
-        return player.getItemInUse();
-    }
-
-    public int getExpToLevel() {
-        return player.getExpToLevel();
-    }
-
-    public @Nullable Entity releaseLeftShoulderEntity() {
-        return player.releaseLeftShoulderEntity();
-    }
-
-    public @Nullable Entity releaseRightShoulderEntity() {
-        return player.releaseRightShoulderEntity();
-    }
-
-    public float getAttackCooldown() {
-        return player.getAttackCooldown();
-    }
-
-    public boolean discoverRecipe(@NotNull NamespacedKey namespacedKey) {
-        return player.discoverRecipe(namespacedKey);
-    }
-
-    public int discoverRecipes(@NotNull Collection<NamespacedKey> collection) {
-        return player.discoverRecipes(collection);
-    }
-
-    public boolean undiscoverRecipe(@NotNull NamespacedKey namespacedKey) {
-        return player.undiscoverRecipe(namespacedKey);
-    }
-
-    public int undiscoverRecipes(@NotNull Collection<NamespacedKey> collection) {
-        return player.undiscoverRecipes(collection);
-    }
-
-    public boolean hasDiscoveredRecipe(@NotNull NamespacedKey namespacedKey) {
-        return player.hasDiscoveredRecipe(namespacedKey);
-    }
-
-    @NotNull
-    public Set<NamespacedKey> getDiscoveredRecipes() {
-        return player.getDiscoveredRecipes();
-    }
-
+    @Override
     @Deprecated
-    public @Nullable Entity getShoulderEntityLeft() {
-        return player.getShoulderEntityLeft();
+    public boolean addPotionEffect(@NotNull PotionEffect effect, boolean force) {
+        return player.addPotionEffect(effect
+                , force);
     }
 
+    @Override
+    public boolean addPotionEffects(@NotNull Collection<PotionEffect> effects) {return player.addPotionEffects(effects);}
+
+    @Override
+    public boolean hasPotionEffect(@NotNull PotionEffectType type) {return player.hasPotionEffect(type);}
+
+    @Override
+    public @Nullable PotionEffect getPotionEffect(@NotNull PotionEffectType type) {return player.getPotionEffect(type);}
+
+    @Override
+    public void removePotionEffect(@NotNull PotionEffectType type) {player.removePotionEffect(type);}
+
+    @Override
+    public @NotNull Collection<PotionEffect> getActivePotionEffects() {return player.getActivePotionEffects();}
+
+    @Override
+    public boolean hasLineOfSight(@NotNull Entity other) {return player.hasLineOfSight(other);}
+
+    @Override
+    public boolean hasLineOfSight(@NotNull Location location) {return player.hasLineOfSight(location);}
+
+    @Override
+    public boolean getRemoveWhenFarAway() {return player.getRemoveWhenFarAway();}
+
+    @Override
+    public void setRemoveWhenFarAway(boolean remove) {player.setRemoveWhenFarAway(remove);}
+
+    @Override
+    public boolean getCanPickupItems() {return player.getCanPickupItems();}
+
+    @Override
+    public void setCanPickupItems(boolean pickup) {player.setCanPickupItems(pickup);}
+
+    @Override
+    public boolean isLeashed() {return player.isLeashed();}
+
+    @Override
+    public @NotNull Entity getLeashHolder() throws IllegalStateException {return player.getLeashHolder();}
+
+    @Override
+    public boolean setLeashHolder(@Nullable Entity holder) {return player.setLeashHolder(holder);}
+
+    @Override
+    public boolean isGliding() {return player.isGliding();}
+
+    @Override
+    public void setGliding(boolean gliding) {player.setGliding(gliding);}
+
+    @Override
+    public boolean isSwimming() {return player.isSwimming();}
+
+    @Override
+    public void setSwimming(boolean swimming) {player.setSwimming(swimming);}
+
+    @Override
+    public boolean isRiptiding() {return player.isRiptiding();}
+
+    @Override
+    public boolean isSleeping() {return player.isSleeping();}
+
+    @Override
+    public boolean isClimbing() {return player.isClimbing();}
+
+    @Override
+    public void setAI(boolean ai) {player.setAI(ai);}
+
+    @Override
+    public boolean hasAI() {return player.hasAI();}
+
+    @Override
+    public void attack(@NotNull Entity target) {player.attack(target);}
+
+    @Override
+    public void swingMainHand() {player.swingMainHand();}
+
+    @Override
+    public void swingOffHand() {player.swingOffHand();}
+
+    @Override
+    public boolean isCollidable() {return player.isCollidable();}
+
+    @Override
+    public void setCollidable(boolean collidable) {player.setCollidable(collidable);}
+
+    @Override
+    public @NotNull Set<UUID> getCollidableExemptions() {return player.getCollidableExemptions();}
+
+    @Override
+    public <T> @Nullable T getMemory(@NotNull MemoryKey<T> memoryKey) {return player.getMemory(memoryKey);}
+
+    @Override
+    public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T memoryValue) {
+        player.setMemory(memoryKey,
+                memoryValue);
+    }
+
+    @Override
+    public @NotNull EntityCategory getCategory() {return player.getCategory();}
+
+    @Override
+    public boolean isInvisible() {return player.isInvisible();}
+
+    @Override
+    public void setInvisible(boolean invisible) {player.setInvisible(invisible);}
+
+    @Override
+    public int getArrowsStuck() {return player.getArrowsStuck();}
+
+    @Override
+    public void setArrowsStuck(int arrows) {player.setArrowsStuck(arrows);}
+
+    @Override
+    public int getShieldBlockingDelay() {return player.getShieldBlockingDelay();}
+
+    @Override
+    public void setShieldBlockingDelay(int delay) {player.setShieldBlockingDelay(delay);}
+
+    @Override
+    public @Nullable ItemStack getActiveItem() {return player.getActiveItem();}
+
+    @Override
+    public void clearActiveItem() {player.clearActiveItem();}
+
+    @Override
+    public int getItemUseRemainingTime() {return player.getItemUseRemainingTime();}
+
+    @Override
+    public int getHandRaisedTime() {return player.getHandRaisedTime();}
+
+    @Override
+    public @NotNull EquipmentSlot getHandRaised() {return player.getHandRaised();}
+
+    @Override
+    public boolean isJumping() {return player.isJumping();}
+
+    @Override
+    public void setJumping(boolean jumping) {player.setJumping(jumping);}
+
+    @Override
+    public void playPickupItemAnimation(@NotNull Item item) {player.playPickupItemAnimation(item);}
+
+    @Override
+    public void playPickupItemAnimation(@NotNull Item item, int quantity) {
+        player.playPickupItemAnimation(item,
+                quantity);
+    }
+
+    @Override
+    public float getHurtDirection() {return player.getHurtDirection();}
+
+    @Override
+    public void setHurtDirection(float hurtDirection) {player.setHurtDirection(hurtDirection);}
+
+    @Override
+    public @Nullable AttributeInstance getAttribute(@NotNull Attribute attribute) {return player.getAttribute(attribute);}
+
+    @Override
+    public void registerAttribute(@NotNull Attribute attribute) {player.registerAttribute(attribute);}
+
+    @Override
+    public void damage(double amount) {player.damage(amount);}
+
+    @Override
+    public void damage(double amount, @Nullable Entity source) {player.damage(amount, source);}
+
+    @Override
+    public double getHealth() {return player.getHealth();}
+
+    @Override
+    public void setHealth(double health) {player.setHealth(health);}
+
+    @Override
+    public double getAbsorptionAmount() {return player.getAbsorptionAmount();}
+
+    @Override
+    public void setAbsorptionAmount(double amount) {player.setAbsorptionAmount(amount);}
+
+    @Override
     @Deprecated
-    public void setShoulderEntityLeft(@Nullable Entity entity) {
-        player.setShoulderEntityLeft(entity);
-    }
+    public double getMaxHealth() {return player.getMaxHealth();}
 
+    @Override
     @Deprecated
-    public @Nullable Entity getShoulderEntityRight() {
-        return player.getShoulderEntityRight();
-    }
+    public void setMaxHealth(double health) {player.setMaxHealth(health);}
 
+    @Override
     @Deprecated
-    public void setShoulderEntityRight(@Nullable Entity entity) {
-        player.setShoulderEntityRight(entity);
-    }
+    public void resetMaxHealth() {player.resetMaxHealth();}
 
-    public boolean dropItem(boolean b) {
-        return player.dropItem(b);
-    }
+    @Override
+    public @NotNull Location getLocation() {return player.getLocation();}
 
-    public float getExhaustion() {
-        return player.getExhaustion();
-    }
-
-    public void setExhaustion(float v) {
-        player.setExhaustion(v);
-    }
-
-    public float getSaturation() {
-        return player.getSaturation();
-    }
-
-    public void setSaturation(float v) {
-        player.setSaturation(v);
-    }
-
-    public int getFoodLevel() {
-        return player.getFoodLevel();
-    }
-
-    public void setFoodLevel(int i) {
-        player.setFoodLevel(i);
-    }
-
-    public int getSaturatedRegenRate() {
-        return player.getSaturatedRegenRate();
-    }
-
-    public void setSaturatedRegenRate(int i) {
-        player.setSaturatedRegenRate(i);
-    }
-
-    public int getUnsaturatedRegenRate() {
-        return player.getUnsaturatedRegenRate();
-    }
-
-    public void setUnsaturatedRegenRate(int i) {
-        player.setUnsaturatedRegenRate(i);
-    }
-
-    public int getStarvationRate() {
-        return player.getStarvationRate();
-    }
-
-    public void setStarvationRate(int i) {
-        player.setStarvationRate(i);
-    }
-
-    public double getEyeHeight() {
-        return player.getEyeHeight();
-    }
-
-    public double getEyeHeight(boolean b) {
-        return player.getEyeHeight(b);
-    }
-
-    @NotNull
-    public Location getEyeLocation() {
-        return player.getEyeLocation();
-    }
-
-    @NotNull
-    public List<Block> getLineOfSight(@Nullable Set<Material> set, int i) {
-        return player.getLineOfSight(set, i);
-    }
-
-    public @NotNull Block getTargetBlock(@Nullable Set<Material> set, int i) {
-        return player.getTargetBlock(set, i);
-    }
-
-    public @Nullable Block getTargetBlock(int maxDistance) {
-        return player.getTargetBlock(maxDistance);
-    }
-
-    public @Nullable Block getTargetBlock(int i, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-        return player.getTargetBlock(i, fluidMode);
-    }
-
-    public @Nullable BlockFace getTargetBlockFace(int maxDistance) {
-        return player.getTargetBlockFace(maxDistance);
-    }
-
-    public @Nullable BlockFace getTargetBlockFace(int i, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-        return player.getTargetBlockFace(i, fluidMode);
-    }
-
-    public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance) {
-        return player.getTargetBlockInfo(maxDistance);
-    }
-
-    public @Nullable TargetBlockInfo getTargetBlockInfo(int i, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-        return player.getTargetBlockInfo(i, fluidMode);
-    }
-
-    public @Nullable Entity getTargetEntity(int maxDistance) {
-        return player.getTargetEntity(maxDistance);
-    }
-
-    public @Nullable Entity getTargetEntity(int i, boolean b) {
-        return player.getTargetEntity(i, b);
-    }
-
-    public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance) {
-        return player.getTargetEntityInfo(maxDistance);
-    }
-
-    public @Nullable TargetEntityInfo getTargetEntityInfo(int i, boolean b) {
-        return player.getTargetEntityInfo(i, b);
-    }
-
-    @NotNull
-    public List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> set, int i) {
-        return player.getLastTwoTargetBlocks(set, i);
-    }
-
-    public @Nullable Block getTargetBlockExact(int i) {
-        return player.getTargetBlockExact(i);
-    }
-
-    public @Nullable Block getTargetBlockExact(int i, @NotNull FluidCollisionMode fluidCollisionMode) {
-        return player.getTargetBlockExact(i, fluidCollisionMode);
-    }
-
-    public @Nullable RayTraceResult rayTraceBlocks(double v) {
-        return player.rayTraceBlocks(v);
-    }
-
-    public @Nullable RayTraceResult rayTraceBlocks(double v, @NotNull FluidCollisionMode fluidCollisionMode) {
-        return player.rayTraceBlocks(v, fluidCollisionMode);
-    }
-
-    public int getRemainingAir() {
-        return player.getRemainingAir();
-    }
-
-    public void setRemainingAir(int i) {
-        player.setRemainingAir(i);
-    }
-
-    public int getMaximumAir() {
-        return player.getMaximumAir();
-    }
-
-    public void setMaximumAir(int i) {
-        player.setMaximumAir(i);
-    }
-
-    public int getArrowCooldown() {
-        return player.getArrowCooldown();
-    }
-
-    public void setArrowCooldown(int i) {
-        player.setArrowCooldown(i);
-    }
-
-    public int getArrowsInBody() {
-        return player.getArrowsInBody();
-    }
-
-    public void setArrowsInBody(int i) {
-        player.setArrowsInBody(i);
-    }
-
-    public int getBeeStingerCooldown() {
-        return player.getBeeStingerCooldown();
-    }
-
-    public void setBeeStingerCooldown(int i) {
-        player.setBeeStingerCooldown(i);
-    }
-
-    public int getBeeStingersInBody() {
-        return player.getBeeStingersInBody();
-    }
-
-    public void setBeeStingersInBody(int i) {
-        player.setBeeStingersInBody(i);
-    }
-
-    public int getMaximumNoDamageTicks() {
-        return player.getMaximumNoDamageTicks();
-    }
-
-    public void setMaximumNoDamageTicks(int i) {
-        player.setMaximumNoDamageTicks(i);
-    }
-
-    public double getLastDamage() {
-        return player.getLastDamage();
-    }
-
-    public void setLastDamage(double v) {
-        player.setLastDamage(v);
-    }
-
-    public int getNoDamageTicks() {
-        return player.getNoDamageTicks();
-    }
-
-    public void setNoDamageTicks(int i) {
-        player.setNoDamageTicks(i);
-    }
-
-    @Nullable
-    public Player getKiller() {
-        return player.getKiller();
-    }
-
-    public void setKiller(@Nullable Player player) {
-        this.player.setKiller(player);
-    }
-
-    public boolean addPotionEffect(@NotNull PotionEffect potionEffect) {
-        return player.addPotionEffect(potionEffect);
-    }
-
-    @Deprecated
-    public boolean addPotionEffect(@NotNull PotionEffect potionEffect, boolean b) {
-        return player.addPotionEffect(potionEffect, b);
-    }
-
-    public boolean addPotionEffects(@NotNull Collection<PotionEffect> collection) {
-        return player.addPotionEffects(collection);
-    }
-
-    public boolean hasPotionEffect(@NotNull PotionEffectType potionEffectType) {
-        return player.hasPotionEffect(potionEffectType);
-    }
-
-    @Nullable
-    public PotionEffect getPotionEffect(@NotNull PotionEffectType potionEffectType) {
-        return player.getPotionEffect(potionEffectType);
-    }
-
-    public void removePotionEffect(@NotNull PotionEffectType potionEffectType) {
-        player.removePotionEffect(potionEffectType);
-    }
-
-    @NotNull
-    public Collection<PotionEffect> getActivePotionEffects() {
-        return player.getActivePotionEffects();
-    }
-
-    public boolean hasLineOfSight(@NotNull Entity entity) {
-        return player.hasLineOfSight(entity);
-    }
-
-    public boolean hasLineOfSight(@NotNull Location location) {
-        return player.hasLineOfSight(location);
-    }
-
-    public boolean getRemoveWhenFarAway() {
-        return player.getRemoveWhenFarAway();
-    }
-
-    public void setRemoveWhenFarAway(boolean b) {
-        player.setRemoveWhenFarAway(b);
-    }
-
-    public boolean getCanPickupItems() {
-        return player.getCanPickupItems();
-    }
-
-    public void setCanPickupItems(boolean b) {
-        player.setCanPickupItems(b);
-    }
-
-    public boolean isLeashed() {
-        return player.isLeashed();
-    }
-
-    public @NotNull Entity getLeashHolder() throws IllegalStateException {
-        return player.getLeashHolder();
-    }
-
-    public boolean setLeashHolder(@Nullable Entity entity) {
-        return player.setLeashHolder(entity);
-    }
-
-    public boolean isGliding() {
-        return player.isGliding();
-    }
-
-    public void setGliding(boolean b) {
-        player.setGliding(b);
-    }
-
-    public boolean isSwimming() {
-        return player.isSwimming();
-    }
-
-    public void setSwimming(boolean b) {
-        player.setSwimming(b);
-    }
-
-    public boolean isRiptiding() {
-        return player.isRiptiding();
-    }
-
-    public boolean isSleeping() {
-        return player.isSleeping();
-    }
-
-    public boolean isClimbing() {
-        return player.isClimbing();
-    }
-
-    public void setAI(boolean b) {
-        player.setAI(b);
-    }
-
-    public boolean hasAI() {
-        return player.hasAI();
-    }
-
-    public void attack(@NotNull Entity entity) {
-        player.attack(entity);
-    }
-
-    public void swingMainHand() {
-        player.swingMainHand();
-    }
-
-    public void swingOffHand() {
-        player.swingOffHand();
-    }
-
-    public boolean isCollidable() {
-        return player.isCollidable();
-    }
-
-    public void setCollidable(boolean b) {
-        player.setCollidable(b);
-    }
-
-    @NotNull
-    public Set<UUID> getCollidableExemptions() {
-        return player.getCollidableExemptions();
-    }
-
-    public <T> @Nullable T getMemory(@NotNull MemoryKey<T> memoryKey) {
-        return player.getMemory(memoryKey);
-    }
-
-    public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T t) {
-        player.setMemory(memoryKey, t);
-    }
-
-    public @NotNull EntityCategory getCategory() {
-        return player.getCategory();
-    }
-
-    public boolean isInvisible() {
-        return player.isInvisible();
-    }
-
-    public void setInvisible(boolean b) {
-        player.setInvisible(b);
-    }
-
-    public int getArrowsStuck() {
-        return player.getArrowsStuck();
-    }
-
-    public void setArrowsStuck(int i) {
-        player.setArrowsStuck(i);
-    }
-
-    public int getShieldBlockingDelay() {
-        return player.getShieldBlockingDelay();
-    }
-
-    public void setShieldBlockingDelay(int i) {
-        player.setShieldBlockingDelay(i);
-    }
-
-    @Nullable
-    public ItemStack getActiveItem() {
-        return player.getActiveItem();
-    }
-
-    public void clearActiveItem() {
-        player.clearActiveItem();
-    }
-
-    public int getItemUseRemainingTime() {
-        return player.getItemUseRemainingTime();
-    }
-
-    public int getHandRaisedTime() {
-        return player.getHandRaisedTime();
-    }
-
-    public @NotNull EquipmentSlot getHandRaised() {
-        return player.getHandRaised();
-    }
-
-    public boolean isJumping() {
-        return player.isJumping();
-    }
-
-    public void setJumping(boolean b) {
-        player.setJumping(b);
-    }
-
-    public void playPickupItemAnimation(@NotNull Item item) {
-        player.playPickupItemAnimation(item);
-    }
-
-    public void playPickupItemAnimation(@NotNull Item item, int i) {
-        player.playPickupItemAnimation(item, i);
-    }
-
-    public float getHurtDirection() {
-        return player.getHurtDirection();
-    }
-
-    public void setHurtDirection(float v) {
-        player.setHurtDirection(v);
-    }
-
-    @Nullable
-    public AttributeInstance getAttribute(@NotNull Attribute attribute) {
-        return player.getAttribute(attribute);
-    }
-
-    public void registerAttribute(@NotNull Attribute attribute) {
-        player.registerAttribute(attribute);
-    }
-
-    public void damage(double v) {
-        player.damage(v);
-    }
-
-    public void damage(double v, @Nullable Entity entity) {
-        player.damage(v, entity);
-    }
-
-    public double getHealth() {
-        return player.getHealth();
-    }
-
-    public void setHealth(double v) {
-        player.setHealth(v);
-    }
-
-    public double getAbsorptionAmount() {
-        return player.getAbsorptionAmount();
-    }
-
-    public void setAbsorptionAmount(double v) {
-        player.setAbsorptionAmount(v);
-    }
-
-    public double getMaxHealth() {
-        return this.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
-    }
-
-    public void setMaxHealth(double health) {
-        this.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
-    }
-
-    @Deprecated
-    public void resetMaxHealth() {
-        player.resetMaxHealth();
-    }
-
-    @NotNull
-    public Location getLocation() {
-        return player.getLocation();
-    }
-
+    @Override
     @Contract("null -> null; !null -> !null")
-    @Nullable
-    public Location getLocation(@Nullable Location location) {
-        return player.getLocation(location);
-    }
+    public @Nullable Location getLocation(@Nullable Location loc) {return player.getLocation(loc);}
 
-    public @NotNull org.bukkit.util.Vector getVelocity() {
-        return player.getVelocity();
-    }
+    @Override
+    public @NotNull Vector getVelocity() {return player.getVelocity();}
 
-    public void setVelocity(@NotNull org.bukkit.util.Vector vector) {
-        player.setVelocity(vector);
-    }
+    @Override
+    public void setVelocity(@NotNull Vector velocity) {player.setVelocity(velocity);}
 
-    public double getHeight() {
-        return player.getHeight();
-    }
+    @Override
+    public double getHeight() {return player.getHeight();}
 
-    public double getWidth() {
-        return player.getWidth();
-    }
+    @Override
+    public double getWidth() {return player.getWidth();}
 
-    public @NotNull BoundingBox getBoundingBox() {
-        return player.getBoundingBox();
-    }
+    @Override
+    public @NotNull BoundingBox getBoundingBox() {return player.getBoundingBox();}
 
-    public boolean isInWater() {
-        return player.isInWater();
-    }
+    @Override
+    public boolean isInWater() {return player.isInWater();}
 
-    @NotNull
-    public ExWorld getWorld() {
-        return de.timesnake.basic.bukkit.util.Server.getWorld(player.getWorld());
-    }
+    @Override
+    public @NotNull World getWorld() {return player.getWorld();}
 
-    public void setRotation(float v, float v1) {
-        player.setRotation(v, v1);
-    }
+    @Override
+    public void setRotation(float yaw, float pitch) {player.setRotation(yaw, pitch);}
 
-    public boolean teleport(@NotNull Location location) {
-        return player.teleport(location);
-    }
+    @Override
+    public boolean teleport(@NotNull Location location) {return player.teleport(location);}
 
-    public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause teleportCause) {
-        return player.teleport(location, teleportCause);
-    }
+    @Override
+    public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {return player.teleport(location, cause);}
 
-    public boolean teleport(@NotNull Entity entity) {
-        return player.teleport(entity);
-    }
+    @Override
+    public boolean teleport(@NotNull Entity destination) {return player.teleport(destination);}
 
-    public boolean teleport(@NotNull Entity entity, PlayerTeleportEvent.@NotNull TeleportCause teleportCause) {
-        return player.teleport(entity, teleportCause);
-    }
+    @Override
+    public boolean teleport(@NotNull Entity destination, PlayerTeleportEvent.@NotNull TeleportCause cause) {return player.teleport(destination, cause);}
 
-    public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
-        return player.teleportAsync(loc);
-    }
+    @Override
+    public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {return player.teleportAsync(loc);}
 
+    @Override
     public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc,
-                                                             PlayerTeleportEvent.@NotNull TeleportCause cause) {
-        return player.teleportAsync(loc, cause);
+                                                             PlayerTeleportEvent.@NotNull TeleportCause cause) {return player.teleportAsync(loc, cause);}
+
+    @Override
+    public @NotNull List<Entity> getNearbyEntities(double x, double y, double z) {
+        return player.getNearbyEntities(x,
+                y, z);
     }
 
-    @NotNull
-    public List<Entity> getNearbyEntities(double v, double v1, double v2) {
-        return player.getNearbyEntities(v, v1, v2);
-    }
+    @Override
+    public int getEntityId() {return player.getEntityId();}
 
-    public int getEntityId() {
-        return player.getEntityId();
-    }
+    @Override
+    public int getFireTicks() {return player.getFireTicks();}
 
-    public int getFireTicks() {
-        return player.getFireTicks();
-    }
+    @Override
+    public void setFireTicks(int ticks) {player.setFireTicks(ticks);}
 
-    public void setFireTicks(int i) {
-        player.setFireTicks(i);
-    }
+    @Override
+    public int getMaxFireTicks() {return player.getMaxFireTicks();}
 
-    public int getMaxFireTicks() {
-        return player.getMaxFireTicks();
-    }
+    @Override
+    public boolean isVisualFire() {return player.isVisualFire();}
 
-    public boolean isVisualFire() {
-        return player.isVisualFire();
-    }
+    @Override
+    public void setVisualFire(boolean fire) {player.setVisualFire(fire);}
 
-    public void setVisualFire(boolean b) {
-        player.setVisualFire(b);
-    }
+    @Override
+    public int getFreezeTicks() {return player.getFreezeTicks();}
 
-    public int getFreezeTicks() {
-        return player.getFreezeTicks();
-    }
+    @Override
+    public void setFreezeTicks(int ticks) {player.setFreezeTicks(ticks);}
 
-    public void setFreezeTicks(int i) {
-        player.setFreezeTicks(i);
-    }
+    @Override
+    public int getMaxFreezeTicks() {return player.getMaxFreezeTicks();}
 
-    public int getMaxFreezeTicks() {
-        return player.getMaxFreezeTicks();
-    }
+    @Override
+    public boolean isFrozen() {return player.isFrozen();}
 
-    public boolean isFrozen() {
-        return player.isFrozen();
-    }
+    @Override
+    public boolean isFreezeTickingLocked() {return player.isFreezeTickingLocked();}
 
-    public void remove() {
-        player.remove();
-    }
+    @Override
+    public void lockFreezeTicks(boolean locked) {player.lockFreezeTicks(locked);}
 
-    public boolean isDead() {
-        return player.isDead();
-    }
+    @Override
+    public void remove() {player.remove();}
 
-    public boolean isValid() {
-        return player.isValid();
-    }
+    @Override
+    public boolean isDead() {return player.isDead();}
 
-    public org.bukkit.@NotNull Server getServer() {
-        return player.getServer();
-    }
+    @Override
+    public boolean isValid() {return player.isValid();}
 
-    public boolean isPersistent() {
-        return player.isPersistent();
-    }
+    @Override
+    public @NotNull Server getServer() {return player.getServer();}
 
-    public void setPersistent(boolean b) {
-        player.setPersistent(b);
-    }
+    @Override
+    public boolean isPersistent() {return player.isPersistent();}
 
+    @Override
+    public void setPersistent(boolean persistent) {player.setPersistent(persistent);}
+
+    @Override
     @Deprecated
-    public @Nullable Entity getPassenger() {
-        return player.getPassenger();
-    }
+    public @Nullable Entity getPassenger() {return player.getPassenger();}
 
+    @Override
     @Deprecated
-    public boolean setPassenger(@NotNull Entity entity) {
-        return player.setPassenger(entity);
-    }
+    public boolean setPassenger(@NotNull Entity passenger) {return player.setPassenger(passenger);}
 
-    @NotNull
-    public List<Entity> getPassengers() {
-        return player.getPassengers();
-    }
+    @Override
+    public @NotNull List<Entity> getPassengers() {return player.getPassengers();}
 
-    public boolean addPassenger(@NotNull Entity entity) {
-        return player.addPassenger(entity);
-    }
+    @Override
+    public boolean addPassenger(@NotNull Entity passenger) {return player.addPassenger(passenger);}
 
-    public boolean removePassenger(@NotNull Entity entity) {
-        return player.removePassenger(entity);
-    }
+    @Override
+    public boolean removePassenger(@NotNull Entity passenger) {return player.removePassenger(passenger);}
 
-    public boolean isEmpty() {
-        return player.isEmpty();
-    }
+    @Override
+    public boolean isEmpty() {return player.isEmpty();}
 
-    public boolean eject() {
-        return player.eject();
-    }
+    @Override
+    public boolean eject() {return player.eject();}
 
-    public float getFallDistance() {
-        return player.getFallDistance();
-    }
+    @Override
+    public float getFallDistance() {return player.getFallDistance();}
 
-    public void setFallDistance(float v) {
-        player.setFallDistance(v);
-    }
+    @Override
+    public void setFallDistance(float distance) {player.setFallDistance(distance);}
 
-    public @Nullable EntityDamageEvent getLastDamageCause() {
-        return player.getLastDamageCause();
-    }
+    @Override
+    public @Nullable EntityDamageEvent getLastDamageCause() {return player.getLastDamageCause();}
 
-    public void setLastDamageCause(@Nullable EntityDamageEvent entityDamageEvent) {
-        player.setLastDamageCause(entityDamageEvent);
-    }
+    @Override
+    public void setLastDamageCause(@Nullable EntityDamageEvent event) {player.setLastDamageCause(event);}
 
-    public int getTicksLived() {
-        return player.getTicksLived();
-    }
+    @Override
+    public @NotNull UUID getUniqueId() {return player.getUniqueId();}
 
-    public void setTicksLived(int i) {
-        player.setTicksLived(i);
-    }
+    @Override
+    public int getTicksLived() {return player.getTicksLived();}
 
-    public void playEffect(@NotNull EntityEffect entityEffect) {
-        player.playEffect(entityEffect);
-    }
+    @Override
+    public void setTicksLived(int value) {player.setTicksLived(value);}
 
-    public @NotNull EntityType getType() {
-        return player.getType();
-    }
+    @Override
+    public void playEffect(@NotNull EntityEffect type) {player.playEffect(type);}
 
-    public boolean isInsideVehicle() {
-        return player.isInsideVehicle();
-    }
+    @Override
+    public @NotNull EntityType getType() {return player.getType();}
 
-    public boolean leaveVehicle() {
-        return player.leaveVehicle();
-    }
+    @Override
+    public boolean isInsideVehicle() {return player.isInsideVehicle();}
 
-    public @Nullable Entity getVehicle() {
-        return player.getVehicle();
-    }
+    @Override
+    public boolean leaveVehicle() {return player.leaveVehicle();}
 
-    public boolean isCustomNameVisible() {
-        return player.isCustomNameVisible();
-    }
+    @Override
+    public @Nullable Entity getVehicle() {return player.getVehicle();}
 
-    public void setCustomNameVisible(boolean b) {
-        player.setCustomNameVisible(b);
-    }
+    @Override
+    public boolean isCustomNameVisible() {return player.isCustomNameVisible();}
 
-    public boolean isGlowing() {
-        return player.isGlowing();
-    }
+    @Override
+    public void setCustomNameVisible(boolean flag) {player.setCustomNameVisible(flag);}
 
-    public void setGlowing(boolean b) {
-        player.setGlowing(b);
-    }
+    @Override
+    public boolean isGlowing() {return player.isGlowing();}
 
-    public boolean isInvulnerable() {
-        return player.isInvulnerable();
-    }
+    @Override
+    public void setGlowing(boolean flag) {player.setGlowing(flag);}
 
-    public void setInvulnerable(boolean b) {
-        player.setInvulnerable(b);
-    }
+    @Override
+    public boolean isInvulnerable() {return player.isInvulnerable();}
 
-    public boolean isSilent() {
-        return player.isSilent();
-    }
+    @Override
+    public void setInvulnerable(boolean flag) {player.setInvulnerable(flag);}
 
-    public void setSilent(boolean b) {
-        player.setSilent(b);
-    }
+    @Override
+    public boolean isSilent() {return player.isSilent();}
 
-    public boolean hasGravity() {
-        return player.hasGravity();
-    }
+    @Override
+    public void setSilent(boolean flag) {player.setSilent(flag);}
 
-    public void setGravity(boolean b) {
-        player.setGravity(b);
-    }
+    @Override
+    public boolean hasGravity() {return player.hasGravity();}
 
-    public int getPortalCooldown() {
-        return player.getPortalCooldown();
-    }
+    @Override
+    public void setGravity(boolean gravity) {player.setGravity(gravity);}
 
-    public void setPortalCooldown(int i) {
-        player.setPortalCooldown(i);
-    }
+    @Override
+    public int getPortalCooldown() {return player.getPortalCooldown();}
 
-    @NotNull
-    public Set<String> getScoreboardTags() {
-        return player.getScoreboardTags();
-    }
+    @Override
+    public void setPortalCooldown(int cooldown) {player.setPortalCooldown(cooldown);}
 
-    public boolean addScoreboardTag(@NotNull String s) {
-        return player.addScoreboardTag(s);
-    }
+    @Override
+    public @NotNull Set<String> getScoreboardTags() {return player.getScoreboardTags();}
 
-    public boolean removeScoreboardTag(@NotNull String s) {
-        return player.removeScoreboardTag(s);
-    }
+    @Override
+    public boolean addScoreboardTag(@NotNull String tag) {return player.addScoreboardTag(tag);}
 
-    public @NotNull PistonMoveReaction getPistonMoveReaction() {
-        return player.getPistonMoveReaction();
-    }
+    @Override
+    public boolean removeScoreboardTag(@NotNull String tag) {return player.removeScoreboardTag(tag);}
 
-    public @NotNull BlockFace getFacing() {
-        return player.getFacing();
-    }
+    @Override
+    public @NotNull PistonMoveReaction getPistonMoveReaction() {return player.getPistonMoveReaction();}
 
-    public @NotNull Pose getPose() {
-        return player.getPose();
-    }
+    @Override
+    public @NotNull BlockFace getFacing() {return player.getFacing();}
 
-    @NotNull
-    public Component teamDisplayName() {
-        return player.teamDisplayName();
-    }
+    @Override
+    public @NotNull Pose getPose() {return player.getPose();}
 
-    @Nullable
-    public Location getOrigin() {
-        return player.getOrigin();
-    }
+    @Override
+    public @NotNull SpawnCategory getSpawnCategory() {return player.getSpawnCategory();}
 
-    public boolean fromMobSpawner() {
-        return player.fromMobSpawner();
-    }
+    @Override
+    public @NotNull Component teamDisplayName() {return player.teamDisplayName();}
 
-    @NotNull
-    public Chunk getChunk() {
-        return player.getChunk();
-    }
+    @Override
+    public @Nullable Location getOrigin() {return player.getOrigin();}
 
-    public CreatureSpawnEvent.@NotNull SpawnReason getEntitySpawnReason() {
-        return player.getEntitySpawnReason();
-    }
+    @Override
+    public boolean fromMobSpawner() {return player.fromMobSpawner();}
 
-    public boolean isInRain() {
-        return player.isInRain();
-    }
+    @Override
+    public @NotNull Chunk getChunk() {return player.getChunk();}
 
-    public boolean isInBubbleColumn() {
-        return player.isInBubbleColumn();
-    }
+    @Override
+    public CreatureSpawnEvent.@NotNull SpawnReason getEntitySpawnReason() {return player.getEntitySpawnReason();}
 
-    public boolean isInWaterOrRain() {
-        return player.isInWaterOrRain();
-    }
+    @Override
+    public boolean isInRain() {return player.isInRain();}
 
-    public boolean isInWaterOrBubbleColumn() {
-        return player.isInWaterOrBubbleColumn();
-    }
+    @Override
+    public boolean isInBubbleColumn() {return player.isInBubbleColumn();}
 
-    public boolean isInWaterOrRainOrBubbleColumn() {
-        return player.isInWaterOrRainOrBubbleColumn();
-    }
+    @Override
+    public boolean isInWaterOrRain() {return player.isInWaterOrRain();}
 
-    public boolean isInLava() {
-        return player.isInLava();
-    }
+    @Override
+    public boolean isInWaterOrBubbleColumn() {return player.isInWaterOrBubbleColumn();}
 
-    public boolean isTicking() {
-        return player.isTicking();
-    }
+    @Override
+    public boolean isInWaterOrRainOrBubbleColumn() {return player.isInWaterOrRainOrBubbleColumn();}
 
-    @NotNull
-    public Set<Player> getTrackedPlayers() {
-        return player.getTrackedPlayers();
-    }
+    @Override
+    public boolean isInLava() {return player.isInLava();}
 
-    public boolean spawnAt(@NotNull Location location) {
-        return player.spawnAt(location);
-    }
+    @Override
+    public boolean isTicking() {return player.isTicking();}
 
-    public boolean spawnAt(@NotNull Location location, CreatureSpawnEvent.@NotNull SpawnReason spawnReason) {
-        return player.spawnAt(location, spawnReason);
-    }
+    @Override
+    public @NotNull Set<Player> getTrackedPlayers() {return player.getTrackedPlayers();}
 
-    public boolean isInPowderedSnow() {
-        return player.isInPowderedSnow();
-    }
+    @Override
+    public boolean spawnAt(@NotNull Location location) {return player.spawnAt(location);}
 
-    public void setMetadata(@NotNull String s, @NotNull MetadataValue metadataValue) {
-        player.setMetadata(s, metadataValue);
-    }
+    @Override
+    public boolean spawnAt(@NotNull Location location, CreatureSpawnEvent.@NotNull SpawnReason reason) {return player.spawnAt(location, reason);}
 
-    @NotNull
-    public List<MetadataValue> getMetadata(@NotNull String s) {
-        return player.getMetadata(s);
-    }
+    @Override
+    public boolean isInPowderedSnow() {return player.isInPowderedSnow();}
 
-    public boolean hasMetadata(@NotNull String s) {
-        return player.hasMetadata(s);
-    }
+    @Override
+    public void setMetadata(@NotNull String metadataKey, @NotNull MetadataValue newMetadataValue) {player.setMetadata(metadataKey, newMetadataValue);}
 
-    public void removeMetadata(@NotNull String s, org.bukkit.plugin.@NotNull Plugin plugin) {
-        player.removeMetadata(s, plugin);
-    }
+    @Override
+    public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {return player.getMetadata(metadataKey);}
 
-    public void sendMessage(@NotNull String... strings) {
-        player.sendMessage(strings);
-    }
+    @Override
+    public boolean hasMetadata(@NotNull String metadataKey) {return player.hasMetadata(metadataKey);}
 
-    public void sendMessage(@Nullable UUID uuid, @NotNull String s) {
-        player.sendMessage(uuid, s);
-    }
+    @Override
+    public void removeMetadata(@NotNull String metadataKey, @NotNull Plugin owningPlugin) {player.removeMetadata(metadataKey, owningPlugin);}
 
-    public void sendMessage(@Nullable UUID uuid, @NotNull String... strings) {
-        player.sendMessage(uuid, strings);
-    }
+    @Override
+    public void sendMessage(@NotNull String message) {player.sendMessage(message);}
 
-    @NotNull
-    public Component name() {
-        return player.name();
-    }
+    @Override
+    public void sendMessage(@NotNull String... messages) {player.sendMessage(messages);}
 
-    public void sendMessage(@NotNull Identity identity, @NotNull Component message,
-                            @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(identity, message, type);
-    }
+    @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String message) {player.sendMessage(sender, message);}
 
-    public @NotNull Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
-        return player.filterAudience(filter);
-    }
+    @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String... messages) {player.sendMessage(sender, messages);}
 
-    public void forEachAudience(@NotNull Consumer<? super Audience> action) {
-        player.forEachAudience(action);
-    }
+    @Override
+    public @NotNull Component name() {return player.name();}
 
-    public void sendMessage(@NotNull ComponentLike message) {
-        player.sendMessage(message);
-    }
+    @Override
+    public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {player.sendMessage(identity, message, type);}
 
+    @Override
+    public @NotNull Audience filterAudience(@NotNull Predicate<? super Audience> filter) {return player.filterAudience(filter);}
+
+    @Override
+    public void forEachAudience(@NotNull Consumer<? super Audience> action) {player.forEachAudience(action);}
+
+    @Override
+    public void sendMessage(@NotNull ComponentLike message) {player.sendMessage(message);}
+
+    @Override
     public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
-        player.sendMessage(source, message);
+        player.sendMessage(source,
+                message);
     }
 
+    @Override
     public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
-        player.sendMessage(source, message);
+        player.sendMessage(source,
+                message);
     }
 
-    public void sendMessage(@NotNull Component message) {
-        player.sendMessage(message);
-    }
+    @Override
+    public void sendMessage(@NotNull Component message) {player.sendMessage(message);}
 
+    @Override
     public void sendMessage(@NotNull Identified source, @NotNull Component message) {
-        player.sendMessage(source, message);
+        player.sendMessage(source,
+                message);
     }
 
-    public void sendMessage(@NotNull Identity source, @NotNull Component message) {
-        player.sendMessage(source, message);
+    @Override
+    public void sendMessage(@NotNull Identity source, @NotNull Component message) {player.sendMessage(source, message);}
+
+    @Override
+    public void sendMessage(@NotNull ComponentLike message, @NotNull MessageType type) {
+        player.sendMessage(message,
+                type);
     }
 
-    public void sendMessage(@NotNull ComponentLike message, @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(message, type);
-    }
+    @Override
+    public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {player.sendMessage(source, message, type);}
 
-    public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message,
-                            @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(source, message, type);
-    }
+    @Override
+    public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {player.sendMessage(source, message, type);}
 
-    public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message,
-                            @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(source, message, type);
-    }
+    @Override
+    public void sendMessage(@NotNull Component message, @NotNull MessageType type) {player.sendMessage(message, type);}
 
-    public void sendMessage(@NotNull Component message, @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(message, type);
-    }
+    @Override
+    public void sendMessage(@NotNull Identified source, @NotNull Component message, @NotNull MessageType type) {player.sendMessage(source, message, type);}
 
-    public void sendMessage(@NotNull Identified source, @NotNull Component message,
-                            @NotNull net.kyori.adventure.audience.MessageType type) {
-        player.sendMessage(source, message, type);
-    }
+    @Override
+    public void sendActionBar(@NotNull ComponentLike message) {player.sendActionBar(message);}
 
-    public void sendActionBar(@NotNull ComponentLike message) {
-        player.sendActionBar(message);
-    }
+    @Override
+    public void sendActionBar(@NotNull Component message) {player.sendActionBar(message);}
 
-    public void sendActionBar(@NotNull Component message) {
-        player.sendActionBar(message);
-    }
+    @Override
+    public void sendPlayerListHeader(@NotNull ComponentLike header) {player.sendPlayerListHeader(header);}
 
-    public void sendPlayerListHeader(@NotNull ComponentLike header) {
-        player.sendPlayerListHeader(header);
-    }
+    @Override
+    public void sendPlayerListHeader(@NotNull Component header) {player.sendPlayerListHeader(header);}
 
-    public void sendPlayerListHeader(@NotNull Component header) {
-        player.sendPlayerListHeader(header);
-    }
+    @Override
+    public void sendPlayerListFooter(@NotNull ComponentLike footer) {player.sendPlayerListFooter(footer);}
 
-    public void sendPlayerListFooter(@NotNull ComponentLike footer) {
-        player.sendPlayerListFooter(footer);
-    }
+    @Override
+    public void sendPlayerListFooter(@NotNull Component footer) {player.sendPlayerListFooter(footer);}
 
-    public void sendPlayerListFooter(@NotNull Component footer) {
-        player.sendPlayerListFooter(footer);
-    }
+    @Override
+    public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header, @NotNull ComponentLike footer) {player.sendPlayerListHeaderAndFooter(header, footer);}
 
-    public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header, @NotNull ComponentLike footer) {
-        player.sendPlayerListHeaderAndFooter(header, footer);
-    }
+    @Override
+    public void sendPlayerListHeaderAndFooter(@NotNull Component header, @NotNull Component footer) {player.sendPlayerListHeaderAndFooter(header, footer);}
 
-    public void sendPlayerListHeaderAndFooter(@NotNull Component header, @NotNull Component footer) {
-        player.sendPlayerListHeaderAndFooter(header, footer);
-    }
+    @Override
+    public void showTitle(net.kyori.adventure.title.@NotNull Title title) {player.showTitle(title);}
 
-    public void showTitle(@NotNull Title title) {
-        player.showTitle(title);
-    }
+    @Override
+    public <T> void sendTitlePart(@NotNull TitlePart<T> part, @NotNull T value) {player.sendTitlePart(part, value);}
 
-    public <T> void sendTitlePart(@NotNull TitlePart<T> part, @NotNull T value) {
-        player.sendTitlePart(part, value);
-    }
+    @Override
+    public void clearTitle() {player.clearTitle();}
 
-    public void clearTitle() {
-        player.clearTitle();
-    }
+    @Override
+    public void showBossBar(@NotNull BossBar bar) {player.showBossBar(bar);}
 
-    public void showBossBar(net.kyori.adventure.bossbar.@NotNull BossBar bar) {
-        player.showBossBar(bar);
-    }
+    @Override
+    public void hideBossBar(@NotNull BossBar bar) {player.hideBossBar(bar);}
 
-    public void hideBossBar(net.kyori.adventure.bossbar.@NotNull BossBar bar) {
-        player.hideBossBar(bar);
-    }
+    @Override
+    public void playSound(net.kyori.adventure.sound.@NotNull Sound sound) {player.playSound(sound);}
 
-    public void playSound(net.kyori.adventure.sound.@NotNull Sound sound) {
-        player.playSound(sound);
-    }
+    @Override
+    public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, double x, double y, double z) {player.playSound(sound, x, y, z);}
 
-    public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, double x, double y, double z) {
-        player.playSound(sound, x, y, z);
-    }
+    @Override
+    public void stopSound(net.kyori.adventure.sound.@NotNull Sound sound) {player.stopSound(sound);}
 
-    public void stopSound(net.kyori.adventure.sound.@NotNull Sound sound) {
-        player.stopSound(sound);
-    }
-
+    @Override
     public void playSound(net.kyori.adventure.sound.@NotNull Sound sound,
-                          net.kyori.adventure.sound.Sound.@NotNull Emitter emitter) {
-        player.playSound(sound, emitter);
-    }
+                          net.kyori.adventure.sound.Sound.@NotNull Emitter emitter) {player.playSound(sound, emitter);}
 
-    public void stopSound(@NotNull SoundStop stop) {
-        player.stopSound(stop);
-    }
+    @Override
+    public void stopSound(@NotNull SoundStop stop) {player.stopSound(stop);}
 
-    public void openBook(Book.@NotNull Builder book) {
-        player.openBook(book);
-    }
+    @Override
+    public void openBook(Book.@NotNull Builder book) {player.openBook(book);}
 
-    public void openBook(@NotNull Book book) {
-        player.openBook(book);
-    }
+    @Override
+    public void openBook(@NotNull Book book) {player.openBook(book);}
 
-    @NotNull
-    public <T> Optional<T> get(@NotNull Pointer<T> pointer) {
-        return player.get(pointer);
-    }
+    @Override
+    public @NotNull <T> Optional<T> get(@NotNull Pointer<T> pointer) {return player.get(pointer);}
 
+    @Override
     @Contract("_, null -> _; _, !null -> !null")
-    public <T> @Nullable T getOrDefault(@NotNull Pointer<T> pointer, @Nullable T defaultValue) {
-        return player.getOrDefault(pointer, defaultValue);
-    }
+    public <T> @Nullable T getOrDefault(@NotNull Pointer<T> pointer, @Nullable T defaultValue) {return player.getOrDefault(pointer, defaultValue);}
 
+    @Override
     public <T> @UnknownNullability T getOrDefaultFrom(@NotNull Pointer<T> pointer,
-                                                      @NotNull Supplier<? extends T> defaultValue) {
-        return player.getOrDefaultFrom(pointer, defaultValue);
+                                                      @NotNull Supplier<? extends T> defaultValue) {return player.getOrDefaultFrom(pointer, defaultValue);}
+
+    @Override
+    public @NotNull Pointers pointers() {return player.pointers();}
+
+    @Override
+    public boolean isPermissionSet(@NotNull String name) {return player.isPermissionSet(name);}
+
+    @Override
+    public boolean isPermissionSet(@NotNull Permission perm) {return player.isPermissionSet(perm);}
+
+    @Override
+    public boolean hasPermission(@NotNull String name) {return player.hasPermission(name);}
+
+    @Override
+    public boolean hasPermission(@NotNull Permission perm) {return player.hasPermission(perm);}
+
+    @Override
+    public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {return player.addAttachment(plugin, name, value);}
+
+    @Override
+    public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {return player.addAttachment(plugin);}
+
+    @Override
+    public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value,
+                                                        int ticks) {
+        return player.addAttachment(plugin, name, value,
+                ticks);
     }
 
-    public @NotNull Pointers pointers() {
-        return player.pointers();
-    }
+    @Override
+    public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {return player.addAttachment(plugin, ticks);}
 
-    public boolean isPermissionSet(@NotNull String s) {
-        return player.isPermissionSet(s);
-    }
+    @Override
+    public void removeAttachment(@NotNull PermissionAttachment attachment) {player.removeAttachment(attachment);}
 
-    public boolean isPermissionSet(@NotNull Permission permission) {
-        return player.isPermissionSet(permission);
-    }
+    @Override
+    public void recalculatePermissions() {player.recalculatePermissions();}
 
-    public boolean hasPermission(@NotNull Permission permission) {
-        return player.hasPermission(permission);
-    }
+    @Override
+    public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {return player.getEffectivePermissions();}
 
-    @NotNull
-    public PermissionAttachment addAttachment(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull String s, boolean b) {
-        return player.addAttachment(plugin, s, b);
-    }
+    @Override
+    public @NotNull TriState permissionValue(@NotNull Permission permission) {return player.permissionValue(permission);}
 
-    @NotNull
-    public PermissionAttachment addAttachment(org.bukkit.plugin.@NotNull Plugin plugin) {
-        return player.addAttachment(plugin);
-    }
+    @Override
+    public @NotNull TriState permissionValue(@NotNull String permission) {return player.permissionValue(permission);}
 
-    @Nullable
-    public PermissionAttachment addAttachment(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull String s, boolean b,
-                                              int i) {
-        return player.addAttachment(plugin, s, b, i);
-    }
+    @Override
+    public boolean isOp() {return player.isOp();}
 
-    @Nullable
-    public PermissionAttachment addAttachment(org.bukkit.plugin.@NotNull Plugin plugin, int i) {
-        return player.addAttachment(plugin, i);
-    }
+    @Override
+    public void setOp(boolean value) {player.setOp(value);}
 
-    public void removeAttachment(@NotNull PermissionAttachment permissionAttachment) {
-        player.removeAttachment(permissionAttachment);
-    }
+    @Override
+    public @Nullable Component customName() {return player.customName();}
 
-    public void recalculatePermissions() {
-        player.recalculatePermissions();
-    }
+    @Override
+    public void customName(@Nullable Component customName) {player.customName(customName);}
 
-    @NotNull
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        return player.getEffectivePermissions();
-    }
-
-    public @NotNull TriState permissionValue(@NotNull Permission permission) {
-        return player.permissionValue(permission);
-    }
-
-    public @NotNull TriState permissionValue(@NotNull String permission) {
-        return player.permissionValue(permission);
-    }
-
-    public boolean isOp() {
-        return player.isOp();
-    }
-
-    public void setOp(boolean b) {
-        player.setOp(b);
-    }
-
-    @Nullable
-    public Component customName() {
-        return player.customName();
-    }
-
-    public void customName(@Nullable Component component) {
-        player.customName(component);
-    }
-
-    @Nullable
-    public String getCustomName() {
-        return player.getCustomName();
-    }
-
-    public void setCustomName(@Nullable String s) {
-        player.setCustomName(s);
-    }
-
-    public @NotNull PersistentDataContainer getPersistentDataContainer() {
-        return player.getPersistentDataContainer();
-    }
-
-    public net.kyori.adventure.text.event.@NotNull HoverEvent<net.kyori.adventure.text.event.HoverEvent.ShowEntity> asHoverEvent() {
-        return player.asHoverEvent();
-    }
-
-    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass) {
-        return player.launchProjectile(aClass);
-    }
-
-    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass,
-                                                              @Nullable Vector vector) {
-        return player.launchProjectile(aClass, vector);
-    }
-
-    public boolean isConversing() {
-        return player.isConversing();
-    }
-
-    public void acceptConversationInput(@NotNull String s) {
-        player.acceptConversationInput(s);
-    }
-
-    public boolean beginConversation(@NotNull Conversation conversation) {
-        return player.beginConversation(conversation);
-    }
-
-    public void abandonConversation(@NotNull Conversation conversation) {
-        player.abandonConversation(conversation);
-    }
-
-    public void abandonConversation(@NotNull Conversation conversation,
-                                    @NotNull ConversationAbandonedEvent conversationAbandonedEvent) {
-        player.abandonConversation(conversation, conversationAbandonedEvent);
-    }
-
-    public void sendRawMessage(@Nullable UUID uuid, @NotNull String s) {
-        player.sendRawMessage(uuid, s);
-    }
-
-    public boolean isOnline() {
-        return player.isOnline();
-    }
-
-    public boolean isBanned() {
-        return player.isBanned();
-    }
-
-    @NotNull
-    public BanEntry banPlayer(@Nullable String reason) {
-        return player.banPlayer(reason);
-    }
-
-    @NotNull
-    public BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
-        return player.banPlayer(reason, source);
-    }
-
-    @NotNull
-    public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
-        return player.banPlayer(reason, expires);
-    }
-
-    @NotNull
-    public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-        return player.banPlayer(reason, expires, source);
-    }
-
-    @NotNull
-    public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source,
-                              boolean kickIfOnline) {
-        return player.banPlayer(reason, expires, source, kickIfOnline);
-    }
-
-    public boolean isWhitelisted() {
-        return player.isWhitelisted();
-    }
-
-    public void setWhitelisted(boolean b) {
-        player.setWhitelisted(b);
-    }
-
-    public long getFirstPlayed() {
-        return player.getFirstPlayed();
-    }
-
+    @Override
     @Deprecated
-    public long getLastPlayed() {
-        return player.getLastPlayed();
+    @Nullable
+    public String getCustomName() {return player.getCustomName();}
+
+    @Override
+    @Deprecated
+    public void setCustomName(@Nullable String name) {player.setCustomName(name);}
+
+    @Override
+    public @NotNull PersistentDataContainer getPersistentDataContainer() {return player.getPersistentDataContainer();}
+
+    @Override
+    public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {return player.asHoverEvent();}
+
+    @Override
+    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile) {return player.launchProjectile(projectile);}
+
+    @Override
+    public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile,
+                                                              @Nullable Vector velocity) {return player.launchProjectile(projectile, velocity);}
+
+    @Override
+    public boolean isConversing() {return player.isConversing();}
+
+    @Override
+    public void acceptConversationInput(@NotNull String input) {player.acceptConversationInput(input);}
+
+    @Override
+    public boolean beginConversation(@NotNull Conversation conversation) {return player.beginConversation(conversation);}
+
+    @Override
+    public void abandonConversation(@NotNull Conversation conversation) {player.abandonConversation(conversation);}
+
+    @Override
+    public void abandonConversation(@NotNull Conversation conversation, @NotNull ConversationAbandonedEvent details) {player.abandonConversation(conversation, details);}
+
+    @Override
+    public void sendRawMessage(@Nullable UUID sender, @NotNull String message) {player.sendRawMessage(sender, message);}
+
+    @Override
+    public boolean isOnline() {return player.isOnline();}
+
+    @Override
+    public boolean isBanned() {return player.isBanned();}
+
+    @Override
+    public @NotNull BanEntry banPlayer(@Nullable String reason) {return player.banPlayer(reason);}
+
+    @Override
+    public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable String source) {return player.banPlayer(reason, source);}
+
+    @Override
+    public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {return player.banPlayer(reason, expires);}
+
+    @Override
+    public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {return player.banPlayer(reason, expires, source);}
+
+    @Override
+    public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source,
+                                       boolean kickIfOnline) {
+        return player.banPlayer(reason, expires, source,
+                kickIfOnline);
     }
 
-    public boolean hasPlayedBefore() {
-        return player.hasPlayedBefore();
-    }
+    @Override
+    public boolean isWhitelisted() {return player.isWhitelisted();}
 
-    public long getLastLogin() {
-        return player.getLastLogin();
-    }
+    @Override
+    public void setWhitelisted(boolean value) {player.setWhitelisted(value);}
 
-    public long getLastSeen() {
-        return player.getLastSeen();
-    }
+    @Override
+    @Nullable
+    public Player getPlayer() {return player.getPlayer();}
 
-    public void incrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-        player.incrementStatistic(statistic);
-    }
+    @Override
+    public long getFirstPlayed() {return player.getFirstPlayed();}
 
-    public void decrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-        player.decrementStatistic(statistic);
-    }
+    @Override
+    @Deprecated
+    public long getLastPlayed() {return player.getLastPlayed();}
 
-    public void incrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
-        player.incrementStatistic(statistic, i);
-    }
+    @Override
+    public boolean hasPlayedBefore() {return player.hasPlayedBefore();}
 
-    public void decrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
-        player.decrementStatistic(statistic, i);
-    }
+    @Override
+    public long getLastLogin() {return player.getLastLogin();}
 
-    public void setStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
-        player.setStatistic(statistic, i);
-    }
+    @Override
+    public long getLastSeen() {return player.getLastSeen();}
 
-    public int getStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-        return player.getStatistic(statistic);
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {player.incrementStatistic(statistic);}
 
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        player.incrementStatistic(statistic, material);
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {player.decrementStatistic(statistic);}
 
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        player.decrementStatistic(statistic, material);
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {player.incrementStatistic(statistic, amount);}
 
-    public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-        return player.getStatistic(statistic, material);
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {player.decrementStatistic(statistic, amount);}
 
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        player.incrementStatistic(statistic, material, i);
-    }
+    @Override
+    public void setStatistic(@NotNull Statistic statistic, int newValue) throws IllegalArgumentException {player.setStatistic(statistic, newValue);}
 
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        player.decrementStatistic(statistic, material, i);
-    }
+    @Override
+    public int getStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {return player.getStatistic(statistic);}
 
-    public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
-        player.setStatistic(statistic, material, i);
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {player.incrementStatistic(statistic, material);}
 
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        player.incrementStatistic(statistic, entityType);
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {player.decrementStatistic(statistic, material);}
 
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        player.decrementStatistic(statistic, entityType);
-    }
+    @Override
+    public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {return player.getStatistic(statistic, material);}
 
-    public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-        return player.getStatistic(statistic, entityType);
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {player.incrementStatistic(statistic, material, amount);}
 
-    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) throws IllegalArgumentException {
-        player.incrementStatistic(statistic, entityType, i);
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {player.decrementStatistic(statistic, material, amount);}
 
-    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) {
-        player.decrementStatistic(statistic, entityType, i);
-    }
+    @Override
+    public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int newValue) throws IllegalArgumentException {player.setStatistic(statistic, material, newValue);}
 
-    public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) {
-        player.setStatistic(statistic, entityType, i);
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {player.incrementStatistic(statistic, entityType);}
 
-    @NotNull
-    public Map<String, Object> serialize() {
-        return player.serialize();
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {player.decrementStatistic(statistic, entityType);}
 
-    public void sendPluginMessage(org.bukkit.plugin.@NotNull Plugin plugin, @NotNull String s, byte[] bytes) {
-        player.sendPluginMessage(plugin, s, bytes);
-    }
+    @Override
+    public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {return player.getStatistic(statistic, entityType);}
 
-    @NotNull
-    public Set<String> getListeningPluginChannels() {
-        return player.getListeningPluginChannels();
-    }
+    @Override
+    public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) throws IllegalArgumentException {player.incrementStatistic(statistic, entityType, amount);}
 
-    public int getProtocolVersion() {
-        return player.getProtocolVersion();
-    }
+    @Override
+    public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) {player.decrementStatistic(statistic, entityType, amount);}
 
-    public @Nullable InetSocketAddress getVirtualHost() {
-        return player.getVirtualHost();
-    }
+    @Override
+    public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int newValue) {player.setStatistic(statistic, entityType, newValue);}
+
+    @Override
+    public @NotNull Map<String, Object> serialize() {return player.serialize();}
+
+    @Override
+    public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {player.sendPluginMessage(source, channel, message);}
+
+    @Override
+    public @NotNull Set<String> getListeningPluginChannels() {return player.getListeningPluginChannels();}
+
+    @Override
+    public int getProtocolVersion() {return player.getProtocolVersion();}
+
+    @Override
+    public @Nullable InetSocketAddress getVirtualHost() {return player.getVirtualHost();}
 }

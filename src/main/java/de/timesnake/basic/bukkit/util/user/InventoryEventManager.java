@@ -4,8 +4,6 @@ import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.List;
-
 public interface InventoryEventManager {
 
     /**
@@ -30,7 +28,7 @@ public interface InventoryEventManager {
      * @param listener   The {@link UserInventoryInteractListener} to add
      * @param itemStacks The {@link ExItemStack}s to add
      */
-    void addClickListener(UserInventoryClickListener listener, List<ExItemStack> itemStacks);
+    void addClickListener(UserInventoryClickListener listener, Iterable<ExItemStack> itemStacks);
 
     /**
      * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
@@ -39,6 +37,14 @@ public interface InventoryEventManager {
      * @param itemStacks The {@link ExItemStack}s to add
      */
     void addInteractListener(UserInventoryInteractListener listener, ExItemStack... itemStacks);
+
+    /**
+     * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
+     *
+     * @param listener   The {@link UserInventoryInteractListener} to add
+     * @param itemStacks The {@link ExItemStack}s to add
+     */
+    void addInteractListener(UserInventoryInteractListener listener, Iterable<ExItemStack> itemStacks);
 
     /**
      * Adds a new {@link UserInventoryClickListener} for InventoryClickEvent

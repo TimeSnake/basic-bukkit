@@ -30,6 +30,8 @@ public class GameInfo {
     protected Collection<Integer> teamSizes;
     protected Type.Availability mapAvailability;
     protected Type.Availability kitAvailability;
+    protected Boolean equalTeamSize;
+    protected String texturePackLink;
     protected List<String> description;
 
     public GameInfo(DbGame game) {
@@ -46,7 +48,8 @@ public class GameInfo {
             try {
                 chatColor = ChatColor.valueOf(chatColorName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 810, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode(
+                        "E", 810, Plugin.BUKKIT), "Game");
                 chatColor = ChatColor.WHITE;
             }
         } else {
@@ -61,6 +64,8 @@ public class GameInfo {
 
         this.slot = game.getSlot();
         this.isTemporary = game.isTemporary();
+        this.equalTeamSize = game.isEqualTeamSize();
+        this.texturePackLink = game.getTexturePackLink();
         this.teamSizes = game.getTeamAmounts();
 
         String materialName = game.getItemName().toUpperCase();
@@ -80,7 +85,8 @@ public class GameInfo {
             if (prefix != null) {
                 meta.setDisplayName(ChatColor.valueOf(chatColorName) + prefix);
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 809, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode(
+                        "E", 809, Plugin.BUKKIT), "Game");
                 return;
             }
 
@@ -94,7 +100,8 @@ public class GameInfo {
                 }
                 meta.setLore(lore);
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 811, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode(
+                        "E", 811, Plugin.BUKKIT), "Game");
                 return;
             }
 
@@ -104,11 +111,13 @@ public class GameInfo {
             if (slot != null) {
                 this.slot = slot;
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 812, Plugin.BUKKIT), "Game");
+                Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode(
+                        "E", 812, Plugin.BUKKIT), "Game");
                 return;
             }
         } else {
-            Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E", 808, Plugin.BUKKIT), "Game");
+            Server.printError(Plugin.BUKKIT, "Error while loading game " + this.name + " " + Chat.getMessageCode("E",
+                    808, Plugin.BUKKIT), "Game");
             return;
         }
 
@@ -173,6 +182,18 @@ public class GameInfo {
 
     public Type.Availability getKitAvailability() {
         return kitAvailability;
+    }
+
+    public Boolean isEqualTeamSize() {
+        return equalTeamSize;
+    }
+
+    public String getTexturePackLink() {
+        return this.texturePackLink;
+    }
+
+    public Boolean hasTexturePack() {
+        return texturePackLink != null;
     }
 
     public List<String> getDescription() {
