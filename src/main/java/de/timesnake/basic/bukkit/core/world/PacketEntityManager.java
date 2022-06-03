@@ -33,6 +33,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
     private final ConcurrentHashMap<Chunk, Collection<PacketEntity>> entitiesByChunk = new ConcurrentHashMap<>();
 
+    private final ConcurrentHashMap<UUID, Collection<Chunk>> preLoadedChunksByUuid = new ConcurrentHashMap<>();
 
     public PacketEntityManager() {
         MapDisplayBuilder.ExMapFont.loadFonts();
@@ -65,19 +66,33 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         User user = Server.getUser(receiver);
 
         if (user == null) {
+            System.out.println(receiver.getName() + " null " + load);
+            if (load) {
+                this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
+            }
             return;
         }
 
-        Server.runTaskLaterAsynchrony(() -> {
-            for (PacketEntity entity : this.entitiesByChunk.getOrDefault(chunk, ConcurrentHashMap.newKeySet(0)).stream()
-                    .filter(e -> e.isUserWatching(user)).toList()) {
-                if (load) {
-                    entity.loadForUser(user);
-                } else {
-                    entity.unloadForUser(user);
-                }
-            }
-        }, 2 * 20, BasicBukkit.getPlugin());
+        if (load) {
+            this.loadEntitiesInChunk(user, chunk);
+        } else {
+            this.unloadEntitiesInChunk(user, chunk);
+        }
+
+    }
+
+    private void loadEntitiesInChunk(User user, Chunk chunk) {
+        for (PacketEntity entity : this.entitiesByChunk.getOrDefault(chunk,
+                ConcurrentHashMap.newKeySet(0)).stream().filter(e -> e.isUserWatching(user)).toList()) {
+            entity.loadForUser(user);
+        }
+    }
+
+    private void unloadEntitiesInChunk(User user, Chunk chunk) {
+        for (PacketEntity entity : this.entitiesByChunk.getOrDefault(chunk,
+                ConcurrentHashMap.newKeySet(0)).stream().filter(e -> e.isUserWatching(user)).toList()) {
+            entity.unloadForUser(user);
+        }
     }
 
     private Collection<PacketEntity> getAllEntities() {
@@ -122,7 +137,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     @Override
     public void unregisterEntity(PacketEntity entity) {
         this.removeEntity(entity);
-        entity.despawn();
+        entity.despawnForUser();
     }
 
     @Override
@@ -148,12 +163,22 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(),
                 ExPacketPlayOutTablistTeamCreation.wrap(FAKE_PLAYER_TEAM_NAME, "", ChatColor.WHITE,
                         ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER));
+
+        Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(e.getUser().getUniqueId());
+
+        if (preLoadedChunks != null) {
+            for (Chunk chunk : preLoadedChunks) {
+                this.loadEntitiesInChunk(e.getUser(), chunk);
+            }
+        }
     }
 
     @EventHandler
     public void onUserQuit(AsyncUserQuitEvent e) {
         User user = e.getUser();
         this.getAllEntities().forEach(entity -> entity.onUserQuit(user));
+
+        this.preLoadedChunksByUuid.remove(user.getUniqueId());
     }
 
 }

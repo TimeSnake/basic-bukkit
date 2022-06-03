@@ -19,7 +19,7 @@ public class PacketPlayer extends PacketEntity {
     }
 
     @Override
-    public void spawn(User user) {
+    public void spawnForUser(User user) {
         if (!player.getChunk().isLoaded()) {
             return;
         }
@@ -39,7 +39,7 @@ public class PacketPlayer extends PacketEntity {
     }
 
     @Override
-    public void despawn(User user) {
+    public void despawnForUser(User user) {
         Server.getScoreboardManager().getPacketManager().sendPacket(user,
                 ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
         Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutEntityDestroy.wrap(player));

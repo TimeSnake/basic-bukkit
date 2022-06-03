@@ -24,22 +24,21 @@ import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InventoryEventManager implements Listener, de.timesnake.basic.bukkit.util.user.InventoryEventManager {
 
+    private final Map<InventoryHolder, UserInventoryClickListener> clickListenerByHolder = new ConcurrentHashMap<>();
+    private final Map<Integer, Collection<UserInventoryClickListener>> clickListenerByItemId =
+            new ConcurrentHashMap<>();
+    private final Map<Integer, Collection<UserInventoryInteractListener>> interactListenerByItemId =
+            new ConcurrentHashMap<>();
+    private boolean excludeServiceUsers = true;
+
     public InventoryEventManager() {
         Server.registerListener(this, BasicBukkit.getPlugin());
     }
-
-    private final Map<InventoryHolder, UserInventoryClickListener> clickListenerByHolder = new ConcurrentHashMap<>();
-    private final Map<Integer, Collection<UserInventoryClickListener>> clickListenerByItemId = new ConcurrentHashMap<>();
-
-    private final Map<Integer, Collection<UserInventoryInteractListener>> interactListenerByItemId = new ConcurrentHashMap<>();
-
-    private boolean excludeServiceUsers = true;
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
@@ -90,7 +89,8 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
         }
     }
 
-    private void handleInventoryClickListener(Collection<UserInventoryClickListener> listeners, UserInventoryClickEvent event) {
+    private void handleInventoryClickListener(Collection<UserInventoryClickListener> listeners,
+                                              UserInventoryClickEvent event) {
         if (listeners != null) {
             for (UserInventoryClickListener listener : listeners) {
                 listener.onUserInventoryClick(event);
@@ -113,7 +113,8 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
                 ExItemStack item = ExItemStack.getItem(e.getItem(), false);
 
                 if (item != null) {
-                    UserInventoryInteractEvent event = new UserInventoryInteractEvent(user, e.isCancelled(), item, e.getClickedBlock(), e.getAction());
+                    UserInventoryInteractEvent event = new UserInventoryInteractEvent(user, e.isCancelled(), item,
+                            e.getClickedBlock(), e.getAction());
 
                     Collection<UserInventoryInteractListener> listeners = interactListenerByItemId.get(item.getId());
 
@@ -222,7 +223,7 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
      * @param itemStacks The {@link ExItemStack}s to add
      */
     @Override
-    public void addClickListener(UserInventoryClickListener listener, List<ExItemStack> itemStacks) {
+    public void addClickListener(UserInventoryClickListener listener, Iterable<ExItemStack> itemStacks) {
         for (ExItemStack item : itemStacks) {
             addClickListener(item.getId(), listener);
         }
@@ -236,6 +237,19 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
      */
     @Override
     public void addInteractListener(UserInventoryInteractListener listener, ExItemStack... itemStacks) {
+        for (ExItemStack item : itemStacks) {
+            addInteractListener(item.getId(), listener);
+        }
+    }
+
+    /**
+     * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
+     *
+     * @param listener   The {@link UserInventoryInteractListener} to add
+     * @param itemStacks The {@link ExItemStack}s to add
+     */
+    @Override
+    public void addInteractListener(UserInventoryInteractListener listener, Iterable<ExItemStack> itemStacks) {
         for (ExItemStack item : itemStacks) {
             addInteractListener(item.getId(), listener);
         }

@@ -45,7 +45,7 @@ public class HoloDisplay extends PacketEntity {
     }
 
     @Override
-    public void spawn(User user) {
+    public void spawnForUser(User user) {
         for (ExArmorStand stand : this.stands) {
             user.sendPacket(ExPacketPlayOutSpawnEntityLiving.wrap(stand));
             user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(stand, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
@@ -53,7 +53,7 @@ public class HoloDisplay extends PacketEntity {
     }
 
     @Override
-    public void despawn(User user) {
+    public void despawnForUser(User user) {
         for (ExArmorStand stand : this.stands) {
             user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(stand));
         }

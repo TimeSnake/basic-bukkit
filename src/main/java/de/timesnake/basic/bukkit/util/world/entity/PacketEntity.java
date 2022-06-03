@@ -32,24 +32,24 @@ public abstract class PacketEntity {
     public void addWatcher(User... users) {
         for (User user : users) {
             this.watchers.add(user);
-            this.spawn(user);
+            this.spawnForUser(user);
         }
     }
 
     public void removeWatcher(User... users) {
         for (User user : users) {
             this.watchers.remove(user);
-            this.despawn(user);
+            this.despawnForUser(user);
         }
     }
 
-    protected abstract void spawn(User user);
+    protected abstract void spawnForUser(User user);
 
-    protected abstract void despawn(User user);
+    protected abstract void despawnForUser(User user);
 
-    public void despawn() {
+    public void despawnForUser() {
         for (User user : this.userLoadedFor) {
-            this.despawn(user);
+            this.despawnForUser(user);
         }
         this.userLoadedFor.clear();
         this.watchers.clear();
@@ -61,12 +61,12 @@ public abstract class PacketEntity {
 
     public void loadForUser(User user) {
         this.userLoadedFor.add(user);
-        this.spawn(user);
+        this.spawnForUser(user);
     }
 
     public void unloadForUser(User user) {
         this.userLoadedFor.remove(user);
-        this.despawn(user);
+        this.despawnForUser(user);
     }
 
     public boolean isUserWatching(User user) {

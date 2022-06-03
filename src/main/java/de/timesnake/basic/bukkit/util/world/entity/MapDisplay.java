@@ -10,7 +10,6 @@ import de.timesnake.basic.packets.core.packet.out.ExPacketPlayOutMap;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutSpawnEntity;
-import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.meta.MapMeta;
@@ -20,16 +19,20 @@ import org.bukkit.util.Vector;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class MapDisplay extends PacketEntity {
 
+    protected final ExBlock baseBlock;
     protected final BlockFace blockFace;
     protected final BlockFace orientation;
     protected final Rotation rotation;
 
-    private final MapDisplayPart[][] displayParts;
+    private final ExItemStack[][] maps;
+    private final ExBlock[][] frameLocations;
 
+    private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
     private final Set<User> mapLoadedForUser = new HashSet<>();
 
     public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace, BlockFace orientationUp,
@@ -39,37 +42,27 @@ public class MapDisplay extends PacketEntity {
         this.orientation = orientationUp;
         this.rotation = blockFaceToRotation(blockFace, orientationUp);
 
-        this.displayParts = new MapDisplayPart[maps.length][maps[0].length];
+        this.maps = maps;
 
         if (placeOnBlock) {
-            baseBlock = baseBlock.getRelative(blockFace);
+            this.baseBlock = baseBlock.getRelative(blockFace);
+        } else {
+            this.baseBlock = baseBlock;
         }
 
-        Vector orientationVector = orientationUp.getDirection();
+        Vector orientationVector = this.orientation.getDirection();
 
         Vector xVector = blockFace.getDirection().crossProduct(orientationVector).multiply(-1);
         Vector yVector = orientationVector.clone().multiply(-1);
 
+        this.frameLocations = new ExBlock[maps.length][maps[0].length];
+
         for (int x = 0; x < maps.length; x++) {
 
-            ExBlock block = baseBlock.getRelative(xVector.clone().multiply(x));
+            ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
 
             for (int y = 0; y < maps[x].length; y++) {
-
-                ExItemStack map = maps[x][y];
-
-                ExItemFrame frame = new ExItemFrame(block.getLocation().getWorld());
-                frame.setFixed(true);
-                frame.setItem(map, false);
-                frame.setInvulnerable(true);
-                frame.setFacingDirection(blockFace);
-                frame.setVisible(false);
-                frame.setRotation(this.rotation);
-                frame.setPosition(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ(),
-                        false);
-
-                this.displayParts[x][y] = new MapDisplayPart(frame, map);
-
+                frameLocations[x][y] = block;
                 block = block.getRelative(yVector);
             }
         }
@@ -150,7 +143,7 @@ public class MapDisplay extends PacketEntity {
     }
 
     @Override
-    public void spawn(User user) {
+    public void spawnForUser(User user) {
 
         boolean loadMap = false;
         if (!this.mapLoadedForUser.contains(user)) {
@@ -158,63 +151,75 @@ public class MapDisplay extends PacketEntity {
             this.mapLoadedForUser.add(user);
         }
 
-        this.despawn(user);
-
-
         boolean finalLoadMap = loadMap;
-        Server.runTaskLoopAsynchrony((part) -> {
-            ExItemFrame frame = part.getFrame();
-            ExItemStack map = part.getMap();
-            MapView view = ((MapMeta) map.getItemMeta()).getMapView();
+        Server.runTaskAsynchrony(() -> {
+            ExItemFrame[][] frames = this.framesByUser.get(user);
 
-            frame.setItem(map, false);
-            frame.setVisible(true);
-            frame.setVisible(false);
-            frame.setRotation(this.rotation.rotateClockwise());
-            frame.setRotation(this.rotation);
+            if (frames == null) {
+                frames = new ExItemFrame[this.maps.length][this.maps[0].length];
 
-            user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(frame,
-                    ExPacketPlayOutSpawnEntity.blockFaceToRotation(blockFace)));
+                for (int x = 0; x < maps.length; x++) {
+                    for (int y = 0; y < maps[x].length; y++) {
+                        ExBlock block = this.frameLocations[x][y];
+                        ExItemStack map = maps[x][y];
 
-            user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(frame,
-                    ExPacketPlayOutEntityMetadata.DataType.UPDATE, false));
+                        ExItemFrame frame = new ExItemFrame(block.getLocation().getWorld());
+                        frame.setFixed(true);
+                        frame.setItem(map, false);
+                        frame.setInvulnerable(true);
+                        frame.setFacingDirection(blockFace);
+                        frame.setVisible(false);
+                        frame.setRotation(this.rotation);
+                        frame.setPosition(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ(),
+                                false);
 
-            if (finalLoadMap) {
-                user.sendPacket(new ExPacketPlayOutMap(view.getId(), view.getScale().getValue(), view.isLocked(),
-                        view, user.getPlayer()));
-
+                        frames[x][y] = frame;
+                    }
+                }
+                this.framesByUser.put(user, frames);
             }
-        }, Arrays.stream(this.displayParts).flatMap(Arrays::stream).collect(Collectors.toList()),
-                BasicBukkit.getPlugin());
+
+            for (int x = 0; x < maps.length; x++) {
+                for (int y = 0; y < maps[x].length; y++) {
+                    ExItemFrame frame = frames[x][y];
+                    ExItemStack map = this.maps[x][y];
+
+                    MapView view = ((MapMeta) map.getItemMeta()).getMapView();
+
+                    frame.setItem(map, false);
+                    frame.setVisible(true);
+                    frame.setVisible(false);
+                    frame.setRotation(this.rotation.rotateClockwise());
+                    frame.setRotation(this.rotation);
+
+                    user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(frame,
+                            ExPacketPlayOutSpawnEntity.blockFaceToRotation(blockFace)));
+
+                    user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(frame,
+                            ExPacketPlayOutEntityMetadata.DataType.UPDATE, false));
+
+                    user.sendPacket(new ExPacketPlayOutMap(view.getId(), view.getScale().getValue(),
+                            view.isLocked(), view, user.getPlayer()));
+                }
+            }
+        }, BasicBukkit.getPlugin());
     }
 
     @Override
-    public void despawn(User user) {
-        Server.runTaskLoopAsynchrony((part) -> {
-            user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(part.getFrame()));
-        }, Arrays.stream(this.displayParts).flatMap(Arrays::stream).collect(Collectors.toList()),
-                BasicBukkit.getPlugin());
+    public void despawnForUser(User user) {
+        ExItemFrame[][] frames = this.framesByUser.get(user);
+
+        if (frames == null) {
+            return;
+        }
+
+        Server.runTaskLoopAsynchrony((frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
+                Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()), BasicBukkit.getPlugin());
 
     }
 
     @Override
     public void onUserQuit(User user) {
-        super.onUserQuit(user);
-        this.mapLoadedForUser.remove(user);
-    }
-
-    private static class MapDisplayPart extends Tuple<ExItemFrame, ExItemStack> {
-
-        public MapDisplayPart(ExItemFrame frame, ExItemStack map) {
-            super(frame, map);
-        }
-
-        public ExItemFrame getFrame() {
-            return super.getA();
-        }
-
-        public ExItemStack getMap() {
-            return super.getB();
-        }
+        this.despawnForUser(user);
     }
 }
