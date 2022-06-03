@@ -6,3 +6,4 @@
 .idea/dataSources
 /.gradle/
 /build/
+gradle_build.out
