@@ -28,7 +28,8 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
             return null;
         }
 
-        ExCommand<Sender, Argument> cmdListener = ((CommandManager) Server.getCommandManager()).getCommands().get(command.getName().toLowerCase());
+        ExCommand<Sender, Argument> cmdListener =
+                ((CommandManager) Server.getCommandManager()).getCommands().get(command.getName().toLowerCase());
 
         Sender sender = new Sender(new ExCommandSender(commandSender), cmdListener.getPlugin());
 

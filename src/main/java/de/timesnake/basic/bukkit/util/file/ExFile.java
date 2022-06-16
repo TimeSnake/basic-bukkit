@@ -257,7 +257,9 @@ public class ExFile {
             String worldName = this.config.getString(path + ".world");
             World world = Bukkit.getWorld(worldName);
             if (world != null) {
-                return new Location(world, this.config.getDouble(path + ".x"), this.config.getDouble(path + ".y"), this.config.getDouble(path + ".z"), (float) this.config.getDouble(path + ".yaw", 0), (float) this.config.getDouble(path + ".pitch", 0));
+                return new Location(world, this.config.getDouble(path + ".x"), this.config.getDouble(path + ".y"),
+                        this.config.getDouble(path + ".z"), (float) this.config.getDouble(path + ".yaw", 0),
+                        (float) this.config.getDouble(path + ".pitch", 0));
             } else {
                 throw new WorldNotExistException(worldName);
             }
@@ -271,7 +273,10 @@ public class ExFile {
             String worldName = this.config.getString(path + ".world");
             World world = Bukkit.getWorld(worldName);
             if (world != null) {
-                return new ExLocation(Server.getWorld(world), this.config.getDouble(path + ".x"), this.config.getDouble(path + ".y"), this.config.getDouble(path + ".z"), (float) this.config.getDouble(path + ".yaw", 0), (float) this.config.getDouble(path + ".pitch", 0));
+                return new ExLocation(Server.getWorld(world), this.config.getDouble(path + ".x"),
+                        this.config.getDouble(path + ".y"), this.config.getDouble(path + ".z"),
+                        (float) this.config.getDouble(path + ".yaw", 0), (float) this.config.getDouble(path + ".pitch"
+                        , 0));
             } else {
                 throw new WorldNotExistException(worldName);
             }
@@ -288,7 +293,8 @@ public class ExFile {
         String worldName = this.config.getString(path + ".world");
         World world = Bukkit.getWorld(worldName);
         if (world != null) {
-            return new Location(world, this.config.getInt(path + ".x"), this.config.getInt(path + ".y"), this.config.getInt(path + ".z")).getBlock();
+            return new Location(world, this.config.getInt(path + ".x"), this.config.getInt(path + ".y"),
+                    this.config.getInt(path + ".z")).getBlock();
         } else {
             throw new WorldNotExistException(worldName);
         }
@@ -345,7 +351,8 @@ public class ExFile {
             return null;
         }
 
-        return Color.fromRGB(Integer.valueOf(string.substring(0, 2), 16), Integer.valueOf(string.substring(2, 4), 16), Integer.valueOf(string.substring(4, 6), 16));
+        return Color.fromRGB(Integer.valueOf(string.substring(0, 2), 16), Integer.valueOf(string.substring(2, 4), 16)
+                , Integer.valueOf(string.substring(4, 6), 16));
     }
 
     public ConfigurationSection getConfigSection(@Nonnull String path) {
@@ -378,7 +385,8 @@ public class ExFile {
     }
 
     protected Triple<String, String, String> getStringTriple(String path, String a, String b, String c) {
-        return new Triple<>(this.getString(path + "." + a), this.getString(path + "." + b), this.getString(path + "." + c));
+        return new Triple<>(this.getString(path + "." + a), this.getString(path + "." + b),
+                this.getString(path + "." + c));
     }
 
     protected Triple<Integer, Integer, Integer> getIntegerTriple(String path, String a, String b, String c) {
@@ -386,7 +394,8 @@ public class ExFile {
     }
 
     public Triple<Double, Double, Double> getDoubleTriple(String path, String a, String b, String c) {
-        return new Triple<>(this.getDouble(path + "." + a), this.getDouble(path + "." + b), this.getDouble(path + "." + c));
+        return new Triple<>(this.getDouble(path + "." + a), this.getDouble(path + "." + b),
+                this.getDouble(path + "." + c));
     }
 
 
@@ -622,12 +631,14 @@ public class ExFile {
         return config.getObject(path, clazz, def);
     }
 
-    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path, @NotNull Class<T> clazz) {
+    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path,
+                                                                             @NotNull Class<T> clazz) {
         return config.getSerializable(path, clazz);
     }
 
     @Contract("_, _, !null -> !null")
-    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path, @NotNull Class<T> clazz, @Nullable T def) {
+    public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path,
+                                                                             @NotNull Class<T> clazz, @Nullable T def) {
         return config.getSerializable(path, clazz, def);
     }
 

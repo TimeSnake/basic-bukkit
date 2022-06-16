@@ -3,11 +3,11 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
-import de.timesnake.basic.packets.util.listener.PacketHandler;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
-import de.timesnake.basic.packets.util.packet.ExPacket;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
+import de.timesnake.library.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
+import de.timesnake.library.packets.util.listener.PacketHandler;
+import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
+import de.timesnake.library.packets.util.packet.ExPacket;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WorldBorderManager implements PacketPlayOutListener, Listener, de.timesnake.basic.bukkit.util.world.WorldBorderManager {
+public class WorldBorderManager implements PacketPlayOutListener, Listener,
+        de.timesnake.basic.bukkit.util.world.WorldBorderManager {
 
     private final HashMap<Player, Set<ExPacketPlayOutWorldBorder>> packetsByPlayer = new HashMap<>();
 

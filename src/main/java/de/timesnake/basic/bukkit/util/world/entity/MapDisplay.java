@@ -5,11 +5,11 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
-import de.timesnake.basic.entities.entity.bukkit.ExItemFrame;
-import de.timesnake.basic.packets.core.packet.out.ExPacketPlayOutMap;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityDestroy;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutSpawnEntity;
+import de.timesnake.library.entities.entity.bukkit.ExItemFrame;
+import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutMap;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.meta.MapMeta;
@@ -23,50 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class MapDisplay extends PacketEntity {
-
-    protected final ExBlock baseBlock;
-    protected final BlockFace blockFace;
-    protected final BlockFace orientation;
-    protected final Rotation rotation;
-
-    private final ExItemStack[][] maps;
-    private final ExBlock[][] frameLocations;
-
-    private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
-    private final Set<User> mapLoadedForUser = new HashSet<>();
-
-    public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace, BlockFace orientationUp,
-                      boolean placeOnBlock) {
-        super(baseBlock.getLocation());
-        this.blockFace = blockFace;
-        this.orientation = orientationUp;
-        this.rotation = blockFaceToRotation(blockFace, orientationUp);
-
-        this.maps = maps;
-
-        if (placeOnBlock) {
-            this.baseBlock = baseBlock.getRelative(blockFace);
-        } else {
-            this.baseBlock = baseBlock;
-        }
-
-        Vector orientationVector = this.orientation.getDirection();
-
-        Vector xVector = blockFace.getDirection().crossProduct(orientationVector).multiply(-1);
-        Vector yVector = orientationVector.clone().multiply(-1);
-
-        this.frameLocations = new ExBlock[maps.length][maps[0].length];
-
-        for (int x = 0; x < maps.length; x++) {
-
-            ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
-
-            for (int y = 0; y < maps[x].length; y++) {
-                frameLocations[x][y] = block;
-                block = block.getRelative(yVector);
-            }
-        }
-    }
 
     public static Rotation blockFaceToRotation(BlockFace blockFace, BlockFace orientation) {
         if (blockFace.getModY() != 0) {
@@ -140,6 +96,48 @@ public class MapDisplay extends PacketEntity {
         }
 
         return null;
+    }
+
+    protected final ExBlock baseBlock;
+    protected final BlockFace blockFace;
+    protected final BlockFace orientation;
+    protected final Rotation rotation;
+    private final ExItemStack[][] maps;
+    private final ExBlock[][] frameLocations;
+    private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
+    private final Set<User> mapLoadedForUser = new HashSet<>();
+
+    public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace, BlockFace orientationUp,
+                      boolean placeOnBlock) {
+        super(baseBlock.getLocation());
+        this.blockFace = blockFace;
+        this.orientation = orientationUp;
+        this.rotation = blockFaceToRotation(blockFace, orientationUp);
+
+        this.maps = maps;
+
+        if (placeOnBlock) {
+            this.baseBlock = baseBlock.getRelative(blockFace);
+        } else {
+            this.baseBlock = baseBlock;
+        }
+
+        Vector orientationVector = this.orientation.getDirection();
+
+        Vector xVector = blockFace.getDirection().crossProduct(orientationVector).multiply(-1);
+        Vector yVector = orientationVector.clone().multiply(-1);
+
+        this.frameLocations = new ExBlock[maps.length][maps[0].length];
+
+        for (int x = 0; x < maps.length; x++) {
+
+            ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
+
+            for (int y = 0; y < maps[x].length; y++) {
+                frameLocations[x][y] = block;
+                block = block.getRelative(yVector);
+            }
+        }
     }
 
     @Override

@@ -21,20 +21,20 @@ public class ExPermission {
         return permission;
     }
 
-    public Status.Permission getMode() {
-        return mode;
-    }
-
-    public Collection<String> getServer() {
-        return server;
-    }
-
     public void setPermission(String permission) {
         this.permission = permission;
     }
 
+    public Status.Permission getMode() {
+        return mode;
+    }
+
     public void setMode(Status.Permission mode) {
         this.mode = mode;
+    }
+
+    public Collection<String> getServer() {
+        return server;
     }
 
     public void setServer(Collection<String> server) {

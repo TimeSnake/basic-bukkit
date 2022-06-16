@@ -29,7 +29,8 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
         if (this.commands.containsKey(cmd.getName())) {
             ExCommand<Sender, Argument> basicCmd = this.commands.get(cmd.getName().toLowerCase());
 
-            de.timesnake.basic.bukkit.util.chat.Sender sender = new Sender(new ExCommandSender(cmdSender), basicCmd.getPlugin());
+            de.timesnake.basic.bukkit.util.chat.Sender sender = new Sender(new ExCommandSender(cmdSender),
+                    basicCmd.getPlugin());
 
             LinkedList<de.timesnake.basic.bukkit.util.chat.Argument> extendedArgs = new LinkedList<>();
 
@@ -53,12 +54,14 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(tabCompleteManager);
         } else {
-            Server.printWarning(Plugin.BUKKIT, "Error while adding command " + cmd + ". Not registered in " + "plugin.yml", "Command");
+            Server.printWarning(Plugin.BUKKIT, "Error while adding command " + cmd + ". Not registered in " + "plugin" +
+                    ".yml", "Command");
         }
     }
 
     @Override
-    public void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener, Plugin basicPlugin) {
+    public void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener,
+                           Plugin basicPlugin) {
         this.addCommand(mainClass, cmd, listener, basicPlugin);
 
         for (String alias : aliases) {

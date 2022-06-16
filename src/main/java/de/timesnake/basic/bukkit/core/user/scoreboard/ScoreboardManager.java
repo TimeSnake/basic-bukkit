@@ -16,11 +16,11 @@ import java.util.LinkedList;
 
 public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
 
-    private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist activeTablist;
     private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
-    private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards = new HashMap<>();
-
+    private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
+            new HashMap<>();
     private final ScoreboardPacketManager packetManager;
+    private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist activeTablist;
 
     public ScoreboardManager() {
         this.packetManager = new ScoreboardPacketManager();
@@ -42,7 +42,8 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist registerNewGroupTablist(String name, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type type, LinkedList<TablistGroupType> types, TablistUserJoin userJoin, TablistUserQuit userQuit) {
+    public de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist registerNewGroupTablist(String name,
+                                                                                               de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type type, LinkedList<TablistGroupType> types, TablistUserJoin userJoin, TablistUserQuit userQuit) {
 
         GroupTablist tablist = new GroupTablist(name, type, this.packetManager, userJoin, userQuit, types);
         this.tablists.put(name, tablist);
@@ -50,17 +51,23 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teams, TablistUserJoin userJoin, TablistUserQuit userQuit, LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType) {
+    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist registerNewTeamTablist(String name,
+                                                                                             Tablist.Type type,
+                                                                                             TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teams, TablistUserJoin userJoin, TablistUserQuit userQuit, LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType) {
 
-        TeamTablist tablist = new TeamTablist(name, type, this.packetManager, colorType, teamType, teams, groupTypes, userJoin, userQuit);
+        TeamTablist tablist = new TeamTablist(name, type, this.packetManager, colorType, teamType, teams, groupTypes,
+                userJoin, userQuit);
         this.tablists.put(name, tablist);
         return tablist;
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teams, TablistGroupType teamType, LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam, LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin, TablistUserQuit userQuit) {
+    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist registerNewTeamTablist(String name,
+                                                                                             Tablist.Type type,
+                                                                                             TeamTablist.ColorType colorType, Collection<? extends TablistableGroup> teams, TablistGroupType teamType, LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam, LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin, TablistUserQuit userQuit) {
 
-        TeamTablist tablist = new TeamTablist(name, type, colorType, this.packetManager, teamType, teams, groupTypes, remainTeam, remainTeamGroupTypes, userJoin, userQuit);
+        TeamTablist tablist = new TeamTablist(name, type, colorType, this.packetManager, teamType, teams, groupTypes,
+                remainTeam, remainTeamGroupTypes, userJoin, userQuit);
         this.tablists.put(name, tablist);
         return tablist;
     }

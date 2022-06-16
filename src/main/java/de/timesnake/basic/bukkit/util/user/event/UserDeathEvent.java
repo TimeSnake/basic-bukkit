@@ -9,17 +9,11 @@ import java.util.List;
 
 public class UserDeathEvent extends UserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Entity killer;
     private List<ItemStack> drops;
     private boolean broadcastDeathMessage = true;
@@ -31,6 +25,11 @@ public class UserDeathEvent extends UserEvent {
         this.killer = killer;
         this.keepInventory = keepInventory;
         this.drops = drops;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Entity getKiller() {
@@ -61,11 +60,11 @@ public class UserDeathEvent extends UserEvent {
         this.autoRespawn = autoRespawn;
     }
 
-    public void setDrops(List<ItemStack> drops) {
-        this.drops = drops;
-    }
-
     public List<ItemStack> getDrops() {
         return drops;
+    }
+
+    public void setDrops(List<ItemStack> drops) {
+        this.drops = drops;
     }
 }

@@ -17,18 +17,13 @@ import java.util.UUID;
 
 public class Network implements de.timesnake.basic.bukkit.util.server.Network, ChannelListener {
 
-    private Integer playerAmount;
     private final Set<UUID> userSwitching = new HashSet<>();
+    private Integer playerAmount;
 
     public Network(Integer playerAmount) {
         this.playerAmount = playerAmount;
         Server.getChannel().addListener(this, () -> Collections.singleton(Network.PROXY_PORT));
     }
-
-    public void setPlayerAmount(Integer playerAmount) {
-        this.playerAmount = playerAmount;
-    }
-
 
     @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
     public void onServerMessage(ChannelServerMessage<?> msg) {
@@ -38,6 +33,10 @@ public class Network implements de.timesnake.basic.bukkit.util.server.Network, C
     @Override
     public Integer getPlayerAmount() {
         return playerAmount;
+    }
+
+    public void setPlayerAmount(Integer playerAmount) {
+        this.playerAmount = playerAmount;
     }
 
     @Override

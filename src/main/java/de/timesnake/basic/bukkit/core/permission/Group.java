@@ -22,11 +22,11 @@ public class Group implements de.timesnake.basic.bukkit.util.permission.Group {
     private final String name;
     private final Integer rank;
     private final DbPermGroup database;
-    private String prefix;
-    private ChatColor prefixColor;
     private final String tablistRank;
     private final Set<User> users = new HashSet<>();
     private final List<ExPermission> permissions = new ArrayList<>();
+    private String prefix;
+    private ChatColor prefixColor;
 
 
     public Group() {
@@ -157,7 +157,8 @@ public class Group implements de.timesnake.basic.bukkit.util.permission.Group {
         this.permissions.clear();
 
         for (DbPermission dbPermission : this.database.getPermissions()) {
-            this.permissions.add(new ExPermission(dbPermission.getName(), dbPermission.getMode(), dbPermission.getServers()));
+            this.permissions.add(new ExPermission(dbPermission.getName(), dbPermission.getMode(),
+                    dbPermission.getServers()));
         }
 
         DbPermGroup group = this.database.getInheritance();

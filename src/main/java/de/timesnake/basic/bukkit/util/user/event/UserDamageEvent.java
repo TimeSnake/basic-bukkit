@@ -7,17 +7,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class UserDamageEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final EntityDamageEvent.DamageCause damageCause;
     private double damage;
     private boolean cancelDamage;
@@ -28,12 +22,13 @@ public class UserDamageEvent extends CancelableUserEvent {
         this.damageCause = damageCause;
     }
 
-    public EntityDamageEvent.DamageCause getDamageCause() {
-        return damageCause;
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
-    public void setCancelDamage(boolean cancelDamage) {
-        this.cancelDamage = cancelDamage;
+    public EntityDamageEvent.DamageCause getDamageCause() {
+        return damageCause;
     }
 
     public double getDamage() {
@@ -46,5 +41,9 @@ public class UserDamageEvent extends CancelableUserEvent {
 
     public boolean isCancelDamage() {
         return cancelDamage;
+    }
+
+    public void setCancelDamage(boolean cancelDamage) {
+        this.cancelDamage = cancelDamage;
     }
 }

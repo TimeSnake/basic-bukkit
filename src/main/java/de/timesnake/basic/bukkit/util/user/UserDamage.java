@@ -5,16 +5,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class UserDamage {
 
-    public enum DamageType {
-        PLAYER_BOW, PLAYER, INSTANT
-    }
-
     private final User damager;
     private final Location damagerLocation;
     private final Location userLocation;
     private final EntityDamageEvent.DamageCause cause;
     private final DamageType damageType;
-
     public UserDamage(User user, User damager, EntityDamageEvent.DamageCause cause, DamageType damageType) {
         this.damager = damager;
         this.damagerLocation = damager.getLocation();
@@ -45,5 +40,11 @@ public class UserDamage {
 
     public DamageType getDamageType() {
         return damageType;
+    }
+
+    public enum DamageType {
+        PLAYER_BOW,
+        PLAYER,
+        INSTANT
     }
 }

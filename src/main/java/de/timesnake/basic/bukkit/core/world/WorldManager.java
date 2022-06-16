@@ -30,13 +30,10 @@ import java.util.*;
 
 public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.world.WorldManager {
 
-    private final File backupDir;
-
-    private final Map<String, ExWorld> worldsByName = new HashMap<>();
-
-    private final Map<UUID, Map<ExWorld, ExLocation>> locationsPerWorldByUuid = new HashMap<>();
-
     public final WorldBorderManager worldBorderManager;
+    private final File backupDir;
+    private final Map<String, ExWorld> worldsByName = new HashMap<>();
+    private final Map<UUID, Map<ExWorld, ExLocation>> locationsPerWorldByUuid = new HashMap<>();
 
     public WorldManager() {
         Server.registerListener(this, BasicBukkit.getPlugin());
@@ -249,7 +246,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
         exWorld.save();
 
-        this.copyWorldFolderFiles(exWorld.getWorldFolder(), new File(Bukkit.getWorldContainer() + File.separator + name));
+        this.copyWorldFolderFiles(exWorld.getWorldFolder(),
+                new File(Bukkit.getWorldContainer() + File.separator + name));
 
         World world = Bukkit.createWorld(new WorldCreator(name).copy(exWorld.getBukkitWorld()));
 

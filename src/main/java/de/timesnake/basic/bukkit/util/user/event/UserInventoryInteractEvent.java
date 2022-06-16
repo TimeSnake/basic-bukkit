@@ -10,7 +10,8 @@ public class UserInventoryInteractEvent extends UserInventoryEvent {
     private final Block clickedBlock;
     private final Action action;
 
-    public UserInventoryInteractEvent(User user, boolean isCanceled, ExItemStack clickedItem, Block clickedBlock, Action action) {
+    public UserInventoryInteractEvent(User user, boolean isCanceled, ExItemStack clickedItem, Block clickedBlock,
+                                      Action action) {
         super(user, isCanceled, clickedItem);
         this.clickedBlock = clickedBlock;
         this.action = action;

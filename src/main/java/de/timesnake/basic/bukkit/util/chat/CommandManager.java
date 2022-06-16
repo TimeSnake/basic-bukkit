@@ -9,7 +9,8 @@ public interface CommandManager {
 
     void addCommand(JavaPlugin mainClass, String cmd, CommandListener listener, Plugin basicPlugin);
 
-    void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener, Plugin basicPlugin);
+    void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener,
+                    Plugin basicPlugin);
 
     TabCompleteManager getTabCompleter();
 }

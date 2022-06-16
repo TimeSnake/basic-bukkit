@@ -7,17 +7,11 @@ import org.bukkit.inventory.EquipmentSlot;
 
 public class UserInteractEntityEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Entity entity;
     private final EquipmentSlot hand;
 
@@ -25,6 +19,11 @@ public class UserInteractEntityEvent extends CancelableUserEvent {
         super(user, isCanceled);
         this.entity = entity;
         this.hand = hand;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Entity getEntity() {

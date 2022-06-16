@@ -36,7 +36,8 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
     public boolean isHexColor(boolean sendMessage) {
         try {
-            Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16), Integer.valueOf(this.string.substring(2, 4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
+            Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16), Integer.valueOf(this.string.substring(2,
+                    4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
         } catch (IllegalArgumentException e) {
             if (sendMessage) {
                 this.sender.sendMessageNoHexColor(string);
@@ -59,7 +60,8 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
     }
 
     public Color toColorFromHex() {
-        return Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16), Integer.valueOf(this.string.substring(2, 4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
+        return Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16),
+                Integer.valueOf(this.string.substring(2, 4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
     }
 
     public boolean isWorldName(boolean sendMessage) {

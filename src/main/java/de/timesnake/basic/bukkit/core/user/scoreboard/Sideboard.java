@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
 
-    private String title;
     private final HashMap<Integer, String> scores = new HashMap<>();
+    private String title;
 
     public Sideboard(String name, String title) {
         super(name);

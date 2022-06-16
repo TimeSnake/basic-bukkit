@@ -8,22 +8,21 @@ import javax.annotation.Nonnull;
 
 public class UserRespawnEvent extends UserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private Location respawnLocation;
 
     public UserRespawnEvent(User user, Location respawnLocation) {
         super(user);
         this.respawnLocation = respawnLocation;
+    }
+
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Location getRespawnLocation() {

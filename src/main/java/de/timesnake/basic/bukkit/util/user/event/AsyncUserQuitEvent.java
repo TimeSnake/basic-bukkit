@@ -5,14 +5,14 @@ import org.bukkit.event.HandlerList;
 
 public class AsyncUserQuitEvent extends UserQuitEvent {
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private static final HandlerList HANDLERS = new HandlerList();
 
     public AsyncUserQuitEvent(User user) {
         super(true, user);
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     @Override

@@ -15,7 +15,8 @@ public class UserInventoryClickEvent extends UserInventoryEvent {
     private final ClickType clickType;
     private final InventoryAction action;
 
-    public UserInventoryClickEvent(User user, boolean isCanceled, InventoryView view, Inventory inventory, ExItemStack clickedItem, Integer slot, ClickType clickType, InventoryAction action) {
+    public UserInventoryClickEvent(User user, boolean isCanceled, InventoryView view, Inventory inventory,
+                                   ExItemStack clickedItem, Integer slot, ClickType clickType, InventoryAction action) {
         super(user, isCanceled, clickedItem);
         this.view = view;
         this.inventory = inventory;

@@ -7,24 +7,23 @@ import javax.annotation.Nonnull;
 
 public class UserChatCommandEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final String message;
     private boolean removeLisener = true;
 
     public UserChatCommandEvent(User user, boolean isCanceled, String message) {
         super(user, isCanceled);
         this.message = message;
+    }
+
+    @Override
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public String getMessage() {

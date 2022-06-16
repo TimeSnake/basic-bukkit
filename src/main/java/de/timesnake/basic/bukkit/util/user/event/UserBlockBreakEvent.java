@@ -6,17 +6,11 @@ import org.bukkit.event.HandlerList;
 
 public class UserBlockBreakEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Block block;
     private int expToDrop;
     private boolean dropItems;
@@ -26,6 +20,11 @@ public class UserBlockBreakEvent extends CancelableUserEvent {
         this.block = block;
         this.expToDrop = expToDrop;
         this.dropItems = dropItems;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Block getBlock() {

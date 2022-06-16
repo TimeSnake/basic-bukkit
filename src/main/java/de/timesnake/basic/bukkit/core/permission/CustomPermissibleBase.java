@@ -9,6 +9,15 @@ import java.lang.reflect.Field;
 
 public class CustomPermissibleBase extends PermissibleBase {
 
+    public static void inject(Player p) throws Exception {
+        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        Field field =
+                Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity").getDeclaredField(
+                        "perm");
+        field.setAccessible(true);
+        field.set(p, new CustomPermissibleBase(p));
+    }
+
     public CustomPermissibleBase(Player op) {
         super(op);
     }
@@ -36,14 +45,6 @@ public class CustomPermissibleBase extends PermissibleBase {
             }
         }
         return false;
-    }
-
-
-    public static void inject(Player p) throws Exception {
-        String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        Field field = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity").getDeclaredField("perm");
-        field.setAccessible(true);
-        field.set(p, new CustomPermissibleBase(p));
     }
 
 }

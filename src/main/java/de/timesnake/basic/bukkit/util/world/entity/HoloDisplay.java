@@ -2,10 +2,10 @@ package de.timesnake.basic.bukkit.util.world.entity;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
-import de.timesnake.basic.entities.entity.bukkit.ExArmorStand;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityDestroy;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutSpawnEntityLiving;
+import de.timesnake.library.entities.entity.bukkit.ExArmorStand;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntityLiving;
 
 import java.util.ArrayList;
 import java.util.List;

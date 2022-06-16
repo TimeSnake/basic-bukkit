@@ -8,6 +8,10 @@ import javax.annotation.Nonnull;
 
 public class AsyncUserMoveEvent extends UserEvent {
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private static final HandlerList HANDLERS = new HandlerList();
     private final Location from;
     private final Location to;
@@ -16,10 +20,6 @@ public class AsyncUserMoveEvent extends UserEvent {
         super(true, user);
         this.from = from;
         this.to = to;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     @Override

@@ -46,28 +46,28 @@ public class ServerInfo {
         return status;
     }
 
-    public Integer getOnlinePlayers() {
-        return onlinePlayers;
-    }
-
-    public Integer getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
     public void setStatus(Status.Server status) {
         this.status = status;
+    }
+
+    public Integer getOnlinePlayers() {
+        return onlinePlayers;
     }
 
     public void setOnlinePlayers(Integer onlinePlayers) {
         this.onlinePlayers = Objects.requireNonNullElse(onlinePlayers, 0);
     }
 
+    public Integer getMaxPlayers() {
+        return maxPlayers;
+    }
+
     public void setMaxPlayers(Integer maxPlayers) {
         this.maxPlayers = maxPlayers;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public void setPassword(String password) throws TooLongEntryException {

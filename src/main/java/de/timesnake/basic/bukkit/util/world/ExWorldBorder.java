@@ -5,9 +5,9 @@ import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
-import de.timesnake.basic.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
-import de.timesnake.basic.packets.util.ExClientboundInitializeBorderPacket;
-import de.timesnake.basic.packets.util.ExClientboundSetBorderLerpSizePacket;
+import de.timesnake.library.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
+import de.timesnake.library.packets.util.ExClientboundInitializeBorderPacket;
+import de.timesnake.library.packets.util.ExClientboundSetBorderLerpSizePacket;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
@@ -45,7 +45,8 @@ public class ExWorldBorder implements Listener {
 
     private boolean sound;
 
-    public ExWorldBorder(ExWorld world, Set<User> users, double centerX, double centerZ, double size, int warningDistance, int warningTime, double damage, boolean sound) {
+    public ExWorldBorder(ExWorld world, Set<User> users, double centerX, double centerZ, double size,
+                         int warningDistance, int warningTime, double damage, boolean sound) {
         this.world = world;
         this.users = users;
         this.centerX = centerX;
@@ -61,7 +62,8 @@ public class ExWorldBorder implements Listener {
 
     }
 
-    public ExWorldBorder(ExWorld world, double centerX, double centerZ, double size, int warningDistance, int warningTime, double damage, boolean sound) {
+    public ExWorldBorder(ExWorld world, double centerX, double centerZ, double size, int warningDistance,
+                         int warningTime, double damage, boolean sound) {
         this(world, new HashSet<>(), centerX, centerZ, size, warningDistance, warningTime, damage, sound);
     }
 
@@ -109,7 +111,8 @@ public class ExWorldBorder implements Listener {
             return;
         }
 
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getSpectatorInitPacket(), user);
+        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getSpectatorInitPacket(),
+                user);
     }
 
     public void removeUser(User user) {
@@ -147,18 +150,6 @@ public class ExWorldBorder implements Listener {
         this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
     }
 
-    public void setSize(double size) {
-        this.size = size < 0 ? 0 : size;
-        this.broadcastUserPacket(this.getUserInitPacket());
-        this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
-        if (this.shrinking) {
-            if (this.shrinkingTask != null) {
-                this.shrinkingTask.cancel();
-            }
-            this.shrinking = false;
-        }
-    }
-
     public void setSize(double size, int time, boolean forceStop) {
         if (this.shrinking) {
             if (forceStop) {
@@ -186,7 +177,8 @@ public class ExWorldBorder implements Listener {
     private void shrinking() {
         this.shrinking = true;
 
-        ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(this.world.getBukkitWorld(), this.size, this.shrinkSize, this.shrinkTime * 50L);
+        ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(this.world.getBukkitWorld(),
+                this.size, this.shrinkSize, this.shrinkTime * 50L);
 
         this.broadcastUserPacket(packet);
         this.broadcastSpectatorPacket(packet);
@@ -210,10 +202,6 @@ public class ExWorldBorder implements Listener {
         }.runTaskTimer(BasicBukkit.getPlugin(), 0, 1);
     }
 
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
@@ -230,6 +218,18 @@ public class ExWorldBorder implements Listener {
         return size;
     }
 
+    public void setSize(double size) {
+        this.size = size < 0 ? 0 : size;
+        this.broadcastUserPacket(this.getUserInitPacket());
+        this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
+        if (this.shrinking) {
+            if (this.shrinkingTask != null) {
+                this.shrinkingTask.cancel();
+            }
+            this.shrinking = false;
+        }
+    }
+
     public int getWarningDistance() {
         return warningDistance;
     }
@@ -240,6 +240,10 @@ public class ExWorldBorder implements Listener {
 
     public double getDamage() {
         return damage;
+    }
+
+    public void setDamage(double damage) {
+        this.damage = damage;
     }
 
     public boolean isSound() {
@@ -260,17 +264,21 @@ public class ExWorldBorder implements Listener {
 
     private ExPacketPlayOutWorldBorder getUserInitPacket() {
         if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance, this.warningTime);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+                    this.size, this.size, 0, this.warningDistance, this.warningTime);
         } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L, this.warningDistance, this.warningTime);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+                    this.size, this.shrinkSize, this.shrinkTime * 50L, this.warningDistance, this.warningTime);
         }
     }
 
     private ExPacketPlayOutWorldBorder getSpectatorInitPacket() {
         if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+                    this.size, this.size, 0, 0, 0);
         } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L, 0, 0);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+                    this.size, this.shrinkSize, this.shrinkTime * 50L, 0, 0);
         }
     }
 

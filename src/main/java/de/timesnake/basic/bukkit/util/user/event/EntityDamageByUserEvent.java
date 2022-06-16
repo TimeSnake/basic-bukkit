@@ -13,28 +13,28 @@ import javax.annotation.Nonnull;
  */
 public class EntityDamageByUserEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Entity entity;
     private final EntityDamageEvent.DamageCause damageCause;
     private double damage;
     private boolean cancelDamage;
 
-    public EntityDamageByUserEvent(Entity entity, User damager, boolean isCanceled, double damage, EntityDamageEvent.DamageCause cause) {
+    public EntityDamageByUserEvent(Entity entity, User damager, boolean isCanceled, double damage,
+                                   EntityDamageEvent.DamageCause cause) {
         super(damager, isCanceled);
         this.entity = entity;
         this.damageCause = cause;
         this.damage = damage;
         this.cancelDamage = false;
+    }
+
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Entity getEntity() {
@@ -49,12 +49,12 @@ public class EntityDamageByUserEvent extends CancelableUserEvent {
         return damage;
     }
 
-    public boolean isCancelDamage() {
-        return cancelDamage;
-    }
-
     public void setDamage(double damage) {
         this.damage = damage;
+    }
+
+    public boolean isCancelDamage() {
+        return cancelDamage;
     }
 
     public void setCancelDamage(boolean cancelDamage) {

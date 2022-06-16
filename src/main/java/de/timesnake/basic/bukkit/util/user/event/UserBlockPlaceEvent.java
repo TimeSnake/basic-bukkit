@@ -9,17 +9,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class UserBlockPlaceEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Block block;
     private final Block blockPlaced;
     private final Block blockAgainst;
@@ -28,7 +22,9 @@ public class UserBlockPlaceEvent extends CancelableUserEvent {
     private final ItemStack itemInHand;
     private boolean canBuild;
 
-    public UserBlockPlaceEvent(User user, boolean isCanceled, Block block, Block blockPlaced, Block blockAgainst, EquipmentSlot hand, BlockState blockReplacedState, ItemStack itemInHand, boolean canBuild) {
+    public UserBlockPlaceEvent(User user, boolean isCanceled, Block block, Block blockPlaced, Block blockAgainst,
+                               EquipmentSlot hand, BlockState blockReplacedState, ItemStack itemInHand,
+                               boolean canBuild) {
         super(user, isCanceled);
         this.block = block;
         this.blockAgainst = blockAgainst;
@@ -37,6 +33,11 @@ public class UserBlockPlaceEvent extends CancelableUserEvent {
         this.blockReplacedState = blockReplacedState;
         this.itemInHand = itemInHand;
         this.canBuild = canBuild;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Block getBlock() {
