@@ -17,52 +17,6 @@ public interface WorldManager {
 
     void copyWorldFolderFiles(File source, File target);
 
-    enum Type {
-        NORMAL(World.Environment.NORMAL, WorldType.NORMAL, null), NETHER(World.Environment.NETHER, WorldType.NORMAL, null), END(World.Environment.THE_END, WorldType.NORMAL, null), VOID(null, null, new VoidGenerator()), FLAT(World.Environment.NORMAL, WorldType.FLAT, null), AMPLIFIED(World.Environment.NORMAL, WorldType.AMPLIFIED, null), LARGE_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null);
-
-        private final World.Environment environment;
-        private final WorldType worldType;
-        private final ChunkGenerator chunkGenerator;
-
-        Type(World.Environment environment, WorldType worldType, ChunkGenerator chunkGenerator) {
-            this.environment = environment;
-            this.worldType = worldType;
-            this.chunkGenerator = chunkGenerator;
-        }
-
-        public WorldType getWorldType() {
-            return worldType;
-        }
-
-        public World.Environment getEnvironment() {
-            return environment;
-        }
-
-        public ChunkGenerator getChunkGenerator() {
-            return chunkGenerator;
-        }
-
-        public static List<String> getNames() {
-            List<String> names = new ArrayList<>();
-            for (Type worldType : Type.values()) {
-                names.add(worldType.name());
-            }
-            return names;
-        }
-
-        public static Type fromWorld(World world) {
-            for (Type type : Type.values()) {
-                if (type.getWorldType() != null && type.getWorldType().equals(world.getWorldType()) && type.getEnvironment() != null && type.getEnvironment().equals(world.getEnvironment())) {
-                    return type;
-                }
-            }
-            return NORMAL;
-        }
-
-
-    }
-
-
     Collection<ExWorld> getWorlds();
 
     ExWorld getWorld(String name);
@@ -119,5 +73,56 @@ public interface WorldManager {
     boolean reloadWorld(ExWorld world);
 
     boolean unloadWorld(ExWorld world, boolean save);
+
+    enum Type {
+        NORMAL(World.Environment.NORMAL, WorldType.NORMAL, null),
+        NETHER(World.Environment.NETHER, WorldType.NORMAL, null),
+        END(World.Environment.THE_END, WorldType.NORMAL, null),
+        VOID(null, null, new VoidGenerator()),
+        FLAT(World.Environment.NORMAL, WorldType.FLAT, null),
+        AMPLIFIED(World.Environment.NORMAL, WorldType.AMPLIFIED, null),
+        LARGE_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null);
+
+        public static List<String> getNames() {
+            List<String> names = new ArrayList<>();
+            for (Type worldType : Type.values()) {
+                names.add(worldType.name());
+            }
+            return names;
+        }
+
+        public static Type fromWorld(World world) {
+            for (Type type : Type.values()) {
+                if (type.getWorldType() != null && type.getWorldType().equals(world.getWorldType()) && type.getEnvironment() != null && type.getEnvironment().equals(world.getEnvironment())) {
+                    return type;
+                }
+            }
+            return NORMAL;
+        }
+
+        private final World.Environment environment;
+        private final WorldType worldType;
+        private final ChunkGenerator chunkGenerator;
+
+        Type(World.Environment environment, WorldType worldType, ChunkGenerator chunkGenerator) {
+            this.environment = environment;
+            this.worldType = worldType;
+            this.chunkGenerator = chunkGenerator;
+        }
+
+        public WorldType getWorldType() {
+            return worldType;
+        }
+
+        public World.Environment getEnvironment() {
+            return environment;
+        }
+
+        public ChunkGenerator getChunkGenerator() {
+            return chunkGenerator;
+        }
+
+
+    }
 
 }

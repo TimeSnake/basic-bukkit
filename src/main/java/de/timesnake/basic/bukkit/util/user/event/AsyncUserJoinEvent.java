@@ -5,14 +5,14 @@ import org.bukkit.event.HandlerList;
 
 public class AsyncUserJoinEvent extends UserJoinEvent {
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private static final HandlerList HANDLERS = new HandlerList();
 
     public AsyncUserJoinEvent(User user) {
         super(true, user);
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     @Override

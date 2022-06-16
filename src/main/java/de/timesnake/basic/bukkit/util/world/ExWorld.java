@@ -17,13 +17,25 @@ import java.util.Objects;
 
 public class ExWorld extends DelegatedWorld implements World {
 
+    @NotNull
+    public static Audience empty() {
+        return Audience.empty();
+    }
+
+    @NotNull
+    public static Audience audience(@NotNull Audience @NotNull ... audiences) {
+        return Audience.audience(audiences);
+    }
+
+    @NotNull
+    public static ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
+        return Audience.audience(audiences);
+    }
+
     private final WorldManager.Type type;
     private final ExWorldFile file;
-
     private boolean safe;
-
     private boolean exceptService = true;
-
     private boolean allowBlockBreak = true;
     private boolean allowFluidCollect = true;
     private boolean allowBlockPlace = true;
@@ -42,7 +54,6 @@ public class ExWorld extends DelegatedWorld implements World {
     private boolean allowPlaceInBlock = true;
     private boolean allowFirePunchOut = true;
     private boolean allowCakeEat = true;
-
     private List<Material> lockedBlockInventories = new LinkedList<>();
 
     public ExWorld(org.bukkit.World world, WorldManager.Type type, ExWorldFile file) {
@@ -57,12 +68,6 @@ public class ExWorld extends DelegatedWorld implements World {
             this.setAutoSave(false);
             this.safe = false;
         }
-    }
-
-    public void setBukkitWorld(World world) {
-        this.world = world;
-
-        this.world.setAutoSave(this.safe);
     }
 
     @Override
@@ -88,11 +93,6 @@ public class ExWorld extends DelegatedWorld implements World {
         return safe;
     }
 
-    @NotNull
-    public static Audience empty() {
-        return Audience.empty();
-    }
-
     public void removePlayers() {
         for (User user : Server.getUsers()) {
             if (user.getLocation().getWorld().equals(this.getBukkitWorld())) {
@@ -101,18 +101,8 @@ public class ExWorld extends DelegatedWorld implements World {
         }
     }
 
-    @NotNull
-    public static Audience audience(@NotNull Audience @NotNull ... audiences) {
-        return Audience.audience(audiences);
-    }
-
     public ExWorldFile getExFile() {
         return file;
-    }
-
-    @NotNull
-    public static ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
-        return Audience.audience(audiences);
     }
 
     public boolean isBlockBreakAllowed() {
@@ -299,6 +289,12 @@ public class ExWorld extends DelegatedWorld implements World {
 
     public World getBukkitWorld() {
         return this.world;
+    }
+
+    public void setBukkitWorld(World world) {
+        this.world = world;
+
+        this.world.setAutoSave(this.safe);
     }
 
     public ExBlock getExBlockAt(int x, int y, int z) {

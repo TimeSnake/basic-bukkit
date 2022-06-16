@@ -71,11 +71,13 @@ public class TaskManager {
         return new TimeBukkitRunnable(task, time, false).runTaskTimerAsynchronously(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
+                                            Plugin plugin) {
         return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimer(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, Plugin plugin) {
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period
+            , Plugin plugin) {
         return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimerAsynchronously(plugin, delay, period);
     }
 

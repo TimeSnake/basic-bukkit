@@ -12,13 +12,15 @@ public class ExLocation extends Location {
 
     public static ExLocation fromLocation(Location location) {
         if (location == null) return null;
-        return new ExLocation(Server.getWorld(location.getWorld()), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        return new ExLocation(Server.getWorld(location.getWorld()), location.getX(), location.getY(), location.getZ()
+                , location.getYaw(), location.getPitch());
     }
 
     private ExWorld world;
 
     public ExLocation(ExWorld world, double x, double y, double z) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x, y, z);
+        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+                y, z);
         this.world = world;
     }
 
@@ -27,17 +29,24 @@ public class ExLocation extends Location {
     }
 
     public ExLocation(ExWorld world, double x, double y, double z, float yaw, float pitch) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x, y, z, yaw, pitch);
+        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+                y, z, yaw, pitch);
         this.world = world;
     }
 
     public ExLocation(ExWorld world, Location location) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(),
+                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         this.world = world;
     }
 
     public ExWorld getExWorld() {
         return this.world;
+    }
+
+    public ExLocation setExWorld(ExWorld world) {
+        this.setWorld(world.getBukkitWorld());
+        return this;
     }
 
     @Override
@@ -49,11 +58,6 @@ public class ExLocation extends Location {
     public void setWorld(World world) {
         this.world = Server.getWorld(world);
         super.setWorld(world);
-    }
-
-    public ExLocation setExWorld(ExWorld world) {
-        this.setWorld(world.getBukkitWorld());
-        return this;
     }
 
     @Override

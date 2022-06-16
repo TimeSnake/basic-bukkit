@@ -25,7 +25,8 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
         this.displayName = displayName;
         this.chatColor = chatColor;
         if (this.displayName != null) {
-            this.chatPrefix = de.timesnake.basic.bukkit.util.chat.Chat.getChatPrefix(this.displayName, Objects.requireNonNullElse(this.chatColor, ChatColor.WHITE));
+            this.chatPrefix = de.timesnake.basic.bukkit.util.chat.Chat.getChatPrefix(this.displayName,
+                    Objects.requireNonNullElse(this.chatColor, ChatColor.WHITE));
         } else {
             this.chatPrefix = "";
         }
@@ -127,8 +128,10 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
-    public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String text, String exec, String info, ClickEvent.Action action) {
-        this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin) + text, exec, info, action);
+    public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String text,
+                                          String exec, String info, ClickEvent.Action action) {
+        this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin) + text,
+                exec, info, action);
     }
 
 

@@ -3,9 +3,9 @@ package de.timesnake.basic.bukkit.core.user;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.*;
-import de.timesnake.basic.packets.util.packet.ExPacket;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import de.timesnake.library.packets.util.packet.ExPacket;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -15,12 +15,14 @@ public class PacketBroadcaster implements CommandListener {
     private boolean broadcast = false;
 
     public PacketBroadcaster() {
-        Server.getCommandManager().addCommand(BasicBukkit.getPlugin(), "packetsmsg", List.of("packetsmsgs", "packetsmessage", "packetsmessages"), this, Plugin.PACKETS);
+        Server.getCommandManager().addCommand(BasicBukkit.getPlugin(), "packetsmsg", List.of("packetsmsgs",
+                "packetsmessage", "packetsmessages"), this, Plugin.PACKETS);
     }
 
     public void broadcastPacket(Player player, ExPacket packet) {
         if (this.broadcast) {
-            Server.printText(Plugin.PACKETS, "Send " + packet.getClass().getSimpleName() + " " + packet.getInfo() + " to: " + player.getName());
+            Server.printText(Plugin.PACKETS, "Send " + packet.getClass().getSimpleName() + " " + packet.getInfo() +
+                    " to: " + player.getName());
         }
     }
 

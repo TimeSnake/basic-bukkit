@@ -8,14 +8,14 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.entity.MapDisplayBuilder;
 import de.timesnake.basic.bukkit.util.world.entity.PacketEntity;
-import de.timesnake.basic.packets.core.packet.out.ExClientboundLevelChunkWithLightPacket;
-import de.timesnake.basic.packets.core.packet.out.ExPacketPlayOutChunkUnload;
-import de.timesnake.basic.packets.util.listener.PacketHandler;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
-import de.timesnake.basic.packets.util.packet.ExPacket;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
 import de.timesnake.library.basic.util.Tuple;
+import de.timesnake.library.packets.core.packet.out.ExClientboundLevelChunkWithLightPacket;
+import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutChunkUnload;
+import de.timesnake.library.packets.util.listener.PacketHandler;
+import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
+import de.timesnake.library.packets.util.packet.ExPacket;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -66,7 +66,6 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         User user = Server.getUser(receiver);
 
         if (user == null) {
-            System.out.println(receiver.getName() + " null " + load);
             if (load) {
                 this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
             }
@@ -168,7 +167,10 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
         if (preLoadedChunks != null) {
             for (Chunk chunk : preLoadedChunks) {
-                this.loadEntitiesInChunk(e.getUser(), chunk);
+                Server.runTaskLaterAsynchrony(() -> {
+                    this.loadEntitiesInChunk(e.getUser(), chunk);
+                }, 20 * 3, BasicBukkit.getPlugin());
+
             }
         }
     }

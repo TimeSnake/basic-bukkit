@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener, de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
+public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener,
+        de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
 
     public static final org.bukkit.ChatColor COLOR = org.bukkit.ChatColor.GRAY;
 
@@ -38,7 +39,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.chat.Chat createChat(String name, String displayName, org.bukkit.ChatColor chatColor, Set<ChatMember> users) {
+    public de.timesnake.basic.bukkit.util.chat.Chat createChat(String name, String displayName,
+                                                               org.bukkit.ChatColor chatColor, Set<ChatMember> users) {
         if (name.equals(GLOBAL_CHAT_NAME)) {
             return null;
         }
@@ -70,7 +72,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         User user = Server.getUser(e.getPlayer());
 
         // event
-        boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(), e.getMessage());
+        boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(),
+                e.getMessage());
 
         e.setCancelled(true);
 

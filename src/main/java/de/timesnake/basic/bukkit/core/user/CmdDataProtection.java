@@ -28,19 +28,23 @@ public class CmdDataProtection implements CommandListener, Listener {
                 if (args.get(0).equalsIgnoreCase("accept") || args.get(0).equalsIgnoreCase("agree")) {
 
                     if (user.agreedDataProtection()) {
-                        sender.sendPluginMessage(ChatColor.WARNING + "You already accepted our data protection declaration " + Chat.getMessageCode("H", 740, Plugin.BUKKIT));
+                        sender.sendPluginMessage(ChatColor.WARNING + "You already accepted our data protection " +
+                                "declaration " + Chat.getMessageCode("H", 740, Plugin.BUKKIT));
                         return;
                     }
 
-                    user.agreeDataProtection(DataProtectionAgreement.create(new Date(), BasicBukkit.DATA_PROTECTION_VERSION));
+                    user.agreeDataProtection(DataProtectionAgreement.create(new Date(),
+                            BasicBukkit.DATA_PROTECTION_VERSION));
                     sender.sendPluginMessage(ChatColor.PERSONAL + "You accepted our data protection declaration");
 
-                    user.getPlayer().kickPlayer(ChatColor.PUBLIC + "You accepted our data protection declaration " + "\nPlease rejoin in a few moments");
+                    user.getPlayer().kickPlayer(ChatColor.PUBLIC + "You accepted our data protection declaration " +
+                            "\nPlease rejoin in a few moments");
 
 
                 } else if (args.get(0).equalsIgnoreCase("deny") || args.get(0).equalsIgnoreCase("disagree")) {
                     user.delete();
-                    user.getPlayer().kickPlayer("§4§lYou disagreed our data protection declaration. " + "You must accept our data protection declaration to play on our Network");
+                    user.getPlayer().kickPlayer("§4§lYou disagreed our data protection declaration. " + "You must " +
+                            "accept our data protection declaration to play on our Network");
 
                 }
             } else {

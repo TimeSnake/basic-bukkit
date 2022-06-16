@@ -5,8 +5,8 @@ import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
-import de.timesnake.basic.entities.entity.bukkit.ExPlayer;
-import de.timesnake.basic.packets.util.packet.*;
+import de.timesnake.library.entities.entity.bukkit.extension.ExPlayer;
+import de.timesnake.library.packets.util.packet.*;
 import org.bukkit.entity.Player;
 
 public class PacketPlayer extends PacketEntity {

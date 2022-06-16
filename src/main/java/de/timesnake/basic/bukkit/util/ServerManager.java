@@ -26,8 +26,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
-import de.timesnake.basic.packets.util.PacketManager;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.channel.core.Channel;
 import de.timesnake.channel.core.NetworkChannel;
 import de.timesnake.channel.util.listener.ChannelHandler;
@@ -44,6 +42,8 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
+import de.timesnake.library.packets.util.PacketManager;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -62,8 +62,6 @@ import java.util.function.Predicate;
 
 public class ServerManager implements de.timesnake.library.basic.util.server.Server, ChannelListener {
 
-    private static ServerManager instance;
-
     public static ServerManager getInstance() {
         if (instance == null) {
             instance = new ServerManager() {
@@ -80,30 +78,19 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         instance = serverManager;
     }
 
-    private final ConsoleManager consoleManager = new ConsoleManager();
-
-    private de.timesnake.basic.bukkit.util.user.UserManager userManager;
-
-    private DbServer database;
-
+    private static ServerManager instance;
     protected final de.timesnake.basic.bukkit.util.chat.ChatManager chatManager = new ChatManager();
-
+    private final ConsoleManager consoleManager = new ConsoleManager();
     protected Network network;
-
     protected PacketManager packetManager;
-
     protected WorldManager worldManager;
-
-    private UserEventManager userEventManager;
-
-    private de.timesnake.basic.bukkit.util.user.InventoryEventManager inventoryEventManager;
-
-    private CommandManager commandManager;
-
-    private TaskManager taskManager;
-
     protected ScoreboardManager scoreboardManager;
-
+    private de.timesnake.basic.bukkit.util.user.UserManager userManager;
+    private DbServer database;
+    private UserEventManager userEventManager;
+    private de.timesnake.basic.bukkit.util.user.InventoryEventManager inventoryEventManager;
+    private CommandManager commandManager;
+    private TaskManager taskManager;
     private PacketBroadcaster packetBroadcaster;
 
     private GroupManager groupManager;
@@ -213,7 +200,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     //user
 
     public final void createUser(Player player) {
-        ((UserManager) this.userManager).storeUser(player.getUniqueId(), BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
+        ((UserManager) this.userManager).storeUser(player.getUniqueId(),
+                BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(),
+                        () -> this.loadUser(player)));
     }
 
     public User loadUser(Player player) {
@@ -435,7 +424,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public final void broadcastClickableMessage(Plugin plugin, String text, String exec, String info, ClickEvent.Action action) {
+    public final void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
+                                                ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -561,7 +551,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public final Location getLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
         World world = Bukkit.getWorld(location.getWorldName());
         if (world != null) {
-            return new Location(world, location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+            return new Location(world, location.getX(), location.getY(), location.getZ(), location.getYaw(),
+                    location.getPitch());
         } else {
             throw new WorldNotExistException(location.getWorldName());
         }
@@ -570,14 +561,16 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public final ExLocation getExLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
         ExWorld world = Server.getWorld(location.getWorldName());
         if (world != null) {
-            return new ExLocation(world, location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+            return new ExLocation(world, location.getX(), location.getY(), location.getZ(), location.getYaw(),
+                    location.getPitch());
         } else {
             throw new WorldNotExistException(location.getWorldName());
         }
     }
 
     public final DbLocation getDbLocationFromLocation(Location location) {
-        return new DbLocation(location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        return new DbLocation(location.getWorld().getName(), location.getX(), location.getY(), location.getZ(),
+                location.getYaw(), location.getPitch());
     }
 
     public final Channel getChannel() {
@@ -588,7 +581,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return new de.timesnake.basic.bukkit.core.user.inventory.ExInventory(size, name, itemStacks);
     }
 
-    public final ExInventory createExInventory(int size, String name, InventoryHolder holder, ExItemStack... itemStacks) {
+    public final ExInventory createExInventory(int size, String name, InventoryHolder holder,
+                                               ExItemStack... itemStacks) {
         return new de.timesnake.basic.bukkit.core.user.inventory.ExInventory(size, name, holder, itemStacks);
     }
 
@@ -608,7 +602,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     @ChannelHandler(type = ListenerType.GROUP)
     public final void onGroupMessage(ChannelGroupMessage<?> msg) {
         String groupName = msg.getName();
-        de.timesnake.basic.bukkit.core.permission.Group group = (de.timesnake.basic.bukkit.core.permission.Group) this.getGroup(groupName);
+        de.timesnake.basic.bukkit.core.permission.Group group =
+                (de.timesnake.basic.bukkit.core.permission.Group) this.getGroup(groupName);
         if (group == null) {
             return;
         }
@@ -664,23 +659,28 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return this.taskManager.runTaskTimerAsynchrony(task, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+                                            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerSynchrony(task, time, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+                                             org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerAsynchrony(task, time, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
+                                            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period
+            , org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable, org.bukkit.plugin.Plugin plugin) {
+    public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
+                                                org.bukkit.plugin.Plugin plugin) {
         this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
     }
 
@@ -706,7 +706,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     @ChannelHandler(type = ListenerType.SERVER_STATUS, filtered = true)
     public final void onServerStatusMessage(ChannelServerMessage<?> msg) {
-        this.runTaskSynchrony(() -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(), BasicBukkit.getPlugin());
+        this.runTaskSynchrony(() -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(),
+                BasicBukkit.getPlugin());
     }
 
     // MANAGER

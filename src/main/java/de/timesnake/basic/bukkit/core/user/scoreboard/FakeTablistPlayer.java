@@ -2,7 +2,7 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutTablist;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.entity.Player;
 

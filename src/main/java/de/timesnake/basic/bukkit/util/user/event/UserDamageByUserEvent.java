@@ -12,23 +12,23 @@ import javax.annotation.Nonnull;
  */
 public class UserDamageByUserEvent extends UserDamageEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
+    private static final HandlerList HANDLERS = new HandlerList();
     private final User userDamager;
 
-    public UserDamageByUserEvent(User user, User damager, boolean isCanceled, double damage, EntityDamageEvent.DamageCause cause) {
+    public UserDamageByUserEvent(User user, User damager, boolean isCanceled, double damage,
+                                 EntityDamageEvent.DamageCause cause) {
         super(user, isCanceled, damage, cause);
         this.userDamager = damager;
 
+    }
+
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public User getUserDamager() {

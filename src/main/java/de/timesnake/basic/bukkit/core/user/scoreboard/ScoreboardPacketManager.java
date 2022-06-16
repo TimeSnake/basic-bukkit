@@ -2,10 +2,10 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.packets.util.listener.PacketHandler;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
-import de.timesnake.basic.packets.util.packet.ExPacket;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
+import de.timesnake.library.packets.util.listener.PacketHandler;
+import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
+import de.timesnake.library.packets.util.packet.ExPacket;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ScoreboardPacketManager implements PacketPlayOutListener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
+public class ScoreboardPacketManager implements PacketPlayOutListener,
+        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
 
     private final Map<Player, Set<ExPacketPlayOut>> packets = new ConcurrentHashMap<>();
 

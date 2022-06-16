@@ -1,21 +1,9 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutTablist;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
 import org.bukkit.ChatColor;
 
 public interface TeamTablist extends Tablist {
-
-    enum ColorType {
-        TEAM, FIRST_GROUP, LAST_GROUP, WHITE
-    }
-
-    void addRemainEntry(TablistablePlayer player);
-
-    void addTeamHeader(String teamRank, String headerRank, String name, ExPacketPlayOutTablist.Head head);
-
-    void addTeamHeader(String teamRank, String headerRank, String name);
-
-    void removeTeamHeader(String teamRank, String headerRank);
 
     static ExPacketPlayOutTablist.Head getHead(ChatColor color) {
         switch (color) {
@@ -54,6 +42,21 @@ public interface TeamTablist extends Tablist {
 
         }
         return ExPacketPlayOutTablist.Head.BLANK;
+    }
+
+    void addRemainEntry(TablistablePlayer player);
+
+    void addTeamHeader(String teamRank, String headerRank, String name, ExPacketPlayOutTablist.Head head);
+
+    void addTeamHeader(String teamRank, String headerRank, String name);
+
+    void removeTeamHeader(String teamRank, String headerRank);
+
+    enum ColorType {
+        TEAM,
+        FIRST_GROUP,
+        LAST_GROUP,
+        WHITE
     }
 
 }

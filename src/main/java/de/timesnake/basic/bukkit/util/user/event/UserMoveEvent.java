@@ -12,18 +12,11 @@ import javax.annotation.Nonnull;
  */
 public class UserMoveEvent extends CancelableUserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
-    @Override
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
+    private static final HandlerList HANDLERS = new HandlerList();
     private final Location from;
     private final Location to;
 
@@ -31,6 +24,12 @@ public class UserMoveEvent extends CancelableUserEvent {
         super(user, isCanceled);
         this.from = from;
         this.to = to;
+    }
+
+    @Override
+    @Nonnull
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
     public Location getFrom() {

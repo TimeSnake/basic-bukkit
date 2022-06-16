@@ -9,16 +9,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
  */
 public class UserJoinEvent extends UserEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
-
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+    private static final HandlerList HANDLERS = new HandlerList();
 
     public UserJoinEvent(User user) {
         super(user);
@@ -26,5 +21,10 @@ public class UserJoinEvent extends UserEvent {
 
     public UserJoinEvent(boolean async, User user) {
         super(async, user);
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 }

@@ -1,14 +1,30 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
 import org.bukkit.scoreboard.RenderType;
 
 import java.util.LinkedList;
 
 public interface Tablist {
 
+    void setHeader(String header);
+
+    void setFooter(String footer);
+
+    void addEntry(TablistablePlayer value);
+
+    boolean removeEntry(TablistablePlayer value);
+
+    void updateEntryValue(TablistablePlayer entry, Integer value);
+
+    LinkedList<TablistablePlayer> getEntries();
+
     enum Type {
-        DUMMY("dummy", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER), HEARTS("hearts", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS), HEALTH("health", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS), XP("xp", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER), LEVEL("level", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER);
+        DUMMY("dummy", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER),
+        HEARTS("hearts", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS),
+        HEALTH("health", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS),
+        XP("xp", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER),
+        LEVEL("level", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER);
 
 
         private final String criteria;
@@ -33,17 +49,5 @@ public interface Tablist {
             return packetType;
         }
     }
-
-    void setHeader(String header);
-
-    void setFooter(String footer);
-
-    void addEntry(TablistablePlayer value);
-
-    boolean removeEntry(TablistablePlayer value);
-
-    void updateEntryValue(TablistablePlayer entry, Integer value);
-
-    LinkedList<TablistablePlayer> getEntries();
 
 }

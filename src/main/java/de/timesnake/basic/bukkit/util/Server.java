@@ -16,8 +16,6 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.basic.bukkit.util.world.entity.EntityManager;
-import de.timesnake.basic.packets.util.PacketManager;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.channel.core.Channel;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
@@ -26,6 +24,8 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
+import de.timesnake.library.packets.util.PacketManager;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -45,8 +45,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class Server implements de.timesnake.library.basic.util.server.Server {
-
-    private static final ServerManager server = ServerManager.getInstance();
 
     public static int getProxyPort() {
         return 25565;
@@ -243,7 +241,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public static void broadcastClickableMessage(Plugin plugin, String text, String exec, String info, ClickEvent.Action action) {
+    public static void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
+                                                 ClickEvent.Action action) {
         server.broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -409,7 +408,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.createExInventory(size, name, itemStacks);
     }
 
-    public static ExInventory createExInventory(int size, String name, InventoryHolder holder, ExItemStack... itemStacks) {
+    public static ExInventory createExInventory(int size, String name, InventoryHolder holder,
+                                                ExItemStack... itemStacks) {
         return server.createExInventory(size, name, holder, itemStacks);
     }
 
@@ -421,7 +421,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     public static void registerListener(Listener listener) {
         server.registerListener(listener);
     }
-
 
     public static void dropItem(Location location, org.bukkit.inventory.ItemStack itemStack) {
         server.dropItem(location, itemStack);
@@ -471,23 +470,28 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.runTaskTimerAsynchrony(task, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+                                                   org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerSynchrony(task, time, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+                                                    org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerAsynchrony(task, time, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
+                                                   int period, org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
+                                                    int period, org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public static <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable, org.bukkit.plugin.Plugin plugin) {
+    public static <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
+                                                       org.bukkit.plugin.Plugin plugin) {
         server.runTaskLoopAsynchrony(task, iterable, plugin);
     }
 
@@ -590,5 +594,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     public static EntityManager getEntityManager() {
         return server.getEntityManager();
     }
+
+    private static final ServerManager server = ServerManager.getInstance();
 
 }

@@ -111,12 +111,16 @@ public class Tab<E extends Tab.TabEntry<E>> implements Iterable<E> {
         return size;
     }
 
+    @Override
+    public Iterator<E> iterator() {
+        return new TabIterator<>(this);
+    }
+
     public abstract static class TabEntry<E> {
 
+        protected final String rank;
         protected E previous;
         protected E next;
-
-        protected final String rank;
 
         public TabEntry(String rank) {
             this.rank = rank;
@@ -130,12 +134,12 @@ public class Tab<E extends Tab.TabEntry<E>> implements Iterable<E> {
             return next;
         }
 
-        public E getPrevious() {
-            return previous;
-        }
-
         public void setNext(E next) {
             this.next = next;
+        }
+
+        public E getPrevious() {
+            return previous;
         }
 
         public void setPrevious(E previous) {
@@ -144,11 +148,6 @@ public class Tab<E extends Tab.TabEntry<E>> implements Iterable<E> {
 
         public abstract void merge(E entry);
 
-    }
-
-    @Override
-    public Iterator<E> iterator() {
-        return new TabIterator<>(this);
     }
 
     public static class TabIterator<E extends TabEntry<E>> implements Iterator<E> {
