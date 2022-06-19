@@ -29,10 +29,12 @@ dependencies {
     implementation 'de.timesnake:library-extension:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-basic:1.0-SNAPSHOT'
     compileOnly 'de.timesnake:database-bukkit:1.0-SNAPSHOT'
+    compileOnly 'de.timesnake:database-api:1.0-SNAPSHOT'
     compileOnly 'de.timesnake:channel-bukkit:1.0-SNAPSHOT'
-    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
-    compileOnly 'org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT'
-    compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
+    compileOnly 'de.timesnake:channel-api:1.0-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT'
 }
 
 group = 'de.timesnake'
@@ -53,6 +55,13 @@ publishing {
                 classifier "sources"
             }
         }
+
+        mavenJavaAll(MavenPublication) {
+            version version + '-all'
+            artifact {
+                file "build/libs/" + description + "-" + version + ".jar"
+            }
+        }
     }
 }
 
@@ -63,6 +72,7 @@ tasks.withType(JavaCompile) {
 task buildFatJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     baseName = rootProject.name
+    classifier = "all"
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -70,7 +80,7 @@ task buildFatJar(type: Jar) {
 jar.finalizedBy(buildFatJar)
 
 task copyJarToPlugins(type: Copy) {
-    from jar
+    from "build/libs/" + rootProject.name + "-" + version + "-all" + ".jar"
     into "../../plugins"
 }
 
