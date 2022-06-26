@@ -1056,6 +1056,16 @@ public class DelegatedUser implements Player {
     public void setStarvationRate(int ticks) {player.setStarvationRate(ticks);}
 
     @Override
+    public @Nullable Location getLastDeathLocation() {
+        return player.getLastDeathLocation();
+    }
+
+    @Override
+    public void setLastDeathLocation(@Nullable Location location) {
+        player.setLastDeathLocation(location);
+    }
+
+    @Override
     public double getEyeHeight() {return player.getEyeHeight();}
 
     @Override

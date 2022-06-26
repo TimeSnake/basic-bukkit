@@ -2,6 +2,7 @@ package de.timesnake.basic.bukkit.util.user;
 
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
 import de.timesnake.library.basic.util.Tuple;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -14,8 +15,10 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
@@ -591,34 +594,48 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     public ExItemStack setDisplayName(String displayName) {
         ItemMeta meta = this.getItemMeta();
-        meta.setDisplayName(displayName);
+        meta.displayName(Component.text(displayName));
         this.setItemMeta(meta);
         return this;
     }
 
-    public ExItemStack setLore(String... lines) {
+    public ExItemStack setDisplayName(Component displayName) {
         ItemMeta meta = this.getItemMeta();
-        meta.setLore(Arrays.asList(lines));
+        meta.displayName(displayName);
         this.setItemMeta(meta);
         return this;
     }
 
     public ExItemStack setExLore(List<String> lines) {
         ItemMeta meta = this.getItemMeta();
-        meta.setLore(lines);
+        meta.lore(lines.stream().map(Component::text).collect(Collectors.toList()));
+        this.setItemMeta(meta);
+        return this;
+    }
+
+    public ExItemStack setExLoreComponents(List<Component> lines) {
+        ItemMeta meta = this.getItemMeta();
+        meta.lore(lines);
+        this.setItemMeta(meta);
+        return this;
+    }
+
+    public ExItemStack setLore(String... lines) {
+        ItemMeta meta = this.getItemMeta();
+        meta.lore(Arrays.stream(lines).map(Component::text).collect(Collectors.toList()));
         this.setItemMeta(meta);
         return this;
     }
 
     public ExItemStack replaceLoreLine(int line, String text) {
         ItemMeta meta = this.getItemMeta();
-        List<String> lore = meta.getLore();
+        @Nullable List<Component> lore = meta.lore();
         if (line < lore.size()) {
-            lore.set(line, text);
+            lore.set(line, Component.text(text));
         } else {
-            lore.add(line, text);
+            lore.add(line, Component.text(text));
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         this.setItemMeta(meta);
         return this;
     }

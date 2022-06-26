@@ -5,7 +5,7 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.entities.entity.bukkit.ExArmorStand;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntityLiving;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class HoloDisplay extends PacketEntity {
     @Override
     public void spawnForUser(User user) {
         for (ExArmorStand stand : this.stands) {
-            user.sendPacket(ExPacketPlayOutSpawnEntityLiving.wrap(stand));
+            user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(stand));
             user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(stand, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
         }
     }
