@@ -37,7 +37,7 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.entities.entity.bukkit.extension.ExPlayer;
+import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.packets.util.packet.*;
 import net.kyori.adventure.text.Component;
