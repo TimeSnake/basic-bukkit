@@ -33,14 +33,19 @@ public class BasicBukkit extends JavaPlugin {
 
     public static final String DATA_PROTECTION_VERSION = "2.0";
 
-    private static JavaPlugin plugin;
-
     public static JavaPlugin getPlugin() {
         return BasicBukkit.plugin;
     }
 
     public static void registerEvents(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, BasicBukkit.getPlugin());
+    }
+
+    private static JavaPlugin plugin;
+
+    @Override
+    public void onLoad() {
+        ChannelBukkit.start(Network.PROXY_PORT);
     }
 
     @Override
@@ -59,8 +64,6 @@ public class BasicBukkit extends JavaPlugin {
 
         pm.registerEvents(new PreCmd(), this);
         pm.registerEvents(new CmdDataProtection(), this);
-
-        ChannelBukkit.start(Network.PROXY_PORT);
 
         DbServer server = Database.getServers().getServer(Bukkit.getPort());
 

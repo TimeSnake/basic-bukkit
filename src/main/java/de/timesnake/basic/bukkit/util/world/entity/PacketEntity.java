@@ -1,5 +1,7 @@
 package de.timesnake.basic.bukkit.util.world.entity;
 
+import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
+import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 
@@ -32,13 +34,14 @@ public abstract class PacketEntity {
     public void addWatcher(User... users) {
         for (User user : users) {
             this.watchers.add(user);
-            this.spawnForUser(user);
+            ((PacketEntityManager) Server.getEntityManager()).tryLoadEntityForUser(this, user);
         }
     }
 
     public void removeWatcher(User... users) {
         for (User user : users) {
             this.watchers.remove(user);
+            this.userLoadedFor.remove(user);
             this.despawnForUser(user);
         }
     }

@@ -89,6 +89,16 @@ public class DelegatedUser implements Player {
     }
 
     @Override
+    public void stopSound(@NotNull SoundCategory soundCategory) {
+        this.player.stopSound(soundCategory);
+    }
+
+    @Override
+    public FishHook getFishHook() {
+        return this.player.getFishHook();
+    }
+
+    @Override
     public @NotNull Identity identity() {return player.identity();}
 
     @Override
@@ -2031,4 +2041,5 @@ public class DelegatedUser implements Player {
 
     @Override
     public @Nullable InetSocketAddress getVirtualHost() {return player.getVirtualHost();}
+
 }

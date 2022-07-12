@@ -103,9 +103,12 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onDisable() {
         for (ExWorld exWorld : this.getWorlds()) {
             if (!exWorld.isSafe()) {
-                this.reloadWorld(exWorld);
+                this.moveUsersFromWorld(exWorld);
+                Bukkit.unloadWorld(exWorld.getName(), false);
             }
         }
+
+        this.worldsByName.clear();
 
         this.saveLocations();
     }
@@ -647,7 +650,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if ((e.getBlock().getType().equals(Material.FIRE) || Tag.CANDLES.isTagged(e.getBlock().getType())) && world.isFirePunchOutAllowed()) {
+        if ((e.getBlock().getType().equals(Material.FIRE) || Tag.CANDLES.isTagged(e.getBlock().getType()))
+                && world.isFirePunchOutAllowed()) {
             return;
         }
 
@@ -692,7 +696,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (world.isExceptService() && e.getRemover() instanceof Player && Server.getUser(((Player) e.getRemover())).isService()) {
+        if (world.isExceptService() && e.getRemover() instanceof Player
+                && Server.getUser(((Player) e.getRemover())).isService()) {
             return;
         }
 

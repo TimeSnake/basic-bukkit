@@ -55,6 +55,7 @@ public class HoloDisplay extends PacketEntity {
     @Override
     public void despawnForUser(User user) {
         for (ExArmorStand stand : this.stands) {
+            System.out.println("despawn");
             user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(stand));
         }
     }
