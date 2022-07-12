@@ -63,12 +63,14 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
         chunk = world.getChunkAt(coords.getA(), coords.getB());
 
+
+        if (load) {
+            this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
+        }
+
         User user = Server.getUser(receiver);
 
         if (user == null) {
-            if (load) {
-                this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
-            }
             return;
         }
 
@@ -98,9 +100,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         return this.entitiesByChunk.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private void tryLoadEntityForUser(PacketEntity entity, User user) {
-        if (user.getChunk().equals(entity.getLocation().getChunk())) {
-            entity.loadForUser(user);
+    public void tryLoadEntityForUser(PacketEntity entity, User user) {
+        if (this.preLoadedChunksByUuid.containsKey(user.getUniqueId())) {
+            if (this.preLoadedChunksByUuid.get(user.getUniqueId()).contains(entity.getLocation().getChunk())) {
+                entity.loadForUser(user);
+            }
         }
     }
 
@@ -117,9 +121,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         this.addEntity(entity);
         entity.setPublic(true);
 
-        for (User user : Server.getUsers()) {
-            this.tryLoadEntityForUser(entity, user);
-        }
+        Server.getUsers().forEach(entity::addWatcher);
     }
 
     @Override
