@@ -11,6 +11,17 @@ repositories {
     mavenLocal()
     maven {
         url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+        content {
+            includeGroup 'org.bukkit'
+            includeGroup 'org.spigotmc'
+        }
+    }
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/central")
     }
 
     maven {
