@@ -12,6 +12,7 @@ import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Candle;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -650,7 +651,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if ((e.getBlock().getType().equals(Material.FIRE) || Tag.CANDLES.isTagged(e.getBlock().getType()))
+        if ((e.getBlock().getType().equals(Material.FIRE)
+                || (Tag.CANDLES.isTagged(e.getBlock().getType())) && ((Candle) e.getBlock().getState()).isLit())
                 && world.isFirePunchOutAllowed()) {
             return;
         }

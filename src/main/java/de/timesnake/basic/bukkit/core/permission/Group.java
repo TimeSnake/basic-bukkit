@@ -47,7 +47,7 @@ public class Group implements de.timesnake.basic.bukkit.util.permission.Group {
             this.prefix = "";
         }
         try {
-            this.prefixColor = ChatColor.valueOf(this.database.getChatColorName());
+            this.prefixColor = ChatColor.valueOf(this.database.getChatColorName().toUpperCase());
         } catch (IllegalArgumentException e) {
             Server.printError(Plugin.BUKKIT, "Can not load chat-color from group " + name, "Group");
             this.prefixColor = ChatColor.WHITE;
