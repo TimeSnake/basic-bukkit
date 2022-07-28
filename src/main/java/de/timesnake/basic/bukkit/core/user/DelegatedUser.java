@@ -5,6 +5,8 @@ import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.block.TargetBlockInfo;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.entity.LookAnchor;
+import io.papermc.paper.entity.RelativeTeleportFlag;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.audience.MessageType;
@@ -1427,6 +1429,26 @@ public class DelegatedUser implements Player {
 
     @Override
     public void setRotation(float yaw, float pitch) {player.setRotation(yaw, pitch);}
+
+    @Override
+    public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause, boolean ignorePassengers, boolean dismount) {
+        return player.teleport(location, cause, ignorePassengers, dismount);
+    }
+
+    @Override
+    public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause, boolean ignorePassengers, boolean dismount, @NotNull RelativeTeleportFlag @NotNull ... teleportFlags) {
+        return player.teleport(location, cause, ignorePassengers, dismount, teleportFlags);
+    }
+
+    @Override
+    public void lookAt(double x, double y, double z, @NotNull LookAnchor playerAnchor) {
+        player.lookAt(x, y, z, playerAnchor);
+    }
+
+    @Override
+    public void lookAt(@NotNull Entity entity, @NotNull LookAnchor playerAnchor, @NotNull LookAnchor entityAnchor) {
+        player.lookAt(entity, playerAnchor, entityAnchor);
+    }
 
     @Override
     public boolean teleport(@NotNull Location location) {return player.teleport(location);}

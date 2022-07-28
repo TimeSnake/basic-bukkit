@@ -8,17 +8,17 @@ import de.timesnake.library.basic.util.Status;
 
 public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.server.Info {
 
-    private final Type.Server type;
+    private final Type.Server<?> type;
     private String task;
 
     public Info(DbServer server) {
         super(server);
-        if (server instanceof DbGameServer) {
+        if (server instanceof DbNonTmpGameServer) {
             this.type = Type.Server.GAME;
-            this.task = ((DbGameServer) server).getTask();
-        } else if (server instanceof DbTempGameServer) {
+            this.task = ((DbNonTmpGameServer) server).getTask();
+        } else if (server instanceof DbTmpGameServer) {
             this.type = Type.Server.TEMP_GAME;
-            this.task = ((DbTempGameServer) server).getTask();
+            this.task = ((DbTmpGameServer) server).getTask();
         } else if (server instanceof DbLoungeServer) {
             this.type = Type.Server.LOUNGE;
             this.task = ((DbLoungeServer) server).getTask();
@@ -51,7 +51,7 @@ public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.s
     }
 
     @Override
-    public Type.Server getType() {
+    public Type.Server<?> getType() {
         return type;
     }
 
