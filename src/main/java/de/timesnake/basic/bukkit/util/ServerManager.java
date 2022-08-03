@@ -126,6 +126,15 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         Bukkit.getPluginManager().registerEvents((de.timesnake.basic.bukkit.core.user.UserEventManager) this.getUserEventManager(), BasicBukkit.getPlugin());
         Bukkit.getPluginManager().registerEvents((Listener) this.chatManager, BasicBukkit.getPlugin());
 
+        Server.runTaskSynchrony(this::loaded, BasicBukkit.getPlugin());
+    }
+
+    public void loaded() {
+        if (this.getDatabase().getType().equals(Type.Server.BUILD)) {
+            this.getDatabase().setStatus(Status.Server.SERVICE);
+        } else {
+            this.getDatabase().setStatus(Status.Server.ONLINE);
+        }
     }
 
     public final void onDisable() {

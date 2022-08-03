@@ -50,7 +50,6 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.*;
 import org.bukkit.Note.Tone;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -1954,29 +1953,29 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     public void setPvpMode(boolean oldPvP) {
-        AttributeInstance speed = this.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-        AttributeInstance damage = this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-
         if (oldPvP) {
-            speed.setBaseValue(PvPManager.FULL_ATTACKS_PER_SECOND);
-            damage.setBaseValue(PvPManager.ATTACK_DAMAGE);
+            this.setAttackSpeed(PvPManager.ATTACK_SPEED);
+            this.setAttackDamage(PvPManager.ATTACK_DAMAGE);
         } else {
-            speed.setBaseValue(4);
-            damage.setBaseValue(2);
+            this.resetAttackSpeed();
+            this.resetAttackDamage();
         }
     }
 
-    public void setPvpMode(boolean oldPvP, double fullAttacksPerSecond) {
-        AttributeInstance speed = this.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-        AttributeInstance damage = this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+    public void setAttackSpeed(double attackSpeed) {
+        this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(attackSpeed);
+    }
 
-        if (oldPvP) {
-            speed.setBaseValue(fullAttacksPerSecond);
-            damage.setBaseValue(PvPManager.ATTACK_DAMAGE);
-        } else {
-            speed.setBaseValue(4);
-            damage.setBaseValue(2);
-        }
+    public void resetAttackSpeed() {
+        this.setAttackSpeed(4);
+    }
+
+    public void setAttackDamage(double attackDamage) {
+        this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(attackDamage);
+    }
+
+    public void resetAttackDamage() {
+        this.setAttackDamage(2);
     }
 
     @Override

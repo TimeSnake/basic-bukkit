@@ -237,158 +237,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     protected Integer slot;
     private boolean dropable = true;
     private boolean moveable = true;
-
-    @Deprecated
-    public ExItemStack(Material material, Color color) {
-        this(material);
-
-        if (!(this.getItemMeta() instanceof LeatherArmorMeta meta)) {
-            throw new InvalidItemTypeException("LeatherArmorMeta");
-        }
-
-        meta.setColor(color);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, String displayName, Color color) {
-        this(material, color);
-        this.setDisplayName(displayName);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, PotionType type, boolean extended, boolean upgraded) {
-        this(material);
-
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-
-        meta.setBasePotionData(new PotionData(type, extended, upgraded));
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, PotionType type, Color color, boolean extended, boolean upgraded) {
-        this(material, type, extended, upgraded);
-
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-
-        meta.setColor(color);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, int amount, PotionType type, boolean extended, boolean upgraded) {
-        this(material, type, extended, upgraded);
-        this.setAmount(amount);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, int amount, String displayName, PotionType type, boolean extended,
-                       boolean upgraded) {
-        this(material, amount, type, extended, upgraded);
-        this.setDisplayName(displayName);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, boolean unbreakable) {
-        this(material);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, boolean unbreakable, boolean enchant) {
-        this(material);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-        if (enchant) this.enchant();
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, int amount, int damage) {
-        this(material, amount);
-        this.setDamage(damage);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, int damage, boolean enchant) {
-        this(material, 1, damage);
-        if (enchant) this.enchant();
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, String displayName, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, displayName);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, int damage, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, 1, damage);
-        this.addEnchantments(enchantments, levels);
-    }
-
-    @Deprecated
-    public ExItemStack(Material material, boolean unbreakable, List<Enchantment> enchantments, List<Integer> levels) {
-        this(material, enchantments, levels);
-        ItemMeta meta = this.getItemMeta();
-        meta.setUnbreakable(unbreakable);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(boolean splash, String displayName, PotionEffectType effectType, int duration, int level,
-                       int amount) {
-        this((splash ? Material.SPLASH_POTION : Material.POTION));
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-        meta.setColor(effectType.getColor());
-        meta.setDisplayName(displayName);
-        meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(boolean splash, String displayName, List<String> lore, PotionEffectType effectType,
-                       int duration, int level, int amount) {
-        this((splash ? Material.SPLASH_POTION : Material.POTION));
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-        meta.setColor(effectType.getColor());
-        meta.setDisplayName(displayName);
-        meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        meta.setLore(lore);
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(String displayName, PotionEffectType effectType, int duration, int level, int amount) {
-        this(Material.LINGERING_POTION);
-        this.setAmount(amount);
-        if (!(this.getItemMeta() instanceof PotionMeta meta)) {
-            throw new InvalidItemTypeException("PotionMeta");
-        }
-        meta.setColor(effectType.getColor());
-        meta.setDisplayName(displayName);
-        meta.addCustomEffect(effectType.createEffect(duration, level), true);
-        this.setItemMeta(meta);
-    }
+    private boolean immutable = false;
 
     private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable, boolean clone) {
         super(clone ? item.clone() : item);
@@ -466,45 +315,24 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this(newItemId(), new ItemStack(material));
     }
 
-    @Deprecated
-    public ExItemStack(Player owner, String displayName) {
-        this(Material.PLAYER_HEAD, displayName);
-        if (!(this.getItemMeta() instanceof SkullMeta meta)) {
-            throw new InvalidItemTypeException("SkullMeta");
-        }
-        meta.setOwningPlayer(owner.getPlayer());
-        this.setItemMeta(meta);
-    }
-
-    @Deprecated
-    public ExItemStack(Player owner, String displayName, List<String> lore) {
-        this(Material.PLAYER_HEAD, displayName);
-        if (!(this.getItemMeta() instanceof SkullMeta meta)) {
-            throw new InvalidItemTypeException("SkullMeta");
-        }
-        meta.setOwningPlayer(owner.getPlayer());
-        this.setItemMeta(meta);
-        this.setLore(lore);
-    }
-
     public ExItemStack(Material material, int amount) {
         this(material);
-        this.setAmount(amount);
+        this._setAmount(amount);
     }
 
     public ExItemStack(Material material, String displayName) {
         this(material);
-        this.setDisplayName(displayName);
+        this._setDisplayName(displayName);
     }
 
     public ExItemStack(Material material, int amount, String displayName) {
         this(material, displayName);
-        this.setAmount(amount);
+        this._setAmount(amount);
     }
 
     public ExItemStack(Material material, int amount, String displayName, List<String> lore) {
         this(material, displayName, lore);
-        this.setAmount(amount);
+        this._setAmount(amount);
     }
 
     public ExItemStack(Material material, String displayName, List<String> lore) {
@@ -531,18 +359,33 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this.slot = slot;
     }
 
-    public ExItemStack(Integer slot, Material material, Color color) {
-        this(material, color);
-        this.slot = slot;
+    public boolean isImmutable() {
+        return immutable;
     }
 
-    public ExItemStack(Integer slot, String displayName, Color color, Material material) {
-        this(slot, material, color);
-        this.setDisplayName(displayName);
+    /**
+     * Makes the item stack immutable to all changes. Recommended as basis item to clone from.
+     *
+     * @return Returns this
+     */
+    public ExItemStack immutable() {
+        this.immutable = true;
+        return this;
+    }
+
+    private void checkImmutable() {
+        if (this.isImmutable()) {
+            throw new UnsupportedOperationException("Item " + this.id + " is immutable");
+        }
     }
 
     public ExItemStack unbreakable() {
-        return this.setUnbreakable(true);
+        return this._unbreakable();
+    }
+
+    protected ExItemStack _unbreakable() {
+        this.checkImmutable();
+        return this._setUnbreakable(true);
     }
 
     public Integer getId() {
@@ -554,8 +397,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack setSlot(Integer slot) {
-        this.slot = slot;
-        return this;
+        this.checkImmutable();
+        return this._setSlot(slot);
     }
 
     /**
@@ -565,6 +408,16 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      * @return the item itself
      */
     public ExItemStack setSlot(EquipmentSlot slot) {
+        this.checkImmutable();
+        return this._setSlot(slot);
+    }
+
+    protected ExItemStack _setSlot(Integer slot) {
+        this.slot = slot;
+        return this;
+    }
+
+    protected ExItemStack _setSlot(EquipmentSlot slot) {
         switch (slot) {
             case FEET:
                 this.slot = 36;
@@ -588,25 +441,56 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack setExType(@NotNull Material type) {
-        this.setType(type);
+        this.checkImmutable();
+        return this._setExType(type);
+    }
+
+    protected ExItemStack _setExType(@NotNull Material type) {
+        this._setType(type);
         return this;
+    }
+
+    public void setType(@NotNull Material type) {
+        this.checkImmutable();
+        this._setType(type);
+    }
+
+    protected void _setType(@NotNull Material type) {
+        super.setType(type);
     }
 
     public ExItemStack setDisplayName(String displayName) {
-        ItemMeta meta = this.getItemMeta();
-        meta.displayName(Component.text(displayName));
-        this.setItemMeta(meta);
-        return this;
+        return this.setDisplayName(Component.text(displayName));
+    }
+
+    protected ExItemStack _setDisplayName(String displayName) {
+        return this._setDisplayName(Component.text(displayName));
     }
 
     public ExItemStack setDisplayName(Component displayName) {
+        this.checkImmutable();
+        return this._setDisplayName(displayName);
+    }
+
+    protected ExItemStack _setDisplayName(Component displayName) {
         ItemMeta meta = this.getItemMeta();
         meta.displayName(displayName);
         this.setItemMeta(meta);
         return this;
     }
 
+    @Override
+    public void setLore(@Nullable List<String> lore) {
+        this.checkImmutable();
+        super.setLore(lore);
+    }
+
     public ExItemStack setExLore(List<String> lines) {
+        this.checkImmutable();
+        return this._setExLore(lines);
+    }
+
+    protected ExItemStack _setExLore(List<String> lines) {
         ItemMeta meta = this.getItemMeta();
         meta.lore(lines.stream().map(Component::text).collect(Collectors.toList()));
         this.setItemMeta(meta);
@@ -614,6 +498,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack setExLoreComponents(List<Component> lines) {
+        this.checkImmutable();
+        return this._setExLoreComponents(lines);
+    }
+
+    protected ExItemStack _setExLoreComponents(List<Component> lines) {
         ItemMeta meta = this.getItemMeta();
         meta.lore(lines);
         this.setItemMeta(meta);
@@ -621,6 +510,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack setLore(String... lines) {
+        this.checkImmutable();
+        return this._setLore(lines);
+    }
+
+    protected ExItemStack _setLore(String... lines) {
         ItemMeta meta = this.getItemMeta();
         meta.lore(Arrays.stream(lines).map(Component::text).collect(Collectors.toList()));
         this.setItemMeta(meta);
@@ -628,6 +522,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack replaceLoreLine(int line, String text) {
+        this.checkImmutable();
+        return this._replaceLoreLine(line, text);
+    }
+
+    protected ExItemStack _replaceLoreLine(int line, String text) {
         ItemMeta meta = this.getItemMeta();
         @Nullable List<Component> lore = meta.lore();
         if (line < lore.size()) {
@@ -641,49 +540,77 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     @Override
+    public void lore(@Nullable List<net.kyori.adventure.text.Component> lore) {
+        this.checkImmutable();
+        this._lore(lore);
+    }
+
+    protected void _lore(@Nullable List<net.kyori.adventure.text.Component> lore) {
+        super.lore(lore);
+    }
+
+    @Override
     public ExItemStack asQuantity(int quantity) {
+        this.checkImmutable();
+        return this._asQuantity(quantity);
+    }
+
+    protected ExItemStack _asQuantity(int quantity) {
         this.setAmount(quantity);
         return this;
     }
 
     @Override
+    public void setAmount(int amount) {
+        this.checkImmutable();
+        this._setAmount(amount);
+    }
+
+    protected void _setAmount(int amount) {
+        super.setAmount(amount);
+    }
+
+    @Override
     public ExItemStack asOne() {
+        this.checkImmutable();
+        return this._asOne();
+    }
+
+    protected ExItemStack _asOne() {
         this.setAmount(1);
         return this;
     }
 
     public ExItemStack setUnbreakable(boolean unbreakable) {
+        this.checkImmutable();
+        return this._setUnbreakable(unbreakable);
+    }
+
+    protected ExItemStack _setUnbreakable(boolean unbreakable) {
         ItemMeta meta = this.getItemMeta();
         meta.setUnbreakable(unbreakable);
         this.setItemMeta(meta);
         return this;
     }
 
-    @Deprecated
-    public ExItemStack addEnchantments(List<Enchantment> enchantments, List<Integer> enchantmentLevels) {
-        ItemMeta meta = this.getItemMeta();
-        for (int i = 0; i < enchantments.size(); i++) {
-            meta.addEnchant(enchantments.get(i), enchantmentLevels.get(i), true);
-        }
-        this.setItemMeta(meta);
-        return this;
-    }
-
-    @Deprecated
-    public ExItemStack setEnchantments(List<Enchantment> enchantments, List<Integer> enchantmentLevels) {
-        this.removeEnchantments();
-        this.addEnchantments(enchantments, enchantmentLevels);
-        return this;
-    }
-
     public ExItemStack addExEnchantment(Enchantment enchantment, int level) {
+        this.checkImmutable();
+        return this._addExEnchantment(enchantment, level);
+    }
+
+    protected ExItemStack _addExEnchantment(Enchantment enchantment, int level) {
         ItemMeta meta = this.getItemMeta();
         meta.addEnchant(enchantment, level, true);
-        this.setItemMeta(meta);
+        this._setItemMeta(meta);
         return this;
     }
 
     public ExItemStack removeEnchantments() {
+        this.checkImmutable();
+        return this._removeEnchantments();
+    }
+
+    protected ExItemStack _removeEnchantments() {
         ItemMeta meta = this.getItemMeta();
         for (Enchantment enchantment : meta.getEnchants().keySet()) {
             meta.removeEnchant(enchantment);
@@ -693,6 +620,12 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     @SafeVarargs
     public final ExItemStack addEnchantments(Tuple<Enchantment, Integer>... enchantments) {
+        this.checkImmutable();
+        return this._addEnchantments(enchantments);
+    }
+
+    @SafeVarargs
+    protected final ExItemStack _addEnchantments(Tuple<Enchantment, Integer>... enchantments) {
         ItemMeta meta = this.getItemMeta();
         for (Tuple<Enchantment, Integer> enchantment : enchantments) {
             meta.addEnchant(enchantment.getA(), enchantment.getB(), true);
@@ -701,7 +634,62 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
+    @Override
+    public void addEnchantment(@NotNull Enchantment ench, int level) {
+        this.checkImmutable();
+        this._addEnchantment(ench, level);
+    }
+
+    protected void _addEnchantment(@NotNull Enchantment ench, int level) {
+        super.addEnchantment(ench, level);
+    }
+
+    @Override
+    public void addUnsafeEnchantment(@NotNull Enchantment ench, int level) {
+        this.checkImmutable();
+        this._addUnsafeEnchantment(ench, level);
+    }
+
+    protected void _addUnsafeEnchantment(@NotNull Enchantment ench, int level) {
+        super.addUnsafeEnchantment(ench, level);
+    }
+
+    @Override
+    public void addUnsafeEnchantments(@NotNull Map<Enchantment, Integer> enchantments) {
+        this.checkImmutable();
+        this._addUnsafeEnchantments(enchantments);
+    }
+
+    protected void _addUnsafeEnchantments(@NotNull Map<Enchantment, Integer> enchantments) {
+        super.addUnsafeEnchantments(enchantments);
+    }
+
+    @Override
+    public int removeEnchantment(@NotNull Enchantment ench) {
+        this.checkImmutable();
+        return this._removeEnchantment(ench);
+    }
+
+    protected int _removeEnchantment(@NotNull Enchantment ench) {
+        return super.removeEnchantment(ench);
+    }
+
+    @Override
+    public void addEnchantments(@NotNull Map<Enchantment, Integer> enchantments) {
+        this.checkImmutable();
+        this._addEnchantments(enchantments);
+    }
+
+    protected void _addEnchantments(@NotNull Map<Enchantment, Integer> enchantments) {
+        super.addEnchantments(enchantments);
+    }
+
     public ExItemStack setDamage(int damage) {
+        this.checkImmutable();
+        return this._setDamage(damage);
+    }
+
+    protected ExItemStack _setDamage(int damage) {
         if (!(this.getItemMeta() instanceof Damageable meta)) {
             return this;
         }
@@ -711,25 +699,107 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
+    @Override
+    public boolean setItemMeta(@Nullable ItemMeta itemMeta) {
+        this.checkImmutable();
+        return this._setItemMeta(itemMeta);
+    }
+
+    protected boolean _setItemMeta(@Nullable ItemMeta itemMeta) {
+        return super.setItemMeta(itemMeta);
+    }
+
     public ExItemStack enchant() {
-        this.addEnchantments(List.of(Enchantment.LUCK), List.of(1));
-        this.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        this.checkImmutable();
+        return this._enchant();
+    }
+
+    protected ExItemStack _enchant() {
+        this._addUnsafeEnchantment(Enchantment.LUCK, 1);
+        this._addItemFlags(ItemFlag.HIDE_ENCHANTS);
         return this;
     }
 
     public ExItemStack disenchant() {
+        this.checkImmutable();
+        return this._disenchant();
+    }
+
+    protected ExItemStack _disenchant() {
         for (Enchantment enchantment : this.getEnchantments().keySet()) {
-            this.removeEnchantment(enchantment);
+            this._removeEnchantment(enchantment);
         }
-        this.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        this._removeItemFlags(ItemFlag.HIDE_ENCHANTS);
         return this;
     }
 
     public ExItemStack hideAll() {
+        this.checkImmutable();
+
         for (ItemFlag flag : ItemFlag.values()) {
             this.addItemFlags(flag);
         }
         return this;
+    }
+
+    @Override
+    public boolean editMeta(final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
+        this.checkImmutable();
+        return this._editMeta(consumer);
+    }
+
+    protected boolean _editMeta(final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
+        return super.editMeta(consumer);
+    }
+
+    @Override
+    public <M extends ItemMeta> boolean editMeta(final @NotNull Class<M> metaClass, final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+        this.checkImmutable();
+        return this._editMeta(metaClass, consumer);
+    }
+
+    protected <M extends ItemMeta> boolean _editMeta(final @NotNull Class<M> metaClass, final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+        return super.editMeta(metaClass, consumer);
+    }
+
+    @Override
+    public ExItemStack add(int qty) {
+        this.checkImmutable();
+        return this._add(qty);
+    }
+
+    protected ExItemStack _add(int qty) {
+        return (ExItemStack) super.add(qty);
+    }
+
+    @Override
+    public ExItemStack subtract(int qty) {
+        this.checkImmutable();
+        return this._subtract(qty);
+    }
+
+    protected ExItemStack _subtract(int qty) {
+        return (ExItemStack) super.subtract(qty);
+    }
+
+    @Override
+    public void addItemFlags(@NotNull ItemFlag... itemFlags) {
+        this.checkImmutable();
+        this._addItemFlags(itemFlags);
+    }
+
+    protected void _addItemFlags(@NotNull ItemFlag... itemFlags) {
+        super.addItemFlags(itemFlags);
+    }
+
+    @Override
+    public void removeItemFlags(@NotNull ItemFlag... itemFlags) {
+        this.checkImmutable();
+        this._removeItemFlags(itemFlags);
+    }
+
+    protected void _removeItemFlags(@NotNull ItemFlag... itemFlags) {
+        super.removeItemFlags(itemFlags);
     }
 
     public boolean isDropable() {
@@ -746,6 +816,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      * @return this
      */
     public ExItemStack setDropable(boolean flag) {
+        this.checkImmutable();
+
         this.dropable = flag;
 
         ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
@@ -758,6 +830,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public ExItemStack setMoveable(boolean moveable) {
+        this.checkImmutable();
+
         this.moveable = moveable;
 
         ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
