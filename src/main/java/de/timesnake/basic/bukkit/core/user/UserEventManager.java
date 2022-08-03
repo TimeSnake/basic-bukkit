@@ -228,6 +228,10 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             Location location = e.getFrom();
             user.setLastLocation(location);
         }
+
+        UserTeleportEvent event = new UserTeleportEvent(user, e.isCancelled(), e.getTo(), e.getFrom(), e.getCause());
+        Bukkit.getPluginManager().callEvent(event);
+        e.setCancelled(event.isCancelled());
     }
 
     @Override
@@ -395,6 +399,18 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setCancelled(userEvent.isCancelled());
+    }
+
+    @EventHandler
+    public void onAttemptPickUpItem(PlayerAttemptPickupItemEvent e) {
+        User user = Server.getUser(e.getPlayer());
+
+        // user pickup item event
+        UserAttemptPickupItemEvent userEvent = new UserAttemptPickupItemEvent(user, e.isCancelled(), e.getItem(), e.getRemaining());
+        Bukkit.getPluginManager().callEvent(userEvent);
+
+        e.setCancelled(userEvent.isCancelled());
+        e.setFlyAtPlayer(userEvent.isFlyAtPlayer());
     }
 
 }

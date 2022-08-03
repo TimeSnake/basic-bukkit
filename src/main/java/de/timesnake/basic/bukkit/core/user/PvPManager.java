@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 
 public class PvPManager implements Listener {
 
-    public static final Integer FULL_ATTACKS_PER_SECOND = 10;
+    public static final Integer ATTACK_SPEED = 10;
     public static final Integer ATTACK_DAMAGE = 2;
     public static final Integer MAX_NO_DAMAGE_TICKS = 4;
 

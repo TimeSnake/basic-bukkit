@@ -17,7 +17,6 @@ import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
-import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.Bukkit;
@@ -68,11 +67,7 @@ public class BasicBukkit extends JavaPlugin {
         DbServer server = Database.getServers().getServer(Bukkit.getPort());
 
         if (server != null) {
-            if (server.getType().equals(Type.Server.BUILD)) {
-                server.setStatusSynchronized(Status.Server.SERVICE);
-            } else {
-                server.setStatusSynchronized(Status.Server.ONLINE);
-            }
+            server.setStatusSynchronized(Status.Server.LOADING);
             server.setOnlinePlayers(0);
         } else {
             Bukkit.getLogger().log(Level.WARNING, "Server is not in database");
