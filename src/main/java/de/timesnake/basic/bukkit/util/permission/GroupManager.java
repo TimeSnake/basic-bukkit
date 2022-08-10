@@ -1,13 +1,23 @@
 package de.timesnake.basic.bukkit.util.permission;
 
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
+
 import java.util.Collection;
 
 public interface GroupManager {
-    Group getGroup(String group);
+    PermGroup getPermGroup(String group);
 
-    Group getGuestGroup();
+    PermGroup getGuestPermGroup();
 
-    Group getMemberGroup();
+    PermGroup getMemberPermGroup();
 
-    Collection<Group> getGroups();
+    Collection<PermGroup> getPermGroups();
+
+    DisplayGroup getDisplayGroup(String group);
+
+    Collection<DisplayGroup> getDisplayGroups();
+
+    DisplayGroup getGuestDisplayGroup();
+
+    DisplayGroup getMemberDisplayGroup();
 }

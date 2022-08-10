@@ -2,7 +2,6 @@ package de.timesnake.basic.bukkit.util.user;
 
 import de.timesnake.basic.bukkit.core.chat.ExCommandSender;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.permission.ExPermission;
 import de.timesnake.basic.bukkit.core.user.DelegatedUser;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
@@ -11,10 +10,8 @@ import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
-import de.timesnake.basic.bukkit.util.chat.ChatMember;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
-import de.timesnake.basic.bukkit.util.chat.Sender;
-import de.timesnake.basic.bukkit.util.permission.Group;
+import de.timesnake.basic.bukkit.util.chat.*;
+import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
@@ -39,6 +36,7 @@ import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.util.packet.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -92,6 +90,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     private final ServerInfo lastServer;
     private final ServerInfo lastLobbyServer;
     private final Set<ExPermission> permissions = new HashSet<>();
+    private final SortedSet<DisplayGroup> displayGroups;
     protected String chatName;
     private Status.User status;
     private boolean service;
@@ -99,7 +98,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     private boolean isQuiting = false;
     private boolean isMuted;
     private String lastChatMessage;
-    private Group group;
+    private PermGroup permGroup;
     private String prefix;
     private String suffix;
     private String nick;
@@ -146,8 +145,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         if (dbLocalUser.getPermGroup() != null) {
             String groupName = dbLocalUser.getPermGroup().getName();
             if (groupName != null) {
-                this.group = Server.getGroup(groupName);
-                ((de.timesnake.basic.bukkit.core.permission.Group) this.group).addUser(this);
+                this.permGroup = Server.getPermGroup(groupName);
+                this.permGroup.addUser(this);
             } else {
                 Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
                 this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
@@ -158,7 +157,10 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
                     "\nDO NOT REJOIN");
         }
 
-        this.updateChatName();
+        this.displayGroups = new TreeSet<>(Comparator.comparingInt(DisplayGroup::getRank));
+        this.updateDisplayGroups();
+
+        // Chat name is being updated by display group update
 
         this.status = dbLocalUser.getStatus();
 
@@ -255,39 +257,34 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         return this.exPlayer;
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    public final String getName() {
-        return this.player.getName();
-    }
-
     protected void updateChatName() {
-        Group group = this.getGroup();
+        StringBuilder sb = new StringBuilder();
 
         if (this.getNick() == null) {
-            String prefix = "&1";
-            String suffix = "&1";
-
+            for (DisplayGroup group : this.getMainDisplayGroups()) {
+                sb.append(group.getPrefixColor()).append(group.getPrefix());
+            }
 
             if (this.getPrefix() != null) {
-                prefix = this.getPrefix();
+                sb.append(ChatColor.translateAlternateColorCodes('&', this.getPrefix())).append("§r");
             }
+
+            sb.append(this.getPlayerChatName());
+
             if (this.getSuffix() != null) {
-                suffix = this.getSuffix();
+                sb.append(ChatColor.translateAlternateColorCodes('&', this.getSuffix())).append("§r");
             }
-
-            this.chatName = group.getPrefixColor() + group.getPrefix() + "§r" +
-                    ChatColor.translateAlternateColorCodes('&', prefix) + "§r" + this.getPlayer().getName() +
-                    ChatColor.translateAlternateColorCodes('&', suffix) + "§r";
-
         } else {
-            group = Server.getMemberGroup();
-            this.chatName = "§r" + group.getPrefixColor() + group.getPrefix() + "§r" +
-                    ChatColor.translateAlternateColorCodes('&', this.getNick());
+            DisplayGroup group = Server.getMemberDisplayGroup();
+            sb.append(group.getPrefixColor()).append(group.getPrefix());
+            sb.append(ChatColor.translateAlternateColorCodes('&', this.getNick()));
 
         }
+        this.chatName = sb.toString();
+    }
+
+    protected String getPlayerChatName() {
+        return this.getPlayer().getName();
     }
 
     /**
@@ -683,10 +680,10 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     /**
      * Gets the user group
      *
-     * @return the {@link de.timesnake.basic.bukkit.core.permission.Group}
+     * @return the {@link PermGroup}
      */
-    public Group getGroup() {
-        return group;
+    public PermGroup getPermGroup() {
+        return permGroup;
     }
 
     /**
@@ -694,32 +691,26 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * Removes user from old group and adds to new group
      * Updates permission
      */
-    public void updateGroup() {
+    public void updatePermGroup() {
         DbPermGroup dbGroup = this.getDatabase().getPermGroup();
-        if (this.group.getRank().equals(dbGroup.getRank())) {
+        if (this.permGroup.getRank().equals(dbGroup.getRank())) {
             return;
         }
 
-        if (this.group != null) {
-            ((de.timesnake.basic.bukkit.core.permission.Group) this.group).removeUser(this);
+        if (this.permGroup != null) {
+            this.permGroup.removeUser(this);
         }
 
-        this.group = Server.getGroup(dbGroup.getName());
+        this.permGroup = Server.getPermGroup(dbGroup.getName());
 
-        if (this.group == null) {
-            this.group = Server.getGuestGroup();
-            this.getDatabase().setPermGroup(this.group.getName());
-            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.GROUP,
-                    this.group.getName()));
+        if (this.permGroup == null) {
+            this.permGroup = Server.getGuestPermGroup();
+            this.getDatabase().setPermGroup(this.permGroup.getName());
+            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
+                    this.permGroup.getName()));
         }
 
-        ((de.timesnake.basic.bukkit.core.permission.Group) this.group).addUser(this);
-
-        //permissions are updated by proxy channel message
-        this.updateAlias();
-
-        // update tablist
-        ((ScoreboardManager) Server.getScoreboardManager()).updatePlayerGroup(this);
+        this.permGroup.addUser(this);
     }
 
     //scoreboard
@@ -757,8 +748,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
     @Override
     public TablistableGroup getTablistGroup(TablistGroupType type) {
-        if (new de.timesnake.basic.bukkit.core.permission.Group().getTeamType().equals(type)) {
-            return this.getGroup();
+        if (DisplayGroup.TABLIST_GROUP_TYPE.equals(type)) {
+            return this.getMasterDisplayGroup();
         }
         return null;
     }
@@ -1192,16 +1183,15 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     private void updatePermissionsSync(boolean fromDatabase) {
-        this.permissions.clear();
-
         if (fromDatabase) {
+            this.permissions.clear();
             for (DbPermission perm : Database.getUsers().getUser(getUniqueId()).getPermissions()) {
                 this.permissions.add(new ExPermission(perm.getName(), perm.getMode(), perm.getServers()));
             }
         }
 
-        if (this.group != null) {
-            permissions.addAll(this.group.getPermissions());
+        if (this.permGroup != null) {
+            this.permissions.addAll(this.permGroup.getPermissions());
         }
 
         if (fromDatabase) {
@@ -1257,7 +1247,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         } else if (this.isService()) {
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
-        } else if (mode.equals(Status.Permission.ONLINE) && (statusServer.equals(Status.Server.ONLINE) && statusPlayer.equals(Status.User.ONLINE))) {
+        } else if (mode.equals(Status.Permission.ONLINE) && (statusServer.equals(Status.Server.ONLINE)
+                && statusPlayer.equals(Status.User.ONLINE))) {
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
         }
@@ -1879,8 +1870,11 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     public void onUserMessage(ChannelUserMessage<?> msg) {
         MessageType<?> type = msg.getMessageType();
         if (type.equals(MessageType.User.STATUS)) {
-            this.status = this.getDatabase().getStatus();
-            this.updatePermissions(false);
+            Status.User dbStatus = this.getDatabase().getStatus();
+            if (!this.status.equals(dbStatus)) {
+                this.status = dbStatus;
+                this.updatePermissions(false);
+            }
         } else if (type.equals(MessageType.User.SERVICE)) {
             this.service = this.dbUser.isService();
         } else if (type.equals(MessageType.User.SOUND)) {
@@ -1899,8 +1893,10 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
             this.task = this.dbUser.getTask();
         } else if (type.equals(MessageType.User.COMMAND)) {
             this.runCommand((String) msg.getValue());
-        } else if (type.equals(MessageType.User.GROUP)) {
-            this.updateGroup();
+        } else if (type.equals(MessageType.User.PERM_GROUP)) {
+            this.updatePermGroup();
+        } else if (type.equals(MessageType.User.DISPLAY_GROUP)) {
+            this.updateDisplayGroups();
         }
     }
 
@@ -1924,6 +1920,43 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         }
 
         this.updateChatName();
+    }
+
+    public void updateDisplayGroups() {
+        this.displayGroups.clear();
+
+        for (String groupName : this.getDatabase().getDisplayGroupNames()) {
+            DisplayGroup group = Server.getDisplayGroup(groupName);
+            if (group != null) {
+                this.displayGroups.add(group);
+                group.addUser(this);
+            } else {
+                Server.printWarning(Plugin.BUKKIT, "Can not find display group " + groupName + " for user " + this.getName());
+            }
+        }
+
+        if (this.displayGroups.isEmpty()) {
+            this.displayGroups.add(Server.getGuestDisplayGroup());
+            Server.getGuestDisplayGroup().addUser(this);
+        }
+
+        this.updateChatName();
+
+        // update tablist
+        ((ScoreboardManager) Server.getScoreboardManager()).updatePlayerGroup(this);
+    }
+
+    public SortedSet<DisplayGroup> getDisplayGroups() {
+        return this.displayGroups;
+    }
+
+    public DisplayGroup getMasterDisplayGroup() {
+        return this.displayGroups.first();
+    }
+
+    public List<DisplayGroup> getMainDisplayGroups() {
+        return this.displayGroups.stream().filter(displayGroup -> displayGroup.isShowAlways()
+                || displayGroup.equals(this.getMasterDisplayGroup())).sorted().limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
     }
 
     /**

@@ -4,8 +4,9 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
 import de.timesnake.basic.bukkit.util.chat.CommandManager;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.exceptions.WorldNotExistException;
-import de.timesnake.basic.bukkit.util.permission.Group;
+import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
@@ -38,10 +39,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class Server implements de.timesnake.library.basic.util.server.Server {
@@ -285,42 +283,21 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.getGlobalChat();
     }
 
-    /**
-     * Gets the group by name
-     *
-     * @param group The group name from the group to get
-     * @return the group
-     */
-    public static Group getGroup(String group) {
-        return server.getGroup(group);
-    }
+    public static PermGroup getPermGroup(String group) {return server.getPermGroup(group);}
 
-    /**
-     * Gets the guest group
-     *
-     * @return the guest group
-     */
-    public static Group getGuestGroup() {
-        return server.getGuestGroup();
-    }
+    public static PermGroup getGuestPermGroup() {return server.getGuestPermGroup();}
 
-    /**
-     * Gets the member group
-     *
-     * @return the member group
-     */
-    public static Group getMemberGroup() {
-        return server.getMemberGroup();
-    }
+    public static PermGroup getMemberPermGroup() {return server.getMemberPermGroup();}
 
-    /**
-     * Gets all groups
-     *
-     * @return all groups
-     */
-    public static Collection<Group> getGroups() {
-        return server.getGroups();
-    }
+    public static Collection<PermGroup> getPermGroups() {return server.getPermGroups();}
+
+    public static DisplayGroup getDisplayGroup(String group) {return server.getDisplayGroup(group);}
+
+    public static Collection<DisplayGroup> getDisplayGroups() {return server.getDisplayGroups();}
+
+    public static DisplayGroup getGuestDisplayGroup() {return server.getGuestDisplayGroup();}
+
+    public static DisplayGroup getMemberDisplayGroup() {return server.getMemberDisplayGroup();}
 
     /**
      * Gets the server port
@@ -593,6 +570,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
     public static EntityManager getEntityManager() {
         return server.getEntityManager();
+    }
+
+    public static Random getRandom() {
+        return server.getRandom();
     }
 
     private static final ServerManager server = ServerManager.getInstance();

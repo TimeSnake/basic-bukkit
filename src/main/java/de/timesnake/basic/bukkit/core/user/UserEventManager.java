@@ -1,7 +1,6 @@
 package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.permission.CustomPermissibleBase;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
@@ -11,6 +10,7 @@ import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.extension.util.chat.Chat;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -26,27 +26,77 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.projectiles.ProjectileSource;
+import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class UserEventManager implements Listener, de.timesnake.basic.bukkit.util.user.UserEventManager {
+
+    private static final Field PERMSSION_FIELD;
+
+    static {
+        try {
+            PERMSSION_FIELD = Class.forName("org.bukkit.craftbukkit." +
+                    Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3]
+                    + ".entity.CraftHumanEntity").getDeclaredField("perm");
+            PERMSSION_FIELD.setAccessible(true);
+        } catch (NoSuchFieldException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private final HashMap<User, UserChatCommandListener> chatListener = new HashMap<>();
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPreLogin(PlayerLoginEvent e) {
+        Player p = e.getPlayer();
+
+        // inject custom permission checker
+        try {
+            PERMSSION_FIELD.set(p, new PermissibleBase(p) {
+                @Override
+                public boolean hasPermission(@NotNull String inName) {
+                    if (super.hasPermission("*")) {
+                        return true;
+                    }
+                    if (inName == null) {
+                        return true;
+                    }
+
+                    if (super.hasPermission(inName)) {
+                        return true;
+                    }
+
+                    String[] needPerm = inName.split("\\.");
+                    StringBuilder permSum = new StringBuilder();
+
+                    for (String permPart : needPerm) {
+                        permSum.append(permPart).append(".");
+                        if (super.hasPermission(permSum + "*")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+        } catch (IllegalAccessException ex) {
+            Server.printWarning(Plugin.BUKKIT, "Unable to inject player permission checker");
+            e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A fatal error has occurred, " +
+                    "please contact a administrator! (Code: E814)"));
+            return;
+        }
+
+        // server full checks
         if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
             e.allow();
         } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers())
-                && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || e.getPlayer().hasPermission(
+                && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || p.hasPermission(
                 "basicsystem.join.full")) {
             e.allow();
-        }
-        try {
-            CustomPermissibleBase.inject(e.getPlayer());
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
 
         ServerManager.getInstance().createUser(e.getPlayer());

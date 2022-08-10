@@ -11,9 +11,10 @@ import de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.CommandManager;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.exceptions.WorldNotExistException;
-import de.timesnake.basic.bukkit.util.permission.Group;
 import de.timesnake.basic.bukkit.util.permission.GroupManager;
+import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
@@ -81,6 +82,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private static ServerManager instance;
     protected final de.timesnake.basic.bukkit.util.chat.ChatManager chatManager = new ChatManager();
     private final ConsoleManager consoleManager = new ConsoleManager();
+    private final Random random = new Random();
     protected Network network;
     protected PacketManager packetManager;
     protected WorldManager worldManager;
@@ -92,7 +94,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private CommandManager commandManager;
     private TaskManager taskManager;
     private PacketBroadcaster packetBroadcaster;
-
     private GroupManager groupManager;
 
     private Info info;
@@ -106,8 +107,13 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.info = new de.timesnake.basic.bukkit.core.server.Info(this.database);
         this.userManager = new UserManager();
         this.packetManager = new PacketManager(BasicBukkit.getPlugin());
-        this.groupManager = new de.timesnake.basic.bukkit.core.permission.GroupManager();
-        ((de.timesnake.basic.bukkit.core.permission.GroupManager) this.groupManager).loadGroups();
+        this.groupManager = new de.timesnake.basic.bukkit.core.server.GroupManager();
+        ArrayList<PermGroup> groups = new ArrayList<>(this.getPermGroups());
+        groups.sort(PermGroup::compareTo);
+        groups.sort(Comparator.reverseOrder());
+        for (PermGroup group : groups) {
+            group.updatePermissions();
+        }
         this.initNetwork();
         this.commandManager = new de.timesnake.basic.bukkit.core.chat.CommandManager();
         this.initWorldManager();
@@ -130,11 +136,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     public void loaded() {
-        if (this.getDatabase().getType().equals(Type.Server.BUILD)) {
-            this.getDatabase().setStatus(Status.Server.SERVICE);
-        } else {
-            this.getDatabase().setStatus(Status.Server.ONLINE);
-        }
+        this.setStatus(Status.Server.ONLINE);
     }
 
     public final void onDisable() {
@@ -489,42 +491,22 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     // GROUP
 
-    /**
-     * Gets the group by name
-     *
-     * @param group The group name from the group to get
-     * @return the group
-     */
-    public final Group getGroup(String group) {
-        return this.groupManager.getGroup(group);
-    }
+    public PermGroup getPermGroup(String group) {return groupManager.getPermGroup(group);}
 
-    /**
-     * Gets the guest group
-     *
-     * @return the guest group
-     */
-    public final Group getGuestGroup() {
-        return this.groupManager.getGuestGroup();
-    }
+    public PermGroup getGuestPermGroup() {return groupManager.getGuestPermGroup();}
 
-    /**
-     * Gets the member group
-     *
-     * @return the member group
-     */
-    public final Group getMemberGroup() {
-        return this.groupManager.getMemberGroup();
-    }
+    public PermGroup getMemberPermGroup() {return groupManager.getMemberPermGroup();}
 
-    /**
-     * Gets all groups
-     *
-     * @return all groups
-     */
-    public final Collection<Group> getGroups() {
-        return this.groupManager.getGroups();
-    }
+    public Collection<PermGroup> getPermGroups() {return groupManager.getPermGroups();}
+
+    public DisplayGroup getDisplayGroup(String group) {return groupManager.getDisplayGroup(group);}
+
+    public Collection<DisplayGroup> getDisplayGroups() {return groupManager.getDisplayGroups();}
+
+    public DisplayGroup getGuestDisplayGroup() {return groupManager.getGuestDisplayGroup();}
+
+    public DisplayGroup getMemberDisplayGroup() {return groupManager.getMemberDisplayGroup();}
+
 
     // COMMAND
 
@@ -611,15 +593,18 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     @ChannelHandler(type = ListenerType.GROUP)
     public final void onGroupMessage(ChannelGroupMessage<?> msg) {
         String groupName = msg.getName();
-        de.timesnake.basic.bukkit.core.permission.Group group =
-                (de.timesnake.basic.bukkit.core.permission.Group) this.getGroup(groupName);
-        if (group == null) {
-            return;
-        }
 
         if (msg.getMessageType().equals(MessageType.Group.PERMISSION)) {
+            PermGroup group = this.getPermGroup(groupName);
+            if (group == null) {
+                return;
+            }
             group.updatePermissions();
         } else if (msg.getMessageType().equals(MessageType.Group.ALIAS)) {
+            DisplayGroup group = this.getDisplayGroup(groupName);
+            if (group == null) {
+                return;
+            }
             group.updatePrefix();
         }
     }
@@ -775,5 +760,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public PacketEntityManager getEntityManager() {
         return packetEntityManager;
+    }
+
+    public Random getRandom() {
+        return this.random;
     }
 }

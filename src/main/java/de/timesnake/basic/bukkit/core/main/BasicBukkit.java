@@ -2,7 +2,6 @@ package de.timesnake.basic.bukkit.core.main;
 
 import de.timesnake.basic.bukkit.core.channel.ChannelBroadcastCmd;
 import de.timesnake.basic.bukkit.core.database.DatabaseBroadcastCmd;
-import de.timesnake.basic.bukkit.core.permission.CustomPermissibleBase;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
 import de.timesnake.basic.bukkit.core.user.CmdDataProtection;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
@@ -20,7 +19,6 @@ import de.timesnake.database.util.Database;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,14 +48,6 @@ public class BasicBukkit extends JavaPlugin {
     @Override
     public void onEnable() {
         BasicBukkit.plugin = this;
-
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            try {
-                CustomPermissibleBase.inject(p);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         PluginManager pm = Bukkit.getPluginManager();
 
