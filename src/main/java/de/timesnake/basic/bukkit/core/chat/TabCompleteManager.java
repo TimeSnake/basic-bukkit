@@ -1,11 +1,12 @@
 package de.timesnake.basic.bukkit.core.chat;
 
+import de.timesnake.basic.bukkit.core.user.DelegatedUser;
+import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.chat.Sender;
-import de.timesnake.basic.bukkit.util.permission.Group;
-import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.game.DbMap;
@@ -18,6 +19,7 @@ import org.bukkit.command.TabCompleter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukkit.util.chat.TabCompleteManager {
 
@@ -42,32 +44,22 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
 
     @Override
     public List<String> getPlayerNames() {
-        List<String> names = new ArrayList<>();
-        for (User user : Server.getUsers()) {
-            if (user.isAirMode()) {
-                continue;
-            }
-            names.add(user.getName());
-        }
-        return names;
+        return Server.getUsers().stream().filter(user -> !user.isAirMode()).map(DelegatedUser::getName)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> getPermGroupNames() {
-        List<String> names = new ArrayList<>();
-        for (Group group : Server.getGroups()) {
-            names.add(group.getName());
-        }
-        return names;
+        return Server.getPermGroups().stream().map(PermGroup::getName).collect(Collectors.toList());
+    }
+
+    public List<String> getDisplayGroupNames() {
+        return Server.getDisplayGroups().stream().map(DisplayGroup::getName).collect(Collectors.toList());
     }
 
     @Override
     public List<String> getWorldNames() {
-        List<String> names = new ArrayList<>();
-        for (ExWorld world : Server.getWorlds()) {
-            names.add(world.getName());
-        }
-        return names;
+        return Server.getWorlds().stream().map(DelegatedWorld::getName).collect(Collectors.toList());
     }
 
     @Override
