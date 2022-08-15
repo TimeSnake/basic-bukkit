@@ -9,14 +9,19 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +30,7 @@ import java.util.Set;
 public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener,
         de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
 
-    public static final org.bukkit.ChatColor COLOR = org.bukkit.ChatColor.GRAY;
+    public static final ExTextColor COLOR = ExTextColor.GRAY;
 
     public static final String GLOBAL_CHAT_NAME = "global";
 
@@ -40,7 +45,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
     @Override
     public de.timesnake.basic.bukkit.util.chat.Chat createChat(String name, String displayName,
-                                                               org.bukkit.ChatColor chatColor, Set<ChatMember> users) {
+                                                               ExTextColor chatColor, Set<ChatMember> users) {
         if (name.equals(GLOBAL_CHAT_NAME)) {
             return null;
         }
@@ -68,12 +73,14 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     }
 
     @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent e) {
+    public void onPlayerChat(AsyncChatEvent e) {
         User user = Server.getUser(e.getPlayer());
 
+        Component msgComponent = e.message();
+        String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
+
         // event
-        boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(),
-                e.getMessage());
+        boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(), msg);
 
         e.setCancelled(true);
 
@@ -87,13 +94,11 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
             return;
         }
 
-        String msg = e.getMessage();
-
         // air mode
         if (user.isAirMode()) {
             if (!user.getLastChatMessage().equals(msg)) {
-                user.sendPluginMessage(Plugin.BUKKIT, ChatColor.WARNING + "You are in air mode. Resend your chat " +
-                        "message to send it.");
+                user.sendPluginMessage(Plugin.BUKKIT, Component.text("You are in air mode. Resend your chat " +
+                        "message to send it.", ExTextColor.PUBLIC));
                 return;
             }
         }
@@ -101,21 +106,29 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         // last chat msg
         user.setLastChatMessage(msg);
 
-        // color translate
-        if (user.getPlayer().hasPermission("basicsystem.chat.color")) {
-            msg = org.bukkit.ChatColor.translateAlternateColorCodes('&', msg);
-        }
+        boolean global = false;
 
         if (msg.startsWith("!")) {
-            if (!user.hasPermission("basicsystem.chat.global", 604, Plugin.BUKKIT)) {
-                return;
+            if (user.hasPermission("basicsystem.chat.global", 604, Plugin.BUKKIT)) {
+                msg = msg.replaceFirst("!", "");
+                global = true;
             }
-            msg = msg.replaceFirst("!", "");
-            this.getGlobalChat().broadcastMemberMessage(user, msg);
+
+        }
+
+        Component component;
+        if (user.hasPermission("basicsystem.chat.color")) {
+            component = LegacyComponentSerializer.legacyAmpersand().deserialize(msg);
+        } else {
+            component = PlainTextComponentSerializer.plainText().deserialize(msg);
+        }
+
+        if (global) {
+            this.getGlobalChat().broadcastMemberMessage(user, component.color(COLOR));
         } else {
             for (de.timesnake.basic.bukkit.util.chat.Chat chat : this.chats.values()) {
                 if (chat.containsWriter(user)) {
-                    chat.broadcastMemberMessage(user, COLOR + msg);
+                    chat.broadcastMemberMessage(user, component.color(COLOR));
                 }
             }
         }
@@ -123,23 +136,30 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     }
 
     @Override
-    public String getSenderMember(ChatMember member) {
-        return member.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter() + ChatManager.COLOR;
+    public Component getSenderMember(ChatMember member) {
+        return member.getChatNameComponent().append(de.timesnake.library.extension.util.chat.Chat.getSplitter());
     }
 
     @Override
-    public String getSender(Sender sender) {
-        return sender.getChatName() + de.timesnake.library.extension.util.chat.Chat.getSplitter() + ChatManager.COLOR;
+    public Component getSender(Sender sender) {
+        return sender.getChatName().append(de.timesnake.library.extension.util.chat.Chat.getSplitter());
     }
 
     @Override
-    public String getLocationBlockText(Location loc) {
-        return ChatColor.VALUE + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ();
+    public Component getLocationBlockText(Location loc) {
+        return Component.text(loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() +
+                " " + loc.getBlockZ(), ExTextColor.VALUE);
     }
 
     @Override
-    public String getLocationText(Location loc) {
-        return ChatColor.VALUE + loc.getWorld().getName() + " " + loc.getX() + " " + loc.getY() + " " + loc.getZ();
+    public Component getLocationText(Location loc) {
+        return Component.text(loc.getWorld().getName() + " " + loc.getX() + " " + loc.getY() + " " +
+                loc.getZ(), ExTextColor.VALUE);
+    }
+
+    @Override
+    public de.timesnake.basic.bukkit.util.chat.Argument createArgument(Sender sender, Component component) {
+        return new Argument(sender, PlainTextComponentSerializer.plainText().serialize(component));
     }
 
     @Override
@@ -152,9 +172,10 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         User user = e.getUser();
         // send quit msg
         if (broadcastJoinQuit && !user.isAirMode()) {
-            Server.broadcastMessage("§4<<<§r" + user.getChatName());
+            Server.broadcastMessage(Component.text("<<<", ExTextColor.DARK_RED)
+                    .append(user.getChatNameComponent().color(ExTextColor.WHITE)));
         } else {
-            Server.printText(Plugin.BUKKIT, "§4<<<§r" + user.getChatName());
+            Server.printText(Plugin.BUKKIT, "§4<<<§r" + user.getChatNameComponent());
         }
         // update online players
         int onlinePlayers = Bukkit.getOnlinePlayers().size() - 1;
@@ -176,8 +197,11 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         de.timesnake.basic.bukkit.util.user.User user = e.getUser();
         // catch if user not in database -> error (proxy should added user)
         if (!Database.getUsers().containsUser(user.getUniqueId())) {
-            user.sendMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.BUKKIT) + ChatColor.WARNING + "§lContact a supporter!!!");
-            user.getPlayer().kickPlayer("§c§lContact a supporter!!!\n" + de.timesnake.library.extension.util.chat.Chat.getMessageCode("E", 805, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+            user.sendMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.BUKKIT)
+                    .append(Component.text("§lContact a supporter!!!", ExTextColor.WARNING)));
+            user.getPlayer().kick(Component.text("Contact a supporter!!!\n", ExTextColor.WARNING, TextDecoration.BOLD)
+                    .append(de.timesnake.library.extension.util.chat.Chat.getMessageCode("E", 805, Plugin.BUKKIT))
+                    .append(Component.text("\nDO NOT REJOIN", ExTextColor.WARNING, TextDecoration.BOLD)));
             return;
         }
 
@@ -191,10 +215,12 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
         // send join msg
         if (broadcastJoinQuit && !user.isAirMode()) {
-            Server.broadcastMessage("§2>>>§r" + user.getChatName());
+            Server.broadcastMessage(Component.text(">>>", ExTextColor.DARK_GREEN)
+                    .append(user.getChatNameComponent().color(ExTextColor.WHITE)));
             Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
         } else {
-            Server.printText(Plugin.BUKKIT, "§2>>>§r" + user.getChatName());
+            Server.printText(Plugin.BUKKIT, "§2>>>" +
+                    LegacyComponentSerializer.legacyAmpersand().serialize(user.getChatNameComponent().color(ExTextColor.WHITE)));
         }
 
     }
@@ -216,14 +242,18 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         }
 
         String msg = args.toMessage();
+
+        Component component;
         if (sender.hasPermission("basicsystem.chat.color")) {
-            msg = org.bukkit.ChatColor.translateAlternateColorCodes('&', msg);
+            component = LegacyComponentSerializer.legacyAmpersand().deserialize(msg);
+        } else {
+            component = PlainTextComponentSerializer.plainText().deserialize(msg);
         }
 
         if (sender.isPlayer(false)) {
-            this.getGlobalChat().broadcastMemberMessage(sender.getUser(), msg);
+            this.getGlobalChat().broadcastMemberMessage(sender.getUser(), component);
         } else {
-            this.getGlobalChat().broadcastPluginMessage(Plugin.INFO, ChatColor.WARNING + msg);
+            this.getGlobalChat().broadcastPluginMessage(Plugin.INFO, component.color(ExTextColor.WARNING));
         }
     }
 

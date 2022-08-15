@@ -2,10 +2,15 @@ package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.*;
+import de.timesnake.basic.bukkit.util.chat.Argument;
+import de.timesnake.basic.bukkit.util.chat.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import de.timesnake.library.packets.util.packet.ExPacket;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -35,9 +40,9 @@ public class PacketBroadcaster implements CommandListener {
         if (sender.isConsole(true)) {
             this.broadcast = !this.broadcast;
             if (this.broadcast) {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "Enabled packet messages");
+                sender.sendPluginMessage(Component.text("Enabled packet messages", ExTextColor.PERSONAL));
             } else {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "Disabled packet messages");
+                sender.sendPluginMessage(Component.text("Disabled packet messages", ExTextColor.PERSONAL));
             }
 
             if (args.isLengthHigherEquals(1, false)) {
@@ -45,9 +50,9 @@ public class PacketBroadcaster implements CommandListener {
                     Server.getPacketManager().setBroadcast(!Server.getPacketManager().isBroadcast());
 
                     if (Server.getPacketManager().isBroadcast()) {
-                        sender.sendPluginMessage(ChatColor.PERSONAL + "Enabled verbose packet messages");
+                        sender.sendPluginMessage(Component.text("Enabled verbose packet messages", ExTextColor.PERSONAL));
                     } else {
-                        sender.sendPluginMessage(ChatColor.PERSONAL + "Disabled verbose packet messages");
+                        sender.sendPluginMessage(Component.text("Disabled verbose packet messages", ExTextColor.PERSONAL));
                     }
                 }
             }

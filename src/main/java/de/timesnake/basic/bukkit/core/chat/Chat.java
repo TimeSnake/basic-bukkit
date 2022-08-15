@@ -1,10 +1,14 @@
 package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
-import net.md_5.bungee.api.chat.ClickEvent;
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,21 +18,21 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
     private final String name;
     private final String displayName;
-    private final org.bukkit.ChatColor chatColor;
-    private final String chatPrefix;
+    private final ExTextColor chatColor;
+    private final Component chatPrefix;
 
     private final Set<ChatMember> writers;
     private final Set<ChatMember> listeners;
 
-    public Chat(String name, String displayName, org.bukkit.ChatColor chatColor, Set<ChatMember> members) {
+    public Chat(String name, String displayName, ExTextColor chatColor, Set<ChatMember> members) {
         this.name = name;
         this.displayName = displayName;
         this.chatColor = chatColor;
         if (this.displayName != null) {
             this.chatPrefix = de.timesnake.basic.bukkit.util.chat.Chat.getChatPrefix(this.displayName,
-                    Objects.requireNonNullElse(this.chatColor, ChatColor.WHITE));
+                    this.chatColor != null ? this.chatColor : ExTextColor.WHITE);
         } else {
-            this.chatPrefix = "";
+            this.chatPrefix = null;
         }
         this.writers = Objects.requireNonNullElseGet(members, HashSet::new);
         this.listeners = Objects.requireNonNullElseGet(members, HashSet::new);
@@ -51,7 +55,12 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
-    public org.bukkit.ChatColor getChatColor() {
+    @Deprecated
+    public TextColor getChatColor() {
+        return chatColor;
+    }
+
+    public ExTextColor getTextColor() {
         return chatColor;
     }
 
@@ -91,26 +100,56 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
+    @Deprecated
     public void broadcastMemberMessage(ChatMember member, String... msgs) {
-        if (this.chatPrefix.equals("")) {
+        if (this.chatPrefix == null) {
             for (String msg : msgs) {
-                this.broadcastMessage(this.chatPrefix + Server.getChat().getSenderMember(member) + msg);
+                this.broadcastMessage(Server.getChat().getSenderMember(member).append(Component.text(msg)));
             }
         } else {
             for (String msg : msgs) {
-                this.broadcastMessage(this.chatPrefix + " " + Server.getChat().getSenderMember(member) + msg);
+                this.broadcastMessage(this.chatPrefix.append(Component.text(" "))
+                        .append(Server.getChat().getSenderMember(member))
+                        .append(Component.text(msg)));
             }
         }
 
     }
 
     @Override
+    public void broadcastMemberMessage(ChatMember member, Component... msgs) {
+        if (this.chatPrefix == null) {
+            for (Component msg : msgs) {
+                this.broadcastMessage(Server.getChat().getSenderMember(member).append(msg));
+            }
+        } else {
+            for (Component msg : msgs) {
+                this.broadcastMessage(this.chatPrefix.append(Component.text(" "))
+                        .append(Server.getChat().getSenderMember(member))
+                        .append(msg));
+            }
+        }
+
+    }
+
+    @Override
+    @Deprecated
     public void broadcastPluginMessage(de.timesnake.library.basic.util.chat.Plugin sender, String... msgs) {
         for (String msg : msgs) {
-            this.broadcastMessage(this.chatPrefix + de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender) + msg);
+            this.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender)
+                    .append(Component.text(msg)));
         }
     }
 
+    @Override
+    public void broadcastPluginMessage(de.timesnake.library.basic.util.chat.Plugin sender, Component... msgs) {
+        for (Component msg : msgs) {
+            this.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender).append(msg));
+        }
+    }
+
+    @Override
+    @Deprecated
     public void broadcastMessage(String... msgs) {
         for (String msg : msgs) {
             for (ChatMember member : this.listeners) {
@@ -121,16 +160,43 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
-    public void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action) {
+    public void broadcastMessage(Component... msgs) {
+        for (Component msg : msgs) {
+            for (ChatMember member : this.listeners) {
+                member.sendMessage(msg);
+            }
+            Server.printText(Plugin.BUKKIT, PlainTextComponentSerializer.plainText().serialize(msg), "Chat", this.name);
+        }
+    }
+
+    @Override
+    @Deprecated
+    public void broadcastClickableMessage(String text, String exec, String info, net.kyori.adventure.text.event.ClickEvent.Action action) {
         for (ChatMember member : this.listeners) {
             member.sendClickableMessage(text, exec, info, action);
         }
     }
 
     @Override
+    public void broadcastClickableMessage(Component text, String exec, Component info, net.kyori.adventure.text.event.ClickEvent.Action action) {
+        for (ChatMember member : this.listeners) {
+            member.sendClickableMessage(text, exec, info, action);
+        }
+    }
+
+    @Override
+    @Deprecated
     public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String text,
                                           String exec, String info, ClickEvent.Action action) {
-        this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin) + text,
+        this.broadcastClickableMessage(plugin,
+                LegacyComponentSerializer.legacyAmpersand().deserialize(text), exec,
+                LegacyComponentSerializer.legacyAmpersand().deserialize(info), action);
+    }
+
+    @Override
+    public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, Component text,
+                                          String exec, Component info, ClickEvent.Action action) {
+        this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin).append(text),
                 exec, info, action);
     }
 

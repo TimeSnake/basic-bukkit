@@ -10,6 +10,7 @@ public class UserDamage {
     private final Location userLocation;
     private final EntityDamageEvent.DamageCause cause;
     private final DamageType damageType;
+
     public UserDamage(User user, User damager, EntityDamageEvent.DamageCause cause, DamageType damageType) {
         this.damager = damager;
         this.damagerLocation = damager.getLocation();

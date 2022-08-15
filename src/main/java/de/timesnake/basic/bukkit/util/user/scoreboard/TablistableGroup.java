@@ -4,8 +4,6 @@ import org.bukkit.ChatColor;
 
 public interface TablistableGroup {
 
-    TablistGroupType getTeamType();
-
     String getTablistRank();
 
     String getTablistName();

@@ -10,7 +10,7 @@ import de.timesnake.library.extension.util.permission.ExPermission;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup {
+public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup<User> {
 
     private final Set<User> users = new HashSet<>();
 
