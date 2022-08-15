@@ -1,6 +1,6 @@
 package de.timesnake.basic.bukkit.core.chat;
 
-import de.timesnake.basic.bukkit.core.user.DelegatedUser;
+import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
 import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
@@ -44,7 +44,7 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
 
     @Override
     public List<String> getPlayerNames() {
-        return Server.getUsers().stream().filter(user -> !user.isAirMode()).map(DelegatedUser::getName)
+        return Server.getUsers().stream().filter(user -> !user.isAirMode()).map(UserPlayerDelegation::getName)
                 .collect(Collectors.toList());
     }
 

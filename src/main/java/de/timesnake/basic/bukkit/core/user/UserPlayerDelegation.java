@@ -70,7 +70,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
-public class DelegatedUser implements Player {
+public class UserPlayerDelegation implements Player {
 
     public static @NotNull Audience empty() {return Audience.empty();}
 
@@ -86,7 +86,7 @@ public class DelegatedUser implements Player {
 
     protected final Player player;
 
-    public DelegatedUser(Player player) {
+    public UserPlayerDelegation(Player player) {
         this.player = player;
     }
 

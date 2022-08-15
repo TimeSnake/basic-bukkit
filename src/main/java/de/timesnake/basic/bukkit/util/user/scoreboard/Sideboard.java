@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 public interface Sideboard extends Board {
 
+    String SPACER = "---------------";
+
     String getTitle();
 
     void setTitle(String title);

@@ -2,15 +2,17 @@ package de.timesnake.basic.bukkit.util.user;
 
 import de.timesnake.basic.bukkit.core.chat.ExCommandSender;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.user.DelegatedUser;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
+import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
 import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.TablistablePlayer;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
-import de.timesnake.basic.bukkit.util.chat.*;
+import de.timesnake.basic.bukkit.util.chat.ChatMember;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.basic.bukkit.util.user.event.*;
@@ -34,17 +36,16 @@ import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.util.packet.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.*;
 import org.bukkit.Note.Tone;
 import org.bukkit.attribute.Attribute;
@@ -60,6 +61,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
@@ -78,7 +80,7 @@ import java.util.*;
  * It is recommended to extend these class in a new plugin
  */
 
-public class User extends DelegatedUser implements de.timesnake.library.extension.util.player.User, ChannelListener,
+public class User extends UserPlayerDelegation implements de.timesnake.library.extension.util.player.User, ChannelListener,
         TablistablePlayer, ChatMember {
 
     private final DbUser dbUser;
@@ -91,7 +93,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     private final ServerInfo lastLobbyServer;
     private final Set<ExPermission> permissions = new HashSet<>();
     private final SortedSet<DisplayGroup> displayGroups;
-    protected String chatName;
+    protected Component chatName;
     private Status.User status;
     private boolean service;
     private String task;
@@ -99,9 +101,9 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     private boolean isMuted;
     private String lastChatMessage;
     private PermGroup permGroup;
-    private String prefix;
-    private String suffix;
-    private String nick;
+    private Component prefix;
+    private Component suffix;
+    private Component nick;
     private Tablist tablist;
     private Sideboard sideboard;
     private Location lastLocation;
@@ -129,17 +131,17 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
         String prefix = dbLocalUser.getPrefix();
         if (prefix != null) {
-            this.prefix = prefix;
+            this.prefix = LegacyComponentSerializer.legacySection().deserialize(prefix);
         }
 
         String suffix = dbLocalUser.getSuffix();
         if (suffix != null) {
-            this.suffix = suffix;
+            this.suffix = LegacyComponentSerializer.legacySection().deserialize(suffix);
         }
 
         String nick = dbLocalUser.getNick();
         if (nick != null) {
-            this.nick = nick;
+            this.nick = LegacyComponentSerializer.legacySection().deserialize(nick);
         }
 
         if (dbLocalUser.getPermGroup() != null) {
@@ -149,12 +151,12 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
                 this.permGroup.addUser(this);
             } else {
                 Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-                this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN");
+                this.player.kick(Component.text("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN"));
             }
         } else {
             Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-            this.player.kickPlayer("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
-                    "\nDO NOT REJOIN");
+            this.player.kick(Component.text("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
+                    "\nDO NOT REJOIN"));
         }
 
         this.displayGroups = new TreeSet<>(Comparator.comparingInt(DisplayGroup::getRank));
@@ -257,35 +259,6 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         return this.exPlayer;
     }
 
-    protected void updateChatName() {
-        StringBuilder sb = new StringBuilder();
-
-        if (this.getNick() == null) {
-            for (DisplayGroup group : this.getMainDisplayGroups()) {
-                sb.append(group.getPrefixColor()).append(group.getPrefix());
-            }
-
-            if (this.getPrefix() != null) {
-                sb.append(ChatColor.translateAlternateColorCodes('&', this.getPrefix())).append("§r");
-            }
-
-            sb.append(this.getPlayerChatName());
-
-            if (this.getSuffix() != null) {
-                sb.append(ChatColor.translateAlternateColorCodes('&', this.getSuffix())).append("§r");
-            }
-        } else {
-            DisplayGroup group = Server.getMemberDisplayGroup();
-            sb.append(group.getPrefixColor()).append(group.getPrefix());
-            sb.append(ChatColor.translateAlternateColorCodes('&', this.getNick()));
-
-        }
-        this.chatName = sb.toString();
-    }
-
-    protected String getPlayerChatName() {
-        return this.getPlayer().getName();
-    }
 
     /**
      * Kills the user
@@ -319,8 +292,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         this.unlockInventory();
         this.unlockInventoryItemMove();
         this.lockLocation(false);
-        this.setHealth(this.getMaxHealth());
-        this.setFoodLevel(20);
+        this.heal();
         this.setInvulnerable(false);
         this.setAllowFlight(false);
         this.setFlying(false);
@@ -335,12 +307,12 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     public boolean isCollitionWithEntites() {
-        return this.player.spigot().getCollidesWithEntities();
+        return this.player.isCollidable();
     }
 
     public void setCollitionWithEntites(boolean collition) {
         if (!this.airMode) {
-            this.player.spigot().setCollidesWithEntities(collition);
+            this.player.setCollidable(collition);
         }
     }
 
@@ -404,11 +376,13 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * Sends the data-protection-declaration message
      */
     public void forceDataProtectionAgreement() {
-        this.sendPluginMessage(Plugin.NETWORK, ChatColor.WARNING + "Please accept our data protection declaration");
-        this.sendPluginMessage(Plugin.NETWORK,
-                ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd agree" + ChatColor.PERSONAL + " to accept");
-        this.sendPluginMessage(Plugin.NETWORK,
-                ChatColor.WARNING + "Type " + ChatColor.VALUE + "/dpd disagree" + ChatColor.PERSONAL + " to deny");
+        this.sendPluginMessage(Plugin.NETWORK, Component.text("Please accept our data protection declaration", ExTextColor.WARNING));
+        this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
+                .append(Component.text("/dpd agree", ExTextColor.VALUE))
+                .append(Component.text(" to accept", ExTextColor.WARNING)));
+        this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
+                .append(Component.text("/dpd disagree", ExTextColor.VALUE))
+                .append(Component.text(" to deny", ExTextColor.WARNING)));
     }
 
     /**
@@ -434,6 +408,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @param textComponents The {@link TextComponent}s to send
      */
+    @Deprecated
     public void sendMessage(TextComponent... textComponents) {
         this.player.spigot().sendMessage(textComponents);
     }
@@ -444,8 +419,19 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param plugin  The {@link Plugin} to send the message
      * @param message The message to send
      */
+    @Deprecated
     public void sendPluginMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String message) {
         this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
+    }
+
+    /**
+     * Sends a plugin-message to the user
+     *
+     * @param plugin  The {@link Plugin} to send the message
+     * @param message The message to send
+     */
+    public void sendPluginMessage(de.timesnake.library.basic.util.chat.Plugin plugin, Component message) {
+        this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin).append(message));
     }
 
     /**
@@ -454,8 +440,14 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @return the chat-name
      */
     @Override
+    @Deprecated
     public String getChatName() {
-        return chatName;
+        return PlainTextComponentSerializer.plainText().serialize(chatName);
+    }
+
+    @Override
+    public Component getChatNameComponent() {
+        return this.chatName;
     }
 
     /**
@@ -463,7 +455,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @return the prefix
      */
-    public String getPrefix() {
+    public Component getPrefix() {
         return prefix;
     }
 
@@ -472,8 +464,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @param prefix The prefix to set
      */
-    public void setPrefix(String prefix) {
-        this.dbUser.setPrefix(prefix);
+    public void setPrefix(Component prefix) {
+        this.dbUser.setPrefix(LegacyComponentSerializer.legacyAmpersand().serialize(prefix));
         this.prefix = prefix;
     }
 
@@ -482,7 +474,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @return the suffix
      */
-    public String getSuffix() {
+    public Component getSuffix() {
         return suffix;
     }
 
@@ -491,8 +483,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @param suffix The suffix to set
      */
-    public void setSuffix(String suffix) {
-        this.dbUser.setSuffix(suffix);
+    public void setSuffix(Component suffix) {
+        this.dbUser.setSuffix(LegacyComponentSerializer.legacyAmpersand().serialize(suffix));
         this.suffix = suffix;
     }
 
@@ -501,7 +493,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @return the nick
      */
-    public String getNick() {
+    public Component getNick() {
         return nick;
     }
 
@@ -510,8 +502,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @param nick The nick to set
      */
-    public void setNick(String nick) {
-        this.dbUser.setNick(nick);
+    public void setNick(Component nick) {
+        this.dbUser.setNick(LegacyComponentSerializer.legacyAmpersand().serialize(nick));
         this.nick = nick;
     }
 
@@ -564,12 +556,27 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param info   The info to show, if the user hovers other the text
      * @param action The action to do
      */
-    public void sendClickableMessage(String text, String exec, String info, Action action) {
-        TextComponent tc = new TextComponent();
-        tc.setText(text);
-        tc.setClickEvent(new ClickEvent(action, exec));
-        tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(info)));
-        this.spigot().sendMessage(tc);
+    @Deprecated
+    public void sendClickableMessage(String text, String exec, String info,
+                                     net.kyori.adventure.text.event.ClickEvent.Action action) {
+        Component component = Component.text(text)
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(info)));
+        this.sendMessage(component);
+    }
+
+    /**
+     * Sends a clickable test to the user
+     *
+     * @param text   The test to send
+     * @param exec   The execution, if the user clicked on the text
+     * @param info   The info to show, if the user hovers other the text
+     * @param action The action to do
+     */
+    public void sendClickableMessage(Component text, String exec, Component info,
+                                     net.kyori.adventure.text.event.ClickEvent.Action action) {
+        this.sendMessage(text.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
     }
 
     /**
@@ -581,16 +588,31 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param info   The info to show, if the user hovers other the text
      * @param action The action to do
      */
-    public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info, Action action) {
-        TextComponent tc = new TextComponent();
-        tc.setText(Chat.getSenderPlugin(plugin) + text);
-        tc.setClickEvent(new ClickEvent(action, exec));
-        tc.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(info)));
-        this.spigot().sendMessage(tc);
+    @Deprecated
+    public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info, net.kyori.adventure.text.event.ClickEvent.Action action) {
+        Component component = Component.text(Chat.getSenderPlugin(plugin) + text)
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(info)));
+        this.sendMessage(component);
     }
 
     /**
-     * Sends a title to the user, with standard fade-times
+     * Sends a clickable test to the user
+     *
+     * @param plugin The sender plugin
+     * @param text   The test to send
+     * @param exec   The execution, if the user clicked on the text
+     * @param info   The info to show, if the user hovers other the text
+     * @param action The action to do
+     */
+    public void sendClickablePluginMessage(Plugin plugin, Component text, String exec, Component info, net.kyori.adventure.text.event.ClickEvent.Action action) {
+        this.sendMessage(Chat.getSenderPlugin(plugin).append(text)
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
+    }
+
+    /**
+     * Shows a title to the user, with standard fade-times
      * Fade-in time: 250 ms
      * Fade-out time : 250 ms
      *
@@ -598,13 +620,28 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param subTitle The subtitle to send
      * @param stay     The stay time in ms
      */
-    public void sendTitle(String title, String subTitle, Duration stay) {
+    @Deprecated
+    public void showTitle(String title, String subTitle, Duration stay) {
         this.showTitle(Title.title(Component.text(title), Component.text(subTitle),
                 Title.Times.times(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
     }
 
     /**
-     * Sends a title to the user
+     * Shows a title to the user, with standard fade-times
+     * Fade-in time: 250 ms
+     * Fade-out time : 250 ms
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The stay time in ms
+     */
+    public void showTitle(Component title, Component subTitle, Duration stay) {
+        this.showTitle(Title.title(title, subTitle,
+                Title.Times.times(Duration.ofMillis(250), stay, Duration.ofMillis(250))));
+    }
+
+    /**
+     * Shows a title to the user
      *
      * @param title    The title to send
      * @param subTitle The subtitle to send
@@ -612,8 +649,22 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * @param stay     The stay time
      * @param fadeOut  The fade-out time
      */
-    public void sendTitle(String title, String subTitle, Integer fadeIn, Integer stay, Integer fadeOut) {
-        this.sendTitle(title, subTitle, fadeIn, stay, fadeOut);
+    @Deprecated
+    public void showTitle(String title, String subTitle, Duration fadeIn, Duration stay, Duration fadeOut) {
+        this.showTitle(Component.text(title), Component.text(subTitle), fadeIn, stay, fadeOut);
+    }
+
+    /**
+     * Shows a title to the user
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param fadeIn   The fade-in time
+     * @param stay     The stay time
+     * @param fadeOut  The fade-out time
+     */
+    public void showTitle(Component title, Component subTitle, Duration fadeIn, Duration stay, Duration fadeOut) {
+        this.showTitle(Title.title(title, subTitle, Title.Times.times(fadeIn, stay, fadeOut)));
     }
 
     /**
@@ -624,7 +675,8 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     public void runCommand(String command) {
         Server.runTaskSynchrony(() -> {
             if (command.startsWith("/say ")) {
-                Server.broadcastMessage(Server.getChat().getSenderMember(this) + command.replaceFirst("/say ", ""));
+                Server.broadcastMessage(Server.getChat().getSenderMember(this)
+                        .append(Component.text(command.replaceFirst("/say ", ""))));
             } else {
                 String cmd = command.replaceFirst("/", "");
                 Bukkit.dispatchCommand(this.player, cmd);
@@ -743,13 +795,22 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
     @Override
     public String getTablistPrefix() {
-        return this.getPrefix();
+        return LegacyComponentSerializer.legacySection().serialize(this.getPrefix());
     }
 
     @Override
     public TablistableGroup getTablistGroup(TablistGroupType type) {
-        if (DisplayGroup.TABLIST_GROUP_TYPE.equals(type)) {
+        if (DisplayGroup.TABLIST_TYPE_0.equals(type)) {
             return this.getMasterDisplayGroup();
+        } else if (DisplayGroup.TABLIST_TYPE_1.equals(type)) {
+            List<DisplayGroup> list = this.getMainDisplayGroups();
+            if (list.size() < 2) return null;
+            return list.get(1);
+
+        } else if (DisplayGroup.TABLIST_TYPE_2.equals(type)) {
+            List<DisplayGroup> list = this.getMainDisplayGroups();
+            if (list.size() < 3) return null;
+            return list.get(2);
         }
         return null;
     }
@@ -938,7 +999,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
 
-    public Scoreboard getScoreboard() {
+    public @NotNull Scoreboard getScoreboard() {
         return this.getPlayer().getScoreboard();
     }
 
@@ -947,8 +1008,13 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      *
      * @param text The text to display
      */
+    @Deprecated
     public void sendActionBarText(String text) {
         this.getPlayer().sendActionBar(Component.text(text));
+    }
+
+    public void sendActionBarText(Component text) {
+        this.getPlayer().sendActionBar(text);
     }
 
     /**
@@ -1154,9 +1220,9 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
      * Has user permission
      *
      * @param permission The permission to has
-     * @return if user has permission
+     * @return if user has permission, else false
      */
-    public boolean hasPermission(String permission) {
+    public boolean hasPermission(@NotNull String permission) {
         return this.player.hasPermission(permission);
     }
 
@@ -1664,10 +1730,10 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     /**
-     * Sets the user health and food-level to 20
+     * Sets the user health to max health and food-level to 20
      */
     public void heal() {
-        this.getPlayer().setHealth(this.getPlayer().getMaxHealth());
+        this.getPlayer().setHealth(this.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         this.getPlayer().setFoodLevel(20);
     }
 
@@ -1703,7 +1769,7 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     }
 
     @Override
-    public ExWorld getWorld() {
+    public @NotNull ExWorld getWorld() {
         return Server.getWorld(this.player.getWorld());
     }
 
@@ -1906,17 +1972,17 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
     public void updateAlias() {
         String prefix = this.dbUser.getPrefix();
         if (prefix != null) {
-            this.prefix = prefix;
+            this.prefix = LegacyComponentSerializer.legacySection().deserialize(prefix);
         }
 
         String suffix = this.dbUser.getSuffix();
         if (suffix != null) {
-            this.suffix = suffix;
+            this.suffix = LegacyComponentSerializer.legacySection().deserialize(suffix);
         }
 
         String nick = this.dbUser.getNick();
         if (nick != null) {
-            this.nick = nick;
+            this.nick = LegacyComponentSerializer.legacySection().deserialize(nick);
         }
 
         this.updateChatName();
@@ -1945,6 +2011,41 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
         // update tablist
         ((ScoreboardManager) Server.getScoreboardManager()).updatePlayerGroup(this);
     }
+
+    protected void updateChatName() {
+        Component component = Component.text("");
+
+        if (this.getNick() == null) {
+            for (DisplayGroup group : this.getMainDisplayGroups()) {
+                if (group.getPrefix() != null) {
+                    component = component.append(Component.text(group.getPrefix()).color(group.getPrefixColor()));
+                }
+            }
+
+            if (this.getPrefix() != null) {
+                component = component.append(this.getPrefix());
+            }
+
+            component = component.append(Component.text(this.getName(), ExTextColor.WHITE));
+
+            if (this.getSuffix() != null) {
+                component = component.append(this.getSuffix());
+            }
+        } else {
+            DisplayGroup group = Server.getMemberDisplayGroup();
+            if (group.getPrefix() != null) {
+                component = component.append(Component.text(group.getPrefix(), group.getPrefixColor()));
+            }
+            component.append(this.getNick());
+
+        }
+        this.chatName = component;
+    }
+
+    protected String getPlayerChatName() {
+        return this.getPlayer().getName();
+    }
+
 
     public SortedSet<DisplayGroup> getDisplayGroups() {
         return this.displayGroups;
@@ -2009,16 +2110,6 @@ public class User extends DelegatedUser implements de.timesnake.library.extensio
 
     public void resetAttackDamage() {
         this.setAttackDamage(2);
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        player.sendMessage(message);
-    }
-
-    @Override
-    public UUID getUniqueId() {
-        return player.getUniqueId();
     }
 
 }

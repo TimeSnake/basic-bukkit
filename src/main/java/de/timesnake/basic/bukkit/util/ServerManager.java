@@ -45,7 +45,8 @@ import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.packets.util.PacketManager;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import net.md_5.bungee.api.chat.ClickEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -365,6 +366,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param inventoryTitle The inventory title
      * @return the users with the open inventory
      */
+    @Deprecated
     public final ArrayList<User> getUsersWithOpenInventory(String inventoryTitle) {
         ArrayList<User> users = new ArrayList<>();
         for (User user : this.getUsers()) {
@@ -400,6 +402,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      *
      * @param messages to broadcast
      */
+    @Deprecated
     public final void broadcastMessage(String... messages) {
         this.getGlobalChat().broadcastMessage(messages);
     }
@@ -410,7 +413,27 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param messages The message to broadcast
      * @param plugin   The plugin, who broadcasts the message
      */
+    @Deprecated
     public final void broadcastMessage(Plugin plugin, String... messages) {
+        this.getGlobalChat().broadcastPluginMessage(plugin, messages);
+    }
+
+    /**
+     * Sends a message to all players and console
+     *
+     * @param messages to broadcast
+     */
+    public final void broadcastMessage(Component... messages) {
+        this.getGlobalChat().broadcastMessage(messages);
+    }
+
+    /**
+     * Sends a message to all players and console
+     *
+     * @param messages The message to broadcast
+     * @param plugin   The plugin, who broadcasts the message
+     */
+    public final void broadcastMessage(Plugin plugin, Component... messages) {
         this.getGlobalChat().broadcastPluginMessage(plugin, messages);
     }
 
@@ -422,8 +445,37 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
+    @Deprecated
     public final void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
+    }
+
+    /**
+     * Sends a clickable message to all players and a message to the console
+     *
+     * @param text   The text to send
+     * @param exec   The string to execute
+     * @param info   The shown info while hovering
+     * @param action The action to execute
+     */
+    public final void broadcastClickableMessage(Component text, String exec, Component info, ClickEvent.Action action) {
+        this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
+    }
+
+
+    /**
+     * Sends a clickable message to all players and a message to the console
+     *
+     * @param plugin The sender plugin
+     * @param text   The text to send
+     * @param exec   The string to execute
+     * @param info   The shown info while hovering
+     * @param action The action to execute
+     */
+    @Deprecated
+    public final void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
+                                                ClickEvent.Action action) {
+        this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
     /**
@@ -435,7 +487,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public final void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
+    public final void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
                                                 ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
     }
@@ -483,9 +535,23 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title
      */
+    @Deprecated
     public final void broadcastTitle(String title, String subTitle, Duration stay) {
         for (User user : this.getUsers()) {
-            user.sendTitle(title, subTitle, stay);
+            user.showTitle(title, subTitle, stay);
+        }
+    }
+
+    /**
+     * Sends a title to all players
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The display time of the title
+     */
+    public final void broadcastTitle(Component title, Component subTitle, Duration stay) {
+        for (User user : this.getUsers()) {
+            user.showTitle(title, subTitle, stay);
         }
     }
 

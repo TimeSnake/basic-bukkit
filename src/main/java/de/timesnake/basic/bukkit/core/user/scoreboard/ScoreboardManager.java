@@ -2,7 +2,7 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.permission.Group;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
@@ -25,12 +25,10 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     public ScoreboardManager() {
         this.packetManager = new ScoreboardPacketManager();
 
-        LinkedList<TablistGroupType> types = new LinkedList<>();
-        types.add(Group.getTablistType());
         GroupTablist standard = new GroupTablist(Server.getName(),
                 de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type.DUMMY,
                 this.packetManager, (e, tablist) -> tablist.addEntry(e.getUser()),
-                (e, tablist) -> tablist.removeEntry(e.getUser()), types);
+                (e, tablist) -> tablist.removeEntry(e.getUser()), DisplayGroup.MAIN_TABLIST_GROUPS);
         standard.setHeader("§6Time§2Snake§9.de");
         standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n" + Server.SUPPORT_EMAIL);
         this.tablists.put(standard.getName(), standard);

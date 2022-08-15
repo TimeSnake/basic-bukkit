@@ -1,12 +1,14 @@
 package de.timesnake.basic.bukkit.util.chat;
 
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 
 import java.util.Set;
 
 public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
 
-    Chat createChat(String name, String displayName, org.bukkit.ChatColor chatColor, Set<ChatMember> members);
+    Chat createChat(String name, String displayName, ExTextColor chatColor, Set<ChatMember> members);
 
     boolean deleteChat(String name);
 
@@ -14,15 +16,17 @@ public interface ChatManager extends de.timesnake.library.extension.util.chat.Ch
 
     Chat getGlobalChat();
 
-    String getSenderMember(ChatMember member);
+    Component getSenderMember(ChatMember member);
 
-    String getSender(Sender sender);
+    Component getSender(Sender sender);
 
-    String getLocationBlockText(Location loc);
+    Component getLocationBlockText(Location loc);
 
-    String getLocationText(Location loc);
+    Component getLocationText(Location loc);
 
     Argument createArgument(Sender sender, String s);
+
+    Argument createArgument(Sender sender, Component component);
 
     void broadcastJoinQuit(boolean broadcast);
 

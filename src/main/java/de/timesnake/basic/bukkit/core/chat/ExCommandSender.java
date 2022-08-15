@@ -3,6 +3,7 @@ package de.timesnake.basic.bukkit.core.chat;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.extension.util.cmd.CommandSender;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,8 +21,20 @@ public class ExCommandSender implements CommandSender {
     }
 
     @Override
+    public void sendMessage(Component s) {
+        this.cmdSender.sendMessage(s);
+    }
+
+    @Override
     public void sendMessage(String[] strings) {
         cmdSender.sendMessage(strings);
+    }
+
+    @Override
+    public void sendMessage(Component[] components) {
+        for (Component component : components) {
+            this.cmdSender.sendMessage(component);
+        }
     }
 
     @Override

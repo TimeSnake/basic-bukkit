@@ -2,6 +2,8 @@ package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.library.basic.util.chat.Plugin;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 
 import java.util.List;
@@ -18,17 +20,23 @@ public class ConsoleManager {
 
     public final void printText(Plugin plugin, String text, String... subPlugins) {
         StringBuilder sb = buildMessage(plugin, text, subPlugins);
-        Bukkit.getLogger().log(Level.INFO, "" + sb);
+        String msg = PlainTextComponentSerializer.plainText().serialize(
+                LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
+        Bukkit.getLogger().log(Level.INFO, msg);
     }
 
     public final void printWarning(Plugin plugin, String warning, String... subPlugins) {
         StringBuilder sb = buildMessage(plugin, warning, subPlugins);
-        Bukkit.getLogger().log(Level.WARNING, "§e" + sb);
+        String msg = PlainTextComponentSerializer.plainText().serialize(
+                LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
+        Bukkit.getLogger().log(Level.WARNING, msg);
     }
 
     public final void printError(Plugin plugin, String error, String... subPlugins) {
         StringBuilder sb = buildMessage(plugin, error, subPlugins);
-        Bukkit.getLogger().log(Level.WARNING, "§c" + sb);
+        String msg = PlainTextComponentSerializer.plainText().serialize(
+                LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
+        Bukkit.getLogger().log(Level.WARNING, msg);
     }
 
     private StringBuilder buildMessage(Plugin plugin, String text, String[] subPlugins) {

@@ -27,7 +27,8 @@ import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.packets.util.PacketManager;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import net.md_5.bungee.api.chat.ClickEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -195,6 +196,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      *
      * @param messages to broadcast
      */
+    @Deprecated
     public static void broadcastMessage(String... messages) {
         server.broadcastMessage(messages);
     }
@@ -205,7 +207,27 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param messages The messages to broadcast
      * @param plugin   The plugin, who broadcasts the message
      */
+    @Deprecated
     public static void broadcastMessage(Plugin plugin, String... messages) {
+        server.broadcastMessage(plugin, messages);
+    }
+
+    /**
+     * Sends a message to all players and console
+     *
+     * @param messages to broadcast
+     */
+    public static void broadcastMessage(Component... messages) {
+        server.broadcastMessage(messages);
+    }
+
+    /**
+     * Sends a message to all players and console
+     *
+     * @param messages The messages to broadcast
+     * @param plugin   The plugin, who broadcasts the message
+     */
+    public static void broadcastMessage(Plugin plugin, Component... messages) {
         server.broadcastMessage(plugin, messages);
     }
 
@@ -226,7 +248,20 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
+    @Deprecated
     public static void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action) {
+        server.broadcastClickableMessage(text, exec, info, action);
+    }
+
+    /**
+     * Sends a clickable message to all players and a message to the console
+     *
+     * @param text   The text to send
+     * @param exec   The string to execute
+     * @param info   The shown info while hovering
+     * @param action The action to execute
+     */
+    public static void broadcastClickableMessage(Component text, String exec, Component info, ClickEvent.Action action) {
         server.broadcastClickableMessage(text, exec, info, action);
     }
 
@@ -239,7 +274,22 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
+    @Deprecated
     public static void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
+                                                 ClickEvent.Action action) {
+        server.broadcastClickableMessage(plugin, text, exec, info, action);
+    }
+
+    /**
+     * Sends a clickable message to all players and a message to the console
+     *
+     * @param plugin The sender plugin
+     * @param text   The text to send
+     * @param exec   The string to execute
+     * @param info   The shown info while hovering
+     * @param action The action to execute
+     */
+    public static void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
                                                  ClickEvent.Action action) {
         server.broadcastClickableMessage(plugin, text, exec, info, action);
     }
@@ -271,7 +321,19 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title (in ticks)
      */
+    @Deprecated
     public static void broadcastTitle(String title, String subTitle, Duration stay) {
+        server.broadcastTitle(title, subTitle, stay);
+    }
+
+    /**
+     * Sends a title to all players
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The display time of the title (in ticks)
+     */
+    public static void broadcastTitle(Component title, Component subTitle, Duration stay) {
         server.broadcastTitle(title, subTitle, stay);
     }
 
@@ -321,6 +383,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param inventoryTitle The inventory title
      * @return the users with the open inventory
      */
+    @Deprecated
     public static ArrayList<User> getUsersWithOpenInventory(String inventoryTitle) {
         return server.getUsersWithOpenInventory(inventoryTitle);
     }

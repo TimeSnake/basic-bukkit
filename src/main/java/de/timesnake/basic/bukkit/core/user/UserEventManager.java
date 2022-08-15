@@ -3,11 +3,11 @@ package de.timesnake.basic.bukkit.core.user;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserChatCommandListener;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.event.*;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.extension.util.chat.Chat;
 import net.kyori.adventure.text.Component;
@@ -311,7 +311,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         if (user.isAirMode()) {
-            e.setDeathMessage("");
+            e.deathMessage(Component.empty());
             return;
         }
 
@@ -327,18 +327,21 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         e.setKeepInventory(userDeathEvent.isKeepInventory());
 
         if (!userDeathEvent.isBroadcastDeathMessage()) {
-            e.setDeathMessage("");
+            e.deathMessage(Component.empty());
             return;
         }
 
         // death message
         if (e.getEntity().getKiller() == null) {
             if (user.getLastDamager() != null && user.getLastDamager().getDamageType().equals(UserDamage.DamageType.INSTANT)) {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
-                        " has been killed by " + user.getLastDamager().getDamager().getChatName());
+                e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                        .append(user.getChatNameComponent())
+                        .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                        .append(user.getLastDamager().getDamager().getChatNameComponent()));
             } else {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC + " " +
-                        "died");
+                e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                        .append(user.getChatNameComponent())
+                        .append(Component.text(" died", ExTextColor.PUBLIC)));
             }
         } else if (e.getEntity().getKiller() instanceof Player) {
 
@@ -348,20 +351,30 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             if (user.getLastDamager() != null) {
                 if (userDamage.getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
                     int distance = userDamage.getDistance().intValue();
-                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
-                            " has been shot by " + killer.getChatName() + ChatColor.PUBLIC + " from " + ChatColor.VALUE +
-                            distance + ChatColor.PUBLIC + " blocks");
+                    e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                            .append(user.getChatNameComponent())
+                            .append(Component.text(" has been shot by ", ExTextColor.PUBLIC))
+                            .append(killer.getChatNameComponent())
+                            .append(Component.text(" from ", ExTextColor.PUBLIC))
+                            .append(Component.text(distance, ExTextColor.VALUE))
+                            .append(Component.text(" blocks", ExTextColor.PUBLIC)));
                 } else {
-                    e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
-                            " has been killed by " + killer.getChatName());
+                    e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                            .append(user.getChatNameComponent())
+                            .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                            .append(killer.getChatNameComponent()));
                 }
             } else {
-                e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
-                        " has been killed by " + killer.getChatName());
+                e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                        .append(user.getChatNameComponent())
+                        .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                        .append(killer.getChatNameComponent()));
             }
         } else {
-            e.setDeathMessage(Chat.getSenderPlugin(Plugin.BUKKIT) + user.getChatName() + ChatColor.PUBLIC +
-                    " has been killed by " + e.getEntity().getLastDamageCause().getCause().name());
+            e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
+                    .append(user.getChatNameComponent())
+                    .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                    .append(Component.text(e.getEntity().getLastDamageCause().getCause().name(), ExTextColor.VALUE)));
         }
 
         user.setLastDamager(null);
