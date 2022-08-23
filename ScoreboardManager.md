@@ -29,10 +29,10 @@ header lines. The remain team is always at the end of the tablist.
 In sideboards, each line can be set independently.
 
 
-[TablistablePlayer]: /src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistablePlayer.java
+[TablistablePlayer]: src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistablePlayer.java
 
-[TablistableGroup]: /src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistableGroup.java
+[TablistableGroup]: src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistableGroup.java
 
-[TablistableRemainTeam]: /src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistableRemainTeam.java
+[TablistableRemainTeam]: src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistableRemainTeam.java
 
-[TablistGroupType]: /src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistGroupType.java
+[TablistGroupType]: src/main/java/de/timesnake/basic/bukkit/util/user/scoreboard/TablistGroupType.java
