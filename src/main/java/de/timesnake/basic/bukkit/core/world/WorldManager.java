@@ -70,6 +70,22 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         this.loadUserLocationsFromFile();
     }
 
+    public ExWorld createWorldFromFile(String name) {
+        File file = Bukkit.getWorldContainer().toPath().resolve(name).toFile();
+
+        if (!file.isDirectory()) {
+            return null;
+        }
+
+        if (file.list((f, n) -> n.equals(ExWorldFile.NAME)).length == 0) {
+            return null;
+        }
+
+        ExWorldFile exWorldFile = new ExWorldFile(file);
+
+        return this.createWorld(file.getName(), exWorldFile.getWorldType());
+    }
+
     private void loadUserLocationsFromFile() {
         File folder = LocationsFile.getFolder();
 
