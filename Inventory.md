@@ -1,16 +1,16 @@
 ## InventoryManager
 
-### ExInventory (`Server#createExInventory(...)`)
+### [ExInventory] (`Server#createExInventory(...)`)
 
 The `ExInventory` provides some extra methods on inventories. Like a constructor with item varargs, which calculates
 the needed inventory size.
 
 ### Excluded Inventories
 
-Inventories held by an instance of the `ExcludedInventoryHolder` are completely excluded by move- and drop-lock,
+Inventories held by an instance of an [ExcludedInventoryHolder] are completely excluded by move- and drop-lock,
 click-events.
 
-### ExItemStack (see `ExItemStack`)
+### [ExItemStack]
 
 The `ExItemStack` class extends the bukkit `ItemStack` class. Each `ExItemStack` is tagged with a unique id. For
 instantiating an item many constructors a given. Additionally, many methods are supporting the builder pattern.
@@ -35,6 +35,10 @@ If not set, the item is not dropable.
 **Moveable:**
 If not set, the item can not be moved in inventories.
 
+**Immutable:**
+If set, the item can no longer be modified. Cloned item will not be immutable by default.
+This tag is recommended for basis items to clone from.
+
 ### InventoryListener (`Server#getInventoryEventManger()`)
 
 The inventory listeners are based on two registration types:
@@ -42,12 +46,21 @@ The inventory listeners are based on two registration types:
 - `InventoryHolder` - called if the inventory is held by the registered holder
 - `ExItemStack` - called if the clicked item is equals to the registered item
 
-#### `UserInventoryClickListener`
+#### [UserInventoryClickListener]
 
 Called by the `InventoryClickEvent`. Each listener is only called if the registered item is clicked or an item is
 clicked in the inventory hold by the registered holder.
 
-#### `UserInventoryInteractListener`
+#### [UserInventoryInteractListener]
 
 Called by the `InventoryInteractEvent`. Each listener is only called if the registered item is clicked.
 
+[ExInventory]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExInventory.java
+
+[ExcludedInventoryHolder]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExcludedInventoryHolder.java
+
+[ExItemStack]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExItemStack.java
+
+[UserInventoryClickListener]: /src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryClickListener.java
+
+[UserInventoryInteractListener]: /src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryInteractEvent.java
