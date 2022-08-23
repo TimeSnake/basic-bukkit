@@ -55,12 +55,12 @@ clicked in the inventory hold by the registered holder.
 
 Called by the `InventoryInteractEvent`. Each listener is only called if the registered item is clicked.
 
-[ExInventory]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExInventory.java
+[ExInventory]: src/main/java/de/timesnake/basic/bukkit/util/user/ExInventory.java
 
-[ExcludedInventoryHolder]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExcludedInventoryHolder.java
+[ExcludedInventoryHolder]: src/main/java/de/timesnake/basic/bukkit/util/user/ExcludedInventoryHolder.java
 
-[ExItemStack]: /src/main/java/de/timesnake/basic/bukkit/util/user/ExItemStack.java
+[ExItemStack]: src/main/java/de/timesnake/basic/bukkit/util/user/ExItemStack.java
 
-[UserInventoryClickListener]: /src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryClickListener.java
+[UserInventoryClickListener]: src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryClickListener.java
 
-[UserInventoryInteractListener]: /src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryInteractEvent.java
+[UserInventoryInteractListener]: src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryInteractEvent.java
