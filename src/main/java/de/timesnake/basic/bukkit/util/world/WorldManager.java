@@ -43,6 +43,8 @@ public interface WorldManager {
 
     ExWorld cloneWorld(String name, ExWorld world);
 
+    ExWorld createWorldFromFile(String name);
+
     ExWorld createWorld(String name);
 
     ExWorld createWorld(String name, Type type);

@@ -795,7 +795,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
 
     @Override
     public String getTablistPrefix() {
-        return LegacyComponentSerializer.legacySection().serialize(this.getPrefix());
+        return this.getPrefix() != null ? LegacyComponentSerializer.legacySection().serialize(this.getPrefix()) : null;
     }
 
     @Override

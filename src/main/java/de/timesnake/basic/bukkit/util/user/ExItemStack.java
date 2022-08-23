@@ -69,6 +69,26 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return ExItemStack.getIdFromString(item.getItemMeta().getLocalizedName());
     }
 
+    /**
+     * Gets a new item stack with an id equals to the hash code of the given name.
+     *
+     * <p>
+     * This is usefully to have a persistent item id.
+     * The name of the item must be unique. Else a {@link DuplicateItemIdException} will be thrown.
+     * </p>
+     *
+     * @param material The material
+     * @param name     The name of the item, must be unique
+     * @return Returns a new {@link ExItemStack}
+     */
+    public static ExItemStack getHashedIdItem(Material material, String name) {
+        int hash = name.hashCode();
+        if (ITEMS_BY_ID.containsKey(hash)) {
+            throw new DuplicateItemIdException("NameHash: Item name " + name + " is already used, name can not be hashed");
+        }
+        return new ExItemStack(hash, new ItemStack(material));
+    }
+
     public static ExItemStack getPotion(Material material, PotionType type, boolean extended, boolean upgraded) {
         ExItemStack item = new ExItemStack(material);
 

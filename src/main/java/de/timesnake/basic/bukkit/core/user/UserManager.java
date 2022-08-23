@@ -3,6 +3,7 @@ package de.timesnake.basic.bukkit.core.user;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.extension.util.player.UserList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -59,7 +60,10 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
         if (user.getPermGroup() != null) {
             user.getPermGroup().removeUser(user);
         }
+
         user.getDisplayGroups().forEach(group -> group.removeUser(user));
+        UserList.LISTS.forEach(l -> l.remove(user));
+
         this.users.remove(uuid);
     }
 

@@ -6,6 +6,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.chat.Plugin;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
@@ -54,20 +55,7 @@ public class ExFile {
         this.configFile = new File("plugins/" + folder + "/" + name + ".yml");
         this.config = YamlConfiguration.loadConfiguration(this.configFile);
 
-        //directory creation
-        File dir = new File("plugins/" + folder);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        //file creation
-        if (!this.configFile.exists()) {
-            try {
-                this.configFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.create();
         this.config.options().copyDefaults(true);
     }
 
@@ -75,20 +63,19 @@ public class ExFile {
         this.configFile = new File(parentFile.getAbsolutePath() + File.separator + fullName);
         this.config = YamlConfiguration.loadConfiguration(this.configFile);
 
-        //directory creation
-        if (!parentFile.exists()) {
-            parentFile.mkdir();
-        }
+        this.create();
+        this.config.options().copyDefaults(true);
+    }
 
-        //file creation
+    public void create() {
         if (!this.configFile.exists()) {
             try {
+                FileUtils.createParentDirectories(this.configFile);
                 this.configFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        this.config.options().copyDefaults(true);
     }
 
     public ExFile save() {

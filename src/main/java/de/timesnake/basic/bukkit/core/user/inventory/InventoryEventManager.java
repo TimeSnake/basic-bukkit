@@ -57,7 +57,10 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
             ExItemStack item;
 
             if (e.getCurrentItem() != null && !e.getCurrentItem().getType().equals(Material.AIR)) {
-                item = ExItemStack.getItem(e.getCurrentItem(), true).setSlot(e.getSlot());
+                item = ExItemStack.getItem(e.getCurrentItem(), true);
+                if (item != null && !item.isImmutable()) {
+                    item.setSlot(e.getSlot());
+                }
 
             } else {
                 item = new ExItemStack(Material.AIR);

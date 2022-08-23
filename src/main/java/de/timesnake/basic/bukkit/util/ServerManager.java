@@ -754,13 +754,15 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    @ChannelHandler(type = {ListenerType.SERVER_PERMISSION, ListenerType.SERVER_COMMAND})
+    @ChannelHandler(type = {ListenerType.SERVER_PERMISSION, ListenerType.SERVER_COMMAND, ListenerType.SERVER_LOAD_WORLD})
     public final void onServerMessage(ChannelServerMessage<?> msg) {
         MessageType<?> type = msg.getMessageType();
         if (type.equals(MessageType.Server.PERMISSION)) {
             this.updateUsersPermissions();
         } else if (type.equals(MessageType.Server.COMMAND)) {
             this.runTaskSynchrony(() -> runCommand((String) msg.getValue()), BasicBukkit.getPlugin());
+        } else if (type.equals(MessageType.Server.LOAD_WORLD)) {
+            this.worldManager.createWorldFromFile(((String) msg.getValue()));
         }
     }
 
