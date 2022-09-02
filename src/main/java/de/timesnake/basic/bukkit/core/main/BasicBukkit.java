@@ -41,11 +41,6 @@ public class BasicBukkit extends JavaPlugin {
     private static JavaPlugin plugin;
 
     @Override
-    public void onLoad() {
-        ChannelBukkit.start(Network.PROXY_PORT);
-    }
-
-    @Override
     public void onEnable() {
         BasicBukkit.plugin = this;
 
@@ -57,6 +52,7 @@ public class BasicBukkit extends JavaPlugin {
         DbServer server = Database.getServers().getServer(Bukkit.getPort());
 
         if (server != null) {
+            ChannelBukkit.start(server.getName(), Network.PROXY_PORT);
             server.setStatusSynchronized(Status.Server.LOADING);
             server.setOnlinePlayers(0);
         } else {
@@ -82,7 +78,7 @@ public class BasicBukkit extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getPort(),
+        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getName(),
                 MessageType.Server.STATUS, Status.Server.OFFLINE));
 
         ServerManager.getInstance().onDisable();
