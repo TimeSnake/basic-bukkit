@@ -9,25 +9,33 @@ import de.timesnake.channel.util.listener.ListenerType;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.ChannelUserMessage;
 import de.timesnake.channel.util.message.MessageType;
+import de.timesnake.database.util.Database;
+import de.timesnake.library.network.NetworkUtils;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class Network implements de.timesnake.basic.bukkit.util.server.Network, ChannelListener {
+public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.util.server.Network, ChannelListener {
 
     private final Set<UUID> userSwitching = new HashSet<>();
     private Integer playerAmount;
 
     public Network(Integer playerAmount) {
+        super(Database.getNetwork().getNetworkFile("network").getFile().toPath());
         this.playerAmount = playerAmount;
-        Server.getChannel().addListener(this, () -> Collections.singleton(Network.PROXY_PORT));
+        Server.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
     }
 
     @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
     public void onServerMessage(ChannelServerMessage<?> msg) {
         this.setPlayerAmount((Integer) msg.getValue());
+    }
+
+    @Override
+    public String getName() {
+        return Server.getChannel().getProxyName();
     }
 
     @Override
