@@ -5,12 +5,12 @@ This manager provides completely packet based user specific tablists and sideboa
 ### Tablist
 
 To a tablist all objects, which inherit the [TablistablePlayer] interface can be added.
-TablistablPlayers can be sorted in the tablist by groups and teams. To allow the use of an object as group or team,
+TablistablePlayers can be sorted in the tablist by groups and teams. To allow the use of an object as group or team,
 the interface [TablistableGroup] must be implemented.
 For a remain team, the [TablistableRemainTeam] must be implemented.
 The group and team of a player is determined by invoking the `TablistablePlayer#getTablistGroup(TablistGroupType type)`
 method. Due to that, each group and team in a tablist must be a different [TablistGroupType]. So it is
-recommended to override this class.
+recommended to override this class and define new group types.
 
 In general, two tablist types are available:
 

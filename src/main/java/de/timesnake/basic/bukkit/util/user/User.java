@@ -2026,7 +2026,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 component = component.append(this.getPrefix());
             }
 
-            component = component.append(Component.text(this.getName(), ExTextColor.WHITE));
+            component = component.append(this.getPlayerChatName());
 
             if (this.getSuffix() != null) {
                 component = component.append(this.getSuffix());
@@ -2042,8 +2042,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.chatName = component;
     }
 
-    protected String getPlayerChatName() {
-        return this.getPlayer().getName();
+    protected Component getPlayerChatName() {
+        return Component.text(this.getPlayer().getName(), ExTextColor.WHITE);
     }
 
 

@@ -50,6 +50,10 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     private final HashMap<User, UserChatCommandListener> chatListener = new HashMap<>();
 
+    public UserEventManager() {
+        Server.registerListener(this, BasicBukkit.getPlugin());
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onPreLogin(PlayerLoginEvent e) {
         Player p = e.getPlayer();
@@ -86,7 +90,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             Server.printWarning(Plugin.BUKKIT, "Unable to inject player permission checker");
             e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
             e.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A fatal error has occurred, " +
-                    "please contact a administrator! (Code: E814)"));
+                    "please contact an administrator! (Code: E814)"));
             return;
         }
 
@@ -104,7 +108,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        e.setJoinMessage("");
+        e.joinMessage(Component.empty());
 
         // finalize user creation
         ((UserManager) Server.getUserManager()).registerUser(e.getPlayer().getUniqueId());
@@ -134,7 +138,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        e.setQuitMessage("");
+        e.quitMessage(Component.empty());
         User user = Server.getUser(e.getPlayer());
         user.quit();
 

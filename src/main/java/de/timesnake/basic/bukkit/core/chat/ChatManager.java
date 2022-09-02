@@ -1,5 +1,6 @@
 package de.timesnake.basic.bukkit.core.chat;
 
+import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.Info;
 import de.timesnake.basic.bukkit.core.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.Server;
@@ -41,6 +42,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     public ChatManager() {
         de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null, null);
         this.chats.put(GLOBAL_CHAT_NAME, chat);
+
+        Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
     @Override
@@ -220,7 +223,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
             Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
         } else {
             Server.printText(Plugin.BUKKIT, "§2>>>" +
-                    LegacyComponentSerializer.legacyAmpersand().serialize(user.getChatNameComponent().color(ExTextColor.WHITE)));
+                    PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent().color(ExTextColor.WHITE)));
         }
 
     }

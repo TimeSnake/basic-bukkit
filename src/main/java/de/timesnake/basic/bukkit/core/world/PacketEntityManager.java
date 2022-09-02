@@ -152,11 +152,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     @Override
     public <EntityType extends PacketEntity> Set<EntityType> getEntitiesByWorld(ExWorld world,
                                                                                 Class<EntityType> entityClass) {
-        return (Set<EntityType>) this.entitiesByChunk.entrySet().stream()
+        return ((Set<EntityType>) this.entitiesByChunk.entrySet().stream()
                 .filter(entry -> entry.getKey().getWorld().equals(world.getBukkitWorld()))
                 .map(Map.Entry::getValue).flatMap(Collection::stream)
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
-                .toList();
+                .collect(Collectors.toSet()));
     }
 
     @EventHandler
