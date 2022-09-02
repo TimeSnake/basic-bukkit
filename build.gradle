@@ -34,11 +34,13 @@ repositories {
 }
 
 dependencies {
+    implementation 'de.timesnake:library-network:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-entities:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-packets:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-reflection:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-extension:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-basic:1.0-SNAPSHOT'
+    compileOnly "org.freemarker:freemarker:2.3.31"
     compileOnly 'de.timesnake:database-bukkit:1.0-SNAPSHOT'
     compileOnly 'de.timesnake:database-api:1.0-SNAPSHOT'
     compileOnly 'de.timesnake:channel-bukkit:1.0-SNAPSHOT'

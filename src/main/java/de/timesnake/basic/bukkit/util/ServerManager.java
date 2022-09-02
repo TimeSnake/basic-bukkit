@@ -81,9 +81,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     private static ServerManager instance;
-    protected final de.timesnake.basic.bukkit.util.chat.ChatManager chatManager = new ChatManager();
     private final ConsoleManager consoleManager = new ConsoleManager();
     private final Random random = new Random();
+    protected de.timesnake.basic.bukkit.util.chat.ChatManager chatManager;
     protected Network network;
     protected PacketManager packetManager;
     protected WorldManager worldManager;
@@ -105,9 +105,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public final void onEnable() {
         this.database = Database.getServers().getServer(Bukkit.getPort());
+        this.taskManager = new TaskManager();
         this.info = new de.timesnake.basic.bukkit.core.server.Info(this.database);
         this.userManager = new UserManager();
         this.packetManager = new PacketManager(BasicBukkit.getPlugin());
+        this.chatManager = new ChatManager();
         this.groupManager = new de.timesnake.basic.bukkit.core.server.GroupManager();
         ArrayList<PermGroup> groups = new ArrayList<>(this.getPermGroups());
         groups.sort(PermGroup::compareTo);
@@ -120,18 +122,12 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.initWorldManager();
         this.userEventManager = new de.timesnake.basic.bukkit.core.user.UserEventManager();
         this.inventoryEventManager = new InventoryEventManager();
-        this.taskManager = new TaskManager();
         this.packetBroadcaster = new PacketBroadcaster();
         this.pvpManager = new PvPManager();
         this.packetEntityManager = new PacketEntityManager();
         this.initScoreboardManager();
 
-        this.getChannel().addListener(this, () -> Collections.singleton(this.getPort()));
-
-        //game and teams
-
-        Bukkit.getPluginManager().registerEvents((de.timesnake.basic.bukkit.core.user.UserEventManager) this.getUserEventManager(), BasicBukkit.getPlugin());
-        Bukkit.getPluginManager().registerEvents((Listener) this.chatManager, BasicBukkit.getPlugin());
+        this.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
 
         Server.runTaskSynchrony(this::loaded, BasicBukkit.getPlugin());
     }
