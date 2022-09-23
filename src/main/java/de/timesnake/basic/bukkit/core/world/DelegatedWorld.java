@@ -443,8 +443,8 @@ public class DelegatedWorld implements World {
     @Override
     public @NotNull List<Player> getPlayers() {return world.getPlayers();}
 
-    @Override
     @NotNull
+    @Override
     public Iterable<? extends Audience> audiences() {return world.audiences();}
 
     @Override
@@ -910,8 +910,8 @@ public class DelegatedWorld implements World {
     public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory category, float volume
             , float pitch) {world.playSound(entity, sound, category, volume, pitch);}
 
-    @Override
     @NotNull
+    @Override
     public String[] getGameRules() {return world.getGameRules();}
 
     @Override
@@ -1102,8 +1102,8 @@ public class DelegatedWorld implements World {
     @Override
     public void setSendViewDistance(int viewDistance) {world.setSendViewDistance(viewDistance);}
 
-    @Override
     @NotNull
+    @Override
     public Spigot spigot() {return world.spigot();}
 
     @Override
@@ -1241,15 +1241,15 @@ public class DelegatedWorld implements World {
     @Override
     public @NotNull Key key() {return world.key();}
 
-    @Override
     @NotNull
+    @Override
     public String getName() {return world.getName();}
 
     @Override
     public @NotNull UUID getUID() {return world.getUID();}
 
-    @Override
     @NotNull
+    @Override
     public Environment getEnvironment() {return world.getEnvironment();}
 
     @Override
@@ -1288,8 +1288,8 @@ public class DelegatedWorld implements World {
     @Override
     public @NotNull Pointers pointers() {return world.pointers();}
 
-    @Override
     @NotNull
+    @Override
     public Audience filterAudience(@NotNull Predicate<? super Audience> filter) {return world.filterAudience(filter);}
 
     @Override

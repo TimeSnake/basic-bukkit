@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class VoidGenerator extends ChunkGenerator {
+public class WaterGenerator extends ChunkGenerator {
 
     @Override
     @Nonnull
@@ -26,14 +26,13 @@ public class VoidGenerator extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunkData = super.createChunkData(world);
 
-        if (chunkX == 0 && chunkZ == 0) {
-            world.getBlockAt(0, 0, 0).setType(Material.STONE);
-        }
-
-        // For every block in the chunk set the biome to plains
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 biome.setBiome(x, z, Biome.PLAINS);
+
+                for (int y = 0; y < 64; y++) {
+                    world.getChunkAt(chunkX, chunkZ).getBlock(x, y, z).setType(Material.WATER);
+                }
             }
         }
 
@@ -47,6 +46,6 @@ public class VoidGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 0, 128, 0);
+        return new Location(world, 0, 65, 0);
     }
 }

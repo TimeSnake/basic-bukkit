@@ -1,6 +1,8 @@
 package de.timesnake.basic.bukkit.util.world;
 
+import de.timesnake.basic.bukkit.core.world.FlatStoneGenerator;
 import de.timesnake.basic.bukkit.core.world.VoidGenerator;
+import de.timesnake.basic.bukkit.core.world.WaterGenerator;
 import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.World;
 import org.bukkit.WorldType;
@@ -83,7 +85,9 @@ public interface WorldManager {
         VOID(null, null, new VoidGenerator()),
         FLAT(World.Environment.NORMAL, WorldType.FLAT, null),
         AMPLIFIED(World.Environment.NORMAL, WorldType.AMPLIFIED, null),
-        LARGE_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null);
+        LARGE8_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null),
+        FLAT_STONE(World.Environment.NORMAL, null, new FlatStoneGenerator()),
+        WATER(World.Environment.NORMAL, null, new WaterGenerator());
 
         public static List<String> getNames() {
             List<String> names = new ArrayList<>();

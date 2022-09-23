@@ -35,14 +35,14 @@ import java.util.HashMap;
 
 public class UserEventManager implements Listener, de.timesnake.basic.bukkit.util.user.UserEventManager {
 
-    private static final Field PERMSSION_FIELD;
+    private static final Field PERMISSION_FIELD;
 
     static {
         try {
-            PERMSSION_FIELD = Class.forName("org.bukkit.craftbukkit." +
+            PERMISSION_FIELD = Class.forName("org.bukkit.craftbukkit." +
                     Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3]
                     + ".entity.CraftHumanEntity").getDeclaredField("perm");
-            PERMSSION_FIELD.setAccessible(true);
+            PERMISSION_FIELD.setAccessible(true);
         } catch (NoSuchFieldException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -54,13 +54,13 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPreLogin(PlayerLoginEvent e) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerLogin(PlayerLoginEvent e) {
         Player p = e.getPlayer();
 
         // inject custom permission checker
         try {
-            PERMSSION_FIELD.set(p, new PermissibleBase(p) {
+            PERMISSION_FIELD.set(p, new PermissibleBase(p) {
                 @Override
                 public boolean hasPermission(@NotNull String inName) {
                     if (super.hasPermission("*")) {
