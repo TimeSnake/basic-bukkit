@@ -17,9 +17,19 @@ public interface ExInventory {
 
     void setItemStack(ExItemStack item);
 
-    void removeItemStack(ExItemStack item);
+    /**
+     * Removes an {@link ExItemStack} from inventory by id
+     *
+     * @param item The {@link ExItemStack} to remove
+     * @return if removed the slot, else null
+     */
+    Integer removeItemStack(ExItemStack item);
 
     void removeItemStack(int index);
+
+    Integer getFirstEmptySlot();
+
+    Integer getFirstEmptySlot(int begin);
 
     Inventory getInventory();
 }

@@ -151,11 +151,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 this.permGroup.addUser(this);
             } else {
                 Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-                this.player.kick(Component.text("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN"));
+                this.player.kick(Component.text("§c§lA fatal error occurred\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN"));
             }
         } else {
             Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-            this.player.kick(Component.text("§c§lContact a supporter!!!\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
+            this.player.kick(Component.text("§c§lA fatal error occurred\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
                     "\nDO NOT REJOIN"));
         }
 
@@ -177,12 +177,12 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.coins = dbLocalUser.getCoins();
 
         if (dbUser.getServerLast() != null) {
-            this.lastServer = new ServerInfo(dbUser.getServerLast());
+            this.lastServer = new ServerInfo(dbLocalUser.getServerLast());
         } else {
             this.lastServer = null;
         }
         if (dbUser.getServerLobby() != null) {
-            this.lastLobbyServer = new ServerInfo(dbUser.getServerLobby());
+            this.lastLobbyServer = new ServerInfo(dbLocalUser.getServerLobby());
         } else {
             this.lastLobbyServer = null;
         }

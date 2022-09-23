@@ -854,19 +854,19 @@ public class UserPlayerDelegation implements Player {
     @Override
     public void sendOpLevel(byte level) {player.sendOpLevel(level);}
 
-    @Override
     @Nullable
+    @Override
     public String getClientBrandName() {return player.getClientBrandName();}
 
-    @Override
     @NotNull
+    @Override
     public Spigot spigot() {return player.spigot();}
 
     @Override
     public @NotNull EntityEquipment getEquipment() {return player.getEquipment();}
 
-    @Override
     @NotNull
+    @Override
     public String getName() {return player.getName();}
 
     @Override
@@ -1193,8 +1193,8 @@ public class UserPlayerDelegation implements Player {
     @Override
     public void setNoDamageTicks(int ticks) {player.setNoDamageTicks(ticks);}
 
-    @Override
     @Nullable
+    @Override
     public Player getKiller() {return player.getKiller();}
 
     @Override
@@ -1975,8 +1975,8 @@ public class UserPlayerDelegation implements Player {
     @Override
     public void setWhitelisted(boolean value) {player.setWhitelisted(value);}
 
-    @Override
     @Nullable
+    @Override
     public Player getPlayer() {return player.getPlayer();}
 
     @Override

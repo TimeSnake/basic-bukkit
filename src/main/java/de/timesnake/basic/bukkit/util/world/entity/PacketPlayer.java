@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class PacketPlayer extends PacketEntity {
 
-    private final ExPlayer player;
+    protected final ExPlayer player;
 
     public PacketPlayer(ExPlayer player, ExLocation location) {
         super(location);

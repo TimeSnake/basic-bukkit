@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -60,14 +61,48 @@ public class ExInventory implements de.timesnake.basic.bukkit.util.user.ExInvent
         }
     }
 
+    /**
+     * Removes an {@link ExItemStack} from inventory by id
+     *
+     * @param item The {@link ExItemStack} to remove
+     * @return if removed the slot, else null
+     */
     @Override
-    public void removeItemStack(ExItemStack item) {
-        this.inventory.remove(item);
+    public Integer removeItemStack(ExItemStack item) {
+        for (int slot = 0; slot < this.getInventory().getSize(); slot++) {
+            ItemStack i = this.getInventory().getItem(slot);
+            if (i == null) {
+                continue;
+            }
+
+            ExItemStack exItem = new ExItemStack(i, slot);
+
+            if (exItem.equals(item)) {
+                this.inventory.setItem(slot, null);
+                return slot;
+            }
+        }
+        return null;
     }
 
     @Override
     public void removeItemStack(int index) {
         this.inventory.remove(this.inventory.getItem(index));
+    }
+
+    @Override
+    public Integer getFirstEmptySlot() {
+        return this.getFirstEmptySlot(0);
+    }
+
+    @Override
+    public Integer getFirstEmptySlot(int begin) {
+        for (int i = begin; i < this.inventory.getSize(); i++) {
+            if (this.inventory.getItem(i) == null) {
+                return i;
+            }
+        }
+        return null;
     }
 
     @Override

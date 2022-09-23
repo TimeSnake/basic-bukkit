@@ -66,12 +66,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public static ServerManager getInstance() {
         if (instance == null) {
-            instance = new ServerManager() {
-                @Override
-                public User loadUser(Player player) {
-                    return new User(player);
-                }
-            };
+            instance = new ServerManager();
         }
         return instance;
     }
@@ -209,8 +204,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public final void createUser(Player player) {
         ((UserManager) this.userManager).storeUser(player.getUniqueId(),
-                BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(),
-                        () -> this.loadUser(player)));
+                BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
     }
 
     public User loadUser(Player player) {
