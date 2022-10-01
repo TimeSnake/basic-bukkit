@@ -1750,27 +1750,26 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     public boolean teleport(double x, double y, double z) {
-        return this.teleport(new ExLocation(this.getWorld(), x, y, z, this.getLocation().getYaw(),
+        return this.teleport(new ExLocation(this.getExWorld(), x, y, z, this.getLocation().getYaw(),
                 this.getLocation().getPitch()));
     }
 
     public boolean teleport(double x, double y, double z, float yaw, float pitch) {
-        return this.teleport(new ExLocation(this.getWorld(), x, y, z, yaw, pitch));
+        return this.teleport(new ExLocation(this.getExWorld(), x, y, z, yaw, pitch));
     }
 
     /**
-     * Use {@link User#getWorld()}
+     * Gets the {@link ExWorld}, which is equivalent to the world returned from {@code this.getWorld()}
      *
      * @return the {@link ExWorld}
      */
-    @Deprecated
     public ExWorld getExWorld() {
         return Server.getWorld(this.player.getWorld());
     }
 
     @Override
-    public @NotNull ExWorld getWorld() {
-        return Server.getWorld(this.player.getWorld());
+    public @NotNull World getWorld() {
+        return this.player.getWorld();
     }
 
     /**
@@ -1917,12 +1916,14 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             this.setFlySpeed(Float.MIN_VALUE);
             this.setAllowFlight(true);
             this.setFlying(true);
+            this.setGravity(false);
             this.lockedLocation = this.getLocation();
         } else {
             this.setWalkSpeed((float) 0.2);
             this.setFlySpeed((float) 0.2);
             this.setAllowFlight(false);
             this.setFlying(false);
+            this.setGravity(true);
             this.lockedLocation = null;
         }
     }

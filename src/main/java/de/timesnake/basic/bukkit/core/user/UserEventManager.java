@@ -293,6 +293,16 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         this.chatListener.put(user, listener);
     }
 
+    @Override
+    public void removeUserChatCommand(User user, UserChatCommandListener listener) {
+        this.chatListener.remove(user, listener);
+    }
+
+    @Override
+    public void removeUserChatCommand(User user) {
+        this.chatListener.remove(user);
+    }
+
     public boolean onUserChat(User user, boolean isCanceled, String message) {
         UserChatCommandEvent event = new UserChatCommandEvent(user, isCanceled, message);
         if (chatListener.containsKey(user)) {

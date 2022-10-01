@@ -144,7 +144,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     public void saveUserLocations(User user) {
         user.setLastLocation(user.getLocation());
-        this.locationsPerWorldByUuid.get(user.getUniqueId()).put(user.getWorld(), user.getExLocation());
+        this.locationsPerWorldByUuid.get(user.getUniqueId()).put(user.getExWorld(), user.getExLocation());
     }
 
     private void saveLocations() {
@@ -609,7 +609,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @EventHandler
     public void onEntityDamage(UserDamageEvent e) {
-        ExWorld world = e.getUser().getWorld();
+        ExWorld world = e.getUser().getExWorld();
 
         if (world.isPlayerDamageAllowed()) {
             return;

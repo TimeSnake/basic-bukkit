@@ -7,6 +7,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class ExLocation extends Location {
 
@@ -14,6 +17,21 @@ public class ExLocation extends Location {
         if (location == null) return null;
         return new ExLocation(Server.getWorld(location.getWorld()), location.getX(), location.getY(), location.getZ()
                 , location.getYaw(), location.getPitch());
+    }
+
+    public static ExLocation fromList(List<Number> list) {
+        if (list == null) {
+            return null;
+        }
+
+        if (list.size() == 3) {
+            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(), list.get(2).doubleValue());
+        } else if (list.size() == 5) {
+            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(), list.get(2).doubleValue(),
+                    list.get(3).floatValue(), list.get(4).floatValue());
+        } else {
+            throw new RuntimeException("invalid list size for location");
+        }
     }
 
     private ExWorld world;
@@ -61,7 +79,7 @@ public class ExLocation extends Location {
     }
 
     @Override
-    public Block getBlock() {
+    public @NotNull Block getBlock() {
         return this.world.getBlockAt(this);
     }
 
@@ -148,24 +166,24 @@ public class ExLocation extends Location {
     }
 
     @Override
-    public ExLocation clone() {
+    public @NotNull ExLocation clone() {
         return new ExLocation(this.world, this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
     }
 
     @Override
-    public ExLocation add(double x, double y, double z) {
+    public @NotNull ExLocation add(double x, double y, double z) {
         super.add(x, y, z);
         return this;
     }
 
     @Override
-    public ExLocation add(Vector vector) {
+    public @NotNull ExLocation add(@NotNull Vector vector) {
         super.add(vector);
         return this;
     }
 
     @Override
-    public ExLocation toBlockLocation() {
+    public @NotNull ExLocation toBlockLocation() {
         return ExLocation.fromLocation(super.toBlockLocation());
     }
 
