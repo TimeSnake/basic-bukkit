@@ -34,6 +34,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+
     implementation 'de.timesnake:library-network:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-entities:1.0-SNAPSHOT'
     implementation 'de.timesnake:library-packets:1.0-SNAPSHOT'
