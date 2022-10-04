@@ -39,6 +39,7 @@ import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.util.packet.*;
 import net.kyori.adventure.text.Component;
@@ -251,7 +252,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param plugin The plugin, that will send the messages
      * @return the {@link Sender}
      */
-    public Sender asSender(de.timesnake.library.basic.util.chat.Plugin plugin) {
+    public Sender asSender(de.timesnake.library.extension.util.chat.Plugin plugin) {
         return new Sender(new ExCommandSender(player), plugin);
     }
 
@@ -420,7 +421,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param message The message to send
      */
     @Deprecated
-    public void sendPluginMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String message) {
+    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin, String message) {
         this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
     }
 
@@ -430,7 +431,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param plugin  The {@link Plugin} to send the message
      * @param message The message to send
      */
-    public void sendPluginMessage(de.timesnake.library.basic.util.chat.Plugin plugin, Component message) {
+    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin, Component message) {
         this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin).append(message));
     }
 
@@ -1231,12 +1232,25 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * If false, the user receives an error-message with the code by the plugin
      *
      * @param permission The permission to has
-     * @param code       The permission-code of the permission
+     * @param code       The code of the permission
      * @param plugin     The {@link Plugin} of the permission
-     * @return if user has permission
+     * @return if user has
      */
-    public boolean hasPermission(String permission, int code, de.timesnake.library.basic.util.chat.Plugin plugin) {
+    @Deprecated
+    public boolean hasPermission(String permission, Code.Permission code, de.timesnake.library.extension.util.chat.Plugin plugin) {
         return this.asSender(plugin).hasPermission(permission, code);
+    }
+
+    /**
+     * Has user permission
+     * If false, the user receives an error-message with the code by the plugin
+     *
+     * @param code   The code of the permission
+     * @param plugin The {@link Plugin} of the permission
+     * @return if user has
+     */
+    public boolean hasPermission(Code.Permission code, de.timesnake.library.extension.util.chat.Plugin plugin) {
+        return this.asSender(plugin).hasPermission(code);
     }
 
     /**

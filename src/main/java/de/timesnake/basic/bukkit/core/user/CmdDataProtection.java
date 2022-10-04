@@ -8,8 +8,8 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.library.basic.util.chat.ExTextColor;
-import de.timesnake.library.basic.util.chat.Plugin;
-import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.extension.util.chat.Code;
+import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import net.kyori.adventure.text.Component;
@@ -22,6 +22,8 @@ import java.util.List;
 
 public class CmdDataProtection implements CommandListener, Listener {
 
+    private Code.Help alreadyAccepted;
+
     @Override
     public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
         if (sender.isPlayer(true)) {
@@ -31,7 +33,7 @@ public class CmdDataProtection implements CommandListener, Listener {
 
                     if (user.agreedDataProtection()) {
                         sender.sendPluginMessage(Component.text("You already accepted our data protection declaration ", ExTextColor.WARNING)
-                                .append(Chat.getMessageCode("H", 740, Plugin.BUKKIT)));
+                                .append(alreadyAccepted.asComponent(ExTextColor.WARNING)));
                         return;
                     }
 
@@ -62,6 +64,11 @@ public class CmdDataProtection implements CommandListener, Listener {
             return List.of("accept", "deny");
         }
         return null;
+    }
+
+    @Override
+    public void loadCodes(Plugin plugin) {
+        this.alreadyAccepted = plugin.createHelpCode("aad", "Already accepted data protection");
     }
 
     @EventHandler

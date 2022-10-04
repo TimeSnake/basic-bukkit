@@ -8,7 +8,7 @@ import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
-import de.timesnake.library.basic.util.chat.Plugin;
+import de.timesnake.library.extension.util.chat.Plugin;
 
 import java.util.ArrayList;
 import java.util.Collection;

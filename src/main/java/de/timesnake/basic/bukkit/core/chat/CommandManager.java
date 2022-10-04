@@ -4,7 +4,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
-import de.timesnake.library.basic.util.chat.Plugin;
+import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.command.Command;
@@ -44,7 +44,7 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
 
     @Override
     public void addCommand(JavaPlugin mainClass, String cmd, CommandListener listener, Plugin basicPlugin) {
-
+        listener.loadCodes(basicPlugin);
         ExCommand<Sender, Argument> basicCmd = new ExCommand<>(cmd, listener, basicPlugin);
 
         this.commands.put(cmd, basicCmd);
@@ -62,6 +62,7 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
     @Override
     public void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener,
                            Plugin basicPlugin) {
+        listener.loadCodes(basicPlugin);
         this.addCommand(mainClass, cmd, listener, basicPlugin);
 
         for (String alias : aliases) {

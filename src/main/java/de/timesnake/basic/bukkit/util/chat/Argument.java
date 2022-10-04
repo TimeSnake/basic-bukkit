@@ -3,11 +3,15 @@ package de.timesnake.basic.bukkit.util.chat;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.library.extension.util.chat.Code;
 import org.bukkit.ChatColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
+
+    public static final Code.Help WORLD_TYPE_NON = new Code.Help(Plugin.SYSTEM, "nwt", 1, "Not a world type");
+    public static final Code.Help WORLD_ENVIRONMENT_NON = new Code.Help(Plugin.SYSTEM, "nwe", 1, "Not a world environment");
 
     public Argument(Sender sender, String string) {
         super(sender, string);
@@ -77,7 +81,7 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
         if (WorldType.getByName(this.string) != null) {
             return true;
         } else if (sendMessage) {
-            sender.sendMessageNotExist(this.string, 709, "World-type");
+            sender.sendMessageNotExist(this.string, WORLD_TYPE_NON, "World-type");
         }
         return false;
     }
@@ -88,7 +92,7 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
             return true;
         } catch (IllegalArgumentException e) {
             if (sendMessage) {
-                sender.sendMessageNotExist(this.string, 727, "World-environment");
+                sender.sendMessageNotExist(this.string, WORLD_ENVIRONMENT_NON, "World-environment");
             }
         }
         return false;

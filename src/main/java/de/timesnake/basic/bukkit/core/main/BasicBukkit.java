@@ -68,7 +68,7 @@ public class BasicBukkit extends JavaPlugin {
         Server.getCommandManager().addCommand(this, "channelmsg", List.of("channelmsgs", "channelmessage",
                 "channelmessages"), new ChannelBroadcastCmd(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs",
-                "databasemessages"), new DatabaseBroadcastCmd(), Plugin.DATABASE);
+                "databasemessages"), new DatabaseBroadcastCmd(), Plugin.SYSTEM);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
         Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),

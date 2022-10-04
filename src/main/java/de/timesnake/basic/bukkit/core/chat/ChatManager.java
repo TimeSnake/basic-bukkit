@@ -11,6 +11,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -38,6 +39,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     private final HashMap<String, de.timesnake.basic.bukkit.util.chat.Chat> chats = new HashMap<>();
 
     private boolean broadcastJoinQuit = true;
+    private Code.Permission globalPerm;
 
     public ChatManager() {
         de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null, null);
@@ -112,7 +114,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         boolean global = false;
 
         if (msg.startsWith("!")) {
-            if (user.hasPermission("basicsystem.chat.global", 604, Plugin.BUKKIT)) {
+            if (user.hasPermission("basicsystem.chat.global", this.globalPerm, Plugin.BUKKIT)) {
                 msg = msg.replaceFirst("!", "");
                 global = true;
             }
@@ -240,7 +242,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
     @Override
     public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
-        if (!sender.hasPermission("basicsytem.chat.global", 604)) {
+        if (!sender.hasPermission("basicsytem.chat.global", this.globalPerm)) {
             return;
         }
 
@@ -263,5 +265,11 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     @Override
     public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
         return null;
+    }
+
+    @Override
+    public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
+        this.globalPerm = plugin.createPermssionCode("chg", "/global or !");
+
     }
 }
