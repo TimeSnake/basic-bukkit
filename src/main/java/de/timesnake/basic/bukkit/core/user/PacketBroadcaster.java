@@ -63,4 +63,9 @@ public class PacketBroadcaster implements CommandListener {
     public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
         return null;
     }
+
+    @Override
+    public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
+
+    }
 }

@@ -1,6 +1,6 @@
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.basic.util.chat.Plugin;
+import de.timesnake.library.extension.util.chat.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;

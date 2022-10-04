@@ -1,7 +1,7 @@
 package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.library.basic.util.chat.Plugin;
+import de.timesnake.library.extension.util.chat.Plugin;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;

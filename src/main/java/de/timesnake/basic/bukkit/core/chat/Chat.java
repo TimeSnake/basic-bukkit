@@ -134,7 +134,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
     @Override
     @Deprecated
-    public void broadcastPluginMessage(de.timesnake.library.basic.util.chat.Plugin sender, String... msgs) {
+    public void broadcastPluginMessage(de.timesnake.library.extension.util.chat.Plugin sender, String... msgs) {
         for (String msg : msgs) {
             this.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender)
                     .append(Component.text(msg)));
@@ -142,7 +142,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
-    public void broadcastPluginMessage(de.timesnake.library.basic.util.chat.Plugin sender, Component... msgs) {
+    public void broadcastPluginMessage(de.timesnake.library.extension.util.chat.Plugin sender, Component... msgs) {
         for (Component msg : msgs) {
             this.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender).append(msg));
         }
@@ -186,7 +186,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
     @Override
     @Deprecated
-    public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, String text,
+    public void broadcastClickableMessage(de.timesnake.library.extension.util.chat.Plugin plugin, String text,
                                           String exec, String info, ClickEvent.Action action) {
         this.broadcastClickableMessage(plugin,
                 LegacyComponentSerializer.legacyAmpersand().deserialize(text), exec,
@@ -194,7 +194,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     }
 
     @Override
-    public void broadcastClickableMessage(de.timesnake.library.basic.util.chat.Plugin plugin, Component text,
+    public void broadcastClickableMessage(de.timesnake.library.extension.util.chat.Plugin plugin, Component text,
                                           String exec, Component info, ClickEvent.Action action) {
         this.broadcastClickableMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin).append(text),
                 exec, info, action);
