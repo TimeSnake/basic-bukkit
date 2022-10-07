@@ -1,15 +1,9 @@
 package de.timesnake.basic.bukkit.util.world;
 
-import de.timesnake.basic.bukkit.core.world.FlatStoneGenerator;
-import de.timesnake.basic.bukkit.core.world.VoidGenerator;
-import de.timesnake.basic.bukkit.core.world.WaterGenerator;
 import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.World;
-import org.bukkit.WorldType;
-import org.bukkit.generator.ChunkGenerator;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -49,7 +43,7 @@ public interface WorldManager {
 
     ExWorld createWorld(String name);
 
-    ExWorld createWorld(String name, Type type);
+    ExWorld createWorld(String name, ExWorldType type);
 
     boolean backupWorld(ExWorld world);
 
@@ -78,57 +72,5 @@ public interface WorldManager {
 
     boolean unloadWorld(ExWorld world, boolean save);
 
-    enum Type {
-        NORMAL(World.Environment.NORMAL, WorldType.NORMAL, null),
-        NETHER(World.Environment.NETHER, WorldType.NORMAL, null),
-        END(World.Environment.THE_END, WorldType.NORMAL, null),
-        VOID(null, null, new VoidGenerator()),
-        FLAT(World.Environment.NORMAL, WorldType.FLAT, null),
-        AMPLIFIED(World.Environment.NORMAL, WorldType.AMPLIFIED, null),
-        LARGE8_BIOMES(World.Environment.NORMAL, WorldType.LARGE_BIOMES, null),
-        FLAT_STONE(World.Environment.NORMAL, null, new FlatStoneGenerator()),
-        WATER(World.Environment.NORMAL, null, new WaterGenerator());
-
-        public static List<String> getNames() {
-            List<String> names = new ArrayList<>();
-            for (Type worldType : Type.values()) {
-                names.add(worldType.name());
-            }
-            return names;
-        }
-
-        public static Type fromWorld(World world) {
-            for (Type type : Type.values()) {
-                if (type.getWorldType() != null && type.getWorldType().equals(world.getWorldType()) && type.getEnvironment() != null && type.getEnvironment().equals(world.getEnvironment())) {
-                    return type;
-                }
-            }
-            return NORMAL;
-        }
-
-        private final World.Environment environment;
-        private final WorldType worldType;
-        private final ChunkGenerator chunkGenerator;
-
-        Type(World.Environment environment, WorldType worldType, ChunkGenerator chunkGenerator) {
-            this.environment = environment;
-            this.worldType = worldType;
-            this.chunkGenerator = chunkGenerator;
-        }
-
-        public WorldType getWorldType() {
-            return worldType;
-        }
-
-        public World.Environment getEnvironment() {
-            return environment;
-        }
-
-        public ChunkGenerator getChunkGenerator() {
-            return chunkGenerator;
-        }
-
-
-    }
 
 }

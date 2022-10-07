@@ -7,6 +7,8 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -45,29 +47,34 @@ public class DisplayGroup extends de.timesnake.library.extension.util.chat.Displ
         this.prefixColor = this.database.getChatColor();
     }
 
+    @NotNull
     @Override
     public String getTablistRank() {
         return this.tablistRank;
     }
 
+    @Nullable
     @Override
     public String getTablistPrefix() {
         return this.getPrefix();
     }
 
+    @Nullable
     @Override
     public ChatColor getTablistPrefixChatColor() {
         return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(this.getPrefixColor());
     }
 
+    @Nullable
     @Override
     public ChatColor getTablistChatColor() {
         return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(this.prefixColor);
     }
 
+    @NotNull
     @Override
     public String getTablistName() {
-        return tablistRank;
+        return this.tablistRank;
     }
 
     public void updatePrefix() {
