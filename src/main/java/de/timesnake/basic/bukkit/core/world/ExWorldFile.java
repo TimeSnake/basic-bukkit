@@ -1,6 +1,7 @@
 package de.timesnake.basic.bukkit.core.world;
 
 import de.timesnake.basic.bukkit.util.file.ExFile;
+import de.timesnake.basic.bukkit.util.world.ExWorldType;
 
 import java.io.File;
 
@@ -14,23 +15,23 @@ public class ExWorldFile extends ExFile {
         super(worldDirectory, NAME);
     }
 
-    public ExWorldFile(File worldDirectory, WorldManager.Type type) {
+    public ExWorldFile(File worldDirectory, ExWorldType type) {
         super(worldDirectory, NAME);
 
-        super.set(TYPE, type.name()).save();
+        super.set(TYPE, type.getName()).save();
 
         if (!super.contains(SAFE)) {
             super.set(SAFE, true).save();
         }
     }
 
-    public WorldManager.Type getWorldType() {
+    public ExWorldType getWorldType() {
         String type = super.getString(TYPE);
         if (type == null) {
             return null;
         }
         try {
-            return WorldManager.Type.valueOf(type.toUpperCase());
+            return ExWorldType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
         }

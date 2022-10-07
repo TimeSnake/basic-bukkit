@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.basic.bukkit.util.world.ExWorldType;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
@@ -46,7 +47,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         //add worlds to file
         for (World world : Bukkit.getWorlds()) {
             ExWorldFile file = new ExWorldFile(world.getWorldFolder());
-            this.worldsByName.put(world.getName(), new ExWorld(world, WorldManager.Type.fromWorld(world), file));
+            this.worldsByName.put(world.getName(), new ExWorld(world, ExWorldType.fromWorld(world), file));
         }
 
 
@@ -200,11 +201,11 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public ExWorld createWorld(String name) {
-        return this.createWorld(name, Type.NORMAL);
+        return this.createWorld(name, ExWorldType.NORMAL);
     }
 
     @Override
-    public ExWorld createWorld(String name, Type type) {
+    public ExWorld createWorld(String name, ExWorldType type) {
 
         if (type == null) {
             Server.printWarning(Plugin.WORLDS, "Can not load type of world " + name);
@@ -379,8 +380,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             world = Bukkit.createWorld(new WorldCreator(world.getName()).copy(world));
         }
 
-        ExWorldFile file = new ExWorldFile(world.getWorldFolder(), WorldManager.Type.fromWorld(world));
-        ExWorld exWorld = new ExWorld(world, Type.fromWorld(world), file);
+        ExWorldFile file = new ExWorldFile(world.getWorldFolder(), ExWorldType.fromWorld(world));
+        ExWorld exWorld = new ExWorld(world, ExWorldType.fromWorld(world), file);
         this.registerExWorld(exWorld);
         return exWorld;
     }

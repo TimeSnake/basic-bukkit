@@ -63,6 +63,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
@@ -152,12 +153,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 this.permGroup.addUser(this);
             } else {
                 Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-                this.player.kick(Component.text("§c§lA fatal error occurred\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) + "\nDO NOT REJOIN"));
+                this.player.kick(Component.text("§cA fatal error occurred!\nPlease contact an admin"));
             }
         } else {
             Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-            this.player.kick(Component.text("§c§lA fatal error occurred\n" + Chat.getMessageCode("E", 807, Plugin.BUKKIT) +
-                    "\nDO NOT REJOIN"));
+            this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin"));
         }
 
         this.displayGroups = new TreeSet<>(Comparator.comparingInt(DisplayGroup::getRank));
@@ -241,6 +241,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link Player}
      */
+    @NotNull
     @Override
     public final Player getPlayer() {
         return player;
@@ -252,10 +253,12 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param plugin The plugin, that will send the messages
      * @return the {@link Sender}
      */
+    @NotNull
     public Sender asSender(de.timesnake.library.extension.util.chat.Plugin plugin) {
         return new Sender(new ExCommandSender(player), plugin);
     }
 
+    @NotNull
     public ExPlayer asExPlayer() {
         return this.exPlayer;
     }
@@ -324,6 +327,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return The {@link DbUser}
      */
+    @NotNull
     @Override
     public final DbUser getDatabase() {
         return this.dbUser;
@@ -355,6 +359,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link DataProtectionAgreement}
      */
+    @Nullable
     public DataProtectionAgreement getDataProtectionAgreement() {
         return this.dataProtectionAgreement;
     }
@@ -446,6 +451,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         return PlainTextComponentSerializer.plainText().serialize(chatName);
     }
 
+    @NotNull
     @Override
     public Component getChatNameComponent() {
         return this.chatName;
@@ -456,6 +462,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the prefix
      */
+    @Nullable
     public Component getPrefix() {
         return prefix;
     }
@@ -475,6 +482,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the suffix
      */
+    @Nullable
     public Component getSuffix() {
         return suffix;
     }
@@ -494,6 +502,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the nick
      */
+    @Nullable
     public Component getNick() {
         return nick;
     }
@@ -536,6 +545,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the last chat-message
      */
+    @Nullable
     public String getLastChatMessage() {
         return lastChatMessage;
     }
@@ -694,7 +704,6 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param sound  The {@link Sound} to play
      * @param volume The volume of the sound
      */
-
     public void playSound(Sound sound, float volume) {
         this.playSound(this.player.getLocation(), sound, volume, 2);
     }
@@ -704,7 +713,6 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * Instrument: piano
      * Note: octave 1, tone A
      */
-
     public void playSoundInventoryOpened() {
         this.playNote(Instrument.PIANO, Note.natural(1, Tone.A));
     }
@@ -735,6 +743,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link PermGroup}
      */
+    @NotNull
     public PermGroup getPermGroup() {
         return permGroup;
     }
@@ -789,16 +798,19 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.hidePlayer(BasicBukkit.getPlugin(), user.getPlayer());
     }
 
+    @NotNull
     @Override
     public String getTablistName() {
         return this.getName();
     }
 
+    @Nullable
     @Override
     public String getTablistPrefix() {
         return this.getPrefix() != null ? LegacyComponentSerializer.legacySection().serialize(this.getPrefix()) : null;
     }
 
+    @Nullable
     @Override
     public TablistableGroup getTablistGroup(TablistGroupType type) {
         if (DisplayGroup.TABLIST_TYPE_0.equals(type)) {
@@ -1109,6 +1121,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the first {@link BossBar} if one exists, else null
      */
+    @Nullable
     public BossBar getBossBar() {
         if (!this.bossBars.isEmpty()) {
             return this.bossBars.iterator().next();
@@ -1132,6 +1145,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link Set} of {@link BossBar}s
      */
+    @NotNull
     public Set<BossBar> getBossBars() {
         return this.bossBars;
     }
@@ -1169,6 +1183,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link Status.User}
      */
+    @NotNull
     public Status.User getStatus() {
         return this.status;
     }
@@ -1201,6 +1216,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the task
      */
+    @Nullable
     public String getTask() {
         return this.task;
     }
@@ -1341,6 +1357,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link ServerInfo} of the server
      */
+    @Nullable
     public ServerInfo getLastServer() {
         return this.lastServer;
     }
@@ -1350,6 +1367,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link ServerInfo} of the server
      */
+    @Nullable
     public ServerInfo getLastLobbyServer() {
         return this.lastLobbyServer;
     }
@@ -1478,6 +1496,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param id The id of the searched item
      * @return the item if found, else null
      */
+    @Nullable
     public ExItemStack getExItem(Integer id) {
         if (id == null) {
             return null;
@@ -1584,6 +1603,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param item The {@link ExItemStack} to remove
      * @return if removed the slot, else null
      */
+    @Nullable
     public Integer removeExItemStack(ExItemStack item) {
         for (int slot = 0; slot < this.getInventory().getSize(); slot++) {
             ItemStack i = this.getInventory().getItem(slot);
@@ -1608,6 +1628,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param replace The {@link ExItemStack} to set
      * @return if removed the slot, else null
      */
+    @Nullable
     public Integer replaceExItemStack(ExItemStack item, ExItemStack replace) {
         if (replace == null) {
             return this.removeExItemStack(item);
@@ -1758,6 +1779,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the  {@link ExLocation}
      */
+    @NotNull
     public ExLocation getExLocation() {
         return new ExLocation(this.getExWorld(), this.getLocation().getX(), this.getLocation().getY(),
                 this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
@@ -1777,6 +1799,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link ExWorld}
      */
+    @NotNull
     public ExWorld getExWorld() {
         return Server.getWorld(this.player.getWorld());
     }
@@ -1791,6 +1814,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the {@link DbLocation}
      */
+    @NotNull
     public DbLocation getDbLocation() {
         Location loc = this.getLocation();
         return new DbLocation(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
@@ -1831,6 +1855,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @return the last {@link Location}
      */
+    @Nullable
     public Location getLastLocation() {
         return lastLocation;
     }
@@ -1855,6 +1880,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         return Server.getWorldManager().getUserLocation(this, world);
     }
 
+    @Nullable
     public UserDamage getLastDamager() {
         return this.lastUserDamage;
     }
@@ -2057,19 +2083,22 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.chatName = component;
     }
 
+    @NotNull
     protected Component getPlayerChatName() {
         return Component.text(this.getPlayer().getName(), ExTextColor.WHITE);
     }
 
-
+    @NotNull
     public SortedSet<DisplayGroup> getDisplayGroups() {
         return this.displayGroups;
     }
 
+    @NotNull
     public DisplayGroup getMasterDisplayGroup() {
         return this.displayGroups.first();
     }
 
+    @NotNull
     public List<DisplayGroup> getMainDisplayGroups() {
         return this.displayGroups.stream().filter(displayGroup -> displayGroup.isShowAlways()
                 || displayGroup.equals(this.getMasterDisplayGroup())).sorted().limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();

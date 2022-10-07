@@ -29,7 +29,7 @@ public class FlatStoneGenerator extends ChunkGenerator {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 biome.setBiome(x, z, Biome.PLAINS);
-                world.getChunkAt(chunkX, chunkZ).getBlock(x, 64, z).setType(Material.STONE);
+                chunkData.setBlock(x, 64, z, Material.STONE);
             }
         }
 

@@ -6,13 +6,14 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.library.extension.util.permission.ExPermission;
+import de.timesnake.library.extension.util.player.UserList;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 
 public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup<User> {
 
-    private final Set<User> users = new HashSet<>();
+    private final UserList<User> users = new UserList<>();
 
     public PermGroup(DbPermGroup database) {
         super(database);
@@ -27,7 +28,8 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
         this.users.remove(user);
     }
 
-    public Set<User> getUser() {
+    @NotNull
+    public Collection<User> getUser() {
         return users;
     }
 

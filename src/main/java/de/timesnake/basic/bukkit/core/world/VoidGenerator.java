@@ -27,10 +27,9 @@ public class VoidGenerator extends ChunkGenerator {
         ChunkData chunkData = super.createChunkData(world);
 
         if (chunkX == 0 && chunkZ == 0) {
-            world.getBlockAt(0, 0, 0).setType(Material.STONE);
+            chunkData.setBlock(0, 64, 0, Material.STONE);
         }
 
-        // For every block in the chunk set the biome to plains
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 biome.setBiome(x, z, Biome.PLAINS);

@@ -1,5 +1,6 @@
 package de.timesnake.basic.bukkit.core.world;
 
+import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,7 +13,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class WaterGenerator extends ChunkGenerator {
+public class CustomGenerator extends ChunkGenerator {
+
+    private final List<Tuple<Integer, Material>> materials;
+
+    public CustomGenerator(List<Tuple<Integer, Material>> materials) {
+        this.materials = materials;
+    }
 
     @Override
     @Nonnull
@@ -24,19 +31,32 @@ public class WaterGenerator extends ChunkGenerator {
     @Override
     @Nonnull
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
-        ChunkData chunkData = super.createChunkData(world);
+        ChunkData chunk = super.createChunkData(world);
+
+        int height = world.getMinHeight();
+        for (Tuple<Integer, Material> tuple : this.materials) {
+            int layerHeight = tuple.getA();
+            Material material = tuple.getB();
+
+            for (int y = height; y < height + layerHeight; y++) {
+                for (int x = 0; x < 16; x++) {
+                    for (int z = 0; z < 16; z++) {
+                        chunk.setBlock(x, y, z, material);
+                    }
+                }
+            }
+
+            height += layerHeight;
+        }
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 biome.setBiome(x, z, Biome.PLAINS);
-
-                for (int y = 0; y < 64; y++) {
-                    world.getChunkAt(chunkX, chunkZ).getBlock(x, y, z).setType(Material.WATER);
-                }
             }
         }
 
-        return chunkData;
+
+        return chunk;
     }
 
     @Override

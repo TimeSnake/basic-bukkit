@@ -2,7 +2,6 @@ package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.core.world.ExWorldFile;
-import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import net.kyori.adventure.audience.Audience;
@@ -32,10 +31,13 @@ public class ExWorld extends DelegatedWorld implements World {
         return Audience.audience(audiences);
     }
 
-    private final WorldManager.Type type;
+    private final ExWorldType type;
     private final ExWorldFile file;
+
     private boolean safe;
+
     private boolean exceptService = true;
+
     private boolean allowBlockBreak = true;
     private boolean allowFluidCollect = true;
     private boolean allowBlockPlace = true;
@@ -54,9 +56,10 @@ public class ExWorld extends DelegatedWorld implements World {
     private boolean allowPlaceInBlock = true;
     private boolean allowFirePunchOut = true;
     private boolean allowCakeEat = true;
+
     private List<Material> lockedBlockInventories = new LinkedList<>();
 
-    public ExWorld(org.bukkit.World world, WorldManager.Type type, ExWorldFile file) {
+    public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file) {
         super(world);
         this.type = type;
         this.file = file;
@@ -283,7 +286,7 @@ public class ExWorld extends DelegatedWorld implements World {
         this.lockedBlockInventories.clear();
     }
 
-    public WorldManager.Type getType() {
+    public ExWorldType getType() {
         return type;
     }
 
