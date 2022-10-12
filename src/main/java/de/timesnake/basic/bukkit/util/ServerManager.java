@@ -18,16 +18,13 @@
 
 package de.timesnake.basic.bukkit.util;
 
-import de.timesnake.basic.bukkit.core.chat.ChatManager;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.ConsoleManager;
 import de.timesnake.basic.bukkit.core.server.TaskManager;
 import de.timesnake.basic.bukkit.core.user.PacketBroadcaster;
-import de.timesnake.basic.bukkit.core.user.PvPManager;
-import de.timesnake.basic.bukkit.core.user.UserManager;
-import de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
+import de.timesnake.basic.bukkit.util.chat.ChatManager;
 import de.timesnake.basic.bukkit.util.chat.CommandManager;
 import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.exceptions.WorldNotExistException;
@@ -37,10 +34,7 @@ import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
-import de.timesnake.basic.bukkit.util.user.ExInventory;
-import de.timesnake.basic.bukkit.util.user.ExItemStack;
-import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.UserEventManager;
+import de.timesnake.basic.bukkit.util.user.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
@@ -89,60 +83,70 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return instance;
     }
 
+    /**
+     * Sets the singleton instance. Should only be called from {@code onLoad()} bukkit-method.
+     *
+     * @param serverManager The {@link ServerManager} instance to set
+     */
     public static void setInstance(ServerManager serverManager) {
         instance = serverManager;
     }
 
     private static ServerManager instance;
-    private final ConsoleManager consoleManager = new ConsoleManager();
+
     private final Random random = new Random();
-    protected de.timesnake.basic.bukkit.util.chat.ChatManager chatManager;
+    protected ChatManager chatManager;
     protected Network network;
     protected PacketManager packetManager;
     protected WorldManager worldManager;
     protected ScoreboardManager scoreboardManager;
-    private de.timesnake.basic.bukkit.util.user.UserManager userManager;
+    protected CommandManager commandManager;
+    protected de.timesnake.basic.bukkit.util.user.PvPManager pvpManager;
+    protected GroupManager groupManager;
+    protected de.timesnake.basic.bukkit.util.user.UserManager userManager;
+    private ConsoleManager consoleManager;
     private DbServer database;
     private UserEventManager userEventManager;
     private de.timesnake.basic.bukkit.util.user.InventoryEventManager inventoryEventManager;
-    private CommandManager commandManager;
     private TaskManager taskManager;
     private PacketBroadcaster packetBroadcaster;
-    private GroupManager groupManager;
-
     private Info info;
-
-    private PvPManager pvpManager;
-
     private PacketEntityManager packetEntityManager;
 
     public final void onEnable() {
+        this.consoleManager = new ConsoleManager();
         this.database = Database.getServers().getServer(Bukkit.getPort());
+
         this.taskManager = new TaskManager();
+
         this.info = new de.timesnake.basic.bukkit.core.server.Info(this.database);
-        this.userManager = new UserManager();
+        this.userManager = this.initUserManager();
         this.packetManager = new PacketManager(BasicBukkit.getPlugin());
-        this.chatManager = new ChatManager();
-        this.groupManager = new de.timesnake.basic.bukkit.core.server.GroupManager();
+        this.chatManager = this.initChatManager();
+
+        this.groupManager = this.initGroupManager();
         ArrayList<PermGroup> groups = new ArrayList<>(this.getPermGroups());
         groups.sort(PermGroup::compareTo);
         groups.sort(Comparator.reverseOrder());
         for (PermGroup group : groups) {
             group.updatePermissions();
         }
-        this.initNetwork();
-        this.commandManager = new de.timesnake.basic.bukkit.core.chat.CommandManager();
-        this.initWorldManager();
+
+        this.network = this.initNetwork();
+        this.commandManager = this.initCommandManager();
+        this.worldManager = this.initWorldManager();
+
         this.userEventManager = new de.timesnake.basic.bukkit.core.user.UserEventManager();
-        this.inventoryEventManager = new InventoryEventManager();
+        this.inventoryEventManager = new de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager();
+        this.pvpManager = this.initPvPManager();
+
         this.packetBroadcaster = new PacketBroadcaster();
-        this.pvpManager = new PvPManager();
         this.packetEntityManager = new PacketEntityManager();
-        this.initScoreboardManager();
+        this.scoreboardManager = this.initScoreboardManager();
 
         this.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
 
-        Server.runTaskSynchrony(this::loaded, BasicBukkit.getPlugin());
+        Server.runTaskLaterSynchrony(this::loaded, 1, BasicBukkit.getPlugin());
     }
 
     public void loaded() {
@@ -150,19 +154,43 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     public final void onDisable() {
-        ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
+        if (this.worldManager instanceof de.timesnake.basic.bukkit.core.world.WorldManager) {
+            ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
+        }
     }
 
-    protected void initNetwork() {
-        this.network = new de.timesnake.basic.bukkit.core.server.Network(0);
+    // INIT
+
+    protected ChatManager initChatManager() {
+        return new de.timesnake.basic.bukkit.core.chat.ChatManager();
     }
 
-    protected void initWorldManager() {
-        this.worldManager = new de.timesnake.basic.bukkit.core.world.WorldManager();
+    protected Network initNetwork() {
+        return new de.timesnake.basic.bukkit.core.server.Network(0);
     }
 
-    protected void initScoreboardManager() {
-        this.scoreboardManager = new de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager();
+    protected WorldManager initWorldManager() {
+        return new de.timesnake.basic.bukkit.core.world.WorldManager();
+    }
+
+    protected ScoreboardManager initScoreboardManager() {
+        return new de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager();
+    }
+
+    protected CommandManager initCommandManager() {
+        return new de.timesnake.basic.bukkit.core.chat.CommandManager();
+    }
+
+    protected PvPManager initPvPManager() {
+        return new de.timesnake.basic.bukkit.core.user.PvPManager();
+    }
+
+    protected UserManager initUserManager() {
+        return new de.timesnake.basic.bukkit.core.user.UserManager();
+    }
+
+    protected GroupManager initGroupManager() {
+        return new de.timesnake.basic.bukkit.core.server.GroupManager();
     }
 
     // INFO
@@ -221,7 +249,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     //user
 
     public final void createUser(Player player) {
-        ((UserManager) this.userManager).storeUser(player.getUniqueId(),
+        this.userManager.storeUser(player.getUniqueId(),
                 BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
     }
 

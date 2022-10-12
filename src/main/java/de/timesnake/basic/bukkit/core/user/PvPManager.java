@@ -30,7 +30,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class PvPManager implements Listener {
+public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user.PvPManager {
 
     public static final Integer ATTACK_SPEED = 10;
     public static final Integer ATTACK_DAMAGE = 2;
@@ -47,6 +47,7 @@ public class PvPManager implements Listener {
         Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
+    @Override
     public void setPvP(boolean oldPvP) {
         this.oldPvP = oldPvP;
         for (User user : Server.getUsers()) {
@@ -60,6 +61,7 @@ public class PvPManager implements Listener {
         }
     }
 
+    @Override
     public boolean isOldPvP() {
         return oldPvP;
     }
@@ -74,6 +76,7 @@ public class PvPManager implements Listener {
         user.setPvpMode(this.oldPvP);
     }
 
+    @Override
     public void broadcastPvPTypeMessage() {
         if (this.oldPvP) {
             Server.broadcastMessage(Plugin.BUKKIT, Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
