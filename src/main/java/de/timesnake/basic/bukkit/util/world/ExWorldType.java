@@ -42,7 +42,7 @@ public class ExWorldType {
 
     public static ExWorldType valueOf(String name) {
         for (ExWorldType worldType : TYPES) {
-            if (name.equals(worldType.getName())) {
+            if (name.equalsIgnoreCase(worldType.getName())) {
                 return worldType;
             }
         }
