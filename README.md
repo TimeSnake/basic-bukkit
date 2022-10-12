@@ -1,21 +1,26 @@
+# basic-bukkit
+
+Plugin basis for paper-server.
+
 # Usage
 
-The basic bukkit system is based on the singleton pattern. The singleton `ServerManager` manages all. The `Server` class
-provides static access to all `ServerManager` methods. All extra stuff is managed by its own manager, which can be
+The basic bukkit system is based on the singleton pattern. The singleton class `ServerManager` is the main api
+interface. The `Server` class provides static access to all `ServerManager` methods.
+All extra stuff is managed by its own manager, which can be
 accessed by the `ServerManager`.
 
-* [InventoryManager](Inventory.md) (inventories, events, item-stacks)
-* [WorldManager](WorldManager.md) (world loading, resetting)
-* [ScoreboardManager](ScoreboardManager.md) (tablists, sideboards)
-* [UserEventManager](UserEventManager.md)
-* [CommandManager](CommandManager.md) (chat-commands)
-* [ChatManager](ChatManager.md) (global-chat, team-chats)
-* [Files](Files.md) (config-files)
+* [InventoryManager](wiki/Inventory.md) (inventories, events, item-stacks)
+* [WorldManager](wiki/WorldManager.md) (world loading, resetting)
+* [ScoreboardManager](wiki/ScoreboardManager.md) (tablists, sideboards)
+* [UserEventManager](wiki/UserEventManager.md)
+* [CommandManager](wiki/CommandManager.md) (chat-commands)
+* [ChatManager](wiki/ChatManager.md) (global-chat, team-chats)
+* [Files](wiki/Files.md) (config-files)
 
 # Injections
 
-* [Server](Server.md)
-* [User](User.md)
+* [ServerManager](wiki/ServerManager.md)
+* [User](wiki/User.md)
 *
 
 ## License

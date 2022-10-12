@@ -2,7 +2,8 @@
 
 ### [ExInventory] (`Server#createExInventory(...)`)
 
-The `ExInventory` provides some extra methods on inventories. Like a constructor with item varargs, which calculates
+The `ExInventory` provides some additional methods on inventories. Like a constructor with item varargs, which
+calculates
 the needed inventory size.
 
 ### Excluded Inventories
@@ -37,7 +38,8 @@ If not set, the item can not be moved in inventories.
 
 **Immutable:**
 If set, the item can no longer be modified. Cloned item will not be immutable by default.
-This tag is recommended for basis items to clone from.
+This tag is recommended for basis items to clone from. Attempts to modify immutable items will
+throw a `UnsupportedOperationException`.
 
 ### InventoryListener (`Server#getInventoryEventManger()`)
 
@@ -49,18 +51,61 @@ The inventory listeners are based on two registration types:
 #### [UserInventoryClickListener]
 
 Called by the `InventoryClickEvent`. Each listener is only called if the registered item is clicked or an item is
-clicked in the inventory hold by the registered holder.
+clicked, in the inventory hold by the registered holder.
+
+Example for click-listener:
+
+``` java
+public class ClickAction implements InventoryHolder, UserInventoryClickListener {
+
+  private final Inventory inventory;
+
+  public ClickAction() {
+    this.inventory = Bukkit.createInventory(this, 6 * 9);
+    Server.getInventoryEventManager().addClickListener(this, this);
+  }
+  
+  @Override
+  public Inventory getInventory() {
+    return this.inventory;
+  }
+  
+  @Override
+  public void onUserInventoryClick(UserInventoryClickEvent event) {
+    // DO SOMETHING (when a item is clicked in the inventory)
+  }
+}
+```
 
 #### [UserInventoryInteractListener]
 
 Called by the `InventoryInteractEvent`. Each listener is only called if the registered item is clicked.
 
-[ExInventory]: src/main/java/de/timesnake/basic/bukkit/util/user/ExInventory.java
+Example for interact-listener:
 
-[ExcludedInventoryHolder]: src/main/java/de/timesnake/basic/bukkit/util/user/ExcludedInventoryHolder.java
+``` java
+public class InteractAction implements UserInventoryInteractListener {
 
-[ExItemStack]: src/main/java/de/timesnake/basic/bukkit/util/user/ExItemStack.java
+  private final ExItemStack item;
 
-[UserInventoryClickListener]: src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryClickListener.java
+  public ClickAction() {
+    this.item = new ExItemStack(Material.STONE);
+    Server.getInventoryEventManager().addInteractListener(this, this.item);
+  }
+  
+  @Override
+  public void onUserInventoryInteract(UserInventoryInteractEvent event) {
+    // DO SOMETHING
+  }
+}
+```
 
-[UserInventoryInteractListener]: src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryInteractEvent.java
+[ExInventory]: ../src/main/java/de/timesnake/basic/bukkit/util/user/ExInventory.java
+
+[ExcludedInventoryHolder]: ../src/main/java/de/timesnake/basic/bukkit/util/user/ExcludedInventoryHolder.java
+
+[ExItemStack]: ../src/main/java/de/timesnake/basic/bukkit/util/user/ExItemStack.java
+
+[UserInventoryClickListener]: ../src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryClickListener.java
+
+[UserInventoryInteractListener]: ../src/main/java/de/timesnake/basic/bukkit/util/user/event/UserInventoryInteractEvent.java

@@ -55,10 +55,10 @@ The world-border manager provides user specific world borders due to packets. A 
 [ExWorldBorder] class. The new border must not be registered.
 
 
-[ExWorld]: src/main/java/de/timesnake/basic/bukkit/util/world/ExWorld.java
+[ExWorld]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExWorld.java
 
-[ExLocation]: src/main/java/de/timesnake/basic/bukkit/util/world/ExLocation.java
+[ExLocation]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExLocation.java
 
-[ExBlock]: src/main/java/de/timesnake/basic/bukkit/util/world/ExBlock.java
+[ExBlock]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExBlock.java
 
-[ExWorldBorder]: src/main/java/de/timesnake/basic/bukkit/util/world/ExWorldBorder.java
+[ExWorldBorder]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExWorldBorder.java
