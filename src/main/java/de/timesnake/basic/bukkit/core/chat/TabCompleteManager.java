@@ -28,14 +28,12 @@ import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.game.DbMap;
-import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,20 +42,24 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String alias, String[] args) {
 
-        if (!((CommandManager) Server.getCommandManager()).getCommands().containsKey(command.getName())) {
+        String cmdName = command.getName().toLowerCase();
+
+        if (!((CommandManager) Server.getCommandManager()).getCommands().containsKey(cmdName)) {
             return null;
         }
 
-        ExCommand<Sender, Argument> cmdListener =
-                ((CommandManager) Server.getCommandManager()).getCommands().get(command.getName().toLowerCase());
+        ExCommand<Sender, Argument> basicCmd =
+                ((CommandManager) Server.getCommandManager()).getCommands().get(cmdName);
 
-        Sender sender = new Sender(new ExCommandSender(commandSender), cmdListener.getPlugin());
+        Sender sender = new Sender(new ExCommandSender(commandSender), basicCmd.getPlugin());
 
-        LinkedList<Argument> extendedArgs = new LinkedList<>();
-        for (String arg : args) {
-            extendedArgs.add(new Argument(sender, arg));
-        }
-        return cmdListener.getListener().getTabCompletion(cmdListener, new Arguments<>(sender, extendedArgs));
+        return switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
+            case DEFAULT ->
+                    basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.Arguments(sender, args));
+            case EXTENDED ->
+                    basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.ExArguments(sender, args,
+                            basicCmd.getListener().allowDuplicates(cmdName, args)));
+        };
     }
 
     @Override

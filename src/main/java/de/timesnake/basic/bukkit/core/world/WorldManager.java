@@ -65,7 +65,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         //add worlds to file
         for (World world : Bukkit.getWorlds()) {
             ExWorldFile file = new ExWorldFile(world.getWorldFolder());
-            this.worldsByName.put(world.getName(), new ExWorld(world, ExWorldType.fromWorld(world), file));
+            this.worldsByName.put(world.getName(), new ExWorld(world, file));
         }
 
 

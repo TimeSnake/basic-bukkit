@@ -91,6 +91,20 @@ public class ExWorld extends DelegatedWorld implements World {
         }
     }
 
+    public ExWorld(org.bukkit.World world, ExWorldFile file) {
+        super(world);
+        this.type = file.getWorldType();
+        this.file = file;
+
+        if (this.file.isSafe()) {
+            this.setAutoSave(true);
+            this.safe = true;
+        } else {
+            this.setAutoSave(false);
+            this.safe = false;
+        }
+    }
+
     @Override
     public void setAutoSave(boolean safe) {
         super.setAutoSave(safe);

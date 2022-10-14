@@ -36,7 +36,7 @@ public class ExWorldFile extends ExFile {
     public ExWorldFile(File worldDirectory, ExWorldType type) {
         super(worldDirectory, NAME);
 
-        super.set(TYPE, type.getName()).save();
+        super.set(TYPE, type.toString()).save();
 
         if (!super.contains(SAFE)) {
             super.set(SAFE, true).save();
@@ -48,11 +48,7 @@ public class ExWorldFile extends ExFile {
         if (type == null) {
             return null;
         }
-        try {
-            return ExWorldType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return ExWorldType.valueOf(type);
     }
 
     public boolean isSafe() {
