@@ -25,18 +25,42 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.util.noise.OctaveGenerator;
+import org.bukkit.util.noise.PerlinOctaveGenerator;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class CustomGenerator extends ChunkGenerator {
+public class CustomHeightGenerator extends ChunkGenerator {
 
+    public static final double SCALE = 0.005D;
+    public static final double FREQUENCY = 0.5D;
+    public static final double AMPLITUDE = 0.5D;
+
+    private final double scale;
+    private final double frequency;
+    private final double amplitude;
     private final List<Tuple<Integer, Material>> materials;
 
-    public CustomGenerator(List<Tuple<Integer, Material>> materials) {
+    public CustomHeightGenerator(double scale, double frequency, double amplitude, List<Tuple<Integer, Material>> materials) {
+        this.scale = scale;
+        this.frequency = frequency;
+        this.amplitude = amplitude;
         this.materials = materials;
+    }
+
+    public CustomHeightGenerator(double scale, double frequency, List<Tuple<Integer, Material>> materials) {
+        this(scale, frequency, 0.5D, materials);
+    }
+
+    public CustomHeightGenerator(double scale, List<Tuple<Integer, Material>> materials) {
+        this(scale, 0.5D, materials);
+    }
+
+    public CustomHeightGenerator(List<Tuple<Integer, Material>> materials) {
+        this(0.005D, materials);
     }
 
     @Override
@@ -45,26 +69,40 @@ public class CustomGenerator extends ChunkGenerator {
         return Collections.emptyList();
     }
 
+
     @SuppressWarnings("deprecation")
     @Override
     @Nonnull
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = super.createChunkData(world);
 
-        int height = world.getMinHeight();
-        for (Tuple<Integer, Material> tuple : this.materials) {
-            int layerHeight = tuple.getA();
-            Material material = tuple.getB();
+        OctaveGenerator generator = new PerlinOctaveGenerator(new Random(world.getSeed()), 8);
+        generator.setScale(this.scale);
 
-            for (int y = height; y < height + layerHeight; y++) {
-                for (int x = 0; x < 16; x++) {
-                    for (int z = 0; z < 16; z++) {
-                        chunk.setBlock(x, y, z, material);
+        int minHeight = world.getMinHeight();
+
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int currentHeight = (int) (generator.noise(chunkX * 16 + x, chunkZ * 16 + z, this.frequency, this.amplitude) * 15D + 50D);
+
+                for (Tuple<Integer, Material> tuple : this.materials) {
+                    int layerHeight = tuple.getA();
+                    Material material = tuple.getB();
+
+                    for (int i = 0; i < layerHeight; i++) {
+                        chunk.setBlock(x, currentHeight, z, material);
+                        currentHeight--;
+
+                        if (currentHeight < minHeight) {
+                            break;
+                        }
+                    }
+
+                    if (currentHeight < minHeight) {
+                        break;
                     }
                 }
             }
-
-            height += layerHeight;
         }
 
         for (int x = 0; x < 16; x++) {
@@ -72,7 +110,6 @@ public class CustomGenerator extends ChunkGenerator {
                 biome.setBiome(x, z, Biome.PLAINS);
             }
         }
-
 
         return chunk;
     }
@@ -86,4 +123,5 @@ public class CustomGenerator extends ChunkGenerator {
     public Location getFixedSpawnLocation(World world, Random random) {
         return new Location(world, 0, 65, 0);
     }
+
 }

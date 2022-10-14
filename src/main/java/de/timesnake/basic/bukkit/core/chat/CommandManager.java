@@ -22,14 +22,19 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Plugin;
-import de.timesnake.library.extension.util.cmd.Arguments;
+import de.timesnake.library.extension.util.cmd.ArgumentParseException;
+import de.timesnake.library.extension.util.cmd.CommandExitException;
+import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -42,20 +47,25 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
     private final TabCompleteManager tabCompleteManager = new TabCompleteManager();
 
     @Override
-    public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender cmdSender, Command cmd, @NotNull String label, String[] args) {
+        String cmdName = cmd.getName().toLowerCase();
 
-        if (this.commands.containsKey(cmd.getName())) {
-            ExCommand<Sender, Argument> basicCmd = this.commands.get(cmd.getName().toLowerCase());
+        if (this.commands.containsKey(cmdName)) {
+            ExCommand<Sender, Argument> basicCmd = this.commands.get(cmdName);
 
             de.timesnake.basic.bukkit.util.chat.Sender sender = new Sender(new ExCommandSender(cmdSender),
                     basicCmd.getPlugin());
+            try {
+                switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
+                    case DEFAULT -> basicCmd.getListener().onCommand(sender, basicCmd, new Arguments(sender, args));
+                    case EXTENDED -> basicCmd.getListener().onCommand(sender, basicCmd, new ExArguments(sender, args,
+                            basicCmd.getListener().allowDuplicates(cmdName, args)));
+                }
+            } catch (CommandExitException ignored) {
 
-            LinkedList<de.timesnake.basic.bukkit.util.chat.Argument> extendedArgs = new LinkedList<>();
-
-            for (String arg : args) {
-                extendedArgs.addLast(new Argument(sender, arg));
+            } catch (ArgumentParseException | DuplicateOptionException e) {
+                sender.sendPluginMessage(Component.text(e.getMessage(), ExTextColor.WARNING));
             }
-            basicCmd.getListener().onCommand(sender, basicCmd, new Arguments<>(sender, extendedArgs));
         }
         return false;
     }
@@ -95,5 +105,46 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
     @Override
     public de.timesnake.basic.bukkit.util.chat.TabCompleteManager getTabCompleter() {
         return this.tabCompleteManager;
+    }
+
+    public static class Arguments extends de.timesnake.library.extension.util.cmd.Arguments<Argument> {
+
+        public Arguments(Sender sender, String[] args) {
+            super(sender, args);
+        }
+
+        public Arguments(Sender sender, LinkedList<Argument> args) {
+            super(sender, args);
+        }
+
+        public Arguments(LinkedList<Argument> args) {
+            super(args.getFirst().getSender());
+        }
+
+        public Arguments(de.timesnake.library.extension.util.cmd.Arguments<Argument> args) {
+            super(args);
+        }
+
+        public Arguments(Sender sender, Argument args) {
+            super(sender, args);
+        }
+
+        @Override
+        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender, String arg) {
+            return new Argument((Sender) sender, arg);
+        }
+    }
+
+    public static class ExArguments extends de.timesnake.library.extension.util.cmd.ExArguments<Argument> {
+
+        public ExArguments(de.timesnake.library.extension.util.cmd.Sender sender, String[] args,
+                           boolean allowDuplicateOptions) {
+            super(sender, args, allowDuplicateOptions);
+        }
+
+        @Override
+        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender, String arg) {
+            return new Argument(((Sender) sender), arg);
+        }
     }
 }
