@@ -26,33 +26,38 @@ import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.OctaveGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
-import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-public class CustomHeightGenerator extends ChunkGenerator {
+public class CustomIslandGenerator extends ChunkGenerator {
 
-    private final boolean simplexGenerator;
+    private final float density;
     private final double xScale;
     private final double yScale;
     private final double zScale;
     private final double frequency;
     private final double amplitude;
-    private final int baseHeight;
-    private final List<Tuple<Integer, Material>> materials;
+    private final Map<Integer, Material> materialByDepth = new HashMap<>();
 
-    public CustomHeightGenerator(boolean simplexGenerator, double xScale, double yScale, double zScale, double frequency,
-                                 double amplitude, int baseHeight, List<Tuple<Integer, Material>> materials) {
-        this.simplexGenerator = simplexGenerator;
+    public CustomIslandGenerator(float density, double xScale, double yScale, double zScale, double frequency,
+                                 double amplitude, List<Tuple<Integer, Material>> materials) {
+        this.density = density;
         this.xScale = xScale;
         this.yScale = yScale;
         this.zScale = zScale;
         this.frequency = frequency;
         this.amplitude = amplitude;
-        this.baseHeight = baseHeight;
-        this.materials = materials;
+
+        int depth = 1;
+        for (Tuple<Integer, Material> entry : materials) {
+            for (int thickness = 0; thickness < entry.getA(); thickness++, depth++) {
+                this.materialByDepth.put(depth, entry.getB());
+            }
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -61,42 +66,29 @@ public class CustomHeightGenerator extends ChunkGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
         ChunkData chunk = super.createChunkData(world);
 
-        OctaveGenerator generator;
-
-        if (this.simplexGenerator) {
-            generator = new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
-        } else {
-            generator = new PerlinOctaveGenerator(new Random(world.getSeed()), 8);
-
-        }
+        OctaveGenerator generator = new PerlinOctaveGenerator(new Random(world.getSeed()), 8);
         generator.setXScale(this.xScale);
-        generator.setYScale(this.zScale);
-
-        int minHeight = world.getMinHeight();
+        generator.setYScale(this.yScale);
+        generator.setZScale(this.zScale);
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int currentHeight = (int) (generator.noise(chunkX * 16 + x, chunkZ * 16 + z, this.frequency,
-                        this.amplitude) * (13.6842105 * this.yScale + 0.3157895) * 15D + this.baseHeight);
-
-                for (Tuple<Integer, Material> tuple : this.materials) {
-                    int layerHeight = tuple.getA();
-                    Material material = tuple.getB();
-
-                    for (int i = 0; i < layerHeight; i++) {
-                        chunk.setBlock(x, currentHeight, z, material);
-                        currentHeight--;
-
-                        if (currentHeight < minHeight) {
-                            break;
+                for (int y = world.getMaxHeight() - 1; y >= world.getMinHeight(); y--) {
+                    double chance = (generator.noise(chunkX * 16 + x, y, chunkZ * 16 + z, this.frequency,
+                            this.amplitude) + 1) / 2;
+                    if (this.density - chance >= 0) {
+                        for (int upper = 1; upper + y < world.getMaxHeight(); upper++) {
+                            Material upperType = chunk.getType(x, y + upper, z);
+                            if (upperType == null || upperType.isAir()) {
+                                chunk.setBlock(x, y, z, this.materialByDepth.get(upper));
+                                break;
+                            } else if (!this.materialByDepth.containsKey(upper + 1)) {
+                                chunk.setBlock(x, y, z, this.materialByDepth.get(upper));
+                                break;
+                            }
                         }
                     }
-
-                    if (currentHeight < minHeight) {
-                        break;
-                    }
                 }
-
                 biome.setBiome(x, z, Biome.PLAINS);
             }
         }
