@@ -28,6 +28,9 @@ import de.timesnake.basic.bukkit.util.permission.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.game.DbMap;
+import de.timesnake.library.extension.util.cmd.ArgumentParseException;
+import de.timesnake.library.extension.util.cmd.CommandExitException;
+import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -53,13 +56,17 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
 
         Sender sender = new Sender(new ExCommandSender(commandSender), basicCmd.getPlugin());
 
-        return switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
-            case DEFAULT ->
-                    basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.Arguments(sender, args));
-            case EXTENDED ->
-                    basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.ExArguments(sender, args,
-                            basicCmd.getListener().allowDuplicates(cmdName, args)));
-        };
+        try {
+            return switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
+                case DEFAULT ->
+                        basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.Arguments(sender, args));
+                case EXTENDED ->
+                        basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.ExArguments(sender, args,
+                                basicCmd.getListener().allowDuplicates(cmdName, args)));
+            };
+        } catch (CommandExitException | ArgumentParseException | DuplicateOptionException ignored) {
+        }
+        return List.of();
     }
 
     @Override

@@ -22,6 +22,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.library.extension.util.chat.Code;
+import de.timesnake.library.extension.util.cmd.CommandExitException;
 import org.bukkit.ChatColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -30,6 +31,7 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
     public static final Code.Help WORLD_TYPE_NON = new Code.Help(Plugin.SYSTEM, "nwt", 1, "Not a world type");
     public static final Code.Help WORLD_ENVIRONMENT_NON = new Code.Help(Plugin.SYSTEM, "nwe", 1, "Not a world environment");
+    public static final Code.Help MATERIAL_NAME_NON = new Code.Help(Plugin.SYSTEM, "nmn", 1, "Not a material name");
 
     public Argument(Sender sender, String string) {
         super(sender, string);
@@ -116,7 +118,35 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
         return false;
     }
 
+    public boolean isMaterialName(boolean sendMessage) {
+        if (Material.getMaterial(this.string.toUpperCase()) != null) {
+            return true;
+        }
+
+        if (sendMessage) {
+            sender.sendMessageNotExist(this.string, MATERIAL_NAME_NON, "Material");
+        }
+        return false;
+    }
+
     public ExWorld toWorld() {
         return Server.getWorld(this.string);
+    }
+
+    public Material toMaterial() {
+        return Material.getMaterial(this.string.toUpperCase());
+    }
+
+    public Material toMaterialOrExit(boolean sendMessage) {
+        Material material = Material.getMaterial(this.string.toUpperCase());
+
+        if (material == null) {
+            if (sendMessage) {
+                sender.sendMessageNotExist(this.string, MATERIAL_NAME_NON, "Material");
+            }
+            throw new CommandExitException();
+        }
+
+        return material;
     }
 }
