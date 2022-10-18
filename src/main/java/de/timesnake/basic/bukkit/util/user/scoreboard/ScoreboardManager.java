@@ -31,11 +31,24 @@ public interface ScoreboardManager {
                                        TablistUserQuit userQuit, LinkedList<TablistGroupType> groupTypes,
                                        TablistGroupType teamType);
 
+    TeamTablist
+    registerNewTagTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
+                              Collection<? extends TagTablistableGroup> teams,
+                              TablistUserJoin userJoin, TablistUserQuit userQuit,
+                              LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType);
+
     TeamTablist registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
                                        Collection<? extends TablistableGroup> teamsList, TablistGroupType teamType,
                                        LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam,
                                        LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin,
                                        TablistUserQuit userQuit);
+
+    TeamTablist
+    registerNewTagTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
+                              Collection<? extends TagTablistableGroup> teams, TablistGroupType teamType,
+                              LinkedList<TablistGroupType> groupTypes, TagTablistableRemainTeam remainTeam,
+                              LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin,
+                              TablistUserQuit userQuit);
 
     Tablist getTablist(String name);
 

@@ -34,19 +34,20 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
     public static final int MAX_ONE_COLUMN = 12 - SPACE_LINES;
     public static final int MAX_ONE_COLUMN_REMAIN = 14 - 2 * SPACE_LINES;
 
-    private final LinkedList<TablistGroupType> teamTypes;
+    protected final LinkedList<TablistGroupType> teamTypes;
 
-    private final TeamTab teamTab;
-    private final ColorType colorType;
-    private final HashMap<String, Entry> fakePlayers = new HashMap<>();
-    private final HashMap<TablistablePlayer, Key> userRankKey = new HashMap<>();
-    private TablistTeam remainTeam;
-    private ArrayList<Integer> blankSlots;
-    private Tab<TablistEntry> tablist;
-    private Integer counter = 0;
+    protected final TeamTab teamTab;
+    protected final ColorType colorType;
+    protected final HashMap<String, Entry> fakePlayers = new HashMap<>();
+    protected final HashMap<TablistablePlayer, Key> userRankKey = new HashMap<>();
+    protected TablistTeam remainTeam;
+    protected ArrayList<Integer> blankSlots;
+    protected Tab<TablistEntry> tablist;
+    protected Integer counter = 0;
+    protected NameTagVisibility nameTagVisibility = NameTagVisibility.ALWAYS;
 
-    private TeamTablist(String name, Type tablistType, ScoreboardPacketManager packetManager, ColorType colorType,
-                        TablistGroupType teamType, TablistUserJoin userJoin, TablistUserQuit userQuit) {
+    protected TeamTablist(String name, Type tablistType, ScoreboardPacketManager packetManager, ColorType colorType,
+                          TablistGroupType teamType, TablistUserJoin userJoin, TablistUserQuit userQuit) {
 
         super(name, tablistType, packetManager, userJoin, userQuit);
         this.colorType = colorType;
@@ -57,8 +58,8 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
 
         for (int i = 0; i < 80; i++) {
             String rank = i < 10 ? "0" + i : "" + i;
-            this.fakePlayers.put(rank, new Entry(null, null, rank, null, null, new FakeTablistPlayer("§" + i / 10 +
-                    "§" + i % 10, ExPacketPlayOutTablist.Head.BLANK)));
+            this.fakePlayers.put(rank, new Entry(null, null, null, rank, null, null,
+                    new FakeTablistPlayer("§" + i / 10 + "§" + i % 10, ExPacketPlayOutTablist.Head.BLANK)));
         }
 
     }
@@ -104,7 +105,7 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
 
         for (int slot = 0; slot < 80; slot++) {
             this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamCreation.wrap(slot < 10 ? "0" + slot :
-                    slot + "", "", ChatColor.WHITE));
+                    slot + "", "", ChatColor.WHITE, this.nameTagVisibility.getPacketTag()));
         }
 
         for (TablistEntry entry : this.tablist) {
@@ -167,7 +168,7 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
     }
 
-    private void updateChanges() {
+    protected void updateChanges() {
         Tab<TablistEntry> oldTablist = this.tablist;
 
         this.recalculateTablist();
@@ -267,13 +268,13 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         String groupRank = player.getFullRank(this.remainTeam.types);
         String prefix;
         if (player.getTablistPrefix() != null) {
-            prefix =
-                    player.getFullPrefix(this.teamTypes) + player.getFullPrefix(this.remainTeam.types) + player.getTablistPrefix();
+            prefix = player.getFullPrefix(this.teamTypes) + player.getFullPrefix(this.remainTeam.types) +
+                    player.getTablistPrefix();
         } else {
             prefix = player.getFullPrefix(this.teamTypes) + player.getFullPrefix(this.remainTeam.types);
         }
-        this.remainTeam.addEntry(new Entry(this.remainTeam, this.remainTeam.getRank(), groupRank, prefix,
-                this.remainTeam.getChatColor(), player));
+        this.remainTeam.addEntry(new Entry(this.remainTeam, player.getTablistGroup(this.teamTypes.getFirst()),
+                this.remainTeam.getRank(), groupRank, prefix, this.remainTeam.getChatColor(), player));
 
         if (update) {
             this.updateChanges();
@@ -292,10 +293,9 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         if (!removed) {
             if (this.remainTeam != null) {
                 if (userRankKey.get(player) != null) {
-                    String rank = userRankKey.get(player).getTeamRank();
+                    String rank = userRankKey.get(player).teamRank();
                     if (rank != null) {
-                        removed |= this.remainTeam.removeEntry(new Entry(this.remainTeam, rank,
-                                userRankKey.get(player).getGroupRank(), null, null, player));
+                        removed |= this.remainTeam.removeEntry(rank, player);
                     }
                 }
 
@@ -338,6 +338,12 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
     public void removeTeamHeader(String teamRank, String headerRank) {
         this.teamTab.removeHeaderFromEntry(teamRank, headerRank);
         this.updateChanges();
+    }
+
+    public TeamTablist setNameTagVisibility(NameTagVisibility visibility) {
+        this.nameTagVisibility = visibility;
+        this.updateChanges();
+        return this;
     }
 
     private void calcTeamsOnly() {
@@ -696,7 +702,7 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                     remainTeam.addSlots(remainLines - SPACE_LINES);
                 }
             }
-        } else {                                    //It is impossible to fit the remaining team or is empty
+        } else { //It is impossible to fit the remaining team or is empty
             calcDouble(first, second);
         }
     }
@@ -785,15 +791,21 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         return max;
     }
 
+    /**
+     * Real tablist entry, represents a player with prefix and color in a certain slot
+     */
     public static class TablistEntry extends Tab.TabEntry<TablistEntry> {
 
         private final TablistablePlayer player;
+        private final TablistableGroup team;
         private final String prefix;
         private final ChatColor chatColor;
 
-        public TablistEntry(String slot, TablistablePlayer player, String prefix, ChatColor chatColor) {
+        public TablistEntry(String slot, TablistablePlayer player, TablistableGroup team, String prefix,
+                            ChatColor chatColor) {
             super(slot);
             this.player = player;
+            this.team = team;
             this.prefix = Objects.requireNonNullElse(prefix, "");
             this.chatColor = Objects.requireNonNullElse(chatColor, ChatColor.WHITE);
 
@@ -805,6 +817,10 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
 
         public TablistablePlayer getPlayer() {
             return player;
+        }
+
+        public TablistableGroup getTeam() {
+            return team;
         }
 
         public String getPrefix() {
@@ -821,23 +837,8 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
     }
 
-    private static class Key {
+    private record Key(String teamRank, String groupRank) {
 
-        private final String teamRank;
-        private final String groupRank;
-
-        public Key(String teamRank, String groupRank) {
-            this.teamRank = teamRank;
-            this.groupRank = groupRank;
-        }
-
-        public String getTeamRank() {
-            return teamRank;
-        }
-
-        public String getGroupRank() {
-            return groupRank;
-        }
     }
 
     /**
@@ -877,12 +878,12 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
             userRankKey.put(entry.getPlayer(), new Key(entry.getTeamRank(), entry.getRank()));
         }
 
-        public boolean removeEntry(Entry entry) {
+        public boolean removeEntry(String rank, TablistablePlayer player) {
             for (Entry current : this.playerTab) {
-                if (current.getRank().equals(entry.getRank()) && current.getPlayer().equals(entry.getPlayer())) {
+                if (current.getRank().equals(rank) && current.getPlayer().equals(player)) {
                     boolean removed = this.playerTab.removeEntry(current);
                     if (removed) {
-                        userRankKey.remove(entry.getPlayer());
+                        userRankKey.remove(player);
                     }
                     return removed;
                 }
@@ -936,26 +937,35 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                 this.slots.add(counter < 10 ? "0" + counter : "" + counter);
             }
         }
-
     }
 
+    /**
+     *
+     */
     protected class Entry extends Tab.TabEntry<Entry> {
 
-        protected final TablistTeam team;
+        protected final TablistTeam tablistTeam;
 
+        protected final TablistableGroup team;
         protected final String teamRank;
         protected final TablistablePlayer player;
         protected String prefix;
         protected ChatColor chatColor;
 
-        public Entry(TablistTeam team, String teamRank, String rank, String prefix, ChatColor chatColor,
+        public Entry(TablistTeam tablistTeam, TablistableGroup team, String teamRank, String rank, String prefix,
+                     ChatColor chatColor,
                      TablistablePlayer player) {
             super(rank);
+            this.tablistTeam = tablistTeam;
             this.team = team;
             this.teamRank = teamRank;
             this.prefix = prefix;
             this.chatColor = chatColor;
             this.player = player;
+        }
+
+        public TablistableGroup getTeam() {
+            return team;
         }
 
         public String getTeamRank() {
@@ -966,13 +976,13 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         public void merge(Entry entry) {
             if (this.player.getTablistName().compareToIgnoreCase(entry.getRank()) > 0) {
                 //insert before
-                this.team.playerTab.insertBefore(entry, this);
+                this.tablistTeam.playerTab.insertBefore(entry, this);
             } else {
                 // insert after
                 if (this.getNext() != null) {
-                    this.team.playerTab.insertBefore(entry, this.getNext());
+                    this.tablistTeam.playerTab.insertBefore(entry, this.getNext());
                 } else {
-                    this.team.playerTab.insertLast(entry);
+                    this.tablistTeam.playerTab.insertLast(entry);
                 }
             }
         }
@@ -990,7 +1000,7 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
         }
 
         public TablistEntry toTablistEntry(String slotRank) {
-            return new TablistEntry(slotRank, player, prefix, chatColor);
+            return new TablistEntry(slotRank, player, team, prefix, chatColor);
         }
     }
 
@@ -1036,7 +1046,8 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                         }
                         case WHITE -> chatColor = ChatColor.WHITE;
                     }
-                    team.addEntry(new Entry(team, rank, groupRank, prefix, chatColor, player));
+                    team.addEntry(new Entry(team, player.getTablistGroup(teamTypes.getFirst()), rank, groupRank, prefix,
+                            chatColor, player));
                     return;
                 }
             }
@@ -1046,17 +1057,17 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
             if (userRankKey.get(player) == null) {
                 return false;
             }
-            String rank = userRankKey.get(player).getTeamRank();
+            String rank = userRankKey.get(player).teamRank();
             if (rank == null) {
                 return false;
             }
             for (TablistTeam team : this) {
                 if (team.getRank().equals(rank)) {
-                    String groupRank = userRankKey.get(player).getGroupRank();
+                    String groupRank = userRankKey.get(player).groupRank();
                     if (groupRank == null) {
                         return false;
                     }
-                    return team.removeEntry(new Entry(team, rank, groupRank, null, null, player));
+                    return team.removeEntry(rank, player);
                 }
             }
             return false;
@@ -1066,7 +1077,7 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                                      ExPacketPlayOutTablist.Head head) {
             for (TablistTeam team : this) {
                 if (team.getRank().equals(teamRank)) {
-                    team.addHeader(new Entry(team, teamRank, headerRank, null, null, new FakeTablistPlayer(name,
+                    team.addHeader(new Entry(team, null, teamRank, headerRank, null, null, new FakeTablistPlayer(name,
                             head)));
                 }
             }
