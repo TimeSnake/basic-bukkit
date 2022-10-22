@@ -205,6 +205,9 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
      * @return the user
      */
     public final User getUser(Player p) {
+        if (p == null) {
+            return null;
+        }
         return this.getUser(p.getUniqueId());
     }
 

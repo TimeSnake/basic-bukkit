@@ -90,7 +90,21 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
                     groupTypes));
         }
 
-        this.remainTeam = new TablistTeam("0", remainTeam.getTablistChatColor(), true, remainTeamGroupTypes);
+        this.remainTeam = new TablistTeam("0", remainTeam.getTablistChatColor(), true, remainTeamGroupTypes) {
+            @Override
+            public boolean removeEntry(String rank, TablistablePlayer player) {
+                for (Entry current : this.playerTab) {
+                    if (current.getPlayer().equals(player)) {
+                        boolean removed = this.playerTab.removeEntry(current);
+                        if (removed) {
+                            userRankKey.remove(player);
+                        }
+                        return removed;
+                    }
+                }
+                return false;
+            }
+        };
 
         this.updateChanges();
 
@@ -846,11 +860,11 @@ public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.ut
      */
     private class TablistTeam extends Tab.TabEntry<TablistTeam> {
 
+        final Tab<Entry> playerTab = new Tab<>();
         private final ChatColor chatColor;
         private final boolean fillFake;
         private final LinkedList<TablistGroupType> types;
         private final Tab<Entry> headerTab = new Tab<>();
-        private final Tab<Entry> playerTab = new Tab<>();
         private ArrayList<String> slots;
 
         public TablistTeam(String rank, ChatColor chatColor, boolean fillFake, LinkedList<TablistGroupType> types) {

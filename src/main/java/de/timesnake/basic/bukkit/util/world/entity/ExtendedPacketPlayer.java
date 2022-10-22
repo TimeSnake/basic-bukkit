@@ -34,7 +34,7 @@ public class ExtendedPacketPlayer extends PacketPlayer {
 
     public ExtendedPacketPlayer(ExPlayer player, ExLocation location) {
         super(player, location);
-        this.symEntity = new ExZombie(location.getWorld(), false);
+        this.symEntity = new ExZombie(location.getWorld(), false, false);
         this.symEntity.setPosition(location.getX(), location.getY(), location.getZ());
     }
 

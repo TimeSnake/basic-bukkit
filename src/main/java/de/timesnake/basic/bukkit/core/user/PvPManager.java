@@ -21,6 +21,7 @@ package de.timesnake.basic.bukkit.core.user;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.event.UserDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.database.util.server.DbPvPServer;
 import de.timesnake.library.basic.util.chat.ExTextColor;
@@ -35,6 +36,7 @@ public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user
     public static final Integer ATTACK_SPEED = 10;
     public static final Integer ATTACK_DAMAGE = 2;
     public static final Integer MAX_NO_DAMAGE_TICKS = 4;
+    public static final double DAMAGE_MULTIPLIER = 0.7;
 
     private boolean oldPvP;
 
@@ -74,6 +76,13 @@ public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user
 
     private void updateAttributesOfUser(User user) {
         user.setPvpMode(this.oldPvP);
+    }
+
+    @EventHandler
+    public void onUserDamageByUser(UserDamageByUserEvent e) {
+        if (this.oldPvP) {
+            e.setDamage(DAMAGE_MULTIPLIER * e.getDamage());
+        }
     }
 
     @Override

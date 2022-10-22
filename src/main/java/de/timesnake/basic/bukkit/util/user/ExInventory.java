@@ -45,6 +45,8 @@ public interface ExInventory {
 
     void removeItemStack(int index);
 
+    void update();
+
     Integer getFirstEmptySlot();
 
     Integer getFirstEmptySlot(int begin);

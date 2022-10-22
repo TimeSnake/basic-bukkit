@@ -143,7 +143,9 @@ public class TagTeamTablist extends TeamTablist {
                 tagVisibility = ((TagTablistable) entry.getTeam()).isNameTagVisibleBy(user, userTeam);
             }
         } else {
-            tagVisibility = ((TagTablistable) entry.getTeam()).isNameTagVisible(user);
+            if (entry.getTeam() != null) {
+                tagVisibility = ((TagTablistable) entry.getTeam()).isNameTagVisible(user);
+            }
         }
 
         if (tagVisibility == null) {
