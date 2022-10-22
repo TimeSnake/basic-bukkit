@@ -156,8 +156,19 @@ public class InventoryEventManager implements Listener, de.timesnake.basic.bukki
     @EventHandler
     public void onSwapHandItem(PlayerSwapHandItemsEvent e) {
         de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
-        if (!this.isUserExcluded(user) && user.isInventoryLocked() || user.isInventoryItemMoveLocked()) {
+        if (!this.isUserExcluded(user) && (user.isInventoryLocked() || user.isInventoryItemMoveLocked())) {
             e.setCancelled(true);
+        } else {
+            ExItemStack item = ExItemStack.getItem(e.getMainHandItem(), false);
+
+            if (item != null && !item.isMoveable()) {
+                e.setCancelled(true);
+            } else {
+                item = ExItemStack.getItem(e.getOffHandItem(), false);
+                if (item != null) {
+                    e.setCancelled(true);
+                }
+            }
         }
     }
 

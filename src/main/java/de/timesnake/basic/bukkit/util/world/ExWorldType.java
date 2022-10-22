@@ -53,6 +53,8 @@ public class ExWorldType {
             return CustomFlat.fromString(name);
         } else if (name.startsWith("custom_height")) {
             return CustomHeight.fromString(name);
+        } else if (name.startsWith("custom_island")) {
+            return CustomIsland.fromString(name);
         }
 
         for (ExWorldType worldType : TYPES) {
@@ -271,7 +273,7 @@ public class ExWorldType {
         public static final double AMPLITUDE = 0.5;
 
         public static ExWorldType.CustomIsland fromString(String string) {
-            String[] values = string.split(";", 5);
+            String[] values = string.split(";");
 
             int index = 1;
 

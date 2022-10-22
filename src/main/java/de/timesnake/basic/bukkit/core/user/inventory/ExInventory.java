@@ -21,6 +21,7 @@ package de.timesnake.basic.bukkit.core.user.inventory;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -105,7 +106,12 @@ public class ExInventory implements de.timesnake.basic.bukkit.util.user.ExInvent
 
     @Override
     public void removeItemStack(int index) {
-        this.inventory.remove(this.inventory.getItem(index));
+        this.inventory.clear(index);
+    }
+
+    @Override
+    public void update() {
+        this.inventory.getViewers().forEach((h -> ((Player) h).updateInventory()));
     }
 
     @Override

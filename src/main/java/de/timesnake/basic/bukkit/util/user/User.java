@@ -2151,10 +2151,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     public void setPvpMode(boolean oldPvP) {
         if (oldPvP) {
             this.setAttackSpeed(PvPManager.ATTACK_SPEED);
-            this.setAttackDamage(PvPManager.ATTACK_DAMAGE);
         } else {
             this.resetAttackSpeed();
-            this.resetAttackDamage();
         }
     }
 
@@ -2166,10 +2164,12 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.setAttackSpeed(4);
     }
 
+    @Deprecated
     public void setAttackDamage(double attackDamage) {
         this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(attackDamage);
     }
 
+    @Deprecated
     public void resetAttackDamage() {
         this.setAttackDamage(2);
     }

@@ -591,6 +591,19 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
+    /**
+     * Sends a title to all players
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The display time of the title
+     */
+    public final void broadcastTitle(Component title, Component subTitle, Duration stay, Duration fadeIn, Duration fadeOut) {
+        for (User user : this.getUsers()) {
+            user.showTitle(title, subTitle, stay, fadeIn, fadeOut);
+        }
+    }
+
     // GROUP
 
     public PermGroup getPermGroup(String group) {return groupManager.getPermGroup(group);}
