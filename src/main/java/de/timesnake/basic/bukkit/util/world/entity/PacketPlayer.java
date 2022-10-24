@@ -25,7 +25,6 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.packets.util.packet.*;
-import org.bukkit.entity.Player;
 
 public class PacketPlayer extends PacketEntity {
 
@@ -48,8 +47,7 @@ public class PacketPlayer extends PacketEntity {
                 ExPacketPlayOutTablistTeamPlayerAdd.wrap(PacketEntityManager.FAKE_PLAYER_TEAM_NAME, player.getName()));
 
         user.sendPacket(ExPacketPlayOutSpawnNamedEntity.wrap(player));
-        user.sendPacket(ExPacketPlayOutEntityMetadata.wrap((Player) player,
-                ExPacketPlayOutEntityMetadata.DataType.UPDATE));
+        user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
 
         Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
                         ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)), 6,
