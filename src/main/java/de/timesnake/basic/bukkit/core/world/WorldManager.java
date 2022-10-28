@@ -22,8 +22,7 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
+import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorldType;
@@ -37,7 +36,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -295,7 +297,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         ExWorldFile file = new ExWorldFile(world.getWorldFolder(), exWorld.getType());
-        ExWorld clonedExWorld = new ExWorld(world, exWorld.getType(), file);
+        ExWorld clonedExWorld = new ExWorld(world, exWorld.getType(), file, exWorld.getRestrictionValues());
         this.registerExWorld(clonedExWorld);
         return clonedExWorld;
     }
@@ -466,7 +468,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onPlayerInteract(PlayerInteractEvent event) {
         ExWorld world = this.getWorld(event.getPlayer().getWorld());
 
-        if (Server.getUser(event.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(event.getPlayer()).isService()) {
             return;
         }
 
@@ -474,7 +476,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         Material blockType = clickedBlock != null ? clickedBlock.getType() : Material.AIR;
         ItemStack item = event.getItem();
 
-        if (!world.isBlockBreakAllowed()) {
+        if (world.isRestricted(ExWorld.Restriction.BLOCK_BREAK)) {
             if (event.getAction() == Action.PHYSICAL) {
                 if (clickedBlock == null) return;
                 if (blockType == Material.FARMLAND) {
@@ -493,7 +495,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
             if (item != null) {
                 if (filledBuckets.contains(item.getType())) {
-                    if (!world.isFluidPlaceAllowed() && !blockType.equals(Material.CAULDRON)) {
+                    if (world.isRestricted(ExWorld.Restriction.FLUID_PLACE) && !blockType.equals(Material.CAULDRON)) {
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
@@ -501,7 +503,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 } else if (item.getType().equals(Material.BUCKET)) {
                     Set<Material> filledCauldrons = Set.of(Material.LAVA_CAULDRON, Material.WATER_CAULDRON);
 
-                    if (!world.isFluidCollectAllowed() && !filledCauldrons.contains(blockType)) {
+                    if (world.isRestricted(ExWorld.Restriction.FLUID_COLLECT) && !filledCauldrons.contains(blockType)) {
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
@@ -513,14 +515,14 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
             if (blockType.equals(Material.CAKE)) {
-                if (!world.isCakeEatAllowed()) {
+                if (world.isRestricted(ExWorld.Restriction.CAKE_EAT)) {
                     event.setCancelled(true);
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
                 }
             }
 
-            if (world.getLockedBlockInventories().contains(blockType)) {
+            if (world.isRestricted(ExWorld.Restriction.OPEN_INVENTORIES).contains(blockType)) {
                 event.setCancelled(true);
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.DENY);
@@ -528,11 +530,12 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
             if (item != null) {
                 if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-                    if (world.isFlintAndSteelAllowed()) {
+                    if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
                         return;
                     }
 
-                    if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(blockType) || Tag.CANDLES.isTagged(blockType))) {
+                    if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
+                            && (Tag.CAMPFIRES.isTagged(blockType) || Tag.CANDLES.isTagged(blockType))) {
                         return;
                     }
 
@@ -540,7 +543,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
                 } else if (item.getType().equals(Material.SPLASH_POTION)) {
-                    if (world.isLightUpInteractionAllowed()) {
+                    if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)) {
                         return;
                     }
 
@@ -552,7 +555,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
                 } else {
-                    if (world.isPlaceInBlockAllowed()) {
+                    if (!world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK)) {
                         return;
                     }
 
@@ -581,7 +584,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         } else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 
             if (blockType.equals(Material.FIRE)) {
-                if (!world.isFirePunchOutAllowed()) {
+                if (world.isRestricted(ExWorld.Restriction.FIRE_PUNCH_OUT)) {
                     event.setCancelled(true);
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
@@ -595,16 +598,16 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onItemFrameChange(PlayerItemFrameChangeEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 
-        if (world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
         if (e.getAction().equals(PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE)
-                && world.isItemFrameRotateAllowed()) {
+                && world.isRestricted(ExWorld.Restriction.ITEM_FRAME_ROTATE)) {
             return;
         }
 
@@ -615,11 +618,11 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onPlayerDropItem(PlayerDropItemEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (world.isDropPickItemAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 
@@ -630,11 +633,11 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onEntityDamage(UserDamageEvent e) {
         ExWorld world = e.getUser().getExWorld();
 
-        if (world.isPlayerDamageAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.PLAYER_DAMAGE)) {
             return;
         }
 
-        if (e.getUser().isService()) {
+        if (world.isExceptService() && e.getUser().isService()) {
             return;
         }
 
@@ -646,13 +649,13 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onPlayerPickUpItem(@Deprecated PlayerPickupItemEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (world.isDropPickItemAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
             return;
         }
 
         User user = Server.getUser(e.getPlayer());
 
-        if (user != null && user.isService()) {
+        if (user != null && world.isExceptService() && user.isService()) {
             return;
         }
 
@@ -663,11 +666,11 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onPlayerPickUpArrow(PlayerPickupArrowEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (world.isDropPickItemAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 
@@ -675,35 +678,35 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent e) {
-        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+    public void onBlockBreak(UserBlockBreakEvent e) {
+        ExWorld world = e.getUser().getExWorld();
 
-        if (world.isBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && e.getUser().isService()) {
             return;
         }
 
         if ((e.getBlock().getType().equals(Material.FIRE)
                 || (Tag.CANDLES.isTagged(e.getBlock().getType())) && ((Candle) e.getBlock().getState()).isLit())
-                && world.isFirePunchOutAllowed()) {
+                && !world.isRestricted(ExWorld.Restriction.FIRE_PUNCH_OUT)) {
             return;
         }
 
-        e.setCancelled(true);
+        e.setCancelled(CancelPriority.LOW, true);
     }
 
     @EventHandler
     public void onArmorStand(PlayerArmorStandManipulateEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 
@@ -714,11 +717,12 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onBoat(VehicleDestroyEvent e) {
         ExWorld world = this.getWorld(e.getAttacker().getWorld());
 
-        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
-        if (e.getAttacker() instanceof Player && Server.getUser(((Player) e.getAttacker())).isService()) {
+        if (world.isExceptService() && e.getAttacker() instanceof Player
+                && Server.getUser(((Player) e.getAttacker())).isService()) {
             return;
         }
 
@@ -729,7 +733,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onPainting(HangingBreakByEntityEvent e) {
         ExWorld world = this.getWorld(e.getRemover().getWorld());
 
-        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
@@ -745,15 +749,16 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void blockItemFrame(PlayerInteractEntityEvent e) {
         ExWorld world = this.getWorld(e.getPlayer().getWorld());
 
-        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 
-        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) && !world.isItemFrameRotateAllowed()) {
+        if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)
+                && world.isRestricted(ExWorld.Restriction.ITEM_FRAME_ROTATE)) {
             e.setCancelled(true);
         }
 
@@ -763,7 +768,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onEntityDamage(EntityDamageByUserEvent e) {
         ExWorld world = this.getWorld(e.getUser().getWorld());
 
-        if (world.isBlockBreakAllowed() && world.isEntityBlockBreakAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
@@ -771,7 +776,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (e.getUser().isService()) {
+        if (world.isExceptService() && e.getUser().isService()) {
             return;
         }
 
@@ -783,11 +788,11 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onFoodLevelChange(FoodLevelChangeEvent e) {
         ExWorld world = this.getWorld(e.getEntity().getWorld());
 
-        if (world.isFoodChangeAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.FOOD_CHANGE)) {
             return;
         }
 
-        if (Server.getUser(e.getEntity().getUniqueId()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getEntity().getUniqueId()).isService()) {
             return;
         }
 
@@ -801,7 +806,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onEntityExplode(EntityExplodeEvent e) {
         ExWorld world = this.getWorld(e.getEntity().getWorld());
 
-        if (world.isEntityExplodeAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.ENTITY_EXPLODE)) {
             return;
         }
 
@@ -809,34 +814,35 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent e) {
-        ExWorld world = this.getWorld(e.getPlayer().getWorld());
+    public void onBlockPlace(UserBlockPlaceEvent e) {
+        ExWorld world = e.getUser().getExWorld();
 
         ItemStack item = e.getItemInHand();
         Block block = e.getBlock();
         Material blockType = block.getType();
 
         if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(Material.END_PORTAL_FRAME)) {
-            e.setCancelled(!world.isPlaceInBlockAllowed());
+            e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
             return;
         }
 
         if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE) || Tag.CANDLES.isTagged(blockType))) {
-            e.setCancelled(!world.isPlaceInBlockAllowed());
+            e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
             return;
         }
 
         if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(Material.SEA_PICKLE)) {
-            e.setCancelled(!world.isPlaceInBlockAllowed());
+            e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
             return;
         }
 
         if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-            if (world.isFlintAndSteelAllowed()) {
+            if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
                 return;
             }
 
-            if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
+            if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
+                    && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
                 return;
             }
 
@@ -845,23 +851,22 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (world.isBlockPlaceAllowed()) {
+        if (world.isRestricted(ExWorld.Restriction.BLOCK_PLACE)) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && e.getUser().isService()) {
             return;
         }
 
-        e.setCancelled(true);
-        e.setBuild(false);
+        e.setCancelled(CancelPriority.LOW, true);
     }
 
     @EventHandler
     public void onBlockSpread(BlockSpreadEvent e) {
         ExWorld world = this.getWorld(e.getBlock().getWorld());
 
-        if (world.isFireSpreadAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.FIRE_SPREAD)) {
             return;
         }
 
@@ -872,7 +877,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onBlockBurn(BlockBurnEvent e) {
         ExWorld world = this.getWorld(e.getBlock().getWorld());
 
-        if (world.isBlockBurnUpAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_BURN_UP)) {
             return;
         }
 
@@ -883,19 +888,20 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onBlockIgnite(BlockIgniteEvent e) {
         ExWorld world = this.getWorld(e.getBlock().getWorld());
 
-        if (world.isBlockIgniteAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_IGNITE)) {
             return;
         }
 
-        if (world.isFlintAndSteelAllowed()) {
+        if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
             return;
         }
 
-        if (world.isLightUpInteractionAllowed() && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
+        if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
+                && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
             return;
         }
 
-        if (Server.getUser(e.getPlayer()).isService()) {
+        if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
             return;
         }
 

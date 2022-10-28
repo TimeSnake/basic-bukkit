@@ -25,7 +25,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-public class UserBlockPlaceEvent extends CancelableUserEvent {
+public class UserBlockPlaceEvent extends PriorityCancelableUserEvent {
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
