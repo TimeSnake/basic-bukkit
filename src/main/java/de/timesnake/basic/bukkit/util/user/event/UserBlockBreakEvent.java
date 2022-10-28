@@ -22,7 +22,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.block.Block;
 import org.bukkit.event.HandlerList;
 
-public class UserBlockBreakEvent extends CancelableUserEvent {
+public class UserBlockBreakEvent extends PriorityCancelableUserEvent {
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
