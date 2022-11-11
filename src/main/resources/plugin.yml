@@ -55,4 +55,7 @@ commands:
   g:
 
   pid:
+
+  log:
+  logger:
      

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,12 +18,17 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
+import de.timesnake.library.basic.util.LogHelper;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Plugin extends de.timesnake.library.extension.util.chat.Plugin {
 
-    public static final Plugin WORLDS = new Plugin("Worlds", "BSW");
-    public static final Plugin PACKETS = new Plugin("Packets", "BPS");
+    public static final Plugin WORLDS = new Plugin("Worlds", "BSW", LogHelper.getLogger("Worlds", Level.INFO));
+    public static final Plugin PACKETS = new Plugin("Packets", "BPS", LogHelper.getLogger("Packets", Level.INFO));
 
-    protected Plugin(String name, String code) {
-        super(name, code);
+    protected Plugin(String name, String code, Logger logger) {
+        super(name, code, logger);
     }
 }
