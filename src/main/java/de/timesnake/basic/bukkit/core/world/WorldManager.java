@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -84,7 +84,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
             ExWorld world = this.createWorld(file.getName(), exWorldFile.getWorldType());
             if (world != null) {
-                Server.printText(Plugin.WORLDS, "Loaded world " + world.getName());
+                Plugin.WORLDS.getLogger().info("Loaded world '" + world.getName() + "'");
             }
         }
 
@@ -120,7 +120,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             try {
                 uuid = UUID.fromString(fileName.replace(".yml", ""));
             } catch (IllegalArgumentException e) {
-                Server.printWarning(Plugin.WORLDS, "Illegal locations file name " + fileName);
+                Plugin.WORLDS.getLogger().warning("Illegal locations file name '" + fileName + "'");
                 continue;
             }
 
@@ -135,7 +135,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             this.locationsPerWorldByUuid.put(uuid, locationByWorld);
         }
 
-        Server.printText(Plugin.WORLDS, "Loaded user locations");
+        Plugin.WORLDS.getLogger().info("Loaded user locations");
     }
 
     public void onDisable() {
@@ -176,7 +176,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 file.setUserLocation(location);
             }
         }
-        Server.printText(Plugin.WORLDS, "Saved user locations");
+        Plugin.WORLDS.getLogger().info("Saved user locations");
     }
 
     @Override
@@ -228,7 +228,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public ExWorld createWorld(String name, ExWorldType type) {
 
         if (type == null) {
-            Server.printWarning(Plugin.WORLDS, "Can not load type of world " + name);
+            Plugin.WORLDS.getLogger().warning("Can not load type of world '" + name + "'");
             return null;
         }
 
@@ -695,6 +695,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
+        System.out.println("break world lock");
         e.setCancelled(CancelPriority.LOW, true);
     }
 
@@ -817,6 +818,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public void onBlockPlace(UserBlockPlaceEvent e) {
         ExWorld world = e.getUser().getExWorld();
 
+        if (world.isExceptService() && e.getUser().isService()) {
+            return;
+        }
+
         ItemStack item = e.getItemInHand();
         Block block = e.getBlock();
         Material blockType = block.getType();
@@ -851,11 +856,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        if (world.isRestricted(ExWorld.Restriction.BLOCK_PLACE)) {
-            return;
-        }
-
-        if (world.isExceptService() && e.getUser().isService()) {
+        if (!world.isRestricted(ExWorld.Restriction.BLOCK_PLACE)) {
             return;
         }
 

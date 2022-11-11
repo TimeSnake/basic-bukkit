@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -25,22 +25,14 @@ import de.timesnake.library.packets.util.packet.*;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class TagTeamTablist extends TeamTablist {
 
-    public TagTeamTablist(String name, Type tablistType, ScoreboardPacketManager packetManager, ColorType colorType,
-                          TablistGroupType teamType, Collection<? extends TagTablistableGroup> teams,
-                          LinkedList<TablistGroupType> groupTypes, TablistUserJoin userJoin, TablistUserQuit userQuit) {
-        super(name, tablistType, packetManager, colorType, teamType, teams, groupTypes, userJoin, userQuit);
-    }
-
-    public TagTeamTablist(String name, Type tablistType, ColorType colorType, ScoreboardPacketManager packetManager,
-                          TablistGroupType teamType, Collection<? extends TagTablistableGroup> teams,
-                          LinkedList<TablistGroupType> groupTypes, TagTablistableRemainTeam remainTeam,
-                          LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin, TablistUserQuit userQuit) {
-        super(name, tablistType, colorType, packetManager, teamType, teams, groupTypes, remainTeam,
-                remainTeamGroupTypes, userJoin, userQuit);
+    public TagTeamTablist(TeamTablistBuilder builder, ScoreboardPacketManager packetManager) {
+        super(builder, packetManager);
     }
 
     @Override
@@ -55,7 +47,7 @@ public class TagTeamTablist extends TeamTablist {
                     slot + "", "", ChatColor.WHITE));
         }
 
-        for (TablistEntry entry : this.tablist) {
+        for (SlotEntry entry : this.tablist) {
             if (entry != null) {
                 this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(),
                         entry.getPrefix(), entry.getChatColor(), this.getNameTagVisibility(user, entry).getPacketTag()));
@@ -69,20 +61,20 @@ public class TagTeamTablist extends TeamTablist {
 
     @Override
     protected void updateChanges() {
-        Tab<TablistEntry> oldTablist = this.tablist;
+        Tab<SlotEntry> oldTablist = this.tablist;
 
         this.recalculateTablist();
 
-        Iterator<TablistEntry> oldIt = oldTablist.iterator();
-        Iterator<TablistEntry> it = this.tablist.iterator();
+        Iterator<SlotEntry> oldIt = oldTablist.iterator();
+        Iterator<SlotEntry> it = this.tablist.iterator();
 
         Set<TablistablePlayer> movedPlayers = new HashSet<>();
 
         // update slot if entry has changed
 
         while (oldIt.hasNext() && it.hasNext()) {
-            TablistEntry oldEntry = oldIt.next();
-            TablistEntry newEntry = it.next();
+            SlotEntry oldEntry = oldIt.next();
+            SlotEntry newEntry = it.next();
 
             if (!oldEntry.getPlayer().equals(newEntry.getPlayer())) {
 
@@ -113,7 +105,7 @@ public class TagTeamTablist extends TeamTablist {
 
         // remove old entries and now empty slots
         while (oldIt.hasNext()) {
-            TablistEntry oldEntry = oldIt.next();
+            SlotEntry oldEntry = oldIt.next();
             // not remove moved players
             if (!movedPlayers.remove(oldEntry.getPlayer())) {
                 this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
@@ -123,7 +115,7 @@ public class TagTeamTablist extends TeamTablist {
 
         // add new entries and update team
         while (it.hasNext()) {
-            TablistEntry entry = it.next();
+            SlotEntry entry = it.next();
             for (User user : this.wachtingUsers) {
                 this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(), entry.getPrefix(),
                         entry.getChatColor(), this.getNameTagVisibility(user, entry).getPacketTag()));
@@ -134,9 +126,9 @@ public class TagTeamTablist extends TeamTablist {
         }
     }
 
-    private NameTagVisibility getNameTagVisibility(User user, TablistEntry entry) {
+    private NameTagVisibility getNameTagVisibility(User user, SlotEntry entry) {
         NameTagVisibility tagVisibility = null;
-        TablistableGroup userTeam = user.getTablistGroup(teamTypes.getFirst());
+        TablistableGroup userTeam = user.getTablistGroup(teamType);
 
         if (userTeam != null) {
             if (entry.getTeam() != null) {

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,11 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.exceptions.BuilderNotFullyInstantiatedException;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.packets.util.packet.*;
 import org.bukkit.ChatColor;
@@ -37,15 +38,19 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
 
     protected final GroupTab groupTab;
 
-    public GroupTablist(String name, Type type, ScoreboardPacketManager packetManager, TablistUserJoin userJoin,
-                        TablistUserQuit userQuit, LinkedList<TablistGroupType> types) {
-        super(name, type, packetManager, userJoin, userQuit);
-        this.groupTab = new GroupTab(types);
+    public GroupTablist(TablistBuilder builder, ScoreboardPacketManager packetManager) {
+        super(builder.getName(), builder.getType(), packetManager, builder.getUserJoin(), builder.getUserQuit());
+        if (builder.getGroupTypes() == null) {
+            throw new BuilderNotFullyInstantiatedException("group tablist: 'groupTypes' not instantiated");
+        }
+        this.groupTab = new GroupTab(builder.getGroupTypes());
         Server.registerListener(this, BasicBukkit.getPlugin());
     }
 
     @Override
     public void addEntry(TablistablePlayer player) {
+        Plugin.SCOREBOARD.getLogger().info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+
         if (!player.showInTablist()) {
             return;
         }
@@ -68,11 +73,19 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
         this.packetManager.sendPacket(this.wachtingUsers, ExPacketPlayOutTablistTeamPlayerAdd.wrap(rank,
                 player.getPlayer().getName()));
         this.packetManager.sendPacket(this.wachtingUsers, ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
+
+        Plugin.SCOREBOARD.getLogger().fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
     }
 
     @Override
     public boolean removeEntry(TablistablePlayer player) {
-        return this.groupTab.removeEntry(new Entry(null, null, player));
+        Plugin.SCOREBOARD.getLogger().info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
+
+        boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
+        if (removed) {
+            Plugin.SCOREBOARD.getLogger().fine("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+        }
+        return removed;
     }
 
     @Override
@@ -125,7 +138,7 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
         }
     }
 
-    protected static class Entry extends Tab.TabEntry<Entry> {
+    protected static class Entry extends TabEntry<Entry> {
 
         protected final String prefix;
 

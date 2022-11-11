@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,7 +78,9 @@ public class ExWorld extends DelegatedWorld implements World {
             this.safe = false;
         }
 
-        this.restrictionValues = restrictions;
+        this.restrictionValues = Objects.requireNonNullElseGet(restrictions, HashMap::new);
+        Restriction.VALUES.stream().filter(restriction -> !this.restrictionValues.containsKey(restriction))
+                .forEach(restriction -> this.restrictionValues.put(restriction, restriction.getDefaultValue()));
     }
 
     @Override

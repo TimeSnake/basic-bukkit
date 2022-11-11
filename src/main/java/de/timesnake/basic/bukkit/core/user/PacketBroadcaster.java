@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ public class PacketBroadcaster implements CommandListener {
 
     public void broadcastPacket(Player player, ExPacket packet) {
         if (this.broadcast) {
-            Server.printText(Plugin.PACKETS, "Send " + packet.getClass().getSimpleName() + " " + packet.getInfo() +
+            Plugin.PACKETS.getLogger().info("Send " + packet.getClass().getSimpleName() + " " + packet.getInfo() +
                     " to: " + player.getName());
         }
     }

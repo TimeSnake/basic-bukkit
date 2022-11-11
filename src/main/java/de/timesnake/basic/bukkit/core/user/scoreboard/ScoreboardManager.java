@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -21,16 +21,15 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
-import de.timesnake.basic.bukkit.util.user.scoreboard.*;
-import de.timesnake.library.extension.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
 
@@ -43,80 +42,40 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     public ScoreboardManager() {
         this.packetManager = new ScoreboardPacketManager();
 
-        GroupTablist standard = new GroupTablist(Server.getName(),
-                de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type.DUMMY,
-                this.packetManager, (e, tablist) -> tablist.addEntry(e.getUser()),
-                (e, tablist) -> tablist.removeEntry(e.getUser()), DisplayGroup.MAIN_TABLIST_GROUPS);
+        GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
+                .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
         standard.setHeader("§6Time§2Snake§9.de");
         standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n" + Server.SUPPORT_EMAIL);
-        this.tablists.put(standard.getName(), standard);
+
         this.activeTablist = standard;
 
         Server.registerListener(this, BasicBukkit.getPlugin());
 
-        Server.printText(Plugin.BUKKIT, "Loaded scoreboard handler", "Scoreboard");
+        Plugin.SCOREBOARD.getLogger().info("Loaded manager");
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist registerNewGroupTablist(String name,
-                                                                                               de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type type, LinkedList<TablistGroupType> types, TablistUserJoin userJoin, TablistUserQuit userQuit) {
-
-        GroupTablist tablist = new GroupTablist(name, type, this.packetManager, userJoin, userQuit, types);
-        this.tablists.put(name, tablist);
+    public GroupTablist registerGroupTablist(TablistBuilder builder) {
+        GroupTablist tablist = new GroupTablist(builder, this.packetManager);
+        this.tablists.put(tablist.getName(), tablist);
+        Plugin.SCOREBOARD.getLogger().info("Created group tablist '" + tablist.getName() + "'");
         return tablist;
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist
-    registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
-                           Collection<? extends TablistableGroup> teams,
-                           TablistUserJoin userJoin, TablistUserQuit userQuit,
-                           LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType) {
-
-        TeamTablist tablist = new TeamTablist(name, type, this.packetManager, colorType, teamType, teams, groupTypes,
-                userJoin, userQuit);
-        this.tablists.put(name, tablist);
+    public TeamTablist registerTeamTablist(TeamTablistBuilder builder) {
+        TeamTablist tablist = new TeamTablist(builder, this.packetManager);
+        this.tablists.put(tablist.getName(), tablist);
+        Plugin.SCOREBOARD.getLogger().info("Created team tablist '" + tablist.getName() + "'");
         return tablist;
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist
-    registerNewTagTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
-                              Collection<? extends TagTablistableGroup> teams,
-                              TablistUserJoin userJoin, TablistUserQuit userQuit,
-                              LinkedList<TablistGroupType> groupTypes, TablistGroupType teamType) {
+    public TagTeamTablist registerTagTeamTablist(TeamTablistBuilder builder) {
 
-        TeamTablist tablist = new TagTeamTablist(name, type, this.packetManager, colorType, teamType, teams, groupTypes,
-                userJoin, userQuit);
-        this.tablists.put(name, tablist);
-        return tablist;
-    }
-
-    @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist
-    registerNewTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
-                           Collection<? extends TablistableGroup> teams, TablistGroupType teamType,
-                           LinkedList<TablistGroupType> groupTypes, TablistableRemainTeam remainTeam,
-                           LinkedList<TablistGroupType> remainTeamGroupTypes,
-                           TablistUserJoin userJoin, TablistUserQuit userQuit) {
-
-        TeamTablist tablist = new TeamTablist(name, type, colorType, this.packetManager, teamType, teams, groupTypes,
-                remainTeam, remainTeamGroupTypes, userJoin, userQuit);
-        this.tablists.put(name, tablist);
-        return tablist;
-    }
-
-    @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist
-    registerNewTagTeamTablist(String name, Tablist.Type type, TeamTablist.ColorType colorType,
-                              Collection<? extends TagTablistableGroup> teams, TablistGroupType teamType,
-                              LinkedList<TablistGroupType> groupTypes, TagTablistableRemainTeam remainTeam,
-                              LinkedList<TablistGroupType> remainTeamGroupTypes, TablistUserJoin userJoin,
-                              TablistUserQuit userQuit) {
-
-        TeamTablist tablist = new TagTeamTablist(name, type, colorType, this.packetManager, teamType, teams, groupTypes,
-                remainTeam, remainTeamGroupTypes, userJoin, userQuit);
-        this.tablists.put(name, tablist);
+        TagTeamTablist tablist = new TagTeamTablist(builder, this.packetManager);
+        this.tablists.put(tablist.getName(), tablist);
+        Plugin.SCOREBOARD.getLogger().info("Created tag-team tablist '" + tablist.getName() + "'");
         return tablist;
     }
 
@@ -128,12 +87,14 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     @Override
     public void removeTablist(String name) {
         this.tablists.remove(name);
+        Plugin.SCOREBOARD.getLogger().info("Removed tablist '" + name + "'");
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard registerNewSideboard(String name, String title) {
+    public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard registerSideboard(String name, String title) {
         de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard = new Sideboard(name, title);
         this.sideboards.put(name, sideboard);
+        Plugin.SCOREBOARD.getLogger().info("Created sideboard '" + name + "'");
         return sideboard;
     }
 

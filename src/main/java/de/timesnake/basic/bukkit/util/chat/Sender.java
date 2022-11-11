@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -52,6 +52,7 @@ public class Sender extends de.timesnake.library.extension.util.cmd.Sender {
         return Server.getUser(this.getPlayer());
     }
 
+    @Deprecated
     @Override
     public void sendConsoleMessage(String message) {
         Server.printText(Plugin.BUKKIT, message);
