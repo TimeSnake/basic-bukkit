@@ -16,29 +16,38 @@
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.timesnake.basic.bukkit.util.user.scoreboard;
+package de.timesnake.basic.bukkit.core.user.scoreboard;
 
-public interface ScoreboardManager {
+public abstract class TabEntry<E> {
 
-    GroupTablist registerGroupTablist(TablistBuilder builder);
+    protected final String rank;
+    protected E previous;
+    protected E next;
 
-    TeamTablist registerTeamTablist(TeamTablistBuilder builder);
+    public TabEntry(String rank) {
+        this.rank = rank;
+    }
 
-    TeamTablist registerTagTeamTablist(TeamTablistBuilder builder);
+    public String getRank() {
+        return rank;
+    }
 
-    Tablist getTablist(String name);
+    public E getNext() {
+        return next;
+    }
 
-    void removeTablist(String name);
+    public void setNext(E next) {
+        this.next = next;
+    }
 
-    Sideboard registerSideboard(String name, String title);
+    public E getPrevious() {
+        return previous;
+    }
 
-    Sideboard getSideboard(String name);
+    public void setPrevious(E previous) {
+        this.previous = previous;
+    }
 
-    void removeSideboard(String name);
+    public abstract void merge(E entry);
 
-    Tablist getActiveTablist();
-
-    void setActiveTablist(Tablist tablist);
-
-    ScoreboardPacketManager getPacketManager();
 }

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -732,6 +732,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.consoleManager.printWarning(plugin, warning, subPlugins);
     }
 
+    @Deprecated(forRemoval = true)
     public final void printError(Plugin plugin, String error, String... subPlugins) {
         this.consoleManager.printError(plugin, error, subPlugins);
     }

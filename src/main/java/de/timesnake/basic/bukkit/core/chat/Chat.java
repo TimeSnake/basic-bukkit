@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -173,7 +173,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
             for (ChatMember member : this.listeners) {
                 member.sendMessage(msg);
             }
-            Server.printText(Plugin.BUKKIT, msg, "Chat", this.name);
+            Plugin.CHATS.getLogger().info(this.name + ": " + msg);
         }
     }
 
@@ -183,7 +183,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
             for (ChatMember member : this.listeners) {
                 member.sendMessage(msg);
             }
-            Server.printText(Plugin.BUKKIT, PlainTextComponentSerializer.plainText().serialize(msg), "Chat", this.name);
+            Plugin.CHATS.getLogger().info(this.name + ": " + PlainTextComponentSerializer.plainText().serialize(msg));
         }
     }
 

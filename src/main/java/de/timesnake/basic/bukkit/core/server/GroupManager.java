@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.permission.G
             try {
                 group = new DisplayGroup(dbDisplayGroup);
             } catch (UnsupportedGroupRankException e) {
-                Server.printError(Plugin.BUKKIT, ChatColor.WARNING + e.getMessage());
+                Server.printWarning(Plugin.BUKKIT, ChatColor.WARNING + e.getMessage());
                 continue;
             }
 

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 
 import java.util.List;
-import java.util.logging.Level;
 
 public class ConsoleManager {
 
@@ -37,28 +36,29 @@ public class ConsoleManager {
     }
 
     public final void printText(Plugin plugin, String text, String... subPlugins) {
-        StringBuilder sb = buildMessage(plugin, text, subPlugins);
+        StringBuilder sb = buildMessage(text, subPlugins);
         String msg = PlainTextComponentSerializer.plainText().serialize(
                 LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
-        Bukkit.getLogger().log(Level.INFO, msg);
+        plugin.getLogger().info(msg);
     }
 
     public final void printWarning(Plugin plugin, String warning, String... subPlugins) {
-        StringBuilder sb = buildMessage(plugin, warning, subPlugins);
+        StringBuilder sb = buildMessage(warning, subPlugins);
         String msg = PlainTextComponentSerializer.plainText().serialize(
                 LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
-        Bukkit.getLogger().log(Level.WARNING, msg);
+        plugin.getLogger().warning(msg);
     }
 
+    @Deprecated(forRemoval = true)
     public final void printError(Plugin plugin, String error, String... subPlugins) {
-        StringBuilder sb = buildMessage(plugin, error, subPlugins);
+        StringBuilder sb = buildMessage(error, subPlugins);
         String msg = PlainTextComponentSerializer.plainText().serialize(
                 LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
-        Bukkit.getLogger().log(Level.WARNING, msg);
+        plugin.getLogger().warning(msg);
     }
 
-    private StringBuilder buildMessage(Plugin plugin, String text, String[] subPlugins) {
-        StringBuilder sb = new StringBuilder("[" + plugin.getName() + "]");
+    private StringBuilder buildMessage(String text, String[] subPlugins) {
+        StringBuilder sb = new StringBuilder();
         for (String subPlugin : subPlugins) {
             sb.append("[");
             sb.append(subPlugin);
@@ -69,19 +69,19 @@ public class ConsoleManager {
     }
 
     public final void printSection(Plugin plugin, String title, String... lines) {
-        Bukkit.getLogger().log(Level.INFO, "---------- " + title + " ----------");
+        plugin.getLogger().info("---------- " + title + " ----------");
         for (String line : lines) {
-            Bukkit.getLogger().log(Level.INFO, "[" + plugin.getName() + "]" + line);
+            plugin.getLogger().info(line);
         }
-        Bukkit.getLogger().log(Level.INFO, "---------- " + title + " ----------");
+        plugin.getLogger().info("---------- " + title + " ----------");
     }
 
     public final void printSection(Plugin plugin, String title, List<String> lines) {
-        Bukkit.getLogger().log(Level.INFO, "---------- " + title + " ----------");
+        plugin.getLogger().info("---------- " + title + " ----------");
         for (String line : lines) {
-            Bukkit.getLogger().log(Level.INFO, "[" + plugin.getName() + "] " + line);
+            plugin.getLogger().info("[" + plugin.getName() + "] " + line);
         }
-        Bukkit.getLogger().log(Level.INFO, "---------- " + title + " ----------");
+        plugin.getLogger().info("---------- " + title + " ----------");
     }
 
 }

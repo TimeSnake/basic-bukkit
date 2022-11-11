@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,23 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import java.util.Iterator;
 
-public class Tab<E extends Tab.TabEntry<E>> implements Iterable<E> {
+/**
+ * This class implements a double linked list with the possibility to merge entries
+ *
+ * @param <E>
+ */
+public class Tab<E extends TabEntry<E>> implements Iterable<E> {
 
     private E head;
     private E tail;
 
     /**
      * Adds an entry to the Tab
+     *
+     * <p>
+     * The entry will be added so that the resulting list is in a lexicographic order.
+     * If the entry has the same rank as another entry, the merge method on the existing entry will be called.
+     * </p>
      *
      * @param entry The entry to add
      * @return true if the entry was merged into another entry
@@ -132,40 +142,6 @@ public class Tab<E extends Tab.TabEntry<E>> implements Iterable<E> {
     @Override
     public Iterator<E> iterator() {
         return new TabIterator<>(this);
-    }
-
-    public abstract static class TabEntry<E> {
-
-        protected final String rank;
-        protected E previous;
-        protected E next;
-
-        public TabEntry(String rank) {
-            this.rank = rank;
-        }
-
-        public String getRank() {
-            return rank;
-        }
-
-        public E getNext() {
-            return next;
-        }
-
-        public void setNext(E next) {
-            this.next = next;
-        }
-
-        public E getPrevious() {
-            return previous;
-        }
-
-        public void setPrevious(E previous) {
-            this.previous = previous;
-        }
-
-        public abstract void merge(E entry);
-
     }
 
     public static class TabIterator<E extends TabEntry<E>> implements Iterator<E> {

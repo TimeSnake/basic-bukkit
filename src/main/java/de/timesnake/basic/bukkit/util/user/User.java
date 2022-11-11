@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -170,11 +170,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 this.permGroup = Server.getPermGroup(groupName);
                 this.permGroup.addUser(this);
             } else {
-                Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
+                Server.printWarning(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
                 this.player.kick(Component.text("§cA fatal error occurred!\nPlease contact an admin"));
             }
         } else {
-            Server.printError(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
+            Server.printWarning(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
             this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin"));
         }
 
@@ -1309,9 +1309,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         }
 
         if (fromDatabase) {
-            Server.printText(Plugin.BUKKIT, "Updated permissions of user " + this.getName() + " from database", "User");
+            Plugin.PERMISSIONS.getLogger().info("Updated permissions of user '" + this.getName() + "' from database");
         } else {
-            Server.printText(Plugin.BUKKIT, "Updated permissions of user " + this.getName(), "User");
+            Plugin.PERMISSIONS.getLogger().info("Updated permissions of user '" + this.getName() + "'");
         }
 
         Server.runTaskSynchrony(this::loadPermissions, BasicBukkit.getPlugin());
@@ -1327,7 +1327,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                     addPermission(perm);
                 }
             }
-            Server.printText(Plugin.BUKKIT, "Loaded permissions of user " + this.getName(), "User");
+            Plugin.PERMISSIONS.getLogger().info("Loaded permissions of user '" + this.getName() + "'");
         }
     }
 

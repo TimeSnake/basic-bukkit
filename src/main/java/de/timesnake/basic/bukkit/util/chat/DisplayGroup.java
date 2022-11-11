@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,6 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.exceptions.UnsupportedGroupRankException;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
@@ -54,7 +53,7 @@ public class DisplayGroup extends de.timesnake.library.extension.util.chat.Displ
 
         this.tablistRank = "0".repeat(Math.max(0, RANK_LENGTH - String.valueOf(this.rank).length())) + this.rank;
 
-        Server.printText(Plugin.BUKKIT, "Loaded display-group " + this.name, "Group");
+        Plugin.GROUPS.getLogger().info("Loaded display-group '" + this.name + "'");
     }
 
     private void loadPrefix() {

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
 
     public PermGroup(DbPermGroup database) {
         super(database);
-        Server.printText(Plugin.BUKKIT, "Loaded perm-group " + this.name, "Group");
+        Plugin.GROUPS.getLogger().info("Loaded perm-group '" + this.name + "'");
     }
 
     public void addUser(User user) {
@@ -65,6 +65,6 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
             this.permissions.addAll(Server.getPermGroup(group.getName()).getPermissions());
         }
 
-        Server.printText(Plugin.BUKKIT, "Updated permissions of group " + this.name + " from database", "Group");
+        Plugin.GROUPS.getLogger().info("Updated permissions of group '" + this.name + "' from database");
     }
 }

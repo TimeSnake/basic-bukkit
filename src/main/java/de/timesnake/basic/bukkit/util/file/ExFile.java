@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * timesnake.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -381,7 +381,7 @@ public class ExFile {
                     try {
                         ids.add(Integer.valueOf(idString));
                     } catch (NumberFormatException e) {
-                        Server.printError(Plugin.SYSTEM, "Can not read id " + idString);
+                        Server.printWarning(Plugin.SYSTEM, "Can not read id " + idString);
                     }
                 }
             }
