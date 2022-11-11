@@ -103,3 +103,12 @@ task copyJarToPlugins(type: Copy) {
 copyJarToPlugins.dependsOn(buildFatJar)
 jar.finalizedBy(copyJarToPlugins)
 
+task gitPush(type: Exec) {
+    description('Pushes to ' + project.git_url)
+    commandLine('git', 'push', 'origin', 'master')
+}
+
+task gitPull(type: Exec) {
+    description('Pushes to ' + project.git_url)
+    commandLine('git', 'pull', 'origin', 'master')
+}
