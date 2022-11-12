@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -484,6 +484,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setCancelled(true);
                     clickedBlock.setType(blockType, true);
                     clickedBlock.setBlockData(clickedBlock.getBlockData());
+                    Plugin.WORLDS.getLogger().info("Cancelled interact physical event");
+                    return;
                 }
             }
         }
@@ -499,6 +501,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
+                        Plugin.WORLDS.getLogger().info("Cancelled interact cauldron event");
+                        return;
                     }
                 } else if (item.getType().equals(Material.BUCKET)) {
                     Set<Material> filledCauldrons = Set.of(Material.LAVA_CAULDRON, Material.WATER_CAULDRON);
@@ -507,6 +511,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
+                        Plugin.WORLDS.getLogger().info("Cancelled interact cauldron event");
+                        return;
                     }
                 }
             }
@@ -519,6 +525,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setCancelled(true);
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
+                    Plugin.WORLDS.getLogger().info("Cancelled interact cake event");
+                    return;
                 }
             }
 
@@ -526,6 +534,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 event.setCancelled(true);
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.DENY);
+                Plugin.WORLDS.getLogger().info("Cancelled interact block inventory event");
+                return;
             }
 
             if (item != null) {
@@ -542,6 +552,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setCancelled(true);
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
+                    Plugin.WORLDS.getLogger().info("Cancelled interact light-up event");
                 } else if (item.getType().equals(Material.SPLASH_POTION)) {
                     if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)) {
                         return;
@@ -563,6 +574,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
+                        Plugin.WORLDS.getLogger().info("Cancelled interact place enderpearl event");
                         return;
                     }
 
@@ -570,6 +582,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
+                        Plugin.WORLDS.getLogger().info("Cancelled interact cake candle event");
                         return;
                     }
 
@@ -577,6 +590,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                         event.setCancelled(true);
                         event.setUseInteractedBlock(Event.Result.DENY);
                         event.setUseItemInHand(Event.Result.DENY);
+                        Plugin.WORLDS.getLogger().info("Cancelled interact sea pickle event");
                         return;
                     }
                 }
@@ -588,6 +602,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                     event.setCancelled(true);
                     event.setUseInteractedBlock(Event.Result.DENY);
                     event.setUseItemInHand(Event.Result.DENY);
+                    Plugin.WORLDS.getLogger().info("Cancelled interact fire event");
                 }
             }
         }
@@ -612,6 +627,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled item frame rotate event");
     }
 
     @EventHandler
@@ -627,6 +643,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled drop item event");
     }
 
     @EventHandler
@@ -643,6 +660,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
         e.setCancelled(true);
         e.setCancelDamage(true);
+        Plugin.WORLDS.getLogger().info("Cancelled user damage event");
     }
 
     @EventHandler
@@ -660,6 +678,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled pickup item event");
     }
 
     @EventHandler
@@ -675,6 +694,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled pickup arrow event");
     }
 
     @EventHandler
@@ -695,8 +715,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             return;
         }
 
-        System.out.println("break world lock");
         e.setCancelled(CancelPriority.LOW, true);
+        Plugin.WORLDS.getLogger().info("Cancelled block break event");
     }
 
     @EventHandler
@@ -712,6 +732,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled armorstand manipulate event");
     }
 
     @EventHandler
@@ -728,6 +749,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled vehicle destroy event");
     }
 
     @EventHandler
@@ -744,6 +766,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled hanging destroy event");
     }
 
     @EventHandler
@@ -763,6 +786,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             e.setCancelled(true);
         }
 
+        Plugin.WORLDS.getLogger().info("Cancelled interact entity event");
     }
 
     @EventHandler
@@ -783,6 +807,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
         e.setCancelDamage(true);
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled user by user damage event");
     }
 
     @EventHandler
@@ -801,6 +826,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         if (e.getEntity() instanceof Player) {
             e.getEntity().setFoodLevel(20);
         }
+
+        Plugin.WORLDS.getLogger().info("Cancelled food change event");
     }
 
     @EventHandler
@@ -812,6 +839,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled entity explode event");
     }
 
     @EventHandler
@@ -851,8 +879,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 return;
             }
 
-            e.setCancelled(true);
-            e.setBuild(false);
+            e.setCancelled(CancelPriority.LOW, true);
+            Plugin.WORLDS.getLogger().info("Cancelled block place event");
             return;
         }
 
@@ -872,6 +900,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled block spread event");
     }
 
     @EventHandler
@@ -883,6 +912,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled block burn-up event");
     }
 
     @EventHandler
@@ -907,5 +937,6 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         e.setCancelled(true);
+        Plugin.WORLDS.getLogger().info("Cancelled block ignite event");
     }
 }
