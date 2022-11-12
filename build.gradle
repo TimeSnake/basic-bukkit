@@ -54,7 +54,7 @@ dependencies {
 
 group = project.group
 version = '1.0-SNAPSHOT'
-description = 'basic-bukkit'
+archivesBaseName = 'basic-bukkit'
 java.sourceCompatibility = 1.17
 java.targetCompatibility = 1.17
 
@@ -75,7 +75,7 @@ publishing {
         mavenJavaAll(MavenPublication) {
             version version + '-all'
             artifact {
-                file "build/libs/" + description + "-" + version + ".jar"
+                file "build/libs/" + archivesBaseName + "-" + version + ".jar"
             }
         }
     }
@@ -87,7 +87,7 @@ tasks.withType(JavaCompile) {
 
 task buildFatJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    baseName = project(':basic-bukkit').name
+    baseName = archivesBaseName
     classifier = "all"
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
@@ -95,11 +95,16 @@ task buildFatJar(type: Jar) {
 
 jar.finalizedBy(buildFatJar)
 
-task copyJarToPlugins(type: Copy) {
-    from "build/libs/" + project(':basic-bukkit').name + "-" + version + "-all" + ".jar"
-    into "../../plugins"
+task deleteOldPluginJar(type: Delete) {
+    delete fileTree(dir: "${project.plugins_dir}", include: "**/${archivesBaseName}-*.jar")
 }
 
+task copyJarToPlugins(type: Copy) {
+    from "build/libs/" + archivesBaseName + "-" + version + "-all" + ".jar"
+    into project.plugins_dir
+}
+
+copyJarToPlugins.dependsOn(deleteOldPluginJar)
 copyJarToPlugins.dependsOn(buildFatJar)
 jar.finalizedBy(copyJarToPlugins)
 
