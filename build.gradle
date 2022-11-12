@@ -33,7 +33,7 @@ dependencies {
     implementation project.toml
 
     implementation project(':library-network')
-    implementation project(':library-entities:library-entities')
+    implementation project(':library-entities')
     implementation project(':library-packets')
     implementation project(':library-reflection')
     implementation project(':library-extension')
