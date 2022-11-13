@@ -737,13 +737,13 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @EventHandler
     public void onBoat(VehicleDestroyEvent e) {
-        ExWorld world = this.getWorld(e.getAttacker().getWorld());
+        ExWorld world = this.getWorld(e.getVehicle().getWorld());
 
         if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
             return;
         }
 
-        if (world.isExceptService() && e.getAttacker() instanceof Player
+        if (e.getAttacker() != null && world.isExceptService() && e.getAttacker() instanceof Player
                 && Server.getUser(((Player) e.getAttacker())).isService()) {
             return;
         }
