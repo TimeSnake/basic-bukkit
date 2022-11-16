@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,6 @@
 
 package de.timesnake.basic.bukkit.core.main;
 
-import de.timesnake.basic.bukkit.core.channel.ChannelBroadcastCmd;
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
 import de.timesnake.basic.bukkit.core.database.DatabaseBroadcastCmd;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
@@ -84,8 +83,6 @@ public class BasicBukkit extends JavaPlugin {
 
         Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd",
                 "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
-        Server.getCommandManager().addCommand(this, "channelmsg", List.of("channelmsgs", "channelmessage",
-                "channelmessages"), new ChannelBroadcastCmd(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs",
                 "databasemessages"), new DatabaseBroadcastCmd(), Plugin.SYSTEM);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
