@@ -19,7 +19,13 @@ The `equals(Object)` and `hashCode()` methods are based on the id. `equals` comp
 item is a bukkit `ItemStack`, it is wrapped to a `ExItemStack` (the id will be extracted, if possible). The `hashCode`
 of the item is the hash of the id (allows use of `HashMap`).
 
-#### Clone
+**Important:** The unique id of an item could change on a server restart. So items, which are in a player inventory
+tagged
+with an id are not valid anymore. To prevent these use the `ExItemStack#getHashedIdItem(Material material, String name)`
+method to use a persistent tagging with the given name. If the given name already exists, a `DuplicateItemIdException`
+will be thrown.
+
+#### Cloning
 
 For cloning multiple clone types are possible:
 
