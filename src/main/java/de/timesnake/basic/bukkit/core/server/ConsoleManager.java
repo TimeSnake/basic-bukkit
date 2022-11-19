@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -44,14 +44,6 @@ public class ConsoleManager {
 
     public final void printWarning(Plugin plugin, String warning, String... subPlugins) {
         StringBuilder sb = buildMessage(warning, subPlugins);
-        String msg = PlainTextComponentSerializer.plainText().serialize(
-                LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
-        plugin.getLogger().warning(msg);
-    }
-
-    @Deprecated(forRemoval = true)
-    public final void printError(Plugin plugin, String error, String... subPlugins) {
-        StringBuilder sb = buildMessage(error, subPlugins);
         String msg = PlainTextComponentSerializer.plainText().serialize(
                 LegacyComponentSerializer.legacySection().deserialize(sb.toString()));
         plugin.getLogger().warning(msg);

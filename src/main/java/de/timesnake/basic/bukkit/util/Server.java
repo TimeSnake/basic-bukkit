@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -501,11 +501,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
     public static void printWarning(Plugin plugin, String warning, String... subPlugins) {
         server.printWarning(plugin, warning, subPlugins);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static void printError(Plugin plugin, String error, String... subPlugins) {
-        server.printError(plugin, error, subPlugins);
     }
 
     public static void printSection(Plugin plugin, String title, String... lines) {
