@@ -39,8 +39,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
-import de.timesnake.channel.core.Channel;
-import de.timesnake.channel.core.NetworkChannel;
+import de.timesnake.channel.util.Channel;
 import de.timesnake.channel.util.listener.ChannelHandler;
 import de.timesnake.channel.util.listener.ChannelListener;
 import de.timesnake.channel.util.listener.ListenerType;
@@ -680,7 +679,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     public final Channel getChannel() {
-        return NetworkChannel.getChannel();
+        return Channel.getInstance();
     }
 
     public final ExInventory createExInventory(int size, String name, ExItemStack... itemStacks) {

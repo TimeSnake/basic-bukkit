@@ -35,7 +35,7 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.basic.bukkit.util.world.entity.EntityManager;
-import de.timesnake.channel.core.Channel;
+import de.timesnake.channel.util.Channel;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
