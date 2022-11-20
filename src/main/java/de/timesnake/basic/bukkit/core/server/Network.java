@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ package de.timesnake.basic.bukkit.core.server;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.channel.core.Channel;
 import de.timesnake.channel.util.listener.ChannelHandler;
 import de.timesnake.channel.util.listener.ChannelListener;
 import de.timesnake.channel.util.listener.ListenerType;
@@ -53,7 +54,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
 
     @Override
     public String getName() {
-        return Server.getChannel().getProxyName();
+        return Channel.PROXY_NAME;
     }
 
     @Override

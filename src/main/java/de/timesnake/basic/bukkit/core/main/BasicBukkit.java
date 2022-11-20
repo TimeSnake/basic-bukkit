@@ -29,7 +29,6 @@ import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.channel.bukkit.main.ChannelBukkit;
-import de.timesnake.channel.core.NetworkChannel;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.bukkit.main.DatabaseBukkit;
@@ -103,7 +102,7 @@ public class BasicBukkit extends JavaPlugin {
         ServerManager.getInstance().onDisable();
 
         DatabaseBukkit.disconnect();
-        NetworkChannel.stop();
+        ChannelBukkit.stop();
     }
 
 }
