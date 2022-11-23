@@ -271,6 +271,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public ExWorld cloneWorld(String name, ExWorld exWorld) {
+        if (exWorld == null) {
+            return null;
+        }
+
         for (String s : UNSUPPORTED_SYMBOLS) {
             name = name.replace(s, "");
         }
@@ -304,6 +308,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean backupWorld(ExWorld world) {
+        if (world == null) {
+            return false;
+        }
+
         File backup = new File(this.backupDir + File.separator + world.getName());
         backup.delete();
         backup.mkdir();
@@ -314,6 +322,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean loadWorldBackup(ExWorld world) {
+        if (world == null) {
+            return false;
+        }
+
         File backup = new File(this.backupDir + File.separator + world.getName());
 
         if (!backup.exists()) {
@@ -336,6 +348,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean reloadWorld(ExWorld exWorld) {
+        if (exWorld == null) {
+            return false;
+        }
+
         this.moveUsersFromWorld(exWorld);
         World world = exWorld.getBukkitWorld();
 
@@ -360,6 +376,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean unloadWorld(ExWorld world, boolean save) {
+        if (world == null) {
+            return false;
+        }
+
         this.moveUsersFromWorld(world);
         this.worldsByName.remove(world.getName());
         return Bukkit.unloadWorld(world.getName(), save);
@@ -367,6 +387,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     @Override
     public boolean deleteWorld(ExWorld exWorld, boolean deleteFiles) {
+        if (exWorld == null) {
+            return false;
+        }
+
         this.moveUsersFromWorld(exWorld);
         boolean unloaded = Bukkit.unloadWorld(exWorld.getBukkitWorld(), false);
         this.unregisterExWorld(exWorld);

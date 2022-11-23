@@ -71,7 +71,7 @@ public class ConsoleManager {
     public final void printSection(Plugin plugin, String title, List<String> lines) {
         plugin.getLogger().info("---------- " + title + " ----------");
         for (String line : lines) {
-            plugin.getLogger().info("[" + plugin.getName() + "] " + line);
+            plugin.getLogger().info(line);
         }
         plugin.getLogger().info("---------- " + title + " ----------");
     }
