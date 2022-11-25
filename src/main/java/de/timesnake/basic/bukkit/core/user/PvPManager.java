@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -34,7 +34,6 @@ import org.bukkit.event.Listener;
 public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user.PvPManager {
 
     public static final Integer ATTACK_SPEED = 10;
-    public static final Integer ATTACK_DAMAGE = 2;
     public static final Integer MAX_NO_DAMAGE_TICKS = 4;
     public static final double DAMAGE_MULTIPLIER = 0.7;
 

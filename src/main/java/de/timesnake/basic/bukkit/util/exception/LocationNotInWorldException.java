@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -16,21 +16,23 @@
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.timesnake.basic.bukkit.util.exceptions;
+package de.timesnake.basic.bukkit.util.exception;
 
-public class WorldNotExistException extends Exception {
+import org.bukkit.Location;
 
-    private String worldName;
+public class LocationNotInWorldException extends Exception {
 
-    public WorldNotExistException(String worldName) {
-        this.worldName = worldName;
+    private final Location location;
+
+    public LocationNotInWorldException(Location location) {
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     public String getMessage() {
-        return "World not exists";
-    }
-
-    public String getWorldName() {
-        return worldName;
+        return "You must be in the right world";
     }
 }

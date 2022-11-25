@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -117,7 +117,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             e.allow();
         } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers())
                 && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || p.hasPermission(
-                "basicsystem.join.full")) {
+                "join.full")) {
             e.allow();
         }
 

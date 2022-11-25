@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -99,7 +99,6 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     public void onPlayerChat(AsyncChatEvent e) {
         User user = Server.getUser(e.getPlayer());
 
-        Component msgComponent = e.message();
         String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
 
         // event
@@ -131,8 +130,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
         boolean global = false;
 
-        if (msg.startsWith("!")) {
-            if (user.hasPermission("basicsystem.chat.global", this.globalPerm, Plugin.BUKKIT)) {
+        if (msg.startsWith("!") && msg.length() > 1) {
+            if (user.hasPermission(this.globalPerm, Plugin.BUKKIT)) {
                 msg = msg.replaceFirst("!", "");
                 global = true;
             }
@@ -140,7 +139,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         }
 
         Component component;
-        if (user.hasPermission("basicsystem.chat.color")) {
+        if (user.hasPermission("chat.color")) {
             component = LegacyComponentSerializer.legacyAmpersand().deserialize(msg);
         } else {
             component = PlainTextComponentSerializer.plainText().deserialize(msg);
@@ -240,8 +239,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
                     .append(user.getChatNameComponent().color(ExTextColor.WHITE)));
             Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
         } else {
-            Plugin.CHATS.getLogger().info(">>>" + PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent()
-                    .color(ExTextColor.WHITE)));
+            Plugin.CHATS.getLogger().info(">>>" + PlainTextComponentSerializer.plainText()
+                    .serialize(user.getChatNameComponent().color(ExTextColor.WHITE)));
         }
 
     }
@@ -265,7 +264,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
         String msg = args.toMessage();
 
         Component component;
-        if (sender.hasPermission("basicsystem.chat.color")) {
+        if (sender.hasPermission("chat.color")) {
             component = LegacyComponentSerializer.legacyAmpersand().deserialize(msg);
         } else {
             component = PlainTextComponentSerializer.plainText().deserialize(msg);
@@ -285,7 +284,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
     @Override
     public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-        this.globalPerm = plugin.createPermssionCode("chg", "basicsystem.chat.global");
+        this.globalPerm = plugin.createPermssionCode("chg", "chat.global");
 
     }
 }

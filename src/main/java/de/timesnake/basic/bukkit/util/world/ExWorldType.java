@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +18,8 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
-import de.timesnake.basic.bukkit.core.world.*;
-import de.timesnake.basic.bukkit.util.exceptions.WorldTypeParseException;
+import de.timesnake.basic.bukkit.core.world.generator.*;
+import de.timesnake.basic.bukkit.util.exception.WorldTypeParseException;
 import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Material;
 import org.bukkit.World;

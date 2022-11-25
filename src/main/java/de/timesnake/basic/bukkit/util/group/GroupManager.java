@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +16,7 @@
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.timesnake.basic.bukkit.util.permission;
-
-import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
+package de.timesnake.basic.bukkit.util.group;
 
 import java.util.Collection;
 

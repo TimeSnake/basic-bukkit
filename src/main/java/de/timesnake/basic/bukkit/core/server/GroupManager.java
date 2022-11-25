@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,9 @@ package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
-import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
-import de.timesnake.basic.bukkit.util.exceptions.UnsupportedGroupRankException;
-import de.timesnake.basic.bukkit.util.permission.PermGroup;
+import de.timesnake.basic.bukkit.util.exception.UnsupportedGroupRankException;
+import de.timesnake.basic.bukkit.util.group.DisplayGroup;
+import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GroupManager implements de.timesnake.basic.bukkit.util.permission.GroupManager {
+public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupManager {
 
     private static final String GUEST_GROUP_NAME = "guest";
     private static final String MEMBER_GROUP_NAME = "member";

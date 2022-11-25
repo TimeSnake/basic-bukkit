@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -113,8 +113,8 @@ public class TaskManager {
     private static class TimeBukkitRunnable extends BukkitRunnable {
 
         private final TimeTask task;
+        private final boolean cancelOnZero;
         private Integer time;
-        private boolean cancelOnZero;
 
         TimeBukkitRunnable(TimeTask task, Integer time, boolean cancelOnZero) {
             this.task = task;
