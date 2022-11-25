@@ -19,7 +19,6 @@
 package de.timesnake.basic.bukkit.core.main;
 
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
-import de.timesnake.basic.bukkit.core.database.DatabaseBroadcastCmd;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
 import de.timesnake.basic.bukkit.core.user.CmdDataProtection;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
@@ -82,8 +81,6 @@ public class BasicBukkit extends JavaPlugin {
 
         Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd",
                 "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
-        Server.getCommandManager().addCommand(this, "databasemessage", List.of("databasemsg", "databasemsgs",
-                "databasemessages"), new DatabaseBroadcastCmd(), Plugin.SYSTEM);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
         Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),

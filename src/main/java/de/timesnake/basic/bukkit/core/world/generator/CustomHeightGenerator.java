@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.timesnake.basic.bukkit.core.world;
+package de.timesnake.basic.bukkit.core.world.generator;
 
 import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Location;

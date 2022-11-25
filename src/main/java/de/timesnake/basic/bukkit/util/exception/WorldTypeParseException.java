@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -16,11 +16,15 @@
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.timesnake.basic.bukkit.util.exceptions;
+package de.timesnake.basic.bukkit.util.exception;
 
-public class BuilderNotFullyInstantiatedException extends RuntimeException {
+public class WorldTypeParseException extends RuntimeException {
 
-    public BuilderNotFullyInstantiatedException(String message) {
+    public WorldTypeParseException() {
+
+    }
+
+    public WorldTypeParseException(String message) {
         super(message);
     }
 }

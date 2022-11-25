@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
-import de.timesnake.basic.bukkit.util.exceptions.BuilderNotFullyInstantiatedException;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
+import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
 import de.timesnake.library.packets.util.packet.*;
 import org.bukkit.ChatColor;
 

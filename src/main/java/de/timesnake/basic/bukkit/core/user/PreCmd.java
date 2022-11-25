@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -33,27 +33,19 @@ public class PreCmd implements Listener {
         if (e.getMessage() != null) {
             String[] message = e.getMessage().split(" ");
             switch (message[0].toLowerCase()) {
-
-                case "ban":
-                case "tempban":
-                case "tmpban":
-                case "mute":
-                case "kick":
-                case "unban":
-                case "unmute":
-                case "pardon":
+                case "ban", "tempban", "tmpban", "mute", "kick", "unban", "unmute", "pardon" -> {
                     e.setCancelled(true);
                     Bukkit.dispatchCommand(e.getPlayer(), "net" + Arrays.toString(message));
-                    break;
-                case "clear":
+                }
+                case "clear" -> {
                     e.setCancelled(true);
                     Bukkit.dispatchCommand(e.getPlayer(), "invclear");
-                    break;
-                case "stop":
+                }
+                case "stop" -> {
                     e.setCancelled(true);
                     new BasicBukkit().onDisable();
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
-                    break;
+                }
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 package de.timesnake.basic.bukkit.util.file;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.exceptions.WorldNotExistException;
+import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.basic.util.Triple;
@@ -46,6 +46,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.*;
 
+/**
+ * Use {@link ExToml} instead
+ */
+@Deprecated
 public class ExFile {
 
     public static void deleteFile(File file) {

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
+import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 
 public class TablistGroupType {
 

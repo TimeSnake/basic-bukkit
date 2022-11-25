@@ -1,5 +1,5 @@
 /*
- * timesnake.basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -28,10 +28,10 @@ import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
-import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.chat.Sender;
-import de.timesnake.basic.bukkit.util.permission.PermGroup;
+import de.timesnake.basic.bukkit.util.group.DisplayGroup;
+import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
