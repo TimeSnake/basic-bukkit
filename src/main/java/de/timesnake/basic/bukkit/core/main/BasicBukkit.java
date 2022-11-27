@@ -19,6 +19,7 @@
 package de.timesnake.basic.bukkit.core.main;
 
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
+import de.timesnake.basic.bukkit.core.chat.PasswordCmd;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
 import de.timesnake.basic.bukkit.core.user.CmdDataProtection;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
@@ -89,6 +90,8 @@ public class BasicBukkit extends JavaPlugin {
         Server.getCommandManager().addCommand(this, "logger", List.of("log"),
                 new LoggerCmd(), Plugin.SYSTEM);
 
+        Server.getCommandManager().addCommand(this, "password", List.of("pwd"),
+                new PasswordCmd(), Plugin.SYSTEM);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,8 @@ import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.*;
 import de.timesnake.library.basic.util.Status;
+
+import java.util.Objects;
 
 public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.server.Info {
 
@@ -80,7 +82,7 @@ public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.s
 
     @Override
     public void setPassword(String password) throws TooLongEntryException {
-        if (!super.password.equals(password)) {
+        if (!Objects.equals(password, this.password)) {
             this.database.setPassword(password);
         }
         super.setPassword(password);
