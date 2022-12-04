@@ -1494,7 +1494,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     /**
      * Opens inventory for user
      *
-     * @param inv The {@link de.timesnake.basic.bukkit.core.user.inventory.ExInventory} to open
+     * @param inv The {@link ExInventory} to open
      */
     public void openInventory(ExInventory inv) {
         this.player.closeInventory();

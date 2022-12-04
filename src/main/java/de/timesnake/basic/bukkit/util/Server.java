@@ -473,10 +473,28 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.getChannel();
     }
 
+    /**
+     * @param size
+     * @param name
+     * @param itemStacks
+     * @return
+     *
+     * @deprecated in favour of {@link ExInventory}
+     */
+    @Deprecated
     public static ExInventory createExInventory(int size, String name, ExItemStack... itemStacks) {
         return server.createExInventory(size, name, itemStacks);
     }
 
+    /**
+     * @param size
+     * @param name
+     * @param itemStacks
+     * @return
+     *
+     * @deprecated in favour of {@link ExInventory}
+     */
+    @Deprecated
     public static ExInventory createExInventory(int size, String name, InventoryHolder holder,
                                                 ExItemStack... itemStacks) {
         return server.createExInventory(size, name, holder, itemStacks);

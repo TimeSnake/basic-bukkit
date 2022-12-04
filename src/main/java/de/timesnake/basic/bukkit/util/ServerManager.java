@@ -682,13 +682,32 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return Channel.getInstance();
     }
 
+    /**
+     * @param size
+     * @param name
+     * @param itemStacks
+     * @return
+     *
+     * @deprecated in favour of {@link ExInventory}
+     */
+    @Deprecated
     public final ExInventory createExInventory(int size, String name, ExItemStack... itemStacks) {
-        return new de.timesnake.basic.bukkit.core.user.inventory.ExInventory(size, name, itemStacks);
+        return new ExInventory(size, name, itemStacks);
     }
 
+    /**
+     * @param size
+     * @param name
+     * @param holder
+     * @param itemStacks
+     * @return
+     *
+     * @deprecated in favour of {@link ExInventory}
+     */
+    @Deprecated
     public final ExInventory createExInventory(int size, String name, InventoryHolder holder,
                                                ExItemStack... itemStacks) {
-        return new de.timesnake.basic.bukkit.core.user.inventory.ExInventory(size, name, holder, itemStacks);
+        return new ExInventory(size, name, holder, itemStacks);
     }
 
     public final void registerListener(Listener listener, org.bukkit.plugin.Plugin plugin) {
