@@ -63,10 +63,6 @@ import java.util.function.Predicate;
 
 public class Server implements de.timesnake.library.basic.util.server.Server {
 
-    public static int getProxyPort() {
-        return 25565;
-    }
-
     public static ChatManager getChat() {
         return server.getChatManager();
     }
