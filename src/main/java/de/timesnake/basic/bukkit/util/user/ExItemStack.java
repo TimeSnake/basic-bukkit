@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -34,8 +34,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ExItemStack extends org.bukkit.inventory.ItemStack {
@@ -567,11 +570,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     protected ExItemStack _replaceLoreLine(int line, String text) {
         ItemMeta meta = this.getItemMeta();
         @Nullable List<Component> lore = meta.lore();
-        if (line < lore.size()) {
-            lore.set(line, Component.text(text));
-        } else {
-            lore.add(line, Component.text(text));
-        }
+        if (lore == null) lore = new LinkedList<>();
+        while (lore.size() <= line) lore.add(lore.size(), Component.text(""));
+        lore.set(line, Component.text(text));
         meta.lore(lore);
         this.setItemMeta(meta);
         return this;
@@ -722,6 +723,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         super.addEnchantments(enchantments);
     }
 
+    public ExItemStack setDamage(@Range(from = 0, to = 1) float percent) {
+        this.checkImmutable();
+        return this._setDamage((int) (this.getType().getMaxDurability() * percent));
+    }
+
     public ExItemStack setDamage(int damage) {
         this.checkImmutable();
         return this._setDamage(damage);
@@ -838,6 +844,15 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
     protected void _removeItemFlags(@NotNull ItemFlag... itemFlags) {
         super.removeItemFlags(itemFlags);
+    }
+
+    public ExItemStack accept(Consumer<ExItemStack> consumer) {
+        consumer.accept(this);
+        return this;
+    }
+
+    public ExItemStack apply(Function<ExItemStack, ExItemStack> function) {
+        return function.apply(this);
     }
 
     public boolean isDropable() {

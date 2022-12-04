@@ -1515,7 +1515,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @return the item if found, else null
      */
     @Nullable
-    public ExItemStack getExItem(Integer id) {
+    public ExItemStack getItem(Integer id) {
         if (id == null) {
             return null;
         }
@@ -1524,6 +1524,28 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             if (item == null) continue;
             ExItemStack exItem = ExItemStack.getItem(item, true);
             if (exItem.getId().equals(id)) {
+                return exItem;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets an inventory item by id
+     *
+     * @param item The {@link ExItemStack} to search for
+     * @return the item if found, else null
+     */
+    @Nullable
+    public ExItemStack getItem(ExItemStack item) {
+        if (item == null) {
+            return null;
+        }
+
+        for (ItemStack i : this.getInventory()) {
+            if (i == null) continue;
+            ExItemStack exItem = ExItemStack.getItem(i, true);
+            if (exItem.equals(item)) {
                 return exItem;
             }
         }
