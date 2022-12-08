@@ -62,7 +62,6 @@ import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.util.packet.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -466,7 +465,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     @Override
     @Deprecated
     public String getChatName() {
-        return PlainTextComponentSerializer.plainText().serialize(chatName);
+        return LegacyComponentSerializer.legacySection().serialize(chatName);
     }
 
     @NotNull
