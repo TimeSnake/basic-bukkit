@@ -238,6 +238,17 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
                 }
             }
 
+            UserDamageByEntityEvent userEvent = new UserDamageByEntityEvent(user, e.getDamager(), e.isCancelled(),
+                    e.getDamage(), e.getCause());
+            Bukkit.getPluginManager().callEvent(userEvent);
+
+            if (userEvent.isCancelDamage()) {
+                e.setDamage(0);
+            }
+
+            e.setDamage(userEvent.getDamage());
+            e.setCancelled(userEvent.isCancelled());
+
         }
 
         Entity entity = e.getEntity();
