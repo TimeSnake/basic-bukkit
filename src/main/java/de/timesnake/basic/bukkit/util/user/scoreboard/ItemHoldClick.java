@@ -1,5 +1,5 @@
 /*
- * basic-bukkit.main
+ * workspace.basic-bukkit.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ public class ItemHoldClick {
 
     public boolean click() {
         Long currentMilis = System.currentTimeMillis();
-        if (currentMilis - lastClickMilis > 300) {
+        if (currentMilis - lastClickMilis > 400) {
             this.firstClickMilis = currentMilis;
             this.lastClickMilis = currentMilis;
             return false;
