@@ -306,10 +306,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * level reset,
      * fire to off,
      * potionEffects remove
+     * collision with entities true
      */
     public void setDefault() {
         this.getInventory().clear();
-        this.unlockBlocKBreakPlace();
+        this.unlockBlockBreakPlace();
         this.unlockInventory();
         this.unlockInventoryItemMove();
         this.lockLocation(false);
@@ -325,6 +326,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.setExp(0);
         this.setFireTicks(0);
         this.removePotionEffects();
+        this.setCollitionWithEntites(true);
     }
 
     public boolean isCollitionWithEntites() {
@@ -1434,7 +1436,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.blockBreakPlaceLocked = true;
     }
 
-    public void unlockBlocKBreakPlace() {
+    public void unlockBlockBreakPlace() {
         this.blockBreakPlaceLocked = false;
     }
 
@@ -1988,23 +1990,33 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * Locks the location of the user
      *
      * @param lock enable or disable location lock
+     * @deprecated in favour of {@link #lockLocation()} and {@link #unlockLocation()}
      */
+    @Deprecated
     public synchronized void lockLocation(boolean lock) {
         if (lock) {
-            this.setWalkSpeed(Float.MIN_VALUE);
-            this.setFlySpeed(Float.MIN_VALUE);
-            this.setAllowFlight(true);
-            this.setFlying(true);
-            this.setGravity(false);
-            this.lockedLocation = this.getLocation();
+            this.lockLocation();
         } else {
-            this.setWalkSpeed((float) 0.2);
-            this.setFlySpeed((float) 0.2);
-            this.setAllowFlight(false);
-            this.setFlying(false);
-            this.setGravity(true);
-            this.lockedLocation = null;
+            this.unlockLocation();
         }
+    }
+
+    public synchronized void lockLocation() {
+        this.lockedLocation = this.getLocation();
+        this.setWalkSpeed(Float.MIN_VALUE);
+        this.setFlySpeed(Float.MIN_VALUE);
+        this.setAllowFlight(true);
+        this.setFlying(true);
+        this.setGravity(false);
+    }
+
+    public synchronized void unlockLocation() {
+        this.lockedLocation = null;
+        this.setWalkSpeed(0.2f);
+        this.setFlySpeed(0.2f);
+        this.setAllowFlight(false);
+        this.setFlying(false);
+        this.setGravity(true);
     }
 
     public boolean isLocationLocked() {
