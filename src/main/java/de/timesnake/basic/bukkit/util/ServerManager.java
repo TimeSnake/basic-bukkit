@@ -225,7 +225,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public void setStatus(Status.Server status) {
         this.info.setStatus(status);
-        this.printText(Plugin.BUKKIT, "Status: " + this.info.getStatus().getSimpleName());
+        this.printText(Plugin.BUKKIT, "Status: " + this.info.getStatus().getShortName());
     }
 
     public Type.Server<?> getType() {
