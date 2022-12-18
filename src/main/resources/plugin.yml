@@ -25,11 +25,9 @@ commands:
   netmute:
   netunmute:
 
-  dpd:
-  dataprotection:
-  datadeclaration:
-  datapd:
-  dpdeclaration:
+  pp:
+  privacy:
+  privacypolicy:
 
   channelmsg:
   channelmsgs:

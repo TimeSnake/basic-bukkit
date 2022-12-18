@@ -51,7 +51,6 @@ import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
-import de.timesnake.database.util.user.DataProtectionAgreement;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.ExTextColor;
@@ -84,6 +83,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -127,7 +127,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     private Sideboard sideboard;
     private Location lastLocation;
     private Location lockedLocation;
-    private DataProtectionAgreement dataProtectionAgreement;
+    private LocalDateTime privacyPolicyDateTime;
     private float coins;
     private UserDamage lastUserDamage;
 
@@ -190,7 +190,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
 
         this.updatePunishment();
 
-        this.dataProtectionAgreement = dbLocalUser.getDataProtectionAgreement();
+        this.privacyPolicyDateTime = dbLocalUser.getPrivacyPolicyDateTime();
 
         this.coins = dbLocalUser.getCoins();
 
@@ -352,61 +352,40 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         return this.dbUser;
     }
 
-    //dataProtection
+    // privacy policy
 
-    /**
-     * Agrees data-protection
-     *
-     * @param agreement The {@link DataProtectionAgreement}
-     */
-    public void agreeDataProtection(DataProtectionAgreement agreement) {
-        this.dataProtectionAgreement = agreement;
-        this.dbUser.agreeDataProtection(agreement);
+    public void agreePrivacyPolicy() {
+        this.privacyPolicyDateTime = LocalDateTime.now();
+        this.dbUser.agreePrivacyPolicy(privacyPolicyDateTime);
     }
 
     /**
-     * Disagrees data-protection
+     * Disagrees privacy policy
      * After that, the user will be kicked and deleted
      */
-    public void disagreeDataProtection() {
-        this.dataProtectionAgreement = null;
-        this.dbUser.disagreeDataProtection();
+    public void disagreePrivacyPolicy() {
+        this.privacyPolicyDateTime = null;
+        this.dbUser.disagreePrivacyPolicy();
     }
 
-    /**
-     * Gets the data-protection-agreement (date, ip, version)
-     *
-     * @return the {@link DataProtectionAgreement}
-     */
+
     @Nullable
-    public DataProtectionAgreement getDataProtectionAgreement() {
-        return this.dataProtectionAgreement;
+    public LocalDateTime getPrivacyPolicyDateTime() {
+        return this.privacyPolicyDateTime;
     }
 
-    /**
-     * Agreed data-protection
-     *
-     * @return if user has agreed the data-protection
-     */
-    public boolean agreedDataProtection() {
-        if (this.dataProtectionAgreement != null) {
-            if (this.dataProtectionAgreement.getVersion() != null) {
-                return this.dataProtectionAgreement.getVersion().equalsIgnoreCase(BasicBukkit.DATA_PROTECTION_VERSION);
-            }
-        }
-        return false;
+
+    public boolean agreedPrivacyPolicy() {
+        return this.privacyPolicyDateTime != null;
     }
 
-    /**
-     * Sends the data-protection-declaration message
-     */
-    public void forceDataProtectionAgreement() {
-        this.sendPluginMessage(Plugin.NETWORK, Component.text("Please accept our data protection declaration", ExTextColor.WARNING));
+    public void sendPrivacyPolicyAgreeMessage() {
+        this.sendPluginMessage(Plugin.NETWORK, Component.text("Please accept our privacy policy", ExTextColor.WARNING));
         this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
-                .append(Component.text("/dpd agree", ExTextColor.VALUE))
+                .append(Component.text("/pp agree", ExTextColor.VALUE))
                 .append(Component.text(" to accept", ExTextColor.WARNING)));
         this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
-                .append(Component.text("/dpd disagree", ExTextColor.VALUE))
+                .append(Component.text("/pp disagree", ExTextColor.VALUE))
                 .append(Component.text(" to deny", ExTextColor.WARNING)));
     }
 
@@ -1363,7 +1342,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
         } else if (mode.equals(Status.Permission.ONLINE) && (statusServer.equals(Status.Server.ONLINE)
-                && statusPlayer.equals(Status.User.ONLINE))) {
+                                                             && statusPlayer.equals(Status.User.ONLINE))) {
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
         }
@@ -2152,7 +2131,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     @NotNull
     public List<DisplayGroup> getMainDisplayGroups() {
         return this.displayGroups.stream().filter(displayGroup -> displayGroup.isShowAlways()
-                || displayGroup.equals(this.getMasterDisplayGroup())).sorted().limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
+                                                                  || displayGroup.equals(this.getMasterDisplayGroup())).sorted().limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
     }
 
     /**

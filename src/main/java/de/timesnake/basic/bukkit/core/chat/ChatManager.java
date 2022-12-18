@@ -208,7 +208,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
             chat.removeListener(user);
         }
 
-        if (!user.agreedDataProtection()) {
+        if (!user.agreedPrivacyPolicy()) {
             user.delete();
         }
     }

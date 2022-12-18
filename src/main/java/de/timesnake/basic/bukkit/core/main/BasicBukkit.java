@@ -21,7 +21,7 @@ package de.timesnake.basic.bukkit.core.main;
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
 import de.timesnake.basic.bukkit.core.chat.PasswordCmd;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
-import de.timesnake.basic.bukkit.core.user.CmdDataProtection;
+import de.timesnake.basic.bukkit.core.user.CmdPrivacyPolicy;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
@@ -45,8 +45,6 @@ import java.util.logging.Level;
 
 public class BasicBukkit extends JavaPlugin {
 
-    public static final String DATA_PROTECTION_VERSION = "2.0";
-
     public static JavaPlugin getPlugin() {
         return BasicBukkit.plugin;
     }
@@ -64,7 +62,7 @@ public class BasicBukkit extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
 
         pm.registerEvents(new PreCmd(), this);
-        pm.registerEvents(new CmdDataProtection(), this);
+        pm.registerEvents(new CmdPrivacyPolicy(), this);
 
         DbServer server = Database.getServers().getServer(Bukkit.getPort());
 
@@ -80,8 +78,8 @@ public class BasicBukkit extends JavaPlugin {
         ServerManager.getInstance().onEnable();
 
 
-        Server.getCommandManager().addCommand(this, "dpd", List.of("dataprotection", "datadeclaration", "datapd",
-                "dpdeclaration"), new CmdDataProtection(), Plugin.NETWORK);
+        Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
+                new CmdPrivacyPolicy(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
         Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
