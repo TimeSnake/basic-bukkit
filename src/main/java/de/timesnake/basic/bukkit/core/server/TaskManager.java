@@ -81,25 +81,30 @@ public class TaskManager {
         }.runTaskTimerAsynchronously(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period, Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+            Plugin plugin) {
         return new TimeBukkitRunnable(task, time, false).runTaskTimer(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period, Plugin plugin) {
-        return new TimeBukkitRunnable(task, time, false).runTaskTimerAsynchronously(plugin, delay, period);
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+            Plugin plugin) {
+        return new TimeBukkitRunnable(task, time, false)
+                .runTaskTimerAsynchronously(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
-                                            Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+            int delay, int period, Plugin plugin) {
         return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimer(plugin, delay, period);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period
-            , Plugin plugin) {
-        return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimerAsynchronously(plugin, delay, period);
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+            int delay, int period, Plugin plugin) {
+        return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimerAsynchronously(plugin,
+                delay, period);
     }
 
-    public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable, Plugin plugin) {
+    public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
+            Plugin plugin) {
         for (Element e : iterable) {
             new BukkitRunnable() {
                 @Override
@@ -114,9 +119,9 @@ public class TaskManager {
 
         private final TimeTask task;
         private final boolean cancelOnZero;
-        private Integer time;
+        private int time;
 
-        TimeBukkitRunnable(TimeTask task, Integer time, boolean cancelOnZero) {
+        TimeBukkitRunnable(TimeTask task, int time, boolean cancelOnZero) {
             this.task = task;
             this.time = time;
             this.cancelOnZero = cancelOnZero;
@@ -126,7 +131,7 @@ public class TaskManager {
         public void run() {
             this.task.run(this.time);
 
-            if (this.time <= 0 && this.cancelOnZero) {
+            if (this.cancelOnZero && this.time <= 0) {
                 this.cancel();
                 return;
             }
