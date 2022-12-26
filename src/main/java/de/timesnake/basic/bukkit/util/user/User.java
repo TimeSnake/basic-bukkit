@@ -33,7 +33,11 @@ import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
-import de.timesnake.basic.bukkit.util.user.event.*;
+import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
+import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
+import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
@@ -58,13 +62,43 @@ import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.permission.ExPermission;
-import de.timesnake.library.packets.util.packet.*;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardDisplayObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreSet;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Instrument;
+import org.bukkit.Location;
+import org.bukkit.Note;
 import org.bukkit.Note.Tone;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -81,25 +115,19 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
-
 /**
- * This user will be created on {@link org.bukkit.event.player.PlayerJoinEvent}
- * Listener:
- * - For user join use the {@link UserJoinEvent} or {@link  AsyncUserJoinEvent} to prevent errors.
- * - For user quit use the {@link UserQuitEvent} to prevent errors.
- * - For user inventory click use the {@link UserInventoryInteractListener}.
- * - For user item interact use the {@link UserInventoryClickListener}.
- * - Many other listeners are in {@link de.timesnake.basic.bukkit.util.user.event}-package and can be used over the
- * bukkit-event api (implement {@link org.bukkit.event.Listener}).
- * All attributes are synchronized with the database.
- * It is recommended to extend these class in a new plugin
+ * This user will be created on {@link org.bukkit.event.player.PlayerJoinEvent} Listener: - For user
+ * join use the {@link UserJoinEvent} or {@link  AsyncUserJoinEvent} to prevent errors. - For user
+ * quit use the {@link UserQuitEvent} to prevent errors. - For user inventory click use the
+ * {@link UserInventoryInteractListener}. - For user item interact use the
+ * {@link UserInventoryClickListener}. - Many other listeners are in
+ * {@link de.timesnake.basic.bukkit.util.user.event}-package and can be used over the bukkit-event
+ * api (implement {@link org.bukkit.event.Listener}). All attributes are synchronized with the
+ * database. It is recommended to extend these class in a new plugin
  */
 
-public class User extends UserPlayerDelegation implements de.timesnake.library.extension.util.player.User, ChannelListener,
+public class User extends UserPlayerDelegation implements
+        de.timesnake.library.extension.util.player.User, ChannelListener,
         TablistablePlayer, ChatMember {
 
     private final DbUser dbUser;
@@ -147,7 +175,6 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.setCollitionWithEntites(!this.airMode);
         this.service = dbLocalUser.isService();
 
-
         String prefix = dbLocalUser.getPrefix();
         if (prefix != null) {
             this.prefix = LegacyComponentSerializer.legacySection().deserialize(prefix);
@@ -169,11 +196,14 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 this.permGroup = Server.getPermGroup(groupName);
                 this.permGroup.addUser(this);
             } else {
-                Server.printWarning(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
-                this.player.kick(Component.text("§cA fatal error occurred!\nPlease contact an admin"));
+                Server.printWarning(Plugin.BUKKIT,
+                        "Error while loading group for " + dbLocalUser.getName(), "User");
+                this.player.kick(
+                        Component.text("§cA fatal error occurred!\nPlease contact an admin"));
             }
         } else {
-            Server.printWarning(Plugin.BUKKIT, "Error while loading group for " + dbLocalUser.getName(), "User");
+            Server.printWarning(Plugin.BUKKIT,
+                    "Error while loading group for " + dbLocalUser.getName(), "User");
             this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin"));
         }
 
@@ -241,9 +271,15 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (o instanceof User) return Objects.equals(this.player.getUniqueId(), ((User) o).getUniqueId());
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o instanceof User) {
+            return Objects.equals(this.player.getUniqueId(), ((User) o).getUniqueId());
+        }
         return false;
     }
 
@@ -282,8 +318,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
 
 
     /**
-     * Kills the user
-     * Sets the health to 0
+     * Kills the user Sets the health to 0
      */
     @Deprecated
     public void kill() {
@@ -291,22 +326,10 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Sets default values for user:
-     * inventory clear,
-     * block break, place unlock
-     * inventory unlock,
-     * inventory move item unlock
-     * unfix location,
-     * health to 20,
-     * food to 20,
-     * invulnerable to false,
-     * flight to false,
-     * (fly/walk) speed to normal,
-     * gamemode to adventure,
-     * level reset,
-     * fire to off,
-     * potionEffects remove
-     * collision with entities true
+     * Sets default values for user: inventory clear, block break, place unlock inventory unlock,
+     * inventory move item unlock unfix location, health to 20, food to 20, invulnerable to false,
+     * flight to false, (fly/walk) speed to normal, gamemode to adventure, level reset, fire to off,
+     * potionEffects remove collision with entities true
      */
     public void setDefault() {
         this.getInventory().clear();
@@ -360,8 +383,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Disagrees privacy policy
-     * After that, the user will be kicked and deleted
+     * Disagrees privacy policy After that, the user will be kicked and deleted
      */
     public void disagreePrivacyPolicy() {
         this.privacyPolicyDateTime = null;
@@ -380,7 +402,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     public void sendPrivacyPolicyAgreeMessage() {
-        this.sendPluginMessage(Plugin.NETWORK, Component.text("Please accept our privacy policy", ExTextColor.WARNING));
+        this.sendPluginMessage(Plugin.NETWORK,
+                Component.text("Please accept our privacy policy", ExTextColor.WARNING));
         this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
                 .append(Component.text("/pp agree", ExTextColor.VALUE))
                 .append(Component.text(" to accept", ExTextColor.WARNING)));
@@ -424,7 +447,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param message The message to send
      */
     @Deprecated
-    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin, String message) {
+    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+            String message) {
         this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
     }
 
@@ -434,7 +458,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param plugin  The {@link Plugin} to send the message
      * @param message The message to send
      */
-    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin, Component message) {
+    public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+            Component message) {
         this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin).append(message));
     }
 
@@ -567,10 +592,12 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      */
     @Deprecated
     public void sendClickableMessage(String text, String exec, String info,
-                                     net.kyori.adventure.text.event.ClickEvent.Action action) {
+            net.kyori.adventure.text.event.ClickEvent.Action action) {
         Component component = Component.text(text)
                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
-                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(info)));
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
+                        net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT,
+                        Component.text(info)));
         this.sendMessage(component);
     }
 
@@ -583,9 +610,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param action The action to do
      */
     public void sendClickableMessage(Component text, String exec, Component info,
-                                     net.kyori.adventure.text.event.ClickEvent.Action action) {
-        this.sendMessage(text.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
-                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
+            net.kyori.adventure.text.event.ClickEvent.Action action) {
+        this.sendMessage(
+                text.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+                        .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
+                                net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
     }
 
     /**
@@ -598,10 +627,13 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param action The action to do
      */
     @Deprecated
-    public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info, net.kyori.adventure.text.event.ClickEvent.Action action) {
+    public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info,
+            net.kyori.adventure.text.event.ClickEvent.Action action) {
         Component component = Component.text(Chat.getSenderPlugin(plugin) + text)
                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
-                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(info)));
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
+                        net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT,
+                        Component.text(info)));
         this.sendMessage(component);
     }
 
@@ -614,16 +646,17 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param info   The info to show, if the user hovers other the text
      * @param action The action to do
      */
-    public void sendClickablePluginMessage(Plugin plugin, Component text, String exec, Component info, net.kyori.adventure.text.event.ClickEvent.Action action) {
+    public void sendClickablePluginMessage(Plugin plugin, Component text, String exec,
+            Component info, net.kyori.adventure.text.event.ClickEvent.Action action) {
         this.sendMessage(Chat.getSenderPlugin(plugin).append(text)
                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
-                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
+                        net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
     }
 
     /**
-     * Shows a title to the user, with standard fade-times
-     * Fade-in time: 250 ms
-     * Fade-out time : 250 ms
+     * Shows a title to the user, with standard fade-times Fade-in time: 250 ms Fade-out time : 250
+     * ms
      *
      * @param title    The title to send
      * @param subTitle The subtitle to send
@@ -636,9 +669,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Shows a title to the user, with standard fade-times
-     * Fade-in time: 250 ms
-     * Fade-out time : 250 ms
+     * Shows a title to the user, with standard fade-times Fade-in time: 250 ms Fade-out time : 250
+     * ms
      *
      * @param title    The title to send
      * @param subTitle The subtitle to send
@@ -659,7 +691,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param fadeOut  The fade-out time
      */
     @Deprecated
-    public void showTitle(String title, String subTitle, Duration fadeIn, Duration stay, Duration fadeOut) {
+    public void showTitle(String title, String subTitle, Duration fadeIn, Duration stay,
+            Duration fadeOut) {
         this.showTitle(Component.text(title), Component.text(subTitle), fadeIn, stay, fadeOut);
     }
 
@@ -672,7 +705,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param stay     The stay time
      * @param fadeOut  The fade-out time
      */
-    public void showTitle(Component title, Component subTitle, Duration fadeIn, Duration stay, Duration fadeOut) {
+    public void showTitle(Component title, Component subTitle, Duration fadeIn, Duration stay,
+            Duration fadeOut) {
         this.showTitle(Title.title(title, subTitle, Title.Times.times(fadeIn, stay, fadeOut)));
     }
 
@@ -707,18 +741,15 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Plays the standard inventory opened sound for the user
-     * Instrument: piano
-     * Note: octave 1, tone A
+     * Plays the standard inventory opened sound for the user Instrument: piano Note: octave 1, tone
+     * A
      */
     public void playSoundInventoryOpened() {
         this.playNote(Instrument.PIANO, Note.natural(1, Tone.A));
     }
 
     /**
-     * Plays the standard item clicked sound for the user
-     * Instrument: sticks
-     * Note: octave 1, tone A
+     * Plays the standard item clicked sound for the user Instrument: sticks Note: octave 1, tone A
      */
     public void playSoundItemClicked() {
         this.playNote(Instrument.STICKS, Note.natural(1, Tone.A));
@@ -747,9 +778,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Updates the group of the user from the database
-     * Removes user from old group and adds to new group
-     * Updates permission
+     * Updates the group of the user from the database Removes user from old group and adds to new
+     * group Updates permission
      */
     public void updatePermGroup() {
         DbPermGroup dbGroup = this.getDatabase().getPermGroup();
@@ -766,8 +796,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         if (this.permGroup == null) {
             this.permGroup = Server.getGuestPermGroup();
             this.getDatabase().setPermGroup(this.permGroup.getName());
-            Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
-                    this.permGroup.getName()));
+            Server.getChannel().sendMessage(
+                    new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
+                            this.permGroup.getName()));
         }
 
         this.permGroup.addUser(this);
@@ -805,7 +836,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     @Nullable
     @Override
     public String getTablistPrefix() {
-        return this.getPrefix() != null ? LegacyComponentSerializer.legacySection().serialize(this.getPrefix()) : null;
+        return this.getPrefix() != null ? LegacyComponentSerializer.legacySection()
+                .serialize(this.getPrefix()) : null;
     }
 
     @Nullable
@@ -815,12 +847,16 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             return this.getMasterDisplayGroup();
         } else if (DisplayGroup.TABLIST_TYPE_1.equals(type)) {
             List<DisplayGroup> list = this.getMainDisplayGroups();
-            if (list.size() < 2) return null;
+            if (list.size() < 2) {
+                return null;
+            }
             return list.get(1);
 
         } else if (DisplayGroup.TABLIST_TYPE_2.equals(type)) {
             List<DisplayGroup> list = this.getMainDisplayGroups();
-            if (list.size() < 3) return null;
+            if (list.size() < 3) {
+                return null;
+            }
             return list.get(2);
         }
         return null;
@@ -832,7 +868,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param player The {@link TablistablePlayer} to add
      */
 
-    public void addTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
+    public void addTablistEntry(
+            de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
         this.sendPacket(ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
     }
 
@@ -843,7 +880,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param rank   The rank of the group
      */
 
-    public void addTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player, String rank) {
+    public void addTablistEntry(
+            de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player, String rank) {
         this.sendPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(rank, player.getTablistName()));
         this.addTablistEntry(player);
     }
@@ -863,7 +901,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      *
      * @param player The {@link TablistablePlayer} to remove
      */
-    public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
+    public void removeTablistEntry(
+            de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
         this.sendPacket(ExPacketPlayOutTablistPlayerRemove.wrap(player.getPlayer()));
     }
 
@@ -873,8 +912,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param player The {@link TablistablePlayer} to remove
      * @param rank   The rank of the group
      */
-    public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player,
-                                   String rank) {
+    public void removeTablistEntry(
+            de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player,
+            String rank) {
         this.removeTablistEntry(player);
         this.sendPacket(ExPacketPlayOutTablistTeamPlayerRemove.wrap(rank, player.getTablistName()));
     }
@@ -890,13 +930,15 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             if (this.tablist.equals(tablist)) {
                 return;
             }
-            ((de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) this.tablist).removeWatchingUser(this);
+            ((de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) this.tablist).removeWatchingUser(
+                    this);
         }
 
         this.tablist = tablist;
         if (this.tablist == null) {
             de.timesnake.basic.bukkit.core.user.scoreboard.Tablist standard =
-                    (de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) Server.getScoreboardManager().getTablist(Server.getName());
+                    (de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) Server.getScoreboardManager()
+                            .getTablist(Server.getName());
             this.setTablist(standard);
             return;
         }
@@ -935,7 +977,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
 
         sideboard.addWatchingUser(this);
 
-        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(), this.sideboard.getTitle(),
+        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(),
+                this.sideboard.getTitle(),
                 ExPacketPlayOutScoreboardObjective.Display.CREATE,
                 ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER));
 
@@ -970,7 +1013,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     public void setSideboardScore(int line, @Nonnull String text) {
         this.removeSideboardScore(line);
         this.scores.put(line, text);
-        this.sendPacket(ExPacketPlayOutSideboardScoreSet.wrap(this.sideboard.getName(), line, text));
+        this.sendPacket(
+                ExPacketPlayOutSideboardScoreSet.wrap(this.sideboard.getName(), line, text));
     }
 
     /**
@@ -984,7 +1028,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
             return;
         }
         this.scores.remove(line);
-        this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(), line, text));
+        this.sendPacket(
+                ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(), line, text));
     }
 
     /**
@@ -1003,7 +1048,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         this.setSideboard(null);
 
         for (Map.Entry<Integer, String> score : this.scores.entrySet()) {
-            this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(), score.getKey(),
+            this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(),
+                    score.getKey(),
                     score.getValue()));
         }
         this.scores.clear();
@@ -1242,8 +1288,7 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Has user permission
-     * If false, the user receives an error-message with the code by the plugin
+     * Has user permission If false, the user receives an error-message with the code by the plugin
      *
      * @param permission The permission to has
      * @param code       The code of the permission
@@ -1251,19 +1296,20 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @return if user has
      */
     @Deprecated
-    public boolean hasPermission(String permission, Code.Permission code, de.timesnake.library.extension.util.chat.Plugin plugin) {
+    public boolean hasPermission(String permission, Code.Permission code,
+            de.timesnake.library.extension.util.chat.Plugin plugin) {
         return this.asSender(plugin).hasPermission(permission, code);
     }
 
     /**
-     * Has user permission
-     * If false, the user receives an error-message with the code by the plugin
+     * Has user permission If false, the user receives an error-message with the code by the plugin
      *
      * @param code   The code of the permission
      * @param plugin The {@link Plugin} of the permission
      * @return if user has
      */
-    public boolean hasPermission(Code.Permission code, de.timesnake.library.extension.util.chat.Plugin plugin) {
+    public boolean hasPermission(Code.Permission code,
+            de.timesnake.library.extension.util.chat.Plugin plugin) {
         return this.asSender(plugin).hasPermission(code);
     }
 
@@ -1273,14 +1319,16 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param fromDatabase Set true to update from database and group
      */
     public void updatePermissions(boolean fromDatabase) {
-        Server.runTaskAsynchrony(() -> this.updatePermissionsSync(fromDatabase), BasicBukkit.getPlugin());
+        Server.runTaskAsynchrony(() -> this.updatePermissionsSync(fromDatabase),
+                BasicBukkit.getPlugin());
     }
 
     private void updatePermissionsSync(boolean fromDatabase) {
         if (fromDatabase) {
             this.permissions.clear();
             for (DbPermission perm : Database.getUsers().getUser(getUniqueId()).getPermissions()) {
-                this.permissions.add(new ExPermission(perm.getName(), perm.getMode(), perm.getServers()));
+                this.permissions.add(
+                        new ExPermission(perm.getName(), perm.getMode(), perm.getServers()));
             }
         }
 
@@ -1289,9 +1337,11 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         }
 
         if (fromDatabase) {
-            Plugin.PERMISSIONS.getLogger().info("Updated permissions of user '" + this.getName() + "' from database");
+            Plugin.PERMISSIONS.getLogger()
+                    .info("Updated permissions of user '" + this.getName() + "' from database");
         } else {
-            Plugin.PERMISSIONS.getLogger().info("Updated permissions of user '" + this.getName() + "'");
+            Plugin.PERMISSIONS.getLogger()
+                    .info("Updated permissions of user '" + this.getName() + "'");
         }
 
         Server.runTaskSynchrony(this::loadPermissions, BasicBukkit.getPlugin());
@@ -1300,20 +1350,21 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     private void loadPermissions() {
         if (player.getEffectivePermissions() != null) {
             for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-                player.addAttachment(BasicBukkit.getPlugin()).setPermission(attachmentInfo.getPermission(), false);
+                player.addAttachment(BasicBukkit.getPlugin())
+                        .setPermission(attachmentInfo.getPermission(), false);
             }
             if (!this.permissions.isEmpty()) {
                 for (ExPermission perm : permissions) {
                     addPermission(perm);
                 }
             }
-            Plugin.PERMISSIONS.getLogger().info("Loaded permissions of user '" + this.getName() + "'");
+            Plugin.PERMISSIONS.getLogger()
+                    .info("Loaded permissions of user '" + this.getName() + "'");
         }
     }
 
     /**
-     * Adds the permission to user
-     * Adds with status check from server and user
+     * Adds the permission to user Adds with status check from server and user
      *
      * @param perm The {@link ExPermission} to add
      */
@@ -1341,8 +1392,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         } else if (this.isService()) {
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
-        } else if (mode.equals(Status.Permission.ONLINE) && (statusServer.equals(Status.Server.ONLINE)
-                                                             && statusPlayer.equals(Status.User.ONLINE))) {
+        } else if (mode.equals(Status.Permission.ONLINE) && (
+                statusServer.equals(Status.Server.ONLINE)
+                        && statusPlayer.equals(Status.User.ONLINE))) {
             PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
             attachment.setPermission(perm.getPermission(), true);
         }
@@ -1501,7 +1553,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         }
 
         for (ItemStack item : this.getInventory()) {
-            if (item == null) continue;
+            if (item == null) {
+                continue;
+            }
             ExItemStack exItem = ExItemStack.getItem(item, true);
             if (exItem.getId().equals(id)) {
                 return exItem;
@@ -1523,7 +1577,9 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         }
 
         for (ItemStack i : this.getInventory()) {
-            if (i == null) continue;
+            if (i == null) {
+                continue;
+            }
             ExItemStack exItem = ExItemStack.getItem(i, true);
             if (exItem.equals(item)) {
                 return exItem;
@@ -1710,7 +1766,6 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 }
             }
 
-
             if (checkCursor) {
                 ItemStack onCursor = this.getPlayer().getItemOnCursor();
 
@@ -1750,7 +1805,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * @param amplifier        The amplifier of the potion-effect
      */
     public void addPotionEffect(PotionEffectType potionEffectType, int amplifier) {
-        this.player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, amplifier));
+        this.player.addPotionEffect(
+                new PotionEffect(potionEffectType, Integer.MAX_VALUE, amplifier));
     }
 
     /**
@@ -1788,7 +1844,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      * Sets the user health to max health and food-level to 20
      */
     public void heal() {
-        this.getPlayer().setHealth(this.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        this.getPlayer().setHealth(
+                this.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
         this.getPlayer().setFoodLevel(20);
     }
 
@@ -1801,8 +1858,10 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
      */
     @NotNull
     public ExLocation getExLocation() {
-        return new ExLocation(this.getExWorld(), this.getLocation().getX(), this.getLocation().getY(),
-                this.getLocation().getZ(), this.getLocation().getYaw(), this.getLocation().getPitch());
+        return new ExLocation(this.getExWorld(), this.getLocation().getX(),
+                this.getLocation().getY(),
+                this.getLocation().getZ(), this.getLocation().getYaw(),
+                this.getLocation().getPitch());
     }
 
     public boolean teleport(double x, double y, double z) {
@@ -1815,7 +1874,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     }
 
     /**
-     * Gets the {@link ExWorld}, which is equivalent to the world returned from {@code this.getWorld()}
+     * Gets the {@link ExWorld}, which is equivalent to the world returned from
+     * {@code this.getWorld()}
      *
      * @return the {@link ExWorld}
      */
@@ -1837,7 +1897,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     @NotNull
     public DbLocation getDbLocation() {
         Location loc = this.getLocation();
-        return new DbLocation(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(),
+        return new DbLocation(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(),
+                loc.getYaw(),
                 loc.getPitch());
     }
 
@@ -2068,7 +2129,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
                 this.displayGroups.add(group);
                 group.addUser(this);
             } else {
-                Server.printWarning(Plugin.BUKKIT, "Can not find display group " + groupName + " for user " + this.getName());
+                Server.printWarning(Plugin.BUKKIT,
+                        "Can not find display group " + groupName + " for user " + this.getName());
             }
         }
 
@@ -2089,7 +2151,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         if (this.getNick() == null) {
             for (DisplayGroup group : this.getMainDisplayGroups()) {
                 if (group.getPrefix() != null) {
-                    component = component.append(Component.text(group.getPrefix()).color(group.getPrefixColor()));
+                    component = component.append(
+                            Component.text(group.getPrefix()).color(group.getPrefixColor()));
                 }
             }
 
@@ -2105,7 +2168,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         } else {
             DisplayGroup group = Server.getMemberDisplayGroup();
             if (group.getPrefix() != null) {
-                component = component.append(Component.text(group.getPrefix(), group.getPrefixColor()));
+                component = component.append(
+                        Component.text(group.getPrefix(), group.getPrefixColor()));
             }
             component.append(this.getNick());
 
@@ -2131,7 +2195,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
     @NotNull
     public List<DisplayGroup> getMainDisplayGroups() {
         return this.displayGroups.stream().filter(displayGroup -> displayGroup.isShowAlways()
-                                                                  || displayGroup.equals(this.getMasterDisplayGroup())).sorted().limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
+                        || displayGroup.equals(this.getMasterDisplayGroup())).sorted()
+                .limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
     }
 
     /**
@@ -2157,7 +2222,8 @@ public class User extends UserPlayerDelegation implements de.timesnake.library.e
         }
 
         Server.getPacketManager().sendPacket(this.getPlayer(), packet);
-        ServerManager.getInstance().getPacketBroadcaster().broadcastPacket(this.getPlayer(), packet);
+        ServerManager.getInstance().getPacketBroadcaster()
+                .broadcastPacket(this.getPlayer(), packet);
     }
 
     public void setPvpMode(boolean oldPvP) {
