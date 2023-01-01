@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.chat;
@@ -14,6 +14,9 @@ import de.timesnake.library.extension.util.cmd.ArgumentParseException;
 import de.timesnake.library.extension.util.cmd.CommandExitException;
 import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,10 +24,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 public class CommandManager implements de.timesnake.basic.bukkit.util.chat.CommandManager, CommandExecutor {
 

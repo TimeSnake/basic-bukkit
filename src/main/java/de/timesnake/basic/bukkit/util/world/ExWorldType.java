@@ -1,20 +1,23 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world;
 
-import de.timesnake.basic.bukkit.core.world.generator.*;
+import de.timesnake.basic.bukkit.core.world.generator.CustomFlatGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.CustomHeightGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.CustomIslandGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.FlatStoneGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.VoidGenerator;
 import de.timesnake.basic.bukkit.util.exception.WorldTypeParseException;
 import de.timesnake.library.basic.util.Tuple;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.generator.ChunkGenerator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.generator.ChunkGenerator;
 
 public class ExWorldType {
 

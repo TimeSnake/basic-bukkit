@@ -1,10 +1,15 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.world.generator;
 
 import de.timesnake.library.basic.util.Tuple;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.annotation.Nonnull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,12 +17,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.OctaveGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
-
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class CustomIslandGenerator extends ChunkGenerator {
 

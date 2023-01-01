@@ -1,19 +1,18 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Triple;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class ExLocation extends Location {
 

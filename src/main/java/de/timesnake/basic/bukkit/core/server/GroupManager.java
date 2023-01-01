@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.server;
@@ -13,7 +13,6 @@ import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.library.extension.util.chat.Plugin;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

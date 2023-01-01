@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.server;
@@ -7,7 +7,6 @@ package de.timesnake.basic.bukkit.util.server;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
-
 import java.util.Objects;
 
 public class ServerInfo {

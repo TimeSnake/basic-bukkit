@@ -1,10 +1,13 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.world.generator;
 
 import de.timesnake.library.basic.util.Tuple;
+import java.util.List;
+import java.util.Random;
+import javax.annotation.Nonnull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,10 +16,6 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.OctaveGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 import org.bukkit.util.noise.SimplexOctaveGenerator;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Random;
 
 public class CustomHeightGenerator extends ChunkGenerator {
 

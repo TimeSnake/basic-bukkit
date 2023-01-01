@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
@@ -12,13 +12,19 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
-import de.timesnake.library.packets.util.packet.*;
-import org.bukkit.ChatColor;
-
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamRemove;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import org.bukkit.ChatColor;
 
 public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist {
 

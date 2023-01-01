@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.inventory;
@@ -13,6 +13,10 @@ import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,11 +29,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.InventoryHolder;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InventoryEventManager implements Listener, de.timesnake.basic.bukkit.util.user.InventoryEventManager {
 

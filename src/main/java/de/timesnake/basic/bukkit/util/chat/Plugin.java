@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.chat;
 
 import de.timesnake.library.basic.util.LogHelper;
-
 import java.util.logging.Logger;
 
 public class Plugin extends de.timesnake.library.extension.util.chat.Plugin {

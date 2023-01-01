@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.server;
@@ -7,9 +7,13 @@ package de.timesnake.basic.bukkit.core.server;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
-import de.timesnake.database.util.server.*;
+import de.timesnake.database.util.server.DbBuildServer;
+import de.timesnake.database.util.server.DbLobbyServer;
+import de.timesnake.database.util.server.DbLoungeServer;
+import de.timesnake.database.util.server.DbNonTmpGameServer;
+import de.timesnake.database.util.server.DbServer;
+import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
-
 import java.util.Objects;
 
 public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.server.Info {

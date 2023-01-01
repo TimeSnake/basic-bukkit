@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.world;
 
 import de.timesnake.basic.bukkit.util.file.ExFile;
 import de.timesnake.basic.bukkit.util.world.ExWorldType;
-
 import java.io.File;
 
 public class ExWorldFile extends ExFile {

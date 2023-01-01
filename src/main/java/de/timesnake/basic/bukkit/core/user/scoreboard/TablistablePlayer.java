@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-
 import java.util.LinkedList;
 
 public interface TablistablePlayer extends de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer {

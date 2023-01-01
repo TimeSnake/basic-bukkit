@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.server;
@@ -16,7 +16,6 @@ import de.timesnake.channel.util.message.ChannelUserMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.network.NetworkUtils;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

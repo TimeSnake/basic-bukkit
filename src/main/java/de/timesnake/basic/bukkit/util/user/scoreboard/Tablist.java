@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
-import org.bukkit.scoreboard.RenderType;
-
 import java.util.LinkedList;
+import org.bukkit.scoreboard.RenderType;
 
 public interface Tablist {
 

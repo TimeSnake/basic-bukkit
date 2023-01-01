@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world.entity;
@@ -8,7 +8,6 @@ import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
-
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
