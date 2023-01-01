@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
@@ -7,14 +7,32 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.*;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
-import de.timesnake.library.packets.util.packet.*;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamRemove;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamUpdate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import java.util.*;
 
 public class TeamTablist extends Tablist implements de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist {
 

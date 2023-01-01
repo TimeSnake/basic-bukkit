@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world.entity;
@@ -10,7 +10,6 @@ import de.timesnake.library.entities.entity.bukkit.ExArmorStand;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
-
 import java.util.ArrayList;
 import java.util.List;
 

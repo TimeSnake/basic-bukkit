@@ -1,14 +1,13 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.chat;
 
 import de.timesnake.library.basic.util.chat.ExTextColor;
+import java.util.Set;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
-
-import java.util.Set;
 
 public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
 

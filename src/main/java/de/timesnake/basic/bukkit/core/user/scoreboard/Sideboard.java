@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-
 import java.util.HashMap;
 
 public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {

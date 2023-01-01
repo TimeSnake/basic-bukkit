@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.group;
@@ -11,9 +11,8 @@ import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.extension.util.player.UserList;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup<User> {
 

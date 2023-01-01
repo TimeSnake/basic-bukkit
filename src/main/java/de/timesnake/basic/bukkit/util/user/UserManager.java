@@ -1,15 +1,14 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.user;
-
-import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
+import org.bukkit.entity.Player;
 
 public interface UserManager {
 

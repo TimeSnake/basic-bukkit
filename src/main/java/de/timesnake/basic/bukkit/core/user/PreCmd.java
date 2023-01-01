@@ -1,16 +1,15 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
+import java.util.Arrays;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-
-import java.util.Arrays;
 
 public class PreCmd implements Listener {
 

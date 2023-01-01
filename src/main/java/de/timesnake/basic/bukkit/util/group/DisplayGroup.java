@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.group;
@@ -10,12 +10,11 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.database.util.group.DbDisplayGroup;
+import java.util.LinkedList;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class DisplayGroup extends de.timesnake.library.extension.util.chat.DisplayGroup<User> implements TablistableGroup {
 

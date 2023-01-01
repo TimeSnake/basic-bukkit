@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.world;
@@ -20,15 +20,19 @@ import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.library.packets.util.packet.ExPacket;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class PacketEntityManager implements Listener, PacketPlayOutListener,
         de.timesnake.basic.bukkit.util.world.entity.EntityManager {

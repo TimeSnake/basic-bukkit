@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world;
@@ -12,6 +12,8 @@ import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.library.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
 import de.timesnake.library.packets.util.ExClientboundInitializeBorderPacket;
 import de.timesnake.library.packets.util.ExClientboundSetBorderLerpSizePacket;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
@@ -19,9 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class ExWorldBorder implements Listener {
 

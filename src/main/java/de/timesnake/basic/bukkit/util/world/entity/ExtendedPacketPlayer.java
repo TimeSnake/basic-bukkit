@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world.entity;
@@ -9,10 +9,9 @@ import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.entities.entity.bukkit.ExZombie;
 import de.timesnake.library.entities.wrapper.ExPathEntity;
 import de.timesnake.library.entities.wrapper.ExPathPoint;
-import org.bukkit.Location;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Location;
 
 public class ExtendedPacketPlayer extends PacketPlayer {
 

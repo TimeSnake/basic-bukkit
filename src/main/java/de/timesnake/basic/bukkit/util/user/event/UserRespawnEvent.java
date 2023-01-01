@@ -1,14 +1,13 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
+import javax.annotation.Nonnull;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
-
-import javax.annotation.Nonnull;
 
 public class UserRespawnEvent extends UserEvent {
 

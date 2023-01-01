@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
@@ -12,7 +12,11 @@ import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.library.packets.util.packet.*;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardDisplayObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreSet;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

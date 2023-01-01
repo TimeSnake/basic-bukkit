@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.world.entity;
@@ -14,17 +14,16 @@ import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutMap;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
-import org.bukkit.Rotation;
-import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.map.MapView;
-import org.bukkit.util.Vector;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.bukkit.Rotation;
+import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapView;
+import org.bukkit.util.Vector;
 
 public class MapDisplay extends PacketEntity {
 

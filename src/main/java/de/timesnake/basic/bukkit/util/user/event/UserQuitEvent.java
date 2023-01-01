@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2022 timesnake
+ * Copyright (C) 2023 timesnake
  */
 
 package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import org.bukkit.event.HandlerList;
-
 import javax.annotation.Nonnull;
+import org.bukkit.event.HandlerList;
 
 public class UserQuitEvent extends UserEvent {
 
