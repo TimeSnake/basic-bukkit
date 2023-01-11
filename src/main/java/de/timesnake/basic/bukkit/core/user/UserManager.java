@@ -42,7 +42,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
      *
      * @param uuid of the user
      */
-    public final void registerUser(UUID uuid) {
+    public final User registerUser(UUID uuid) {
         User user;
 
         try {
@@ -50,14 +50,16 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
         } catch (InterruptedException | ExecutionException e) {
             user = ServerManager.getInstance().loadUser(Bukkit.getPlayer(uuid));
         } catch (TimeoutException e) {
-            Bukkit.getPlayer(uuid).kick(Component.text("A fatal error occurred (user init timeout)", ExTextColor.WARNING));
-            return;
+            Bukkit.getPlayer(uuid).kick(Component.text("A fatal error occurred (user init timeout)",
+                    ExTextColor.WARNING));
+            return null;
         }
 
         this.users.put(uuid, user);
         this.preUsers.remove(uuid);
 
         user.load();
+        return user;
     }
 
     /**
@@ -72,7 +74,8 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
     }
 
     public final Collection<User> getUsers() {
-        return this.users.values().stream().filter((u) -> !u.isQuiting()).collect(Collectors.toSet());
+        return this.users.values().stream().filter((u) -> !u.isQuiting())
+                .collect(Collectors.toSet());
     }
 
     public final Collection<User> getUsers(Predicate<User> predicate) {
@@ -169,13 +172,15 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
     }
 
     /**
-     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in service mode
+     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in
+     * service mode
      *
      * @return the users
      */
     @Override
     public final Collection<User> getGameNotServiceUsers() {
-        return this.getGameUsers().stream().filter((u) -> !u.isService()).collect(Collectors.toList());
+        return this.getGameUsers().stream().filter((u) -> !u.isService())
+                .collect(Collectors.toList());
     }
 
     /**

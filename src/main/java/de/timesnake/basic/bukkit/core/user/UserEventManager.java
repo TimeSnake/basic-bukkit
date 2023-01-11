@@ -62,14 +62,16 @@ import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.NotNull;
 
-public class UserEventManager implements Listener, de.timesnake.basic.bukkit.util.user.UserEventManager {
+public class UserEventManager implements Listener,
+        de.timesnake.basic.bukkit.util.user.UserEventManager {
 
     private static final Field PERMISSION_FIELD;
 
     static {
         try {
             PERMISSION_FIELD = Class.forName("org.bukkit.craftbukkit." +
-                    Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3]
+                    Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                            .split(",")[3]
                     + ".entity.CraftHumanEntity").getDeclaredField("perm");
             PERMISSION_FIELD.setAccessible(true);
         } catch (NoSuchFieldException | ClassNotFoundException e) {
@@ -118,13 +120,15 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         } catch (IllegalAccessException ex) {
             Server.printWarning(Plugin.BUKKIT, "Unable to inject player permission checker");
             e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
-            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A fatal error has occurred, " +
-                    "please contact an administrator! (Code: E814)"));
+            e.disallow(PlayerLoginEvent.Result.KICK_OTHER,
+                    Component.text("A fatal error has occurred, " +
+                            "please contact an administrator! (Code: E814)"));
             return;
         }
 
         // server full checks
-        if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
+        if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult()
+                .equals(PlayerLoginEvent.Result.KICK_FULL)) {
             e.allow();
         } else if ((Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers())
                 && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || p.hasPermission(
@@ -140,9 +144,12 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         e.joinMessage(Component.empty());
 
         // finalize user creation
-        ((UserManager) Server.getUserManager()).registerUser(e.getPlayer().getUniqueId());
+        User user = ((UserManager) Server.getUserManager()).registerUser(
+                e.getPlayer().getUniqueId());
 
-        User user = Server.getUser(e.getPlayer());
+        if (user == null) {
+            return;
+        }
 
         // air mode
         if (user.isAirMode()) {
@@ -157,7 +164,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // async user join event
-        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)),
+        Server.runTaskAsynchrony(
+                () -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)),
                 BasicBukkit.getPlugin());
 
         // user join event
@@ -172,7 +180,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         user.quit();
 
         // async user quit event
-        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
+        Server.runTaskAsynchrony(
+                () -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
                 BasicBukkit.getPlugin());
 
         // user quit event
@@ -191,7 +200,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             }
 
             // user damage event
-            UserDamageEvent event = new UserDamageEvent(user, e.isCancelled(), e.getDamage(), e.getCause());
+            UserDamageEvent event = new UserDamageEvent(user, e.isCancelled(), e.getDamage(),
+                    e.getCause());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 e.setCancelled(true);
@@ -213,7 +223,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             User user = Server.getUser((Player) e.getEntity());
             LivingEntity source = null;
 
-            if (damager instanceof Projectile && ((Projectile) damager).getShooter() instanceof LivingEntity) {
+            if (damager instanceof Projectile
+                    && ((Projectile) damager).getShooter() instanceof LivingEntity) {
                 source = (LivingEntity) ((Projectile) damager).getShooter();
             }
 
@@ -227,7 +238,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             }
 
             if (userDamager != null) {
-                UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager, e.isCancelled(),
+                UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager,
+                        e.isCancelled(),
                         e.getDamage(), e.getCause());
                 Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -249,7 +261,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
                 }
             }
 
-            UserDamageByEntityEvent userEvent = new UserDamageByEntityEvent(user, e.getDamager(), e.isCancelled(),
+            UserDamageByEntityEvent userEvent = new UserDamageByEntityEvent(user, e.getDamager(),
+                    e.isCancelled(),
                     e.getDamage(), e.getCause());
             Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -281,7 +294,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             return;
         }
 
-        EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager, e.isCancelled(),
+        EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager,
+                e.isCancelled(),
                 e.getDamage(), e.getCause());
         Bukkit.getPluginManager().callEvent(userEvent);
         e.setCancelled(userEvent.isCancelled());
@@ -301,9 +315,9 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // async user move event
-        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user,
-                e.getFrom().clone(), e.getTo().clone())), BasicBukkit.getPlugin());
-
+        Server.runTaskAsynchrony(
+                () -> Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user,
+                        e.getFrom().clone(), e.getTo().clone())), BasicBukkit.getPlugin());
 
         // user move event
         UserMoveEvent event = new UserMoveEvent(user, e.isCancelled(), e.getFrom(), e.getTo());
@@ -323,7 +337,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             user.setLastLocation(location);
         }
 
-        UserTeleportEvent event = new UserTeleportEvent(user, e.isCancelled(), e.getTo(), e.getFrom(), e.getCause());
+        UserTeleportEvent event = new UserTeleportEvent(user, e.isCancelled(), e.getTo(),
+                e.getFrom(), e.getCause());
         Bukkit.getPluginManager().callEvent(event);
         e.setCancelled(event.isCancelled());
     }
@@ -370,12 +385,14 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // user death event
-        UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(), e.getKeepInventory(),
+        UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(),
+                e.getKeepInventory(),
                 e.getDrops());
         Bukkit.getPluginManager().callEvent(userDeathEvent);
 
         if (userDeathEvent.isAutoRespawn()) {
-            Server.runTaskLaterSynchrony(() -> user.getPlayer().spigot().respawn(), 2, BasicBukkit.getPlugin());
+            Server.runTaskLaterSynchrony(() -> user.getPlayer().spigot().respawn(), 2,
+                    BasicBukkit.getPlugin());
         }
 
         e.setKeepInventory(userDeathEvent.isKeepInventory());
@@ -387,7 +404,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
         // death message
         if (e.getEntity().getKiller() == null) {
-            if (user.getLastDamager() != null && user.getLastDamager().getDamageType().equals(UserDamage.DamageType.INSTANT)) {
+            if (user.getLastDamager() != null && user.getLastDamager().getDamageType()
+                    .equals(UserDamage.DamageType.INSTANT)) {
                 e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                         .append(user.getChatNameComponent())
                         .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
@@ -399,7 +417,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             }
         } else if (e.getEntity().getKiller() instanceof Player) {
 
-            de.timesnake.basic.bukkit.util.user.User killer = Server.getUser(e.getEntity().getKiller());
+            de.timesnake.basic.bukkit.util.user.User killer = Server.getUser(
+                    e.getEntity().getKiller());
             de.timesnake.basic.bukkit.util.user.UserDamage userDamage = user.getLastDamager();
 
             if (user.getLastDamager() != null) {
@@ -428,7 +447,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
             e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                     .append(user.getChatNameComponent())
                     .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
-                    .append(Component.text(e.getEntity().getLastDamageCause().getCause().name(), ExTextColor.VALUE)));
+                    .append(Component.text(e.getEntity().getLastDamageCause().getCause().name(),
+                            ExTextColor.VALUE)));
         }
 
         user.setLastDamager(null);
@@ -465,8 +485,10 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // user block place event
-        UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(), e.getBlockPlaced(),
-                e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(), e.canBuild());
+        UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(),
+                e.getBlockPlaced(),
+                e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(),
+                e.canBuild());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setCancelled(userEvent.isCancelled());
@@ -486,7 +508,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         }
 
         // user block break event
-        UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(), e.getExpToDrop(),
+        UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(),
+                e.getExpToDrop(),
                 e.isDropItems());
         Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -500,7 +523,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         User user = Server.getUser(e.getPlayer());
 
         // user interact entity event
-        UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(), e.getRightClicked(),
+        UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(),
+                e.getRightClicked(),
                 e.getHand());
         Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -523,7 +547,8 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
         User user = Server.getUser(e.getPlayer());
 
         // user pickup item event
-        UserAttemptPickupItemEvent userEvent = new UserAttemptPickupItemEvent(user, e.isCancelled(), e.getItem(), e.getRemaining());
+        UserAttemptPickupItemEvent userEvent = new UserAttemptPickupItemEvent(user, e.isCancelled(),
+                e.getItem(), e.getRemaining());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         e.setCancelled(userEvent.isCancelled());
