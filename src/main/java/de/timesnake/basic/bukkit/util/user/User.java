@@ -51,6 +51,8 @@ import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardDisplayObjective;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective.Display;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective.ScoreboardType;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreRemove;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreSet;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
@@ -1031,14 +1033,14 @@ public class User extends UserPlayerDelegation implements
      * Resets the user sideboard
      */
     public void resetSideboard() {
-        this.setSideboard(null);
-
-        for (Map.Entry<Integer, String> score : this.scores.entrySet()) {
-            this.sendPacket(ExPacketPlayOutSideboardScoreRemove.wrap(this.sideboard.getName(),
-                    score.getKey(),
-                    score.getValue()));
+        if (this.sideboard == null) {
+            return;
         }
+
+        this.sendPacket(ExPacketPlayOutScoreboardObjective.wrap(this.sideboard.getName(),
+                this.sideboard.getTitle(), Display.REMOVE, ScoreboardType.INTEGER));
         this.scores.clear();
+        this.setSideboard(null);
     }
 
 
