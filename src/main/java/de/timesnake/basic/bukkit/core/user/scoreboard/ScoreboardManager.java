@@ -16,7 +16,8 @@ import java.util.HashMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
+public class ScoreboardManager implements Listener,
+        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
 
     private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
     private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
@@ -30,7 +31,8 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
         GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
                 .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
         standard.setHeader("§6Time§2Snake§9.de");
-        standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n" + Server.SUPPORT_EMAIL);
+        standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n"
+                + Server.SUPPORT_EMAIL);
 
         this.activeTablist = standard;
 
@@ -76,8 +78,10 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     }
 
     @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard registerSideboard(String name, String title) {
-        de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard = new Sideboard(name, title);
+    public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard registerSideboard(String name,
+            String title) {
+        de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard = new Sideboard(name,
+                title);
         this.sideboards.put(name, sideboard);
         Plugin.SCOREBOARD.getLogger().info("Created sideboard '" + name + "'");
         return sideboard;
@@ -105,10 +109,11 @@ public class ScoreboardManager implements Listener, de.timesnake.basic.bukkit.ut
     }
 
     public void updatePlayerGroup(TablistablePlayer player) {
-        for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
-            tablist.removeEntry(player);
-            tablist.addEntry(player);
-        }
+        this.tablists.values().stream().filter(tablist -> tablist.getEntries().contains(player))
+                .forEach(tablist -> {
+                    tablist.removeEntry(player);
+                    tablist.addEntry(player);
+                });
     }
 
     @EventHandler
