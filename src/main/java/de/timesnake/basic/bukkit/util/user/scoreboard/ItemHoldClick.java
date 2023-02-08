@@ -4,40 +4,45 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
+import org.jetbrains.annotations.Range;
+
 public class ItemHoldClick {
 
     private final Integer clickTime;
-    private Long firstClickMilis;
-    private Long lastClickMilis;
+    private Long firstClickMillis;
+    private Long lastClickMillis;
 
-    public ItemHoldClick(Integer clickTime) {
+    public ItemHoldClick(@Range(from = 700, to = Integer.MAX_VALUE) Integer clickTime) {
         this.clickTime = clickTime;
-        long currentMilis = System.currentTimeMillis();
-        this.firstClickMilis = currentMilis;
-        this.lastClickMilis = currentMilis;
+        long currentMillis = System.currentTimeMillis();
+        this.firstClickMillis = currentMillis;
+        this.lastClickMillis = currentMillis;
     }
 
+    /**
+     * @return True if player has clicked clickedTime, else false
+     */
     public boolean click() {
-        Long currentMilis = System.currentTimeMillis();
-        if (currentMilis - lastClickMilis > 400) {
-            this.firstClickMilis = currentMilis;
-            this.lastClickMilis = currentMilis;
+        Long currentMillis = System.currentTimeMillis();
+        if (currentMillis - lastClickMillis > 700) {
+            this.firstClickMillis = currentMillis;
+            this.lastClickMillis = currentMillis;
             return false;
-        } else if (currentMilis - firstClickMilis >= clickTime) {
-            this.firstClickMilis = currentMilis;
-            this.lastClickMilis = currentMilis;
+        } else if (currentMillis - firstClickMillis >= clickTime) {
+            this.firstClickMillis = currentMillis;
+            this.lastClickMillis = currentMillis;
             return true;
         } else {
-            this.lastClickMilis = currentMilis;
+            this.lastClickMillis = currentMillis;
             return false;
         }
     }
 
-    public Long getFirstClickMilis() {
-        return firstClickMilis;
+    public Long getFirstClickMillis() {
+        return firstClickMillis;
     }
 
-    public Long getLastClickMilis() {
-        return lastClickMilis;
+    public Long getLastClickMillis() {
+        return lastClickMillis;
     }
 }

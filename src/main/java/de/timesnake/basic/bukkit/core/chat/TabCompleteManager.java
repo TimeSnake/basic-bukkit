@@ -8,6 +8,8 @@ import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
 import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
+import de.timesnake.basic.bukkit.util.chat.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.ExCommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
@@ -25,10 +27,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukkit.util.chat.TabCompleteManager {
+public class TabCompleteManager implements TabCompleter,
+        de.timesnake.basic.bukkit.util.chat.TabCompleteManager {
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String alias,
+            String[] args) {
 
         String cmdName = command.getName().toLowerCase();
 
@@ -42,13 +46,14 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
         Sender sender = new Sender(new ExCommandSender(commandSender), basicCmd.getPlugin());
 
         try {
-            return switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
-                case DEFAULT ->
-                        basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.Arguments(sender, args));
-                case EXTENDED ->
-                        basicCmd.getListener().getTabCompletion(basicCmd, new CommandManager.ExArguments(sender, args,
-                                basicCmd.getListener().allowDuplicates(cmdName, args)));
-            };
+            if (basicCmd.getListener() instanceof CommandListener listener) {
+                return listener.getTabCompletion(basicCmd,
+                        new CommandManager.Arguments(sender, args));
+            } else if (basicCmd.getListener() instanceof ExCommandListener listener) {
+                return listener.getTabCompletion(basicCmd,
+                        new CommandManager.ExArguments(sender, args,
+                                listener.allowDuplicates(cmdName, args)));
+            }
         } catch (CommandExitException | ArgumentParseException | DuplicateOptionException ignored) {
         }
         return List.of();
@@ -56,7 +61,8 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
 
     @Override
     public List<String> getPlayerNames() {
-        return Server.getUsers().stream().filter(user -> !user.isAirMode()).map(UserPlayerDelegation::getName)
+        return Server.getUsers().stream().filter(user -> !user.isAirMode())
+                .map(UserPlayerDelegation::getName)
                 .collect(Collectors.toList());
     }
 
@@ -66,12 +72,14 @@ public class TabCompleteManager implements TabCompleter, de.timesnake.basic.bukk
     }
 
     public List<String> getDisplayGroupNames() {
-        return Server.getDisplayGroups().stream().map(DisplayGroup::getName).collect(Collectors.toList());
+        return Server.getDisplayGroups().stream().map(DisplayGroup::getName)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> getWorldNames() {
-        return Server.getWorlds().stream().map(DelegatedWorld::getName).collect(Collectors.toList());
+        return Server.getWorlds().stream().map(DelegatedWorld::getName)
+                .collect(Collectors.toList());
     }
 
     @Override

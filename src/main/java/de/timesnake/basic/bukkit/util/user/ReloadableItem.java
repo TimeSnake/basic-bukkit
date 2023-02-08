@@ -62,7 +62,7 @@ public class ReloadableItem {
     public void update() {
         if (this.damageItem) {
             this.user.replaceExItemStack(this.item,
-                    this.item.cloneWithId().setDamage(this.getDelayProgress()));
+                    this.item.cloneWithId().setDamage(1 - this.getDelayProgress()));
         }
 
         if (this.showActionBarText) {

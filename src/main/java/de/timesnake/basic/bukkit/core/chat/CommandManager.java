@@ -7,11 +7,13 @@ package de.timesnake.basic.bukkit.core.chat;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.ExCommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.ArgumentParseException;
 import de.timesnake.library.extension.util.cmd.CommandExitException;
+import de.timesnake.library.extension.util.cmd.CommandListenerBasis;
 import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import java.util.HashMap;
@@ -25,26 +27,30 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class CommandManager implements de.timesnake.basic.bukkit.util.chat.CommandManager, CommandExecutor {
+public class CommandManager implements de.timesnake.basic.bukkit.util.chat.CommandManager,
+        CommandExecutor {
 
     private final HashMap<String, ExCommand<Sender, Argument>> commands = new HashMap<>();
 
     private final TabCompleteManager tabCompleteManager = new TabCompleteManager();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender cmdSender, Command cmd, @NotNull String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender cmdSender, Command cmd, @NotNull String label,
+            String[] args) {
         String cmdName = cmd.getName().toLowerCase();
 
         if (this.commands.containsKey(cmdName)) {
             ExCommand<Sender, Argument> basicCmd = this.commands.get(cmdName);
 
-            de.timesnake.basic.bukkit.util.chat.Sender sender = new Sender(new ExCommandSender(cmdSender),
+            de.timesnake.basic.bukkit.util.chat.Sender sender = new Sender(
+                    new ExCommandSender(cmdSender),
                     basicCmd.getPlugin());
             try {
-                switch (basicCmd.getListener().getArgumentType(cmdName, args)) {
-                    case DEFAULT -> basicCmd.getListener().onCommand(sender, basicCmd, new Arguments(sender, args));
-                    case EXTENDED -> basicCmd.getListener().onCommand(sender, basicCmd, new ExArguments(sender, args,
-                            basicCmd.getListener().allowDuplicates(cmdName, args)));
+                if (basicCmd.getListener() instanceof CommandListener listener) {
+                    listener.onCommand(sender, basicCmd, new Arguments(sender, args));
+                } else if (basicCmd.getListener() instanceof ExCommandListener listener) {
+                    listener.onCommand(sender, basicCmd, new ExArguments(sender, args,
+                            listener.allowDuplicates(cmdName, args)));
                 }
             } catch (CommandExitException ignored) {
 
@@ -56,7 +62,9 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
     }
 
     @Override
-    public void addCommand(JavaPlugin mainClass, String cmd, CommandListener listener, Plugin basicPlugin) {
+    public void addCommand(JavaPlugin mainClass, String cmd,
+            CommandListenerBasis<? extends Sender, ? extends Argument> listener,
+            Plugin basicPlugin) {
         listener.loadCodes(basicPlugin);
         ExCommand<Sender, Argument> basicCmd = new ExCommand<>(cmd, listener, basicPlugin);
 
@@ -67,14 +75,16 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(tabCompleteManager);
         } else {
-            Server.printWarning(Plugin.BUKKIT, "Error while adding command " + cmd + ". Not registered in " + "plugin" +
-                    ".yml", "Command");
+            Server.printWarning(Plugin.BUKKIT,
+                    "Error while adding command " + cmd + ". Not registered in " + "plugin" +
+                            ".yml", "Command");
         }
     }
 
     @Override
-    public void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases, CommandListener listener,
-                           Plugin basicPlugin) {
+    public void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases,
+            CommandListenerBasis<? extends Sender, ? extends Argument> listener,
+            Plugin basicPlugin) {
         listener.loadCodes(basicPlugin);
         this.addCommand(mainClass, cmd, listener, basicPlugin);
 
@@ -92,7 +102,8 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
         return this.tabCompleteManager;
     }
 
-    public static class Arguments extends de.timesnake.library.extension.util.cmd.Arguments<Argument> {
+    public static class Arguments extends
+            de.timesnake.library.extension.util.cmd.Arguments<Argument> {
 
         public Arguments(Sender sender, String[] args) {
             super(sender, args);
@@ -115,20 +126,23 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
         }
 
         @Override
-        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender, String arg) {
+        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender,
+                String arg) {
             return new Argument((Sender) sender, arg);
         }
     }
 
-    public static class ExArguments extends de.timesnake.library.extension.util.cmd.ExArguments<Argument> {
+    public static class ExArguments extends
+            de.timesnake.library.extension.util.cmd.ExArguments<Argument> {
 
         public ExArguments(de.timesnake.library.extension.util.cmd.Sender sender, String[] args,
-                           boolean allowDuplicateOptions) {
+                boolean allowDuplicateOptions) {
             super(sender, args, allowDuplicateOptions);
         }
 
         @Override
-        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender, String arg) {
+        public Argument createArgument(de.timesnake.library.extension.util.cmd.Sender sender,
+                String arg) {
             return new Argument(((Sender) sender), arg);
         }
     }

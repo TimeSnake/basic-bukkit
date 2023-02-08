@@ -2192,13 +2192,7 @@ public class User extends UserPlayerDelegation implements
      */
     public void updatePunishment() {
         Type.Punishment type = this.dbUser.getPunishment().getType();
-        if (type != null) {
-            if (type.equals(Type.Punishment.MUTE)) {
-                this.isMuted = true;
-            }
-        } else {
-            this.isMuted = false;
-        }
+        this.isMuted = type != null && type.equals(Type.Punishment.MUTE);
     }
 
     public void sendPacket(ExPacketPlayOut packet) {

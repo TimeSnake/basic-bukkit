@@ -96,7 +96,6 @@ public abstract class Tablist extends Board implements Listener,
 
     @EventHandler
     public void onUserJoin(UserJoinEvent e) {
-        System.out.println("onJoin");
         this.userJoin.onUserJoin(e, this);
 
         User user = e.getUser();
