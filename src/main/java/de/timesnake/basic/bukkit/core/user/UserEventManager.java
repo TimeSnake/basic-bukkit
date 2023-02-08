@@ -398,6 +398,12 @@ public class UserEventManager implements Listener,
         e.setKeepInventory(userDeathEvent.isKeepInventory());
 
         if (!userDeathEvent.isBroadcastDeathMessage()) {
+            if (user.getLastDamager() != null) {
+                Server.printText(Plugin.BUKKIT, user.getName() + " has been killed by " +
+                        user.getLastDamager().getDamager().getName());
+            } else {
+                Server.printText(Plugin.BUKKIT, user.getName() + " died");
+            }
             e.deathMessage(Component.empty());
             return;
         }
