@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.library.extension.util.chat.Code;
+import de.timesnake.library.extension.util.chat.Code.Type;
 import de.timesnake.library.extension.util.cmd.CommandExitException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,9 +20,21 @@ import org.bukkit.entity.Player;
 
 public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
-    public static final Code.Help WORLD_TYPE_NON = new Code.Help(Plugin.SYSTEM, "nwt", 1, "Not a world type");
-    public static final Code.Help WORLD_ENVIRONMENT_NON = new Code.Help(Plugin.SYSTEM, "nwe", 1, "Not a world environment");
-    public static final Code.Help MATERIAL_NAME_NON = new Code.Help(Plugin.SYSTEM, "nmn", 1, "Not a material name");
+    public static final Code WORLD_TYPE_NON = new Code.Builder()
+            .setPlugin(Plugin.SYSTEM)
+            .setType(Type.HELP)
+            .setDescription("Not a world type")
+            .build();
+    public static final Code WORLD_ENVIRONMENT_NON = new Code.Builder()
+            .setPlugin(Plugin.SYSTEM)
+            .setType(Type.HELP)
+            .setDescription("Not a world environment")
+            .build();
+    public static final Code MATERIAL_NAME_NON = new Code.Builder()
+            .setPlugin(Plugin.SYSTEM)
+            .setType(Type.HELP)
+            .setDescription("Not a material name")
+            .build();
 
     public Argument(Sender sender, String string) {
         super(sender, string);
@@ -50,8 +63,9 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
     public boolean isHexColor(boolean sendMessage) {
         try {
-            Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16), Integer.valueOf(this.string.substring(2,
-                    4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
+            Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16),
+                    Integer.valueOf(this.string.substring(2,
+                            4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
         } catch (IllegalArgumentException e) {
             if (sendMessage) {
                 this.sender.sendMessageNoHexColor(string);
@@ -75,7 +89,8 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
     public Color toColorFromHex() {
         return Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16),
-                Integer.valueOf(this.string.substring(2, 4), 16), Integer.valueOf(this.string.substring(4, 6), 16));
+                Integer.valueOf(this.string.substring(2, 4), 16),
+                Integer.valueOf(this.string.substring(4, 6), 16));
     }
 
     public boolean isWorldName(boolean sendMessage) {
