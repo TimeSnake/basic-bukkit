@@ -19,10 +19,11 @@ import net.kyori.adventure.text.Component;
 
 public class PasswordCmd implements CommandListener {
 
-    private Code.Permission perm;
+    private Code perm;
 
     @Override
-    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
+            Arguments<Argument> args) {
         if (!sender.hasPermission(this.perm)) {
             return;
         }
@@ -37,11 +38,11 @@ public class PasswordCmd implements CommandListener {
             password = args.getString(0);
         }
 
-
         try {
             Server.setPassword(password);
         } catch (TooLongEntryException e) {
-            sender.sendPluginMessage(Component.text("Could not set password, too long", ExTextColor.WARNING));
+            sender.sendPluginMessage(
+                    Component.text("Could not set password, too long", ExTextColor.WARNING));
             return;
         }
 
@@ -49,7 +50,8 @@ public class PasswordCmd implements CommandListener {
     }
 
     @Override
-    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
+            Arguments<Argument> args) {
         if (args.length() == 1) {
             return List.of("<password>");
         }
@@ -58,6 +60,6 @@ public class PasswordCmd implements CommandListener {
 
     @Override
     public void loadCodes(Plugin plugin) {
-        this.perm = plugin.createPermssionCode("pwd", "password");
+        this.perm = plugin.createPermssionCode("password");
     }
 }

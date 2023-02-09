@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.core.main;
 
+import de.timesnake.basic.bukkit.core.chat.CodeCmd;
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
 import de.timesnake.basic.bukkit.core.chat.PasswordCmd;
 import de.timesnake.basic.bukkit.core.server.PidCmd;
@@ -62,7 +63,6 @@ public class BasicBukkit extends JavaPlugin {
 
         ServerManager.getInstance().onEnable();
 
-
         Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
                 new CmdPrivacyPolicy(), Plugin.NETWORK);
         Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
@@ -75,6 +75,8 @@ public class BasicBukkit extends JavaPlugin {
 
         Server.getCommandManager().addCommand(this, "password", List.of("pwd"),
                 new PasswordCmd(), Plugin.SYSTEM);
+
+        Server.getCommandManager().addCommand(this, "code", new CodeCmd(), Plugin.SYSTEM);
     }
 
     @Override

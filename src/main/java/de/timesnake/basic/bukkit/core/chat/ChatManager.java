@@ -46,7 +46,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
     private final HashMap<String, de.timesnake.basic.bukkit.util.chat.Chat> chats = new HashMap<>();
 
     private boolean broadcastJoinQuit = true;
-    private Code.Permission globalPerm;
+    private Code globalPerm;
 
     public ChatManager() {
         de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null,
@@ -293,7 +293,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
     @Override
     public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-        this.globalPerm = plugin.createPermssionCode("chg", "chat.global");
+        this.globalPerm = plugin.createPermssionCode("chat.global");
 
     }
 }

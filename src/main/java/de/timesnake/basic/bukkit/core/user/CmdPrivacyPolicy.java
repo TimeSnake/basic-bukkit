@@ -22,32 +22,40 @@ import org.bukkit.event.Listener;
 
 public class CmdPrivacyPolicy implements CommandListener, Listener {
 
-    private Code.Help alreadyAccepted;
+    private Code alreadyAccepted;
 
     @Override
-    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
+            Arguments<Argument> args) {
         if (sender.isPlayer(true)) {
             User user = sender.getUser();
             if (args.isLengthHigherEquals(1, true)) {
-                if (args.get(0).equalsIgnoreCase("accept") || args.get(0).equalsIgnoreCase("agree")) {
+                if (args.get(0).equalsIgnoreCase("accept") || args.get(0)
+                        .equalsIgnoreCase("agree")) {
 
                     if (user.agreedPrivacyPolicy()) {
-                        sender.sendPluginMessage(Component.text("You already accepted our privacy policy", ExTextColor.WARNING)
-                                .append(alreadyAccepted.asComponent(ExTextColor.WARNING)));
+                        sender.sendPluginMessage(
+                                Component.text("You already accepted our privacy policy",
+                                                ExTextColor.WARNING)
+                                        .append(alreadyAccepted.asComponent(ExTextColor.WARNING)));
                         return;
                     }
 
                     user.agreePrivacyPolicy();
-                    sender.sendPluginMessage(Component.text("You accepted our privacy policy", ExTextColor.PERSONAL));
+                    sender.sendPluginMessage(Component.text("You accepted our privacy policy",
+                            ExTextColor.PERSONAL));
 
                     user.getPlayer().kick(Component.text("You accepted our data privacy policy " +
-                                                         "\nPlease rejoin in a few moments", ExTextColor.PUBLIC));
+                            "\nPlease rejoin in a few moments", ExTextColor.PUBLIC));
 
 
-                } else if (args.get(0).equalsIgnoreCase("deny") || args.get(0).equalsIgnoreCase("disagree")) {
+                } else if (args.get(0).equalsIgnoreCase("deny") || args.get(0)
+                        .equalsIgnoreCase("disagree")) {
                     user.delete();
-                    user.getPlayer().kick(Component.text("You disagreed our privacy policy. You must " +
-                                                         "accept our privacy policy to play on our Network", ExTextColor.RED, TextDecoration.BOLD));
+                    user.getPlayer()
+                            .kick(Component.text("You disagreed our privacy policy. You must " +
+                                            "accept our privacy policy to play on our Network",
+                                    ExTextColor.RED, TextDecoration.BOLD));
 
                 }
             } else {
@@ -58,7 +66,8 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
     }
 
     @Override
-    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
+            Arguments<Argument> args) {
         if (args.getLength() == 1) {
             return List.of("accept", "deny");
         }
@@ -67,7 +76,7 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
 
     @Override
     public void loadCodes(Plugin plugin) {
-        this.alreadyAccepted = plugin.createHelpCode("aad", "Already accepted privacy policy");
+        this.alreadyAccepted = plugin.createHelpCode("Already accepted privacy policy");
     }
 
     @EventHandler

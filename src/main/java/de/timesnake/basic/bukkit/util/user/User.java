@@ -1284,7 +1284,7 @@ public class User extends UserPlayerDelegation implements
      * @return if user has
      */
     @Deprecated
-    public boolean hasPermission(String permission, Code.Permission code,
+    public boolean hasPermission(String permission, Code code,
             de.timesnake.library.extension.util.chat.Plugin plugin) {
         return this.asSender(plugin).hasPermission(permission, code);
     }
@@ -1296,7 +1296,7 @@ public class User extends UserPlayerDelegation implements
      * @param plugin The {@link Plugin} of the permission
      * @return if user has
      */
-    public boolean hasPermission(Code.Permission code,
+    public boolean hasPermission(Code code,
             de.timesnake.library.extension.util.chat.Plugin plugin) {
         return this.asSender(plugin).hasPermission(code);
     }
