@@ -20,12 +20,12 @@ import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
-import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.PvPManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.user.UserManager;
+import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
@@ -75,7 +75,8 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
 
-public class ServerManager implements de.timesnake.library.basic.util.server.Server, ChannelListener {
+public class ServerManager implements de.timesnake.library.basic.util.server.Server,
+        ChannelListener {
 
     public static ServerManager getInstance() {
         if (instance == null) {
@@ -160,8 +161,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    // INIT
-
     protected ChatManager initChatManager() {
         return new de.timesnake.basic.bukkit.core.chat.ChatManager();
     }
@@ -194,13 +193,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return new de.timesnake.basic.bukkit.core.server.GroupManager();
     }
 
-    // INFO
-
-    /**
-     * Gets the server port
-     *
-     * @return the port
-     */
     public Integer getPort() {
         return this.info.getPort();
     }
@@ -246,12 +238,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.info.setPassword(password);
     }
 
-
-    //user
-
     public final void createUser(Player player) {
         this.userManager.storeUser(player.getUniqueId(),
-                BasicBukkit.getPlugin().getServer().getScheduler().callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
+                BasicBukkit.getPlugin().getServer().getScheduler()
+                        .callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
     }
 
     public User loadUser(Player player) {
@@ -360,7 +350,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     /**
-     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in service mode
+     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in
+     * service mode
      *
      * @return the users
      */
@@ -419,9 +410,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return users;
     }
 
-
-    // NETWORK
-
     /**
      * Gets the {@link Network}
      *
@@ -430,7 +418,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public final Network getNetwork() {
         return network;
     }
-
 
     // CHAT
 
@@ -483,7 +470,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param action The action to execute
      */
     @Deprecated
-    public final void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action) {
+    public final void broadcastClickableMessage(String text, String exec, String info,
+            ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
     }
 
@@ -495,10 +483,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public final void broadcastClickableMessage(Component text, String exec, Component info, ClickEvent.Action action) {
+    public final void broadcastClickableMessage(Component text, String exec, Component info,
+            ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
     }
-
 
     /**
      * Sends a clickable message to all players and a message to the console
@@ -510,8 +498,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param action The action to execute
      */
     @Deprecated
-    public final void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
-                                                ClickEvent.Action action) {
+    public final void broadcastClickableMessage(Plugin plugin, String text, String exec,
+            String info,
+            ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -524,8 +513,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public final void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
-                                                ClickEvent.Action action) {
+    public final void broadcastClickableMessage(Plugin plugin, Component text, String exec,
+            Component info,
+            ClickEvent.Action action) {
         this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -599,32 +589,44 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title
      */
-    public final void broadcastTitle(Component title, Component subTitle, Duration stay, Duration fadeIn, Duration fadeOut) {
+    public final void broadcastTitle(Component title, Component subTitle, Duration stay,
+            Duration fadeIn, Duration fadeOut) {
         for (User user : this.getUsers()) {
             user.showTitle(title, subTitle, stay, fadeIn, fadeOut);
         }
     }
 
-    // GROUP
+    public PermGroup getPermGroup(String group) {
+        return groupManager.getPermGroup(group);
+    }
 
-    public PermGroup getPermGroup(String group) {return groupManager.getPermGroup(group);}
+    public PermGroup getGuestPermGroup() {
+        return groupManager.getGuestPermGroup();
+    }
 
-    public PermGroup getGuestPermGroup() {return groupManager.getGuestPermGroup();}
+    public PermGroup getMemberPermGroup() {
+        return groupManager.getMemberPermGroup();
+    }
 
-    public PermGroup getMemberPermGroup() {return groupManager.getMemberPermGroup();}
+    public Collection<PermGroup> getPermGroups() {
+        return groupManager.getPermGroups();
+    }
 
-    public Collection<PermGroup> getPermGroups() {return groupManager.getPermGroups();}
+    public DisplayGroup getDisplayGroup(String group) {
+        return groupManager.getDisplayGroup(group);
+    }
 
-    public DisplayGroup getDisplayGroup(String group) {return groupManager.getDisplayGroup(group);}
+    public Collection<DisplayGroup> getDisplayGroups() {
+        return groupManager.getDisplayGroups();
+    }
 
-    public Collection<DisplayGroup> getDisplayGroups() {return groupManager.getDisplayGroups();}
+    public DisplayGroup getGuestDisplayGroup() {
+        return groupManager.getGuestDisplayGroup();
+    }
 
-    public DisplayGroup getGuestDisplayGroup() {return groupManager.getGuestDisplayGroup();}
-
-    public DisplayGroup getMemberDisplayGroup() {return groupManager.getMemberDisplayGroup();}
-
-
-    // COMMAND
+    public DisplayGroup getMemberDisplayGroup() {
+        return groupManager.getMemberDisplayGroup();
+    }
 
     /**
      * Runs a command by the {@link ConsoleCommandSender}
@@ -652,23 +654,26 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      *
      * @param location The {@link DbLocation} to convert
      * @return The {@link Location}
-     *
      * @throws WorldNotExistException if world not exist on server
      */
-    public final Location getLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
+    public final Location getLocationFromDbLocation(DbLocation location)
+            throws WorldNotExistException {
         World world = Bukkit.getWorld(location.getWorldName());
         if (world != null) {
-            return new Location(world, location.getX(), location.getY(), location.getZ(), location.getYaw(),
+            return new Location(world, location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(),
                     location.getPitch());
         } else {
             throw new WorldNotExistException(location.getWorldName());
         }
     }
 
-    public final ExLocation getExLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
+    public final ExLocation getExLocationFromDbLocation(DbLocation location)
+            throws WorldNotExistException {
         ExWorld world = Server.getWorld(location.getWorldName());
         if (world != null) {
-            return new ExLocation(world, location.getX(), location.getY(), location.getZ(), location.getYaw(),
+            return new ExLocation(world, location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(),
                     location.getPitch());
         } else {
             throw new WorldNotExistException(location.getWorldName());
@@ -676,7 +681,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     public final DbLocation getDbLocationFromLocation(Location location) {
-        return new DbLocation(location.getWorld().getName(), location.getX(), location.getY(), location.getZ(),
+        return new DbLocation(location.getWorld().getName(), location.getX(), location.getY(),
+                location.getZ(),
                 location.getYaw(), location.getPitch());
     }
 
@@ -689,7 +695,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param name
      * @param itemStacks
      * @return
-     *
      * @deprecated in favour of {@link ExInventory}
      */
     @Deprecated
@@ -703,12 +708,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param holder
      * @param itemStacks
      * @return
-     *
      * @deprecated in favour of {@link ExInventory}
      */
     @Deprecated
     public final ExInventory createExInventory(int size, String name, InventoryHolder holder,
-                                               ExItemStack... itemStacks) {
+            ExItemStack... itemStacks) {
         return new ExInventory(size, name, holder, itemStacks);
     }
 
@@ -772,40 +776,47 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return this.taskManager.runTaskLaterSynchrony(task, delay, plugin);
     }
 
-    public BukkitTask runTaskLaterAsynchrony(Task task, int delay, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskLaterAsynchrony(Task task, int delay,
+            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskLaterAsynchrony(task, delay, plugin);
     }
 
-    public BukkitTask runTaskTimerSynchrony(Task task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
+            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerSynchrony(task, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
+            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerAsynchrony(task, delay, period, plugin);
     }
 
     public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
-                                            org.bukkit.plugin.Plugin plugin) {
+            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerSynchrony(task, time, delay, period, plugin);
     }
 
     public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
-                                             org.bukkit.plugin.Plugin plugin) {
+            org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskTimerAsynchrony(task, time, delay, period, plugin);
     }
 
-    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
-                                            org.bukkit.plugin.Plugin plugin) {
-        return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
+    public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+            int delay, int period,
+            org.bukkit.plugin.Plugin plugin) {
+        return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period,
+                plugin);
     }
 
-    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period
+    public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+            int delay, int period
             , org.bukkit.plugin.Plugin plugin) {
-        return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
+        return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period,
+                plugin);
     }
 
     public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
-                                                org.bukkit.plugin.Plugin plugin) {
+            org.bukkit.plugin.Plugin plugin) {
         this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
     }
 
@@ -819,13 +830,15 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    @ChannelHandler(type = {ListenerType.SERVER_PERMISSION, ListenerType.SERVER_COMMAND, ListenerType.SERVER_LOAD_WORLD})
+    @ChannelHandler(type = {ListenerType.SERVER_PERMISSION, ListenerType.SERVER_COMMAND,
+            ListenerType.SERVER_LOAD_WORLD})
     public final void onServerMessage(ChannelServerMessage<?> msg) {
         MessageType<?> type = msg.getMessageType();
         if (type.equals(MessageType.Server.PERMISSION)) {
             this.updateUsersPermissions();
         } else if (type.equals(MessageType.Server.COMMAND)) {
-            this.runTaskSynchrony(() -> runCommand((String) msg.getValue()), BasicBukkit.getPlugin());
+            this.runTaskSynchrony(() -> runCommand((String) msg.getValue()),
+                    BasicBukkit.getPlugin());
         } else if (type.equals(MessageType.Server.LOAD_WORLD)) {
             this.worldManager.createWorldFromFile(((String) msg.getValue()));
         }
@@ -833,11 +846,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     @ChannelHandler(type = ListenerType.SERVER_STATUS, filtered = true)
     public final void onServerStatusMessage(ChannelServerMessage<?> msg) {
-        this.runTaskSynchrony(() -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(),
+        this.runTaskSynchrony(
+                () -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(),
                 BasicBukkit.getPlugin());
     }
-
-    // MANAGER
 
     public final UserEventManager getUserEventManager() {
         return userEventManager;
