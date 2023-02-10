@@ -834,6 +834,12 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return (ExItemStack) super.subtract(qty);
     }
 
+    public ExItemStack addExItemFlags(@NotNull ItemFlag... itemFlags) {
+        this.checkImmutable();
+        this._addItemFlags(itemFlags);
+        return this;
+    }
+
     @Override
     public void addItemFlags(@NotNull ItemFlag... itemFlags) {
         this.checkImmutable();
