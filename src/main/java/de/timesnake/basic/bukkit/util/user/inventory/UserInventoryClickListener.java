@@ -2,7 +2,7 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user.event;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
 @FunctionalInterface
 public interface UserInventoryClickListener {

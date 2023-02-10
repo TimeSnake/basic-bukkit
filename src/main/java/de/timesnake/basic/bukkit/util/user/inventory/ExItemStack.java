@@ -2,9 +2,9 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
+import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,8 +89,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      * Gets a new item stack with an id equals to the hash code of the given name.
      *
      * <p>
-     * This is usefully to have a persistent item id.
-     * The name of the item must be unique. Else a {@link DuplicateItemIdException} will be thrown.
+     * This is usefully to have a persistent item id. The name of the item must be unique. Else a
+     * {@link DuplicateItemIdException} will be thrown.
      * </p>
      *
      * @param material The material
@@ -100,12 +100,14 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     public static ExItemStack getHashedIdItem(Material material, String name) {
         int hash = name.hashCode();
         if (ITEMS_BY_ID.containsKey(hash)) {
-            throw new DuplicateItemIdException("NameHash: Item name " + name + " is already used, name can not be hashed");
+            throw new DuplicateItemIdException(
+                    "NameHash: Item name " + name + " is already used, name can not be hashed");
         }
         return new ExItemStack(hash, new ItemStack(material));
     }
 
-    public static ExItemStack getPotion(Material material, PotionType type, boolean extended, boolean upgraded) {
+    public static ExItemStack getPotion(Material material, PotionType type, boolean extended,
+            boolean upgraded) {
         ExItemStack item = new ExItemStack(material);
 
         if (!(item.getItemMeta() instanceof PotionMeta meta)) {
@@ -118,8 +120,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return item;
     }
 
-    public static ExItemStack getPotion(Material material, PotionType type, Color color, boolean extended,
-                                        boolean upgraded) {
+    public static ExItemStack getPotion(Material material, PotionType type, Color color,
+            boolean extended, boolean upgraded) {
         ExItemStack item = ExItemStack.getPotion(material, type, extended, upgraded);
 
         if (!(item.getItemMeta() instanceof PotionMeta meta)) {
@@ -132,18 +134,19 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return item;
     }
 
-    public static ExItemStack getPotion(Material material, int amount, PotionType type, boolean extended,
-                                        boolean upgraded) {
+    public static ExItemStack getPotion(Material material, int amount, PotionType type,
+            boolean extended, boolean upgraded) {
         return ExItemStack.getPotion(material, type, extended, upgraded).asQuantity(amount);
     }
 
-    public static ExItemStack getPotion(Material material, int amount, String displayName, PotionType type,
-                                        boolean extended, boolean upgraded) {
-        return ExItemStack.getPotion(material, amount, type, extended, upgraded).setDisplayName(displayName);
+    public static ExItemStack getPotion(Material material, int amount, String displayName,
+            PotionType type, boolean extended, boolean upgraded) {
+        return ExItemStack.getPotion(material, amount, type, extended, upgraded)
+                .setDisplayName(displayName);
     }
 
     public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
-                                        PotionEffectType effectType, int duration, int level) {
+            PotionEffectType effectType, int duration, int level) {
         ExItemStack item = new ExItemStack(type.getMaterial());
 
         item.asQuantity(amount);
@@ -161,8 +164,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
-                                        PotionEffectType effectType, int duration, int level, List<String> lore) {
-        return ExItemStack.getPotion(type, amount, displayName, effectType, duration, level).setExLore(lore);
+            PotionEffectType effectType, int duration, int level, List<String> lore) {
+        return ExItemStack.getPotion(type, amount, displayName, effectType, duration, level)
+                .setExLore(lore);
     }
 
     public static ExItemStack getLeatherArmor(Material material, Color color) {
@@ -177,7 +181,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
         return item;
     }
-
 
     // id management, converter
 
@@ -252,10 +255,12 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return Boolean.parseBoolean(attributes[2]);
     }
 
-    private static void setAttributes(ItemStack item, Integer id, Boolean dropable, Boolean moveable) {
+    private static void setAttributes(ItemStack item, Integer id, Boolean dropable,
+            Boolean moveable) {
         if (id != null && dropable != null && item.getItemMeta() != null) {
             ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
+            meta.setLocalizedName(
+                    id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
             item.setItemMeta(meta);
         }
     }
@@ -275,7 +280,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     private boolean moveable = true;
     private boolean immutable = false;
 
-    private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable, boolean clone) {
+    private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable,
+            boolean clone) {
         super(clone ? item.clone() : item);
         this.id = id;
         this.dropable = dropable;
@@ -285,8 +291,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     /**
-     * Clones the item stack and tries to read id
-     * If item id is null, it gets a new id
+     * Clones the item stack and tries to read id If item id is null, it gets a new id
      *
      * @param item The item to create
      */
@@ -327,7 +332,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         this.slot = slot;
     }
 
-    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable, boolean moveable, boolean clone) {
+    private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable,
+            boolean moveable, boolean clone) {
         this(id, item, slot, clone);
         this.dropable = dropable;
         this.moveable = moveable;
@@ -565,8 +571,12 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     protected ExItemStack _replaceLoreLine(int line, String text) {
         ItemMeta meta = this.getItemMeta();
         @Nullable List<Component> lore = meta.lore();
-        if (lore == null) lore = new LinkedList<>();
-        while (lore.size() <= line) lore.add(lore.size(), Component.text(""));
+        if (lore == null) {
+            lore = new LinkedList<>();
+        }
+        while (lore.size() <= line) {
+            lore.add(lore.size(), Component.text(""));
+        }
         lore.set(line, Component.text(text));
         meta.lore(lore);
         this.setItemMeta(meta);
@@ -787,17 +797,20 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this._editMeta(consumer);
     }
 
-    protected boolean _editMeta(final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
+    protected boolean _editMeta(
+            final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
         return super.editMeta(consumer);
     }
 
     @Override
-    public <M extends ItemMeta> boolean editMeta(final @NotNull Class<M> metaClass, final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+    public <M extends ItemMeta> boolean editMeta(final @NotNull Class<M> metaClass,
+            final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
         this.checkImmutable();
         return this._editMeta(metaClass, consumer);
     }
 
-    protected <M extends ItemMeta> boolean _editMeta(final @NotNull Class<M> metaClass, final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+    protected <M extends ItemMeta> boolean _editMeta(final @NotNull Class<M> metaClass,
+            final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
         return super.editMeta(metaClass, consumer);
     }
 
@@ -887,11 +900,31 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
+    public ExItemStack onClick(UserInventoryClickListener listener) {
+        Server.getInventoryEventManager().addClickListener(listener, this);
+        return this;
+    }
+
+    public ExItemStack onInteract(UserInventoryInteractListener listener) {
+        Server.getInventoryEventManager().addInteractListener(listener, this);
+        return this;
+    }
+
+    public ExItemStack removeListener(UserInventoryClickListener listener) {
+        Server.getInventoryEventManager().removeClickListener(listener);
+        return this;
+    }
+
+    public ExItemStack removeListener(UserInventoryInteractListener listener) {
+        Server.getInventoryEventManager().removeInteractListener(listener);
+        return this;
+    }
+
     /**
      * Compares item ids
      * <p>
-     * If {@code o} is an instance of {@link ExItemStack} the ids are compared.
-     * If {@code o} is an instance of {@link ItemStack} the id is being recovered and compared.
+     * If {@code o} is an instance of {@link ExItemStack} the ids are compared. If {@code o} is an
+     * instance of {@link ItemStack} the id is being recovered and compared.
      * </p>
      *
      * @param o The object to compare
@@ -899,10 +932,18 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (o instanceof ExItemStack) return Objects.equals(this.id, ((ExItemStack) o).id);
-        if (o instanceof ItemStack) return Objects.equals(this.id, new ExItemStack((ItemStack) o, false).id);
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o instanceof ExItemStack) {
+            return Objects.equals(this.id, ((ExItemStack) o).id);
+        }
+        if (o instanceof ItemStack) {
+            return Objects.equals(this.id, new ExItemStack((ItemStack) o, false).id);
+        }
         return false;
     }
 
@@ -928,19 +969,20 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     @Override
     public ExItemStack clone() {
         ItemStack item = super.clone();
-        return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable, this.moveable, false);
+        return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable,
+                this.moveable, false);
     }
 
     /**
      * Clones the item with the id
      *
      * <p>
-     * The cloned item is not in the item list.
-     * So, if it will be searched by the id, the original {@link ExItemStack} will be returned.
-     * The equals check not differing the original and cloned.
+     * The cloned item is not in the item list. So, if it will be searched by the id, the original
+     * {@link ExItemStack} will be returned. The equals check not differing the original and
+     * cloned.
      * <p>
-     * So, the {@link UserInventoryClickEvent} will find the original item, but an equality check with the cloned one
-     * returns true.
+     * So, the {@link UserInventoryClickEvent} will find the original item, but an equality check
+     * with the cloned one returns true.
      * </p>
      *
      * @return the cloned {@link ExItemStack}
@@ -966,9 +1008,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     public enum PotionMaterial {
-        DRINK(Material.POTION),
-        SPLASH(Material.SPLASH_POTION),
-        LINGERING(Material.LINGERING_POTION);
+        DRINK(Material.POTION), SPLASH(Material.SPLASH_POTION), LINGERING(
+                Material.LINGERING_POTION);
 
         private final Material material;
 

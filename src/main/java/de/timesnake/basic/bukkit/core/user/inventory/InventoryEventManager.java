@@ -6,13 +6,13 @@ package de.timesnake.basic.bukkit.core.user.inventory;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.user.ExItemStack;
-import de.timesnake.basic.bukkit.util.user.ExcludedInventoryHolder;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
+import de.timesnake.basic.bukkit.util.user.inventory.ExcludedInventoryHolder;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
+import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickEvent;
+import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickListener;
+import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractEvent;
+import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,7 +30,8 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.InventoryHolder;
 
-public class InventoryEventManager implements Listener, de.timesnake.basic.bukkit.util.user.InventoryEventManager {
+public class InventoryEventManager implements Listener,
+        de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager {
 
     private final Map<InventoryHolder, UserInventoryClickListener> clickListenerByHolder = new ConcurrentHashMap<>();
     private final Map<Integer, Collection<UserInventoryClickListener>> clickListenerByItemId =

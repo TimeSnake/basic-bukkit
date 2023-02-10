@@ -2,10 +2,8 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryClickListener;
-import de.timesnake.basic.bukkit.util.user.event.UserInventoryInteractListener;
 import org.bukkit.inventory.InventoryHolder;
 
 public interface InventoryEventManager {

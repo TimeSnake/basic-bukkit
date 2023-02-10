@@ -2,10 +2,11 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import java.util.function.Function;
 import net.kyori.adventure.text.Component;

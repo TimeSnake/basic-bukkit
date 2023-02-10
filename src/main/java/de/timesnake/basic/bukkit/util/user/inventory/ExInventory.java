@@ -2,7 +2,7 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
 import de.timesnake.basic.bukkit.core.user.inventory.InventoryDelegation;
 import java.util.List;
