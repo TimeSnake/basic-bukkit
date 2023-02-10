@@ -2,10 +2,10 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.user.event;
+package de.timesnake.basic.bukkit.util.user.inventory;
 
-import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.event.CancelableUserEvent;
 import org.bukkit.event.HandlerList;
 
 public class UserInventoryEvent extends CancelableUserEvent {

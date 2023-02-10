@@ -20,12 +20,13 @@ import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
-import de.timesnake.basic.bukkit.util.user.ExInventory;
-import de.timesnake.basic.bukkit.util.user.ExItemStack;
+import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.PvPManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.user.UserManager;
+import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
@@ -107,7 +108,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private ConsoleManager consoleManager;
     private DbServer database;
     private UserEventManager userEventManager;
-    private de.timesnake.basic.bukkit.util.user.InventoryEventManager inventoryEventManager;
+    private InventoryEventManager inventoryEventManager;
     private TaskManager taskManager;
     private PacketBroadcaster packetBroadcaster;
     private Info info;
@@ -842,7 +843,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return userEventManager;
     }
 
-    public final de.timesnake.basic.bukkit.util.user.InventoryEventManager getInventoryEventManager() {
+    public final InventoryEventManager getInventoryEventManager() {
         return inventoryEventManager;
     }
 
