@@ -14,6 +14,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserBlockBreakEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserBlockPlaceEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.basic.bukkit.util.world.ExWorld.Restriction;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import java.util.Set;
 import org.bukkit.Material;
@@ -23,6 +24,7 @@ import org.bukkit.block.data.type.Candle;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -32,6 +34,7 @@ import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -49,6 +52,22 @@ public class WorldEventManager implements Listener {
         this.worldManager = worldManager;
 
         Server.registerListener(this, BasicBukkit.getPlugin());
+    }
+
+    @EventHandler
+    public void onCraftItem(CraftItemEvent e) {
+        ExWorld world = this.worldManager.getWorld(e.getWhoClicked().getWorld());
+
+        if (world.isExceptService() && Server.getUser(((Player) e.getWhoClicked())).isService()) {
+            return;
+        }
+
+        if (!world.isRestricted(Restriction.CRAFTING)) {
+            return;
+        }
+
+        e.setCancelled(true);
+        e.setResult(Result.DENY);
     }
 
     @EventHandler

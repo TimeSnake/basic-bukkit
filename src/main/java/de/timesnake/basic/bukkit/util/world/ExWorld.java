@@ -185,6 +185,7 @@ public class ExWorld extends DelegatedWorld implements World {
         public static final Restriction<Boolean> FIRE_PUNCH_OUT = new Restriction<>(
                 "fire_punch_out", false);
         public static final Restriction<Boolean> CAKE_EAT = new Restriction<>("cake_eat", false);
+        public static final Restriction<Boolean> CRAFTING = new Restriction<>("crafting", false);
         public static final Restriction<List<Material>> OPEN_INVENTORIES = new Restriction<>(
                 "open_inventories", List.of());
 
@@ -207,6 +208,7 @@ public class ExWorld extends DelegatedWorld implements World {
                 PLACE_IN_BLOCK,
                 FIRE_PUNCH_OUT,
                 CAKE_EAT,
+                CRAFTING,
                 OPEN_INVENTORIES
         );
 
