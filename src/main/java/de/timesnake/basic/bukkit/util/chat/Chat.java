@@ -4,7 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Plugin;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
@@ -42,28 +42,27 @@ public interface Chat {
 
     boolean containsListener(ChatMember member);
 
-    @Deprecated
-    void broadcastMemberMessage(ChatMember member, String... msgs);
+    void broadcastMemberTDMessage(ChatMember member, String... msgs);
 
     void broadcastMemberMessage(ChatMember member, Component... msgs);
 
-    @Deprecated
-    void broadcastPluginMessage(Plugin sender, String... msgs);
+    void broadcastPluginTDMessage(Plugin sender, String... msgs);
 
     void broadcastPluginMessage(Plugin sender, Component... msgs);
 
-    @Deprecated
-    void broadcastMessage(String... msgs);
+    void broadcastTDMessage(String... msgs);
 
     void broadcastMessage(Component... msgs);
 
-    @Deprecated
-    void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action);
+    void broadcastClickableTDMessage(String text, String exec, String info,
+            ClickEvent.Action action);
 
-    void broadcastClickableMessage(Component text, String exec, Component info, ClickEvent.Action action);
+    void broadcastClickableMessage(Component text, String exec, Component info,
+            ClickEvent.Action action);
 
-    @Deprecated
-    void broadcastClickableMessage(Plugin plugin, String text, String exec, String info, ClickEvent.Action action);
+    void broadcastClickableTDMessage(Plugin plugin, String text, String exec, String info,
+            ClickEvent.Action action);
 
-    void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info, ClickEvent.Action action);
+    void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
+            ClickEvent.Action action);
 }

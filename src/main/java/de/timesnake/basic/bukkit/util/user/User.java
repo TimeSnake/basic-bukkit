@@ -20,12 +20,12 @@ import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickListener;
 import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractListener;
-import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
@@ -45,7 +45,7 @@ import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.chat.Code;
@@ -430,6 +430,11 @@ public class User extends UserPlayerDelegation implements
         this.player.spigot().sendMessage(textComponents);
     }
 
+    @Override
+    public void sendTDMessage(String message) {
+        this.player.sendMessage(Server.getTimeDownParser().parse2Component(message));
+    }
+
     /**
      * Sends a plugin-message to the user
      *
@@ -454,12 +459,23 @@ public class User extends UserPlayerDelegation implements
     }
 
     /**
+     * Sends a plugin-message to the user
+     *
+     * @param plugin  The {@link Plugin} to send the message
+     * @param message The message to send
+     */
+    public void sendPluginTDMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+            String message) {
+        this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin)
+                .append(Server.getTimeDownParser().parse2Component(message)));
+    }
+
+    /**
      * Gets the user chat-name
      *
      * @return the chat-name
      */
     @Override
-    @Deprecated
     public String getChatName() {
         return LegacyComponentSerializer.legacySection().serialize(chatName);
     }
@@ -580,10 +596,9 @@ public class User extends UserPlayerDelegation implements
      * @param info   The info to show, if the user hovers other the text
      * @param action The action to do
      */
-    @Deprecated
-    public void sendClickableMessage(String text, String exec, String info,
+    public void sendClickableTDMessage(String text, String exec, String info,
             net.kyori.adventure.text.event.ClickEvent.Action action) {
-        Component component = Component.text(text)
+        Component component = Server.getTimeDownParser().parse2Component(text)
                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
                 .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
                         net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT,

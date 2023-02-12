@@ -7,7 +7,7 @@ package de.timesnake.basic.bukkit.core.user;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.player.UserList;
 import java.util.Collection;
 import java.util.UUID;

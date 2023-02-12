@@ -14,11 +14,11 @@ import org.bukkit.entity.Player;
 public class Sender extends de.timesnake.library.extension.util.cmd.Sender {
 
     public Sender(ExCommandSender cmdSender, Plugin plugin) {
-        super(cmdSender, plugin);
+        super(cmdSender, plugin, Server.getTimeDownParser());
     }
 
     public Sender(Player player, Plugin plugin) {
-        super(new ExCommandSender(player), plugin);
+        super(new ExCommandSender(player), plugin, Server.getTimeDownParser());
     }
 
     public Component getChatName() {

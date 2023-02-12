@@ -45,6 +45,7 @@ import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.server.Task;
+import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
@@ -114,8 +115,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private PacketBroadcaster packetBroadcaster;
     private Info info;
     private PacketEntityManager packetEntityManager;
+    private TimeDownParser timeDownParser;
 
     public final void onEnable() {
+        this.timeDownParser = this.initTimeDownParser();
         this.consoleManager = new ConsoleManager();
         this.database = Database.getServers().getServer(Bukkit.getPort());
 
@@ -159,6 +162,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         if (this.worldManager instanceof de.timesnake.basic.bukkit.core.world.WorldManager) {
             ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
         }
+    }
+
+    protected TimeDownParser initTimeDownParser() {
+        return new TimeDownParser();
     }
 
     protected ChatManager initChatManager() {
@@ -426,9 +433,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      *
      * @param messages to broadcast
      */
-    @Deprecated
-    public final void broadcastMessage(String... messages) {
-        this.getGlobalChat().broadcastMessage(messages);
+    public final void broadcastTDMessage(String... messages) {
+        this.getGlobalChat().broadcastTDMessage(messages);
     }
 
     /**
@@ -437,9 +443,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param messages The message to broadcast
      * @param plugin   The plugin, who broadcasts the message
      */
-    @Deprecated
-    public final void broadcastMessage(Plugin plugin, String... messages) {
-        this.getGlobalChat().broadcastPluginMessage(plugin, messages);
+    public final void broadcastTDMessage(Plugin plugin, String... messages) {
+        this.getGlobalChat().broadcastPluginTDMessage(plugin, messages);
     }
 
     /**
@@ -469,10 +474,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    @Deprecated
-    public final void broadcastClickableMessage(String text, String exec, String info,
+    public final void broadcastClickableTDMessage(String text, String exec, String info,
             ClickEvent.Action action) {
-        this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
+        this.getGlobalChat().broadcastClickableTDMessage(text, exec, info, action);
     }
 
     /**
@@ -501,7 +505,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public final void broadcastClickableMessage(Plugin plugin, String text, String exec,
             String info,
             ClickEvent.Action action) {
-        this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
+        this.getGlobalChat().broadcastClickableTDMessage(plugin, text, exec, info, action);
     }
 
     /**
@@ -905,6 +909,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public PacketEntityManager getEntityManager() {
         return packetEntityManager;
+    }
+
+    public TimeDownParser getTimeDownParser() {
+        return timeDownParser;
     }
 
     public Random getRandom() {

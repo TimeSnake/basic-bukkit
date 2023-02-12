@@ -15,12 +15,12 @@ import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
-import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
-import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.user.UserManager;
+import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
+import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
@@ -33,6 +33,7 @@ import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.server.Task;
+import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
@@ -176,7 +177,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     }
 
     /**
-     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in service mode
+     * Gets the user who are having the status outgame, ingame, pregame, spectator and are not in
+     * service mode
      *
      * @return the users
      */
@@ -209,9 +211,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      *
      * @param messages to broadcast
      */
-    @Deprecated
-    public static void broadcastMessage(String... messages) {
-        server.broadcastMessage(messages);
+    public static void broadcastTDMessage(String... messages) {
+        server.broadcastTDMessage(messages);
     }
 
     /**
@@ -220,9 +221,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param messages The messages to broadcast
      * @param plugin   The plugin, who broadcasts the message
      */
-    @Deprecated
-    public static void broadcastMessage(Plugin plugin, String... messages) {
-        server.broadcastMessage(plugin, messages);
+    public static void broadcastTDMessage(Plugin plugin, String... messages) {
+        server.broadcastTDMessage(plugin, messages);
     }
 
     /**
@@ -262,8 +262,9 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param action The action to execute
      */
     @Deprecated
-    public static void broadcastClickableMessage(String text, String exec, String info, ClickEvent.Action action) {
-        server.broadcastClickableMessage(text, exec, info, action);
+    public static void broadcastClickableMessage(String text, String exec, String info,
+            ClickEvent.Action action) {
+        server.broadcastClickableTDMessage(text, exec, info, action);
     }
 
     /**
@@ -274,7 +275,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public static void broadcastClickableMessage(Component text, String exec, Component info, ClickEvent.Action action) {
+    public static void broadcastClickableMessage(Component text, String exec, Component info,
+            ClickEvent.Action action) {
         server.broadcastClickableMessage(text, exec, info, action);
     }
 
@@ -288,8 +290,9 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param action The action to execute
      */
     @Deprecated
-    public static void broadcastClickableMessage(Plugin plugin, String text, String exec, String info,
-                                                 ClickEvent.Action action) {
+    public static void broadcastClickableMessage(Plugin plugin, String text, String exec,
+            String info,
+            ClickEvent.Action action) {
         server.broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -302,8 +305,9 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param info   The shown info while hovering
      * @param action The action to execute
      */
-    public static void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
-                                                 ClickEvent.Action action) {
+    public static void broadcastClickableMessage(Plugin plugin, Component text, String exec,
+            Component info,
+            ClickEvent.Action action) {
         server.broadcastClickableMessage(plugin, text, exec, info, action);
     }
 
@@ -357,7 +361,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title (in ticks)
      */
-    public static void broadcastTitle(Component title, Component subTitle, Duration stay, Duration fadeIn, Duration fadeOut) {
+    public static void broadcastTitle(Component title, Component subTitle, Duration stay,
+            Duration fadeIn, Duration fadeOut) {
         server.broadcastTitle(title, subTitle, stay, fadeIn, fadeOut);
     }
 
@@ -369,21 +374,37 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.getGlobalChat();
     }
 
-    public static PermGroup getPermGroup(String group) {return server.getPermGroup(group);}
+    public static PermGroup getPermGroup(String group) {
+        return server.getPermGroup(group);
+    }
 
-    public static PermGroup getGuestPermGroup() {return server.getGuestPermGroup();}
+    public static PermGroup getGuestPermGroup() {
+        return server.getGuestPermGroup();
+    }
 
-    public static PermGroup getMemberPermGroup() {return server.getMemberPermGroup();}
+    public static PermGroup getMemberPermGroup() {
+        return server.getMemberPermGroup();
+    }
 
-    public static Collection<PermGroup> getPermGroups() {return server.getPermGroups();}
+    public static Collection<PermGroup> getPermGroups() {
+        return server.getPermGroups();
+    }
 
-    public static DisplayGroup getDisplayGroup(String group) {return server.getDisplayGroup(group);}
+    public static DisplayGroup getDisplayGroup(String group) {
+        return server.getDisplayGroup(group);
+    }
 
-    public static Collection<DisplayGroup> getDisplayGroups() {return server.getDisplayGroups();}
+    public static Collection<DisplayGroup> getDisplayGroups() {
+        return server.getDisplayGroups();
+    }
 
-    public static DisplayGroup getGuestDisplayGroup() {return server.getGuestDisplayGroup();}
+    public static DisplayGroup getGuestDisplayGroup() {
+        return server.getGuestDisplayGroup();
+    }
 
-    public static DisplayGroup getMemberDisplayGroup() {return server.getMemberDisplayGroup();}
+    public static DisplayGroup getMemberDisplayGroup() {
+        return server.getMemberDisplayGroup();
+    }
 
     /**
      * Gets the server port
@@ -441,10 +462,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      *
      * @param location The {@link DbLocation} to convert
      * @return The {@link Location}
-     *
      * @throws WorldNotExistException if world not exist on server
      */
-    public static Location getLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
+    public static Location getLocationFromDbLocation(DbLocation location)
+            throws WorldNotExistException {
         return server.getLocationFromDbLocation(location);
     }
 
@@ -453,10 +474,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      *
      * @param location The {@link DbLocation} to convert
      * @return The {@link ExLocation}
-     *
      * @throws WorldNotExistException if world not exist on server
      */
-    public static ExLocation getExLocationFromDbLocation(DbLocation location) throws WorldNotExistException {
+    public static ExLocation getExLocationFromDbLocation(DbLocation location)
+            throws WorldNotExistException {
         return server.getExLocationFromDbLocation(location);
     }
 
@@ -473,7 +494,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param name
      * @param itemStacks
      * @return
-     *
      * @deprecated in favour of {@link ExInventory}
      */
     @Deprecated
@@ -486,12 +506,11 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param name
      * @param itemStacks
      * @return
-     *
      * @deprecated in favour of {@link ExInventory}
      */
     @Deprecated
     public static ExInventory createExInventory(int size, String name, InventoryHolder holder,
-                                                ExItemStack... itemStacks) {
+            ExItemStack... itemStacks) {
         return server.createExInventory(size, name, holder, itemStacks);
     }
 
@@ -532,44 +551,53 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.runTaskAsynchrony(task, plugin);
     }
 
-    public static BukkitTask runTaskLaterSynchrony(Task task, int delay, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskLaterSynchrony(Task task, int delay,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskLaterSynchrony(task, delay, plugin);
     }
 
-    public static BukkitTask runTaskLaterAsynchrony(Task task, int delay, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskLaterAsynchrony(Task task, int delay,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskLaterAsynchrony(task, delay, plugin);
     }
 
-    public static BukkitTask runTaskTimerSynchrony(Task task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerSynchrony(task, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerAsynchrony(task, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
-                                                   org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay,
+            int period,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerSynchrony(task, time, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
-                                                    org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay,
+            int period,
+            org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerAsynchrony(task, time, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
-                                                   int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time,
+            boolean cancelOnZero, int delay,
+            int period, org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
-                                                    int period, org.bukkit.plugin.Plugin plugin) {
+    public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time,
+            boolean cancelOnZero, int delay,
+            int period, org.bukkit.plugin.Plugin plugin) {
         return server.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
     }
 
-    public static <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
-                                                       org.bukkit.plugin.Plugin plugin) {
+    public static <Element> void runTaskLoopAsynchrony(LoopTask<Element> task,
+            Iterable<Element> iterable,
+            org.bukkit.plugin.Plugin plugin) {
         server.runTaskLoopAsynchrony(task, iterable, plugin);
     }
 
@@ -671,6 +699,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
     public static EntityManager getEntityManager() {
         return server.getEntityManager();
+    }
+
+    public static TimeDownParser getTimeDownParser() {
+        return server.getTimeDownParser();
     }
 
     public static Random getRandom() {

@@ -5,9 +5,9 @@
 package de.timesnake.basic.bukkit.util.user.inventory;
 
 import de.timesnake.basic.bukkit.core.user.inventory.InventoryDelegation;
+import de.timesnake.basic.bukkit.util.Server;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,7 +30,8 @@ public class ExInventory extends InventoryDelegation {
         }
     }
 
-    public ExInventory(int size, Component title, InventoryHolder holder, ExItemStack... itemStacks) {
+    public ExInventory(int size, Component title, InventoryHolder holder,
+            ExItemStack... itemStacks) {
         size = (int) (Math.ceil(size / 9.0) * 9);
         this.inventory = Bukkit.createInventory(holder, size > 0 ? size : 9, title);
         for (ExItemStack itemStack : itemStacks) {
@@ -38,17 +39,16 @@ public class ExInventory extends InventoryDelegation {
         }
     }
 
-    @Deprecated
     public ExInventory(int size, String title, ExItemStack... itemStacks) {
-        this(size, LegacyComponentSerializer.legacyAmpersand().deserialize(title), itemStacks);
+        this(size, Server.getTimeDownParser().parse2Component(title), itemStacks);
     }
 
-    @Deprecated
     public ExInventory(int size, String title, InventoryHolder holder, ExItemStack... itemStacks) {
-        this(size, LegacyComponentSerializer.legacyAmpersand().deserialize(title), holder, itemStacks);
+        this(size, Server.getTimeDownParser().parse2Component(title), holder, itemStacks);
     }
 
-    public void setItemStack(int index, Material material, int amount, String name, List<String> lore) {
+    public void setItemStack(int index, Material material, int amount, String name,
+            List<String> lore) {
         this.inventory.setItem(index, new ExItemStack(material, amount, name, lore));
     }
 
