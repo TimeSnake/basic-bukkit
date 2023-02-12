@@ -30,6 +30,7 @@ dependencies {
     implementation project(':library-reflection')
     implementation project(':library-extension')
     implementation project(':library-basic')
+    implementation project(':library-chat')
 
     compileOnly project(':database-bukkit')
     compileOnly project(':database-api')

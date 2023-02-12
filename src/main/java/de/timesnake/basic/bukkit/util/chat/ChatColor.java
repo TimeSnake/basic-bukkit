@@ -4,7 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 
 public interface ChatColor {
 

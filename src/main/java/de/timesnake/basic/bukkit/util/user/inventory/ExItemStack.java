@@ -911,8 +911,24 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
         return this;
     }
 
+    public ExItemStack onClick(UserInventoryClickListener listener, boolean cancel) {
+        Server.getInventoryEventManager().addClickListener(event -> {
+            listener.onUserInventoryClick(event);
+            event.setCancelled(cancel);
+        }, this);
+        return this;
+    }
+
     public ExItemStack onInteract(UserInventoryInteractListener listener) {
         Server.getInventoryEventManager().addInteractListener(listener, this);
+        return this;
+    }
+
+    public ExItemStack onInteract(UserInventoryInteractListener listener, boolean cancel) {
+        Server.getInventoryEventManager().addInteractListener(event -> {
+            listener.onUserInventoryInteract(event);
+            event.setCancelled(cancel);
+        }, this);
         return this;
     }
 

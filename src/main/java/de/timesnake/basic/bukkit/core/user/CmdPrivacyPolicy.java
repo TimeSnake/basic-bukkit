@@ -9,7 +9,7 @@ import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.Arguments;
@@ -59,8 +59,8 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
 
                 }
             } else {
-                sender.sendMessageCommandHelp("Agree", "pp agree");
-                sender.sendMessageCommandHelp("Disagree", "pp disagree");
+                sender.sendTDMessageCommandHelp("Agree", "pp agree");
+                sender.sendTDMessageCommandHelp("Disagree", "pp disagree");
             }
         }
     }

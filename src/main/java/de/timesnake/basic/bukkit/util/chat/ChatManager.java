@@ -4,14 +4,15 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 
 public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
 
-    Chat createChat(String name, String displayName, ExTextColor chatColor, Set<ChatMember> members);
+    Chat createChat(String name, String displayName, ExTextColor chatColor,
+            Set<ChatMember> members);
 
     boolean deleteChat(String name);
 
