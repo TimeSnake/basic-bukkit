@@ -33,19 +33,24 @@ public class TagTeamTablist extends TeamTablist {
         super.load(user);
         // set header footer
 
-        this.packetManager.sendPacket(user, ExPacketPlayOutTablistHeaderFooter.wrap(this.header, this.footer));
+        this.packetManager.sendPacket(user,
+                ExPacketPlayOutTablistHeaderFooter.wrap(this.header, this.footer));
 
         for (int slot = 0; slot < 80; slot++) {
-            this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamCreation.wrap(slot < 10 ? "0" + slot :
-                    slot + "", "", ChatColor.WHITE));
+            this.packetManager.sendPacket(user,
+                    ExPacketPlayOutTablistTeamCreation.wrap(slot < 10 ? "0" + slot :
+                            slot + "", "", ChatColor.WHITE));
         }
 
         for (SlotEntry entry : this.tablist) {
             if (entry != null) {
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(),
-                        entry.getPrefix(), entry.getChatColor(), this.getNameTagVisibility(user, entry).getPacketTag()));
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
-                        entry.getPlayer().getPlayer().getName()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(),
+                                entry.getPrefix(), entry.getChatColor(),
+                                this.getNameTagVisibility(user, entry).getPacketTag()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
+                                entry.getPlayer().getPlayer().getName()));
                 this.packetManager.sendPacket(user,
                         ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
             }
@@ -75,33 +80,36 @@ public class TagTeamTablist extends TeamTablist {
 
                 // not remove moved players
                 if (!movedPlayers.contains(oldEntry.getPlayer())) {
-                    this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
+                    this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(
+                            oldEntry.getPlayer().getPlayer()));
                 }
 
                 //update team with color and prefix
-                for (User user : this.wachtingUsers) {
-                    this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamUpdate.wrap(newEntry.getSlot(),
-                            newEntry.getPrefix(), newEntry.getChatColor(),
-                            this.getNameTagVisibility(user, newEntry).getPacketTag()));
+                for (User user : this.watchingUsers) {
+                    this.packetManager.sendPacket(user,
+                            ExPacketPlayOutTablistTeamUpdate.wrap(newEntry.getSlot(),
+                                    newEntry.getPrefix(), newEntry.getChatColor(),
+                                    this.getNameTagVisibility(user, newEntry).getPacketTag()));
                 }
 
-
                 // add new player
-                this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(newEntry.getSlot(), newPlayer.getName()));
-                this.broadcastPacket(ExPacketPlayOutTablistPlayerAdd.wrap(newEntry.getPlayer().getPlayer()));
+                this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(newEntry.getSlot(),
+                        newPlayer.getName()));
+                this.broadcastPacket(
+                        ExPacketPlayOutTablistPlayerAdd.wrap(newEntry.getPlayer().getPlayer()));
 
                 // mark as moved
                 movedPlayers.add(newEntry.getPlayer());
             }
         }
 
-
         // remove old entries and now empty slots
         while (oldIt.hasNext()) {
             SlotEntry oldEntry = oldIt.next();
             // not remove moved players
             if (!movedPlayers.remove(oldEntry.getPlayer())) {
-                this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
+                this.broadcastPacket(
+                        ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
             }
 
         }
@@ -109,13 +117,16 @@ public class TagTeamTablist extends TeamTablist {
         // add new entries and update team
         while (it.hasNext()) {
             SlotEntry entry = it.next();
-            for (User user : this.wachtingUsers) {
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(), entry.getPrefix(),
-                        entry.getChatColor(), this.getNameTagVisibility(user, entry).getPacketTag()));
+            for (User user : this.watchingUsers) {
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(), entry.getPrefix(),
+                                entry.getChatColor(),
+                                this.getNameTagVisibility(user, entry).getPacketTag()));
             }
             this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
                     entry.getPlayer().getPlayer().getName()));
-            this.broadcastPacket(ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
+            this.broadcastPacket(
+                    ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
         }
     }
 
@@ -125,7 +136,8 @@ public class TagTeamTablist extends TeamTablist {
 
         if (userTeam != null) {
             if (entry.getTeam() != null) {
-                tagVisibility = ((TagTablistable) entry.getTeam()).isNameTagVisibleBy(user, userTeam);
+                tagVisibility = ((TagTablistable) entry.getTeam()).isNameTagVisibleBy(user,
+                        userTeam);
             }
         } else {
             if (entry.getTeam() != null) {

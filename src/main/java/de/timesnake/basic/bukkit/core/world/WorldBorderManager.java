@@ -76,7 +76,6 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
         }
 
         e.setCancelled(true);
-        e.setTo(e.getFrom());
     }
 
     @Override

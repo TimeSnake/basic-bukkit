@@ -8,7 +8,7 @@ import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
-import de.timesnake.library.extension.util.player.UserList;
+import de.timesnake.library.extension.util.player.UserSet;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,7 +69,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
      */
     public final void removeUser(UUID uuid) {
         de.timesnake.basic.bukkit.util.user.User user = this.getUser(uuid);
-        UserList.LISTS.forEach(l -> l.remove(user));
+        UserSet.LISTS.forEach(l -> l.remove(user));
         this.users.remove(uuid);
     }
 

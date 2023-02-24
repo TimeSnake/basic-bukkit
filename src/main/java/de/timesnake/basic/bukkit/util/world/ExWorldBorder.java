@@ -8,16 +8,16 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.library.basic.util.BuilderBasis;
+import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
+import de.timesnake.library.extension.util.player.UserSet;
 import de.timesnake.library.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
 import de.timesnake.library.packets.util.ExClientboundInitializeBorderPacket;
 import de.timesnake.library.packets.util.ExClientboundSetBorderLerpSizePacket;
-import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -26,8 +26,8 @@ public class ExWorldBorder implements Listener {
 
     private final ExWorld world;
 
-    private final Set<User> users;
-    private final Set<User> spectators = new HashSet<>();
+    private final UserSet<User> users = new UserSet<>();
+    private final UserSet<User> spectators = new UserSet<>();
 
     private double centerX;
     private double centerZ;
@@ -35,7 +35,7 @@ public class ExWorldBorder implements Listener {
     private int warningDistance;
     private int warningTime;
 
-    private double damage;
+    private double damagePerSec;
 
     private boolean shrinking = false;
 
@@ -48,26 +48,29 @@ public class ExWorldBorder implements Listener {
 
     private boolean sound;
 
-    public ExWorldBorder(ExWorld world, Set<User> users, double centerX, double centerZ, double size,
-                         int warningDistance, int warningTime, double damage, boolean sound) {
-        this.world = world;
-        this.users = users;
-        this.centerX = centerX;
-        this.centerZ = centerZ;
-        this.size = size;
-        this.warningDistance = warningDistance;
-        this.warningTime = warningTime;
-        this.damage = damage;
-        this.sound = sound;
+    public ExWorldBorder(Builder builder) {
+        this.world = builder.world;
+        this.centerX = builder.centerX;
+        this.centerZ = builder.centerZ;
+        this.size = builder.size;
+        this.warningDistance = builder.warningDistance;
+        this.warningTime = builder.warningTime;
+        this.damagePerSec = builder.damagePerSec;
+        this.sound = builder.sound;
+
+        this.users.onRemove(
+                u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
+                        ExClientboundInitializeBorderPacket.wrapToMaxBorder(
+                                this.world.getBukkitWorld()), u));
+
+        this.spectators.onRemove(
+                u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
+                        ExClientboundInitializeBorderPacket.wrapToMaxBorder(
+                                this.world.getBukkitWorld()), u));
 
         Server.registerListener(this, BasicBukkit.getPlugin());
         this.startDamageTask();
 
-    }
-
-    public ExWorldBorder(ExWorld world, double centerX, double centerZ, double size, int warningDistance,
-                         int warningTime, double damage, boolean sound) {
-        this(world, new HashSet<>(), centerX, centerZ, size, warningDistance, warningTime, damage, sound);
     }
 
     public void destroy() {
@@ -99,7 +102,8 @@ public class ExWorldBorder implements Listener {
             return;
         }
 
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getUserInitPacket(), user);
+        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+                .sendPacket(this.getUserInitPacket(), user);
     }
 
     public void addSpectator(User user) {
@@ -114,36 +118,16 @@ public class ExWorldBorder implements Listener {
             return;
         }
 
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getSpectatorInitPacket(),
-                user);
+        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+                .sendPacket(this.getSpectatorInitPacket(), user);
     }
 
     public void removeUser(User user) {
-        if (user == null) {
-            return;
-        }
-
-        boolean removed = this.users.remove(user);
-
-        if (!removed) {
-            return;
-        }
-
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(ExClientboundInitializeBorderPacket.wrapToMaxBorder(this.world.getBukkitWorld()), user);
+        this.users.remove(user);
     }
 
     public void removeSpectator(User user) {
-        if (user == null) {
-            return;
-        }
-
-        boolean removed = this.spectators.remove(user);
-
-        if (!removed) {
-            return;
-        }
-
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(ExClientboundInitializeBorderPacket.wrapToMaxBorder(this.world.getBukkitWorld()), user);
+        this.spectators.remove(user);
     }
 
     public void setCenter(double centerX, double centerZ) {
@@ -180,8 +164,8 @@ public class ExWorldBorder implements Listener {
     private void shrinking() {
         this.shrinking = true;
 
-        ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(this.world.getBukkitWorld(),
-                this.size, this.shrinkSize, this.shrinkTime * 50L);
+        ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(
+                this.world.getBukkitWorld(), this.size, this.shrinkSize, this.shrinkTime * 50L);
 
         this.broadcastUserPacket(packet);
         this.broadcastSpectatorPacket(packet);
@@ -241,12 +225,12 @@ public class ExWorldBorder implements Listener {
         return warningTime;
     }
 
-    public double getDamage() {
-        return damage;
+    public double getDamagePerSec() {
+        return damagePerSec;
     }
 
-    public void setDamage(double damage) {
-        this.damage = damage;
+    public void setDamagePerSec(double damagePerSec) {
+        this.damagePerSec = damagePerSec;
     }
 
     public boolean isSound() {
@@ -258,40 +242,47 @@ public class ExWorldBorder implements Listener {
     }
 
     private void broadcastUserPacket(ExPacketPlayOutWorldBorder packet) {
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(packet, this.users);
+        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+                .sendPacket(packet, this.users);
     }
 
     private void broadcastSpectatorPacket(ExPacketPlayOutWorldBorder packet) {
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(packet, this.spectators);
+        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+                .sendPacket(packet, this.spectators);
     }
 
     private ExPacketPlayOutWorldBorder getUserInitPacket() {
         if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-                    this.size, this.size, 0, this.warningDistance, this.warningTime);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+                    this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance,
+                    this.warningTime);
         } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-                    this.size, this.shrinkSize, this.shrinkTime * 50L, this.warningDistance, this.warningTime);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+                    this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
+                    this.warningDistance, this.warningTime);
         }
     }
 
     private ExPacketPlayOutWorldBorder getSpectatorInitPacket() {
         if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-                    this.size, this.size, 0, 0, 0);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+                    this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
         } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-                    this.size, this.shrinkSize, this.shrinkTime * 50L, 0, 0);
+            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+                    this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
+                    0, 0);
         }
     }
 
     public boolean isInside(Location loc) {
-        return this.centerX + this.size / 2 > loc.getX() && this.centerX - this.size / 2 < loc.getX() && this.centerZ + this.size / 2 > loc.getZ() && this.centerZ - this.size / 2 < loc.getZ();
+        return this.centerX + this.size / 2 > loc.getX()
+                && this.centerX - this.size / 2 < loc.getX()
+                && this.centerZ + this.size / 2 > loc.getZ()
+                && this.centerZ - this.size / 2 < loc.getZ();
     }
 
 
     private void startDamageTask() {
-
         this.damageTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -301,16 +292,80 @@ public class ExWorldBorder implements Listener {
                             user.playNote(Instrument.PLING, Note.natural(0, Note.Tone.A));
                         }
 
-                        Server.runTaskSynchrony(() -> user.getPlayer().damage(damage), BasicBukkit.getPlugin());
+                        Server.runTaskSynchrony(() -> user.getPlayer().damage(damagePerSec),
+                                BasicBukkit.getPlugin());
                     }
                 }
             }
         }.runTaskTimerAsynchronously(BasicBukkit.getPlugin(), 0, 20);
     }
 
-    @EventHandler
-    public void onUserQuit(UserQuitEvent e) {
-        this.removeUser(e.getUser());
-        this.removeSpectator(e.getUser());
+    public static class Builder implements BuilderBasis {
+
+        private ExWorld world;
+        private double centerX = 0;
+        private double centerZ = 0;
+        private Double size;
+        private int warningDistance = 0;
+        private int warningTime = 0;
+        private double damagePerSec = 0;
+        private boolean sound = false;
+
+        public Builder world(ExWorld world) {
+            this.world = world;
+            return this;
+        }
+
+        public Builder centerX(double x) {
+            this.centerX = x;
+            return this;
+        }
+
+        public Builder centerZ(double z) {
+            this.centerZ = z;
+            return this;
+        }
+
+        public Builder size(double size) {
+            this.size = size;
+            return this;
+        }
+
+        public Builder warningDistance(int warningDistance) {
+            this.warningDistance = warningDistance;
+            return this;
+        }
+
+        public Builder warningTime(int warningTime) {
+            this.warningTime = warningTime;
+            return this;
+        }
+
+        public Builder damagePerSec(double damagePerSec) {
+            this.damagePerSec = damagePerSec;
+            return this;
+        }
+
+        public Builder sound(boolean sound) {
+            this.sound = sound;
+            return this;
+        }
+
+        @Override
+        public void checkBuild() {
+            if (this.world == null) {
+                throw new BuilderNotFullyInstantiatedException("world is null");
+            }
+
+            if (this.size == null) {
+                throw new BuilderNotFullyInstantiatedException("size is null");
+            }
+        }
+
+        @Override
+        public ExWorldBorder build() {
+            this.checkBuild();
+            return new ExWorldBorder(this);
+        }
     }
 }

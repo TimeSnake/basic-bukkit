@@ -8,13 +8,18 @@ import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.core.world.ExWorldFile;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 public class ExWorld extends DelegatedWorld implements World {
 
@@ -146,6 +151,28 @@ public class ExWorld extends DelegatedWorld implements World {
 
     public ExBlock getExBlockAt(int x, int y, int z) {
         return new ExBlock(this.getBlockAt(x, y, z));
+    }
+
+    public Collection<Block> getBlocksWithinCubic(Location loc1, Location loc2) {
+        int fromX = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        int toX = Math.max(loc1.getBlockX(), loc2.getBlockX());
+
+        int fromY = Math.min(loc1.getBlockY(), loc2.getBlockY());
+        int toY = Math.max(loc1.getBlockY(), loc2.getBlockY());
+
+        int fromZ = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
+        int toZ = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
+
+        Set<Block> blocks = new HashSet<>();
+
+        for (int x = fromX; x < toX; x++) {
+            for (int y = fromY; y < toY; y++) {
+                for (int z = fromZ; z < toZ; z++) {
+                    blocks.add(this.getBlockAt(x, y, z));
+                }
+            }
+        }
+        return blocks;
     }
 
     public static class Restriction<Value> {

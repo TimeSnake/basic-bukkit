@@ -361,9 +361,32 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title (in ticks)
      */
+    public static void broadcastTDTitle(String title, String subTitle, Duration stay) {
+        server.broadcastTDTitle(title, subTitle, stay);
+    }
+
+    /**
+     * Sends a title to all players
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The display time of the title (in ticks)
+     */
     public static void broadcastTitle(Component title, Component subTitle, Duration stay,
             Duration fadeIn, Duration fadeOut) {
         server.broadcastTitle(title, subTitle, stay, fadeIn, fadeOut);
+    }
+
+    /**
+     * Sends a title to all players
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The display time of the title (in ticks)
+     */
+    public static void broadcastTDTitle(String title, String subTitle, Duration stay,
+            Duration fadeIn, Duration fadeOut) {
+        server.broadcastTDTitle(title, subTitle, stay, fadeIn, fadeOut);
     }
 
     public static Chat getChat(String name) {

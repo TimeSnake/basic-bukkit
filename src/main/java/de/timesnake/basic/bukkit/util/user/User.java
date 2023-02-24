@@ -687,6 +687,18 @@ public class User extends UserPlayerDelegation implements
     }
 
     /**
+     * Shows a title to the user, with standard fade-times Fade-in time: 250 ms Fade-out time : 250
+     * ms
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param stay     The stay time in ms
+     */
+    public void showTDTitle(String title, String subTitle, Duration stay) {
+        this.showTDTitle(title, subTitle, Duration.ofMillis(250), stay, Duration.ofMillis(250));
+    }
+
+    /**
      * Shows a title to the user
      *
      * @param title    The title to send
@@ -713,6 +725,22 @@ public class User extends UserPlayerDelegation implements
     public void showTitle(Component title, Component subTitle, Duration fadeIn, Duration stay,
             Duration fadeOut) {
         this.showTitle(Title.title(title, subTitle, Title.Times.times(fadeIn, stay, fadeOut)));
+    }
+
+    /**
+     * Shows a title to the user
+     *
+     * @param title    The title to send
+     * @param subTitle The subtitle to send
+     * @param fadeIn   The fade-in time
+     * @param stay     The stay time
+     * @param fadeOut  The fade-out time
+     */
+    public void showTDTitle(String title, String subTitle, Duration fadeIn, Duration stay,
+            Duration fadeOut) {
+        this.showTitle(Title.title(Server.getTimeDownParser().parse2Component(title),
+                Server.getTimeDownParser().parse2Component(subTitle),
+                Title.Times.times(fadeIn, stay, fadeOut)));
     }
 
     /**
