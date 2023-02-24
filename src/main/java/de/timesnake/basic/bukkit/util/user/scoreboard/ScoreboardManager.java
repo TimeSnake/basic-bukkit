@@ -16,7 +16,9 @@ public interface ScoreboardManager {
 
     void removeTablist(String name);
 
-    Sideboard registerSideboard(String name, String title);
+    Sideboard registerSideboard(SideboardBuilder builder);
+
+    ExSideboard registerExSideboard(ExSideboardBuilder builder);
 
     Sideboard getSideboard(String name);
 

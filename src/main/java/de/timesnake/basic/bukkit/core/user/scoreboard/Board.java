@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import java.util.HashSet;
+import de.timesnake.library.extension.util.player.UserSet;
 import java.util.Set;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -13,7 +13,7 @@ public abstract class Board implements de.timesnake.basic.bukkit.util.user.score
 
     protected final String name;
 
-    protected final Set<User> wachtingUsers = new HashSet<>();
+    protected final UserSet<User> watchingUsers = new UserSet<>();
 
     protected Board(String name) {
         this.name = name;
@@ -30,14 +30,14 @@ public abstract class Board implements de.timesnake.basic.bukkit.util.user.score
     }
 
     /**
-     * Adds a {@link User}
-     * The {@link Scoreboard} of the {@link User} will be updated by a board change
+     * Adds a {@link User} The {@link Scoreboard} of the {@link User} will be updated by a board
+     * change
      *
      * @param user The {@link User} to add
      */
     @Override
     public void addWatchingUser(User user) {
-        this.wachtingUsers.add(user);
+        this.watchingUsers.add(user);
     }
 
     /**
@@ -47,6 +47,11 @@ public abstract class Board implements de.timesnake.basic.bukkit.util.user.score
      */
     @Override
     public void removeWatchingUser(User user) {
-        this.wachtingUsers.remove(user);
+        this.watchingUsers.remove(user);
+    }
+
+    @Override
+    public Set<User> getWatchingUsers() {
+        return watchingUsers;
     }
 }

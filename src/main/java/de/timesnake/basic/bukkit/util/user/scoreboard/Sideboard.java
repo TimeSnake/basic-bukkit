@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public interface Sideboard extends Board {
 
-    String SPACER = "---------------";
+    String SPACER = "§8----------------";
 
     String getTitle();
 

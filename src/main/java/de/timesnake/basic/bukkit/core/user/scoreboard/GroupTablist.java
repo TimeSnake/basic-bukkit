@@ -26,14 +26,17 @@ import java.util.LinkedList;
 import java.util.Set;
 import org.bukkit.ChatColor;
 
-public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist {
+public class GroupTablist extends Tablist implements
+        de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist {
 
     protected final GroupTab groupTab;
 
     public GroupTablist(TablistBuilder builder, ScoreboardPacketManager packetManager) {
-        super(builder.getName(), builder.getType(), packetManager, builder.getUserJoin(), builder.getUserQuit());
+        super(builder.getName(), builder.getType(), packetManager, builder.getUserJoin(),
+                builder.getUserQuit());
         if (builder.getGroupTypes() == null) {
-            throw new BuilderNotFullyInstantiatedException("group tablist: 'groupTypes' not instantiated");
+            throw new BuilderNotFullyInstantiatedException(
+                    "group tablist: 'groupTypes' not instantiated");
         }
         this.groupTab = new GroupTab(builder.getGroupTypes());
         Server.registerListener(this, BasicBukkit.getPlugin());
@@ -41,7 +44,8 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
 
     @Override
     public void addEntry(TablistablePlayer player) {
-        Plugin.SCOREBOARD.getLogger().info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+        Plugin.SCOREBOARD.getLogger()
+                .info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
 
         if (!player.showInTablist()) {
             return;
@@ -62,20 +66,26 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
 
         this.groupTab.addEntry(new Entry(rank, prefix, player));
 
-        this.packetManager.sendPacket(this.wachtingUsers, ExPacketPlayOutTablistTeamPlayerAdd.wrap(rank,
-                player.getPlayer().getName()));
-        this.packetManager.sendPacket(this.wachtingUsers, ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
+        this.packetManager.sendPacket(this.watchingUsers,
+                ExPacketPlayOutTablistTeamPlayerAdd.wrap(rank,
+                        player.getPlayer().getName()));
+        this.packetManager.sendPacket(this.watchingUsers,
+                ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
 
-        Plugin.SCOREBOARD.getLogger().fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+        Plugin.SCOREBOARD.getLogger()
+                .fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
     }
 
     @Override
     public boolean removeEntry(TablistablePlayer player) {
-        Plugin.SCOREBOARD.getLogger().info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
+        Plugin.SCOREBOARD.getLogger()
+                .info("tablist '" + this.name + "' try to remove '" + player.getTablistName()
+                        + "'");
 
         boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
         if (removed) {
-            Plugin.SCOREBOARD.getLogger().fine("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+            Plugin.SCOREBOARD.getLogger()
+                    .fine("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
         }
         return removed;
     }
@@ -96,13 +106,16 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
         // set entries
         for (Entry entry : this.groupTab) {
 
-            this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(),
-                    entry.getPrefix(), ChatColor.WHITE));
+            this.packetManager.sendPacket(user,
+                    ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(),
+                            entry.getPrefix(), ChatColor.WHITE));
 
             for (TablistablePlayer player : entry.getPlayers()) {
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getRank(),
-                        player.getPlayer().getName()));
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getRank(),
+                                player.getPlayer().getName()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
             }
 
         }
@@ -119,13 +132,15 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
         for (Entry entry : this.groupTab) {
 
             for (TablistablePlayer player : entry.getPlayers()) {
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistPlayerRemove.wrap(player.getPlayer()));
-                this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamPlayerRemove.wrap(entry.getRank(),
-                        player.getPlayer().getName()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistPlayerRemove.wrap(player.getPlayer()));
+                this.packetManager.sendPacket(user,
+                        ExPacketPlayOutTablistTeamPlayerRemove.wrap(entry.getRank(),
+                                player.getPlayer().getName()));
             }
 
-
-            this.packetManager.sendPacket(user, ExPacketPlayOutTablistTeamRemove.wrap(entry.getRank()));
+            this.packetManager.sendPacket(user,
+                    ExPacketPlayOutTablistTeamRemove.wrap(entry.getRank()));
 
         }
     }
@@ -192,8 +207,9 @@ public class GroupTablist extends Tablist implements de.timesnake.basic.bukkit.u
         public boolean addEntry(Entry entry) {
             boolean merged = super.addEntry(entry);
             if (!merged) {
-                GroupTablist.this.packetManager.sendPacket(GroupTablist.this.wachtingUsers,
-                        ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(), entry.getPrefix(), ChatColor.WHITE));
+                GroupTablist.this.packetManager.sendPacket(GroupTablist.this.watchingUsers,
+                        ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(), entry.getPrefix(),
+                                ChatColor.WHITE));
             }
             return merged;
         }

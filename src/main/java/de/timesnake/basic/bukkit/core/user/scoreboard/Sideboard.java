@@ -4,17 +4,22 @@
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
+import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import java.util.HashMap;
 
-public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
+public class Sideboard extends Board implements
+        de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
 
     private final HashMap<Integer, String> scores = new HashMap<>();
     private String title;
 
-    public Sideboard(String name, String title) {
-        super(name);
-        this.title = title;
+    public Sideboard(SideboardBuilder builder) {
+        super(builder.getName());
+        this.title = builder.getTitle();
+
+        scores.putAll(builder.getScores());
     }
 
     /**
@@ -30,9 +35,11 @@ public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.u
     @Override
     public void setTitle(String title) {
         this.title = title;
-        for (User user : super.wachtingUsers) {
+        for (User user : super.watchingUsers) {
             user.setSideboardTitle(title);
         }
+        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' set title '"
+                + title + "'");
     }
 
     /**
@@ -44,9 +51,11 @@ public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.u
     @Override
     public void setScore(Integer line, String text) {
         this.scores.put(line, text);
-        for (User user : wachtingUsers) {
+        for (User user : watchingUsers) {
             user.setSideboardScore(line, text);
         }
+        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' set score "
+                + line + " '" + text + "'");
     }
 
     /**
@@ -56,10 +65,11 @@ public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.u
      */
     @Override
     public void removeScore(int line) {
-        for (User user : wachtingUsers) {
+        for (User user : watchingUsers) {
             user.removeSideboardScore(line);
         }
         this.scores.remove(line);
+        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' remove score " + line);
     }
 
     /**
@@ -80,6 +90,7 @@ public class Sideboard extends Board implements de.timesnake.basic.bukkit.util.u
         for (Integer line : this.scores.keySet()) {
             this.removeScore(line);
         }
+        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' clear scores");
     }
 
 }

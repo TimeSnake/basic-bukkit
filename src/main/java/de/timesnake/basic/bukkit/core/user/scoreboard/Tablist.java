@@ -68,7 +68,7 @@ public abstract class Tablist extends Board implements Listener,
 
     @Override
     public void removeWatchingUser(User user) {
-        if (this.wachtingUsers.contains(user)) {
+        if (this.watchingUsers.contains(user)) {
             this.unload(user);
         }
         super.removeWatchingUser(user);
@@ -79,17 +79,17 @@ public abstract class Tablist extends Board implements Listener,
         ExPacketPlayOutSideboardScoreSet packet = ExPacketPlayOutSideboardScoreSet.wrap(this.name,
                 value,
                 entry.getTablistName());
-        this.packetManager.sendPacket(this.wachtingUsers, packet);
+        this.packetManager.sendPacket(this.watchingUsers, packet);
     }
 
     protected void broadcastPacket(ExPacketPlayOut packet) {
-        for (User user : this.wachtingUsers) {
+        for (User user : this.watchingUsers) {
             this.packetManager.sendPacket(user, packet);
         }
     }
 
     protected void updateHeaderFooter() {
-        this.packetManager.sendPacket(this.wachtingUsers,
+        this.packetManager.sendPacket(this.watchingUsers,
                 ExPacketPlayOutTablistHeaderFooter.wrap(this.header,
                         this.footer));
     }
@@ -103,7 +103,7 @@ public abstract class Tablist extends Board implements Listener,
         if (this.type.equals(Type.HEALTH)) {
             if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || user.getPlayer()
                     .getGameMode().equals(GameMode.ADVENTURE)) {
-                this.packetManager.sendPacket(this.wachtingUsers,
+                this.packetManager.sendPacket(this.watchingUsers,
                         ExPacketPlayOutSideboardScoreSet.wrap(this.name,
                                 ((int) user.getHealth()), user.getName()));
             }

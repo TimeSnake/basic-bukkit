@@ -46,7 +46,7 @@ dependencies {
 }
 
 group = project.group
-version = '1.0.1-SNAPSHOT'
+version = '1.1-SNAPSHOT'
 archivesBaseName = 'basic-bukkit'
 
 publishing {

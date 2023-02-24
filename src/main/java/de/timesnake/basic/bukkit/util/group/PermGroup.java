@@ -10,13 +10,13 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.library.extension.util.permission.ExPermission;
-import de.timesnake.library.extension.util.player.UserList;
+import de.timesnake.library.extension.util.player.UserSet;
 import java.util.Collection;
 import org.jetbrains.annotations.NotNull;
 
 public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup<User> {
 
-    private final UserList<User> users = new UserList<>();
+    private final UserSet<User> users = new UserSet<>();
 
     public PermGroup(DbPermGroup database) {
         super(database);
@@ -50,6 +50,7 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
             this.permissions.addAll(Server.getPermGroup(group.getName()).getPermissions());
         }
 
-        Plugin.GROUPS.getLogger().info("Updated permissions of group '" + this.name + "' from database");
+        Plugin.GROUPS.getLogger()
+                .info("Updated permissions of group '" + this.name + "' from database");
     }
 }
