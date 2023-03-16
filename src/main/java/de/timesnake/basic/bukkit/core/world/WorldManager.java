@@ -34,6 +34,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,6 +51,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
     private final Set<BukkitTask> tmpWorldDestroyTasks = new HashSet<>();
 
+    private boolean cacheWorldSpawns = false;
 
     public WorldManager() {
         Server.registerListener(this, BasicBukkit.getPlugin());
@@ -83,6 +85,16 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
 
         this.loadUserLocationsFromFile();
+    }
+
+    @Override
+    public boolean cacheWorldSpawns() {
+        return this.cacheWorldSpawns;
+    }
+
+    @Override
+    public void setCacheWorldSpawns(boolean cacheWorldSpawns) {
+        this.cacheWorldSpawns = cacheWorldSpawns;
     }
 
     public @Nullable ExWorld createWorldFromFile(String name) {
@@ -472,5 +484,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             this.locationsPerWorldByUuid.get(user.getUniqueId())
                     .put(fromWorld, new ExLocation(fromWorld, fromLoc));
         }
+    }
+
+    @EventHandler
+    public void onWorldInit(WorldInitEvent e) {
+        e.getWorld().setKeepSpawnInMemory(this.cacheWorldSpawns);
     }
 }

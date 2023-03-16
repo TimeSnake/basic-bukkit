@@ -267,7 +267,7 @@ public class WorldEventManager implements Listener {
     public void onEntityDamage(UserDamageEvent e) {
         ExWorld world = e.getUser().getExWorld();
 
-        if (!world.isRestricted(ExWorld.Restriction.PLAYER_DAMAGE)) {
+        if (!world.isRestricted(ExWorld.Restriction.NO_PLAYER_DAMAGE)) {
             return;
         }
 

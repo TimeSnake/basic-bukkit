@@ -43,7 +43,7 @@ public interface ExSideboard extends Sideboard {
                 return value;
             }
         };
-        public static final LineId<Integer> TIME = new LineId<>("time", "§c§lTime", false) {
+        public static final LineId<Integer> TIME = new LineId<>("time", "§6§lTime", false) {
             @Override
             public String parseValue(Integer value) {
                 return Chat.getTimeString(value);

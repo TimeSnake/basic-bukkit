@@ -18,6 +18,10 @@ public interface WorldManager {
 
     void copyWorldFolderFiles(File source, File target);
 
+    boolean cacheWorldSpawns();
+
+    void setCacheWorldSpawns(boolean cacheWorldSpawns);
+
     Collection<ExWorld> getWorlds();
 
     @Nullable ExWorld getWorld(String name);

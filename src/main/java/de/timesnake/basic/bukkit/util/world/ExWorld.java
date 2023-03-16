@@ -191,7 +191,8 @@ public class ExWorld extends DelegatedWorld implements World {
                 "item_frame_rotate", false);
         public static final Restriction<Boolean> DROP_PICK_ITEM = new Restriction<>(
                 "drop_pick_item", false);
-        public static final Restriction<Boolean> PLAYER_DAMAGE = new Restriction<>("player_damage",
+        public static final Restriction<Boolean> NO_PLAYER_DAMAGE = new Restriction<>(
+                "no_player_damage",
                 false);
         public static final Restriction<Boolean> FOOD_CHANGE = new Restriction<>("food_change",
                 false);
@@ -224,7 +225,7 @@ public class ExWorld extends DelegatedWorld implements World {
                 ENTITY_BLOCK_BREAK,
                 ITEM_FRAME_ROTATE,
                 DROP_PICK_ITEM,
-                PLAYER_DAMAGE,
+                NO_PLAYER_DAMAGE,
                 FOOD_CHANGE,
                 ENTITY_EXPLODE,
                 FIRE_SPREAD,

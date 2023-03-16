@@ -26,7 +26,8 @@ public class VoidGenerator extends ChunkGenerator {
     @SuppressWarnings("deprecation")
     @Override
     @Nonnull
-    public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
+    public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
+            BiomeGrid biome) {
         ChunkData chunkData = super.createChunkData(world);
 
         if (chunkX == 0 && chunkZ == 0) {
@@ -49,6 +50,6 @@ public class VoidGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 0, 128, 0);
+        return new Location(world, 0, 65, 0);
     }
 }

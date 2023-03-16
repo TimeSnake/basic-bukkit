@@ -12,7 +12,6 @@ import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.TablistablePlayer;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.chat.Sender;
@@ -64,6 +63,7 @@ import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayer
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1123,8 +1123,10 @@ public class User extends UserPlayerDelegation implements
      * @param bossBar The {@link BossBar} to remove
      */
     public void removeBossBar(BossBar bossBar) {
-        bossBar.removePlayer(this.getPlayer());
-        this.bossBars.remove(bossBar);
+        if (bossBar != null) {
+            bossBar.removePlayer(this.getPlayer());
+            this.bossBars.remove(bossBar);
+        }
     }
 
     /**
@@ -1263,6 +1265,10 @@ public class User extends UserPlayerDelegation implements
     @NotNull
     public Status.User getStatus() {
         return this.status;
+    }
+
+    public boolean hasStatus(Status.User... status) {
+        return Arrays.stream(status).anyMatch(s -> s.equals(this.status));
     }
 
     /**
@@ -2096,7 +2102,6 @@ public class User extends UserPlayerDelegation implements
         return lockedLocation != null;
     }
 
-    //update
     @ChannelHandler(type = ListenerType.USER, filtered = true)
     public void onUserMessage(ChannelUserMessage<?> msg) {
         MessageType<?> type = msg.getMessageType();
@@ -2249,8 +2254,6 @@ public class User extends UserPlayerDelegation implements
         }
 
         Server.getPacketManager().sendPacket(this.getPlayer(), packet);
-        ServerManager.getInstance().getPacketBroadcaster()
-                .broadcastPacket(this.getPlayer(), packet);
     }
 
     public void setPvpMode(boolean oldPvP) {
