@@ -29,11 +29,12 @@ public class ExSideboard extends Sideboard implements
 
         for (Iterator<LineId<?>> iterator = lines.iterator(); iterator.hasNext(); ) {
             LineId<?> lineId = iterator.next();
-            super.setScore(line, lineId.getDisplayName());
             if (lineId.isInline()) {
                 lineByLineId.put(lineId, line);
             } else {
-                lineByLineId.put(lineId, ++line);
+                lineByLineId.put(lineId, line);
+                line++;
+                super.setScore(line, lineId.getDisplayName());
             }
 
             line++;
@@ -59,7 +60,6 @@ public class ExSideboard extends Sideboard implements
             text = id.getDisplayName() + id.parseValue(value);
         } else {
             text = id.parseValue(value);
-            line++;
         }
 
         super.setScore(line, text);

@@ -7,7 +7,6 @@ package de.timesnake.basic.bukkit.util;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.ConsoleManager;
 import de.timesnake.basic.bukkit.core.server.TaskManager;
-import de.timesnake.basic.bukkit.core.user.PacketBroadcaster;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
@@ -112,7 +111,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private UserEventManager userEventManager;
     private InventoryEventManager inventoryEventManager;
     private TaskManager taskManager;
-    private PacketBroadcaster packetBroadcaster;
     private Info info;
     private PacketEntityManager packetEntityManager;
     private TimeDownParser timeDownParser;
@@ -145,7 +143,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         this.inventoryEventManager = new de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager();
         this.pvpManager = this.initPvPManager();
 
-        this.packetBroadcaster = new PacketBroadcaster();
         this.packetEntityManager = new PacketEntityManager();
         this.scoreboardManager = this.initScoreboardManager();
 
@@ -849,10 +846,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
             org.bukkit.plugin.Plugin plugin) {
         this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
-    }
-
-    public PacketBroadcaster getPacketBroadcaster() {
-        return packetBroadcaster;
     }
 
     public void broadcastPacket(ExPacketPlayOut packet) {

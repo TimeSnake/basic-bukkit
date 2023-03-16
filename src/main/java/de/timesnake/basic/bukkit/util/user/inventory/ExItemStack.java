@@ -988,9 +988,8 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      *
      * @return the cloned {@link ExItemStack}
      */
-    @Override
-    public ExItemStack clone() {
-        ItemStack item = super.clone();
+    public ExItemStack cloneWithNewId() {
+        ItemStack item = this.clone();
         return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable,
                 this.moveable, false);
     }
@@ -1020,7 +1019,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
      * @return the cloned {@link ItemStack}
      */
     public ItemStack cloneWithoutId() {
-        ItemStack item = super.clone();
+        ItemStack item = this.cloneWithNewId();
         if (item.getItemMeta() != null) {
             ItemMeta meta = item.getItemMeta();
             meta.setLocalizedName(null);
