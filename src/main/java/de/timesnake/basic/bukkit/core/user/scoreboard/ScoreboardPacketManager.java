@@ -5,8 +5,8 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.library.packets.util.packet.ExPacket;
@@ -54,7 +54,8 @@ public class ScoreboardPacketManager implements PacketPlayOutListener,
 
         packets.add(packet);
         user.sendPacket(packet);
-        Plugin.SCOREBOARD.getLogger().fine("Send packet '" + packet.getInfo() + "' to '" + user.getName() + "'");
+        Loggers.SCOREBOARD.fine(
+                "Send packet '" + packet.getInfo() + "' to '" + user.getName() + "'");
 
     }
 }

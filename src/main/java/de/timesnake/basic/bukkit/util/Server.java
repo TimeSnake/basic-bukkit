@@ -40,7 +40,6 @@ import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -242,15 +241,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      */
     public static void broadcastMessage(Plugin plugin, Component... messages) {
         server.broadcastMessage(plugin, messages);
-    }
-
-    /**
-     * Sends a message to the console as chat message
-     *
-     * @param message THe message to send
-     */
-    public static void sendChatMessageToConsole(String message) {
-        server.sendChatMessageToConsole(message);
     }
 
     /**
@@ -548,22 +538,6 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
     public static void dropItem(Location location, org.bukkit.inventory.ItemStack itemStack) {
         server.dropItem(location, itemStack);
-    }
-
-    public static void printText(Plugin plugin, String text, String... subPlugins) {
-        server.printText(plugin, text, subPlugins);
-    }
-
-    public static void printWarning(Plugin plugin, String warning, String... subPlugins) {
-        server.printWarning(plugin, warning, subPlugins);
-    }
-
-    public static void printSection(Plugin plugin, String title, String... lines) {
-        server.printSection(plugin, title, lines);
-    }
-
-    public static void printSection(Plugin plugin, String title, List<String> lines) {
-        server.printSection(plugin, title, lines);
     }
 
     public static BukkitTask runTaskSynchrony(Task task, org.bukkit.plugin.Plugin plugin) {

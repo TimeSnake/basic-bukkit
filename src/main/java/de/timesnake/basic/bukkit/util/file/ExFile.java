@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.basic.util.Triple;
-import de.timesnake.library.extension.util.chat.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -49,16 +48,21 @@ public class ExFile {
 
     public static void deleteFile(File file) {
         if (file.isDirectory()) {
-            if (Objects.requireNonNull(file.list()).length == 0) file.delete();
-            else {
+            if (Objects.requireNonNull(file.list()).length == 0) {
+                file.delete();
+            } else {
                 String[] files = file.list();
 
                 for (String temp : Objects.requireNonNull(files)) {
                     ExFile.deleteFile(new File(file, temp));
                 }
-                if (Objects.requireNonNull(file.list()).length == 0) file.delete();
+                if (Objects.requireNonNull(file.list()).length == 0) {
+                    file.delete();
+                }
             }
-        } else file.delete();
+        } else {
+            file.delete();
+        }
     }
 
     public static String toPath(String... sections) {
@@ -173,7 +177,8 @@ public class ExFile {
         return this;
     }
 
-    public ExFile setLocation(@Nonnull String path, @Nonnull Location location, boolean saveYawPitch) {
+    public ExFile setLocation(@Nonnull String path, @Nonnull Location location,
+            boolean saveYawPitch) {
         setLocBlock(path, location.getWorld(), location.getX(), location.getY(), location.getZ());
         if (saveYawPitch) {
             this.config.set(path + ".yaw", location.getYaw());
@@ -213,7 +218,8 @@ public class ExFile {
     }
 
     public ExFile setHexColor(String path, Color color) {
-        this.config.set(path, String.format("%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
+        this.config.set(path,
+                String.format("%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
         return this;
     }
 
@@ -261,8 +267,10 @@ public class ExFile {
             String worldName = this.config.getString(path + ".world");
             World world = Bukkit.getWorld(worldName);
             if (world != null) {
-                return new Location(world, this.config.getDouble(path + ".x"), this.config.getDouble(path + ".y"),
-                        this.config.getDouble(path + ".z"), (float) this.config.getDouble(path + ".yaw", 0),
+                return new Location(world, this.config.getDouble(path + ".x"),
+                        this.config.getDouble(path + ".y"),
+                        this.config.getDouble(path + ".z"),
+                        (float) this.config.getDouble(path + ".yaw", 0),
                         (float) this.config.getDouble(path + ".pitch", 0));
             } else {
                 throw new WorldNotExistException(worldName);
@@ -279,8 +287,9 @@ public class ExFile {
             if (world != null) {
                 return new ExLocation(Server.getWorld(world), this.config.getDouble(path + ".x"),
                         this.config.getDouble(path + ".y"), this.config.getDouble(path + ".z"),
-                        (float) this.config.getDouble(path + ".yaw", 0), (float) this.config.getDouble(path + ".pitch"
-                        , 0));
+                        (float) this.config.getDouble(path + ".yaw", 0),
+                        (float) this.config.getDouble(path + ".pitch"
+                                , 0));
             } else {
                 throw new WorldNotExistException(worldName);
             }
@@ -288,7 +297,8 @@ public class ExFile {
         return null;
     }
 
-    public Location getLocationWithId(Integer id, @Nonnull String path) throws WorldNotExistException {
+    public Location getLocationWithId(Integer id, @Nonnull String path)
+            throws WorldNotExistException {
         return this.getLocation(path + "." + id);
     }
 
@@ -297,7 +307,8 @@ public class ExFile {
         String worldName = this.config.getString(path + ".world");
         World world = Bukkit.getWorld(worldName);
         if (world != null) {
-            return new Location(world, this.config.getInt(path + ".x"), this.config.getInt(path + ".y"),
+            return new Location(world, this.config.getInt(path + ".x"),
+                    this.config.getInt(path + ".y"),
                     this.config.getInt(path + ".z")).getBlock();
         } else {
             throw new WorldNotExistException(worldName);
@@ -355,7 +366,8 @@ public class ExFile {
             return null;
         }
 
-        return Color.fromRGB(Integer.valueOf(string.substring(0, 2), 16), Integer.valueOf(string.substring(2, 4), 16)
+        return Color.fromRGB(Integer.valueOf(string.substring(0, 2), 16),
+                Integer.valueOf(string.substring(2, 4), 16)
                 , Integer.valueOf(string.substring(4, 6), 16));
     }
 
@@ -379,8 +391,7 @@ public class ExFile {
                 if (idString != null) {
                     try {
                         ids.add(Integer.valueOf(idString));
-                    } catch (NumberFormatException e) {
-                        Server.printWarning(Plugin.SYSTEM, "Can not read id " + idString);
+                    } catch (NumberFormatException ignored) {
                     }
                 }
             }
@@ -388,16 +399,20 @@ public class ExFile {
         return ids;
     }
 
-    protected Triple<String, String, String> getStringTriple(String path, String a, String b, String c) {
+    protected Triple<String, String, String> getStringTriple(String path, String a, String b,
+            String c) {
         return new Triple<>(this.getString(path + "." + a), this.getString(path + "." + b),
                 this.getString(path + "." + c));
     }
 
-    protected Triple<Integer, Integer, Integer> getIntegerTriple(String path, String a, String b, String c) {
-        return new Triple<>(this.getInt(path + "." + a), this.getInt(path + "." + b), this.getInt(path + "." + c));
+    protected Triple<Integer, Integer, Integer> getIntegerTriple(String path, String a, String b,
+            String c) {
+        return new Triple<>(this.getInt(path + "." + a), this.getInt(path + "." + b),
+                this.getInt(path + "." + c));
     }
 
-    public Triple<Double, Double, Double> getDoubleTriple(String path, String a, String b, String c) {
+    public Triple<Double, Double, Double> getDoubleTriple(String path, String a, String b,
+            String c) {
         return new Triple<>(this.getDouble(path + "." + a), this.getDouble(path + "." + b),
                 this.getDouble(path + "." + c));
     }
@@ -631,18 +646,19 @@ public class ExFile {
     }
 
     @Contract("_, _, !null -> !null")
-    public <T> @Nullable T getObject(@NotNull String path, @NotNull Class<T> clazz, @Nullable T def) {
+    public <T> @Nullable T getObject(@NotNull String path, @NotNull Class<T> clazz,
+            @Nullable T def) {
         return config.getObject(path, clazz, def);
     }
 
     public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path,
-                                                                             @NotNull Class<T> clazz) {
+            @NotNull Class<T> clazz) {
         return config.getSerializable(path, clazz);
     }
 
     @Contract("_, _, !null -> !null")
     public <T extends ConfigurationSerializable> @Nullable T getSerializable(@NotNull String path,
-                                                                             @NotNull Class<T> clazz, @Nullable T def) {
+            @NotNull Class<T> clazz, @Nullable T def) {
         return config.getSerializable(path, clazz, def);
     }
 
@@ -664,7 +680,8 @@ public class ExFile {
     }
 
     @Contract("_, !null -> !null")
-    public @Nullable OfflinePlayer getOfflinePlayer(@NotNull String path, @Nullable OfflinePlayer def) {
+    public @Nullable OfflinePlayer getOfflinePlayer(@NotNull String path,
+            @Nullable OfflinePlayer def) {
         return config.getOfflinePlayer(path, def);
     }
 

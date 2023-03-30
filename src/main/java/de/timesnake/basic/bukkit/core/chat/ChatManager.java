@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.server.Info;
+import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
@@ -18,6 +18,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
@@ -194,13 +195,13 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
             Server.broadcastMessage(Component.text("<<<", ExTextColor.DARK_RED)
                     .append(user.getChatNameComponent().color(ExTextColor.WHITE)));
         } else {
-            Plugin.CHATS.getLogger().info("<<<" +
+            Loggers.CHATS.info("<<<" +
                     PlainTextComponentSerializer.plainText()
                             .serialize(user.getChatNameComponent()));
         }
         // update online players
         int onlinePlayers = Bukkit.getOnlinePlayers().size() - 1;
-        ((Info) ServerManager.getInstance().getInfo()).setOnlinePlayers(onlinePlayers);
+        ((FullServerInfo) ServerManager.getInstance().getInfo()).setOnlinePlayers(onlinePlayers);
         // remove from chats
         for (de.timesnake.basic.bukkit.util.chat.Chat chat : this.chats.values()) {
             chat.removeWriter(user);
@@ -244,9 +245,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
                     .append(user.getChatNameComponent().color(ExTextColor.WHITE)));
             Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
         } else {
-            Plugin.CHATS.getLogger().info(">>>" +
-                    PlainTextComponentSerializer.plainText()
-                            .serialize(user.getChatNameComponent()));
+            Loggers.CHATS.info(">>>" + PlainTextComponentSerializer.plainText()
+                    .serialize(user.getChatNameComponent()));
         }
 
     }

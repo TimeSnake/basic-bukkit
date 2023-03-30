@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.core.world.generator.CustomFlatGenerator;
 import de.timesnake.basic.bukkit.core.world.generator.CustomHeightGenerator;
 import de.timesnake.basic.bukkit.core.world.generator.CustomIslandGenerator;
 import de.timesnake.basic.bukkit.core.world.generator.FlatStoneGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.MiniWorldGenerator;
 import de.timesnake.basic.bukkit.core.world.generator.VoidGenerator;
 import de.timesnake.basic.bukkit.util.exception.WorldTypeParseException;
 import de.timesnake.library.basic.util.Tuple;
@@ -21,17 +22,27 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class ExWorldType {
 
-    public static final ExWorldType NORMAL = new ExWorldType("normal", World.Environment.NORMAL, org.bukkit.WorldType.NORMAL, null);
-    public static final ExWorldType NETHER = new ExWorldType("nether", World.Environment.NETHER, org.bukkit.WorldType.NORMAL, null);
-    public static final ExWorldType END = new ExWorldType("end", World.Environment.THE_END, org.bukkit.WorldType.NORMAL, null);
+    public static final ExWorldType NORMAL = new ExWorldType("normal", World.Environment.NORMAL,
+            org.bukkit.WorldType.NORMAL, null);
+    public static final ExWorldType NETHER = new ExWorldType("nether", World.Environment.NETHER,
+            org.bukkit.WorldType.NORMAL, null);
+    public static final ExWorldType END = new ExWorldType("end", World.Environment.THE_END,
+            org.bukkit.WorldType.NORMAL, null);
     public static final ExWorldType VOID = new ExWorldType("void", null, null, new VoidGenerator());
-    public static final ExWorldType FLAT = new ExWorldType("flat", World.Environment.NORMAL, org.bukkit.WorldType.FLAT, null);
-    public static final ExWorldType AMPLIFIED = new ExWorldType("amplified", World.Environment.NORMAL, org.bukkit.WorldType.AMPLIFIED, null);
-    public static final ExWorldType LARGE_BIOMES = new ExWorldType("largeBiomes", World.Environment.NORMAL, org.bukkit.WorldType.LARGE_BIOMES, null);
-    public static final ExWorldType FLAT_STONE = new ExWorldType("flatStone", World.Environment.NORMAL, null, new FlatStoneGenerator());
+    public static final ExWorldType FLAT = new ExWorldType("flat", World.Environment.NORMAL,
+            org.bukkit.WorldType.FLAT, null);
+    public static final ExWorldType AMPLIFIED = new ExWorldType("amplified",
+            World.Environment.NORMAL, org.bukkit.WorldType.AMPLIFIED, null);
+    public static final ExWorldType LARGE_BIOMES = new ExWorldType("largeBiomes",
+            World.Environment.NORMAL, org.bukkit.WorldType.LARGE_BIOMES, null);
+    public static final ExWorldType FLAT_STONE = new ExWorldType("flatStone",
+            World.Environment.NORMAL, null, new FlatStoneGenerator());
+    public static final ExWorldType MINI_WORLD = new ExWorldType("miniworld",
+            World.Environment.NORMAL, null, null);
 
-    public static final List<ExWorldType> TYPES = List.of(NORMAL, NETHER, END, VOID, FLAT, AMPLIFIED, LARGE_BIOMES,
-            FLAT_STONE);
+    public static final List<ExWorldType> TYPES = List.of(NORMAL, NETHER, END, VOID, FLAT,
+            AMPLIFIED, LARGE_BIOMES,
+            FLAT_STONE, MINI_WORLD);
 
     public static ExWorldType valueOf(String name) {
         if (name == null) {
@@ -44,6 +55,8 @@ public class ExWorldType {
             return CustomHeight.fromString(name);
         } else if (name.startsWith("custom_island")) {
             return CustomIsland.fromString(name);
+        } else if (name.startsWith("miniworld")) {
+            return MiniWorld.fromString(name);
         }
 
         for (ExWorldType worldType : TYPES) {
@@ -66,7 +79,8 @@ public class ExWorldType {
     public static ExWorldType fromWorld(World world) {
         for (ExWorldType type : TYPES) {
             if (type.getWorldType() != null && type.getWorldType().equals(world.getWorldType())
-                    && type.getEnvironment() != null && type.getEnvironment().equals(world.getEnvironment())) {
+                    && type.getEnvironment() != null && type.getEnvironment()
+                    .equals(world.getEnvironment())) {
                 return type;
             }
         }
@@ -86,7 +100,8 @@ public class ExWorldType {
                 }
             } else {
                 try {
-                    return new Tuple<>(Integer.parseInt(s[0]), Material.valueOf(s[1].toUpperCase()));
+                    return new Tuple<>(Integer.parseInt(s[0]),
+                            Material.valueOf(s[1].toUpperCase()));
                 } catch (NumberFormatException e) {
                     try {
                         return new Tuple<>(1, Material.valueOf(s[1].toUpperCase()));
@@ -122,7 +137,7 @@ public class ExWorldType {
     protected final ChunkGenerator chunkGenerator;
 
     public ExWorldType(String name, World.Environment environment, org.bukkit.WorldType worldType,
-                       ChunkGenerator chunkGenerator) {
+            ChunkGenerator chunkGenerator) {
         this.name = name;
         this.environment = environment;
         this.worldType = worldType;
@@ -159,13 +174,37 @@ public class ExWorldType {
         private final List<Tuple<Integer, Material>> materials;
 
         public CustomFlat(List<Tuple<Integer, Material>> materials) {
-            super("custom_flat", World.Environment.NORMAL, null, new CustomFlatGenerator(materials));
+            super("custom_flat", World.Environment.NORMAL, null,
+                    new CustomFlatGenerator(materials));
             this.materials = materials;
         }
 
         @Override
         public String toString() {
-            return "custom_flat;" + materials.stream().map(t -> t.getA() + "#" + t.getB()).collect(Collectors.joining(";"));
+            return "custom_flat;" + materials.stream().map(t -> t.getA() + "#" + t.getB())
+                    .collect(Collectors.joining(";"));
+        }
+    }
+
+    public static class MiniWorld extends ExWorldType {
+
+        public static ExWorldType.MiniWorld fromString(String string) {
+            String[] parts = string.split(";");
+            return new MiniWorld(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+        }
+
+        private final int chunkXSize;
+        private final int chunkZSize;
+
+        public MiniWorld(int x, int z) {
+            super("miniworld", World.Environment.NORMAL, null, new MiniWorldGenerator(x, z));
+            this.chunkXSize = x;
+            this.chunkZSize = z;
+        }
+
+        @Override
+        public String toString() {
+            return "miniworld;" + this.chunkXSize + ";" + this.chunkZSize;
         }
     }
 
@@ -218,7 +257,8 @@ public class ExWorldType {
                 throw new WorldTypeParseException("Could not parse base-height");
             }
 
-            return new CustomHeight(simplexGenerator, xScale, yScale, zScale, frequency, amplitude, baseHeight,
+            return new CustomHeight(simplexGenerator, xScale, yScale, zScale, frequency, amplitude,
+                    baseHeight,
                     ExWorldType.parseMaterialsFromString(values[index]));
         }
 
@@ -231,10 +271,12 @@ public class ExWorldType {
         private final int baseHeight;
         private final List<Tuple<Integer, Material>> materials;
 
-        public CustomHeight(boolean simplexGenerator, double xScale, double yScale, double zScale, double frequency,
-                            double amplitude, int baseHeight, List<Tuple<Integer, Material>> materials) {
+        public CustomHeight(boolean simplexGenerator, double xScale, double yScale, double zScale,
+                double frequency,
+                double amplitude, int baseHeight, List<Tuple<Integer, Material>> materials) {
             super("custom_height", World.Environment.NORMAL, null,
-                    new CustomHeightGenerator(simplexGenerator, xScale, yScale, zScale, frequency, amplitude,
+                    new CustomHeightGenerator(simplexGenerator, xScale, yScale, zScale, frequency,
+                            amplitude,
                             baseHeight, materials));
             this.simplexGenerator = simplexGenerator;
             this.xScale = xScale;
@@ -248,9 +290,12 @@ public class ExWorldType {
 
         @Override
         public String toString() {
-            return String.join(";", List.of("custom_height", "" + this.simplexGenerator, "" + this.xScale,
-                    "" + this.yScale, "" + this.zScale, "" + this.frequency, "" + this.amplitude, "" + this.baseHeight,
-                    this.materials.stream().map(t -> t.getA() + "#" + t.getB()).collect(Collectors.joining(","))));
+            return String.join(";",
+                    List.of("custom_height", "" + this.simplexGenerator, "" + this.xScale,
+                            "" + this.yScale, "" + this.zScale, "" + this.frequency,
+                            "" + this.amplitude, "" + this.baseHeight,
+                            this.materials.stream().map(t -> t.getA() + "#" + t.getB())
+                                    .collect(Collectors.joining(","))));
         }
     }
 
@@ -296,7 +341,8 @@ public class ExWorldType {
                 throw new WorldTypeParseException("Could not parse amplitude");
             }
 
-            return new CustomIsland(density.floatValue(), xScale, yScale, zScale, frequency, amplitude,
+            return new CustomIsland(density.floatValue(), xScale, yScale, zScale, frequency,
+                    amplitude,
                     ExWorldType.parseMaterialsFromString(values[index]));
         }
 
@@ -308,10 +354,12 @@ public class ExWorldType {
         private final double amplitude;
         private final List<Tuple<Integer, Material>> materials;
 
-        public CustomIsland(float density, double xScale, double yScale, double zScale, double frequency, double amplitude,
-                            List<Tuple<Integer, Material>> materials) {
-            super("custom_island", World.Environment.NORMAL, null, new CustomIslandGenerator(density,
-                    xScale, yScale, zScale, frequency, amplitude, materials));
+        public CustomIsland(float density, double xScale, double yScale, double zScale,
+                double frequency, double amplitude,
+                List<Tuple<Integer, Material>> materials) {
+            super("custom_island", World.Environment.NORMAL, null,
+                    new CustomIslandGenerator(density,
+                            xScale, yScale, zScale, frequency, amplitude, materials));
             this.density = density;
             this.xScale = xScale;
             this.yScale = yScale;
@@ -323,9 +371,11 @@ public class ExWorldType {
 
         @Override
         public String toString() {
-            return String.join(";", List.of("custom_island", "" + this.density, "" + this.xScale, "" + this.yScale,
-                    "" + this.zScale, "" + this.frequency, "" + this.amplitude,
-                    this.materials.stream().map(t -> t.getA() + "#" + t.getB()).collect(Collectors.joining(","))));
+            return String.join(";",
+                    List.of("custom_island", "" + this.density, "" + this.xScale, "" + this.yScale,
+                            "" + this.zScale, "" + this.frequency, "" + this.amplitude,
+                            this.materials.stream().map(t -> t.getA() + "#" + t.getB())
+                                    .collect(Collectors.joining(","))));
         }
     }
 }

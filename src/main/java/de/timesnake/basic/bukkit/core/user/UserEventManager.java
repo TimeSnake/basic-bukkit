@@ -29,6 +29,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserMoveEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserRespawnEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserTeleportEvent;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.chat.Plugin;
@@ -118,7 +119,7 @@ public class UserEventManager implements Listener,
                 }
             });
         } catch (IllegalAccessException ex) {
-            Server.printWarning(Plugin.BUKKIT, "Unable to inject player permission checker");
+            Loggers.USERS.warning("Unable to inject player permission checker");
             e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
             e.disallow(PlayerLoginEvent.Result.KICK_OTHER,
                     Component.text("A fatal error has occurred, " +
@@ -399,10 +400,16 @@ public class UserEventManager implements Listener,
 
         if (!userDeathEvent.isBroadcastDeathMessage()) {
             if (user.getLastDamager() != null) {
-                Server.printText(Plugin.BUKKIT, user.getName() + " has been killed by " +
+                Loggers.CHATS.info(user.getName() + " was slain by " +
                         user.getLastDamager().getDamager().getName());
             } else {
-                Server.printText(Plugin.BUKKIT, user.getName() + " died");
+                if (user.getLastDamageCause() != null) {
+                    Loggers.CHATS.info(
+                            user.getName() + " died " + user.getLastDamageCause().getCause()
+                                    .name());
+                } else {
+                    Loggers.CHATS.info(user.getName() + " died");
+                }
             }
             e.deathMessage(Component.empty());
             return;
@@ -414,12 +421,14 @@ public class UserEventManager implements Listener,
                     .equals(UserDamage.DamageType.INSTANT)) {
                 e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                         .append(user.getChatNameComponent())
-                        .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                        .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                         .append(user.getLastDamager().getDamager().getChatNameComponent()));
             } else {
                 e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                         .append(user.getChatNameComponent())
-                        .append(Component.text(" died", ExTextColor.PUBLIC)));
+                        .append(e.deathMessage()
+                                .replaceText(t -> t.match(user.getName()).replacement(""))
+                                .color(ExTextColor.PUBLIC)));
             }
         } else if (e.getEntity().getKiller() instanceof Player) {
 
@@ -432,7 +441,7 @@ public class UserEventManager implements Listener,
                     int distance = userDamage.getDistance().intValue();
                     e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                             .append(user.getChatNameComponent())
-                            .append(Component.text(" has been shot by ", ExTextColor.PUBLIC))
+                            .append(Component.text(" was shot by ", ExTextColor.PUBLIC))
                             .append(killer.getChatNameComponent())
                             .append(Component.text(" from ", ExTextColor.PUBLIC))
                             .append(Component.text(distance, ExTextColor.VALUE))
@@ -440,19 +449,19 @@ public class UserEventManager implements Listener,
                 } else {
                     e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                             .append(user.getChatNameComponent())
-                            .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                            .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                             .append(killer.getChatNameComponent()));
                 }
             } else {
                 e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                         .append(user.getChatNameComponent())
-                        .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                        .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                         .append(killer.getChatNameComponent()));
             }
         } else {
             e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
                     .append(user.getChatNameComponent())
-                    .append(Component.text(" has been killed by ", ExTextColor.PUBLIC))
+                    .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                     .append(Component.text(e.getEntity().getLastDamageCause().getCause().name(),
                             ExTextColor.VALUE)));
         }

@@ -6,12 +6,12 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
@@ -44,8 +44,8 @@ public class GroupTablist extends Tablist implements
 
     @Override
     public void addEntry(TablistablePlayer player) {
-        Plugin.SCOREBOARD.getLogger()
-                .info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+        Loggers.SCOREBOARD.info(
+                "tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
 
         if (!player.showInTablist()) {
             return;
@@ -72,20 +72,20 @@ public class GroupTablist extends Tablist implements
         this.packetManager.sendPacket(this.watchingUsers,
                 ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
 
-        Plugin.SCOREBOARD.getLogger()
-                .fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+        Loggers.SCOREBOARD.fine(
+                "tablist '" + this.name + "' added '" + player.getTablistName() + "'");
     }
 
     @Override
     public boolean removeEntry(TablistablePlayer player) {
-        Plugin.SCOREBOARD.getLogger()
-                .info("tablist '" + this.name + "' try to remove '" + player.getTablistName()
+        Loggers.SCOREBOARD.info(
+                "tablist '" + this.name + "' try to remove '" + player.getTablistName()
                         + "'");
 
         boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
         if (removed) {
-            Plugin.SCOREBOARD.getLogger()
-                    .fine("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+            Loggers.SCOREBOARD.fine(
+                    "tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
         }
         return removed;
     }

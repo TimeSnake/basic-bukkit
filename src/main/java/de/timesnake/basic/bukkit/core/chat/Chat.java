@@ -6,7 +6,7 @@ package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import java.util.HashSet;
 import java.util.Objects;
@@ -162,7 +162,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
             for (ChatMember member : this.listeners) {
                 member.sendTDMessage(msg);
             }
-            Plugin.CHATS.getLogger().info(this.name + ": " + msg);
+            Loggers.CHATS.info(this.name + ": " + msg);
         }
     }
 
@@ -172,9 +172,8 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
             for (ChatMember member : this.listeners) {
                 member.sendMessage(msg);
             }
-            Plugin.CHATS.getLogger()
-                    .info(this.name + ": " + PlainTextComponentSerializer.plainText()
-                            .serialize(msg));
+            Loggers.CHATS.info(this.name + ": " + PlainTextComponentSerializer.plainText()
+                    .serialize(msg));
         }
     }
 

@@ -4,7 +4,6 @@
 
 package de.timesnake.basic.bukkit.core.server;
 
-import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.exception.UnsupportedGroupRankException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
@@ -12,7 +11,7 @@ import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
-import de.timesnake.library.extension.util.chat.Plugin;
+import de.timesnake.library.basic.util.Loggers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,13 +31,12 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
             this.permGroupByName.put(group.getName(), group);
         }
 
-
         for (DbDisplayGroup dbDisplayGroup : Database.getGroups().getDisplayGroups()) {
             DisplayGroup group;
             try {
                 group = new DisplayGroup(dbDisplayGroup);
             } catch (UnsupportedGroupRankException e) {
-                Server.printWarning(Plugin.BUKKIT, ChatColor.WARNING + e.getMessage());
+                Loggers.GROUPS.warning(ChatColor.WARNING + e.getMessage());
                 continue;
             }
 
