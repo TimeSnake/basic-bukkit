@@ -5,7 +5,6 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
@@ -13,6 +12,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
@@ -247,7 +247,7 @@ public class TeamTablist extends Tablist implements
     }
 
     private void addEntry(TablistablePlayer player, boolean update) {
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
 
         if (!player.showInTablist()) {
@@ -263,7 +263,7 @@ public class TeamTablist extends Tablist implements
 
         if (update) {
             this.updateChanges();
-            Plugin.SCOREBOARD.getLogger()
+            Loggers.SCOREBOARD
                     .fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
         }
     }
@@ -274,7 +274,7 @@ public class TeamTablist extends Tablist implements
     }
 
     private void addRemainEntry(TablistablePlayer player, boolean update) {
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' try to add remain '" + player.getTablistName()
                         + "'");
 
@@ -302,7 +302,7 @@ public class TeamTablist extends Tablist implements
 
         if (update) {
             this.updateChanges();
-            Plugin.SCOREBOARD.getLogger()
+            Loggers.SCOREBOARD
                     .info("tablist '" + this.name + "' added remain '" + player.getTablistName()
                             + "'");
         }
@@ -310,12 +310,12 @@ public class TeamTablist extends Tablist implements
 
     @Override
     public boolean removeEntry(TablistablePlayer player) {
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' try to remove '" + player.getTablistName()
                         + "'");
         boolean removed = this.removeEntry(player, true);
         if (removed) {
-            Plugin.SCOREBOARD.getLogger()
+            Loggers.SCOREBOARD
                     .info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
         }
         return removed;
@@ -366,7 +366,7 @@ public class TeamTablist extends Tablist implements
             ExPacketPlayOutTablist.Head head) {
         this.teamsTab.addHeaderToEntry(teamRank, headerRank, name, head);
         this.updateChanges();
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
     }
 
@@ -375,7 +375,7 @@ public class TeamTablist extends Tablist implements
         this.teamsTab.addHeaderToEntry(teamRank, headerRank, name,
                 ExPacketPlayOutTablist.Head.BLANK);
         this.updateChanges();
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
     }
 
@@ -383,7 +383,7 @@ public class TeamTablist extends Tablist implements
     public void removeTeamHeader(String teamRank, String headerRank) {
         this.teamsTab.removeHeaderFromEntry(teamRank, headerRank);
         this.updateChanges();
-        Plugin.SCOREBOARD.getLogger()
+        Loggers.SCOREBOARD
                 .info("tablist '" + this.name + "' removed team header to team '" + teamRank + "'");
     }
 

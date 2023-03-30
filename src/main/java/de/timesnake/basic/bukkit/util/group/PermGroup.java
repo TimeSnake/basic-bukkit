@@ -5,10 +5,10 @@
 package de.timesnake.basic.bukkit.util.group;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.permission.DbPermission;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.extension.util.player.UserSet;
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
 
     public PermGroup(DbPermGroup database) {
         super(database);
-        Plugin.GROUPS.getLogger().info("Loaded perm-group '" + this.name + "'");
+        Loggers.GROUPS.info("Loaded perm-group '" + this.name + "'");
     }
 
     public void addUser(User user) {
@@ -50,7 +50,6 @@ public class PermGroup extends de.timesnake.library.extension.util.permission.Pe
             this.permissions.addAll(Server.getPermGroup(group.getName()).getPermissions());
         }
 
-        Plugin.GROUPS.getLogger()
-                .info("Updated permissions of group '" + this.name + "' from database");
+        Loggers.GROUPS.info("Updated permissions of group '" + this.name + "' from database");
     }
 }

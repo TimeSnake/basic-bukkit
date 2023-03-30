@@ -4,11 +4,11 @@
 
 package de.timesnake.basic.bukkit.core.chat;
 
-import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.ExCommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.ArgumentParseException;
@@ -75,9 +75,8 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(tabCompleteManager);
         } else {
-            Server.printWarning(Plugin.BUKKIT,
-                    "Error while adding command " + cmd + ". Not registered in " + "plugin" +
-                            ".yml", "Command");
+            Loggers.COMMAND.warning(
+                    "Error while adding command " + cmd + ". Not registered in plugin.yml");
         }
     }
 

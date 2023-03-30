@@ -6,11 +6,11 @@ package de.timesnake.basic.bukkit.core.world;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorldType;
+import de.timesnake.library.basic.util.Loggers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -80,7 +80,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
             ExWorld world = this.createWorld(file.getName(), exWorldFile.getWorldType());
             if (world != null) {
-                Plugin.WORLDS.getLogger().info("Loaded world '" + world.getName() + "'");
+                Loggers.WORLDS.info("Loaded world '" + world.getName() + "'");
             }
         }
 
@@ -126,7 +126,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             try {
                 uuid = UUID.fromString(fileName.replace(".yml", ""));
             } catch (IllegalArgumentException e) {
-                Plugin.WORLDS.getLogger().warning("Illegal locations file name '" + fileName + "'");
+                Loggers.WORLDS.warning("Illegal locations file name '" + fileName + "'");
                 continue;
             }
 
@@ -141,7 +141,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             this.locationsPerWorldByUuid.put(uuid, locationByWorld);
         }
 
-        Plugin.WORLDS.getLogger().info("Loaded user locations");
+        Loggers.WORLDS.info("Loaded user locations");
     }
 
     public void onDisable() {
@@ -189,7 +189,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
                 file.setUserLocation(location);
             }
         }
-        Plugin.WORLDS.getLogger().info("Saved user locations");
+        Loggers.WORLDS.info("Saved user locations");
     }
 
     @Override
@@ -246,7 +246,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     public @Nullable ExWorld createWorld(String name, ExWorldType type, boolean temporary) {
 
         if (type == null) {
-            Plugin.WORLDS.getLogger().warning("Can not load type of world '" + name + "'");
+            Loggers.WORLDS.warning("Can not load type of world '" + name + "'");
             return null;
         }
 

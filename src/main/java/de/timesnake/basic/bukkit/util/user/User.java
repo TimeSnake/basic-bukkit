@@ -43,6 +43,7 @@ import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DbUser;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.bukkit.ExPlayer;
@@ -76,6 +77,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -125,7 +127,7 @@ public class User extends UserPlayerDelegation implements
     private final ExPlayer exPlayer;
     private final boolean airMode;
     private final HashMap<Integer, String> scores = new HashMap<>();
-    private final Set<BossBar> bossBars = new HashSet<>();
+    private final Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
     private final ServerInfo lastServer;
     private final ServerInfo lastLobbyServer;
     private final Set<ExPermission> permissions = new HashSet<>();
@@ -186,14 +188,12 @@ public class User extends UserPlayerDelegation implements
                 this.permGroup = Server.getPermGroup(groupName);
                 this.permGroup.addUser(this);
             } else {
-                Server.printWarning(Plugin.BUKKIT,
-                        "Error while loading group for " + dbLocalUser.getName(), "User");
+                Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
                 this.player.kick(
                         Component.text("§cA fatal error occurred!\nPlease contact an admin"));
             }
         } else {
-            Server.printWarning(Plugin.BUKKIT,
-                    "Error while loading group for " + dbLocalUser.getName(), "User");
+            Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
             this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin"));
         }
 
@@ -1113,6 +1113,9 @@ public class User extends UserPlayerDelegation implements
      * @param bossBar The {@link BossBar} to set
      */
     public void addBossBar(BossBar bossBar) {
+        if (bossBar == null) {
+            return;
+        }
         this.bossBars.add(bossBar);
         bossBar.addPlayer(this.getPlayer());
     }
@@ -1123,10 +1126,11 @@ public class User extends UserPlayerDelegation implements
      * @param bossBar The {@link BossBar} to remove
      */
     public void removeBossBar(BossBar bossBar) {
-        if (bossBar != null) {
-            bossBar.removePlayer(this.getPlayer());
-            this.bossBars.remove(bossBar);
+        if (bossBar == null) {
+            return;
         }
+        bossBar.removePlayer(this.getPlayer());
+        this.bossBars.remove(bossBar);
     }
 
     /**
@@ -1138,61 +1142,6 @@ public class User extends UserPlayerDelegation implements
      */
     public void setBossBar(String title, BarColor color, BarStyle style) {
         this.setBossBar(Bukkit.createBossBar(title, color, style));
-    }
-
-    /**
-     * Sets the title of the first bar
-     *
-     * @param title The title to set
-     */
-    public void setBossBarTitle(String title) {
-        if (!this.bossBars.isEmpty()) {
-            this.bossBars.iterator().next().setTitle(title);
-        }
-    }
-
-    /**
-     * Sets the {@link BarColor} of the first bar
-     *
-     * @param color The {@link BarColor} to set
-     */
-    public void setBossBarColor(BarColor color) {
-        if (!this.bossBars.isEmpty()) {
-            this.bossBars.iterator().next().setColor(color);
-        }
-    }
-
-    /**
-     * Sets the {@link BarStyle} of the first bar
-     *
-     * @param style The {@link BarStyle} to set
-     */
-    public void setBossBarStyle(BarStyle style) {
-        if (!this.bossBars.isEmpty()) {
-            this.bossBars.iterator().next().setStyle(style);
-        }
-    }
-
-    /**
-     * Sets the visible of the first bar
-     *
-     * @param flag The flag, true shows the bar, false hides
-     */
-    public void setBossBarVisible(boolean flag) {
-        if (!this.bossBars.isEmpty()) {
-            this.bossBars.iterator().next().setVisible(flag);
-        }
-    }
-
-    /**
-     * Sets the bar progress of the first bar
-     *
-     * @param progress The progress to set
-     */
-    public void setBossBarProgress(double progress) {
-        if (!this.bossBars.isEmpty()) {
-            this.bossBars.iterator().next().setProgress(progress);
-        }
     }
 
     /**
@@ -1376,11 +1325,10 @@ public class User extends UserPlayerDelegation implements
         }
 
         if (fromDatabase) {
-            Plugin.PERMISSIONS.getLogger()
-                    .info("Updated permissions of user '" + this.getName() + "' from database");
+            Loggers.PERMISSIONS.info(
+                    "Updated permissions of user '" + this.getName() + "' from database");
         } else {
-            Plugin.PERMISSIONS.getLogger()
-                    .info("Updated permissions of user '" + this.getName() + "'");
+            Loggers.PERMISSIONS.info("Updated permissions of user '" + this.getName() + "'");
         }
 
         Server.runTaskSynchrony(this::loadPermissions, BasicBukkit.getPlugin());
@@ -1397,8 +1345,7 @@ public class User extends UserPlayerDelegation implements
                     addPermission(perm);
                 }
             }
-            Plugin.PERMISSIONS.getLogger()
-                    .info("Loaded permissions of user '" + this.getName() + "'");
+            Loggers.PERMISSIONS.info("Loaded permissions of user '" + this.getName() + "'");
         }
     }
 
@@ -1860,6 +1807,19 @@ public class User extends UserPlayerDelegation implements
     }
 
     /**
+     * Adds the potion-effect to the user
+     *
+     * @param potionEffectType The {@link PotionEffectType} to add
+     * @param duration         The duration of the potion-effect
+     * @param amplifier        The amplifier of the potion-effect
+     */
+    public void addPotionEffect(PotionEffectType potionEffectType, int duration, int amplifier,
+            boolean showParticles) {
+        this.player.addPotionEffect(new PotionEffect(potionEffectType, duration, amplifier,
+                showParticles, showParticles));
+    }
+
+    /**
      * Removes all {@link PotionEffectType} from the user
      */
     public void removePotionEffects() {
@@ -2167,7 +2127,7 @@ public class User extends UserPlayerDelegation implements
                 this.displayGroups.add(group);
                 group.addUser(this);
             } else {
-                Server.printWarning(Plugin.BUKKIT,
+                Loggers.USERS.warning(
                         "Can not find display group " + groupName + " for user " + this.getName());
             }
         }

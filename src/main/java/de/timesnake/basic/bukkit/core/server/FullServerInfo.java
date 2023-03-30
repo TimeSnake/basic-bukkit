@@ -16,12 +16,13 @@ import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
 import java.util.Objects;
 
-public class Info extends ServerInfo implements de.timesnake.basic.bukkit.util.server.Info {
+public class FullServerInfo extends ServerInfo implements
+        de.timesnake.basic.bukkit.util.server.Info {
 
     private final Type.Server<?> type;
     private String task;
 
-    public Info(DbServer server) {
+    public FullServerInfo(DbServer server) {
         super(server);
         if (server instanceof DbNonTmpGameServer) {
             this.type = Type.Server.GAME;

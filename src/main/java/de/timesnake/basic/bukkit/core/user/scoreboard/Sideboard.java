@@ -4,9 +4,9 @@
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
+import de.timesnake.library.basic.util.Loggers;
 import java.util.HashMap;
 
 public class Sideboard extends Board implements
@@ -38,7 +38,7 @@ public class Sideboard extends Board implements
         for (User user : super.watchingUsers) {
             user.setSideboardTitle(title);
         }
-        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' set title '"
+        Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set title '"
                 + title + "'");
     }
 
@@ -54,7 +54,7 @@ public class Sideboard extends Board implements
         for (User user : watchingUsers) {
             user.setSideboardScore(line, text);
         }
-        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' set score "
+        Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set score "
                 + line + " '" + text + "'");
     }
 
@@ -69,7 +69,7 @@ public class Sideboard extends Board implements
             user.removeSideboardScore(line);
         }
         this.scores.remove(line);
-        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' remove score " + line);
+        Loggers.SCOREBOARD.info("sideboard '" + this.name + "' remove score " + line);
     }
 
     /**
@@ -90,7 +90,7 @@ public class Sideboard extends Board implements
         for (Integer line : this.scores.keySet()) {
             this.removeScore(line);
         }
-        Plugin.SCOREBOARD.getLogger().info("sideboard '" + this.name + "' clear scores");
+        Loggers.SCOREBOARD.info("sideboard '" + this.name + "' clear scores");
     }
 
 }

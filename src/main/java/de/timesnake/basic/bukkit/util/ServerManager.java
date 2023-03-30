@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.util;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.server.ConsoleManager;
+import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.server.TaskManager;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
@@ -42,6 +42,7 @@ import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.chat.TimeDownParser;
@@ -53,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -86,7 +86,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
 
     /**
-     * Sets the singleton instance. Should only be called from {@code onLoad()} bukkit-method.
+     * Sets the singleton instance. Should only be called within {@code onLoad()} bukkit-method.
      *
      * @param serverManager The {@link ServerManager} instance to set
      */
@@ -106,7 +106,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     protected de.timesnake.basic.bukkit.util.user.PvPManager pvpManager;
     protected GroupManager groupManager;
     protected de.timesnake.basic.bukkit.util.user.UserManager userManager;
-    private ConsoleManager consoleManager;
     private DbServer database;
     private UserEventManager userEventManager;
     private InventoryEventManager inventoryEventManager;
@@ -117,12 +116,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public final void onEnable() {
         this.timeDownParser = this.initTimeDownParser();
-        this.consoleManager = new ConsoleManager();
         this.database = Database.getServers().getServer(Bukkit.getPort());
 
         this.taskManager = new TaskManager();
 
-        this.info = new de.timesnake.basic.bukkit.core.server.Info(this.database);
+        this.info = this.initServerInfo(this.database);
         this.userManager = this.initUserManager();
         this.packetManager = new PacketManager(BasicBukkit.getPlugin());
         this.chatManager = this.initChatManager();
@@ -159,6 +157,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         if (this.worldManager instanceof de.timesnake.basic.bukkit.core.world.WorldManager) {
             ((de.timesnake.basic.bukkit.core.world.WorldManager) this.worldManager).onDisable();
         }
+    }
+
+    protected Info initServerInfo(DbServer server) {
+        return new FullServerInfo(server);
     }
 
     protected TimeDownParser initTimeDownParser() {
@@ -223,7 +225,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
     public void setStatus(Status.Server status) {
         this.info.setStatus(status);
-        this.printText(Plugin.BUKKIT, "Status: " + this.info.getStatus().getShortName());
+        Loggers.SYSTEM.info("Status: " + this.info.getStatus().getShortName());
     }
 
     public Type.Server<?> getType() {
@@ -297,7 +299,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     public final Collection<User> getPreGameUsers() {
         return this.userManager.getPreGameUsers();
     }
-
 
     /**
      * Gets users who are having the status ingame
@@ -528,16 +529,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return this.chatManager.getGlobalChat();
     }
 
-
-    /**
-     * Sends a message to the console as chat message
-     *
-     * @param message THe message to send
-     */
-    public final void sendChatMessageToConsole(String message) {
-        this.printText(Plugin.BUKKIT, message, "Chat");
-    }
-
     /**
      * Sends a sound to all players
      *
@@ -662,7 +653,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
      * @param cmd The command to run
      */
     public void runCommand(String cmd) {
-        this.consoleManager.runCommand(cmd);
+        if (cmd.equalsIgnoreCase("stop")) {
+            BasicBukkit.getPlugin().onDisable();
+        }
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
 
     public Collection<ExWorld> getWorlds() {
@@ -776,22 +770,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    public final void printText(Plugin plugin, String text, String... subPlugins) {
-        this.consoleManager.printText(plugin, text, subPlugins);
-    }
-
-    public final void printWarning(Plugin plugin, String warning, String... subPlugins) {
-        this.consoleManager.printWarning(plugin, warning, subPlugins);
-    }
-
-    public final void printSection(Plugin plugin, String title, String... lines) {
-        this.consoleManager.printSection(plugin, title, lines);
-    }
-
-    public final void printSection(Plugin plugin, String title, List<String> lines) {
-        this.consoleManager.printSection(plugin, title, lines);
-    }
-
     public BukkitTask runTaskSynchrony(Task task, org.bukkit.plugin.Plugin plugin) {
         return this.taskManager.runTaskSynchrony(task, plugin);
     }
@@ -871,7 +849,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     @ChannelHandler(type = ListenerType.SERVER_STATUS, filtered = true)
     public final void onServerStatusMessage(ChannelServerMessage<?> msg) {
         this.runTaskSynchrony(
-                () -> ((de.timesnake.basic.bukkit.core.server.Info) this.info).updateStatus(),
+                () -> ((FullServerInfo) this.info).updateStatus(),
                 BasicBukkit.getPlugin());
     }
 
