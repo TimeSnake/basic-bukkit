@@ -404,9 +404,8 @@ public class UserEventManager implements Listener,
                         user.getLastDamager().getDamager().getName());
             } else {
                 if (user.getLastDamageCause() != null) {
-                    Loggers.CHATS.info(
-                            user.getName() + " died " + user.getLastDamageCause().getCause()
-                                    .name());
+                    Loggers.CHATS.info(user.getName() + " died " +
+                            user.getLastDamageCause().getCause().name());
                 } else {
                     Loggers.CHATS.info(user.getName() + " died");
                 }
@@ -415,7 +414,6 @@ public class UserEventManager implements Listener,
             return;
         }
 
-        // death message
         if (e.getEntity().getKiller() == null) {
             if (user.getLastDamager() != null && user.getLastDamager().getDamageType()
                     .equals(UserDamage.DamageType.INSTANT)) {
@@ -424,11 +422,14 @@ public class UserEventManager implements Listener,
                         .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                         .append(user.getLastDamager().getDamager().getChatNameComponent()));
             } else {
-                e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-                        .append(user.getChatNameComponent())
-                        .append(e.deathMessage()
-                                .replaceText(t -> t.match(user.getName()).replacement(""))
-                                .color(ExTextColor.PUBLIC)));
+                Component message = e.deathMessage();
+                for (User u : Server.getUsers()) {
+                    message = message.replaceText(
+                            b -> b.matchLiteral(u.getName()).replacement(u.getChatNameComponent()
+                                    .append(Component.text("", ExTextColor.PUBLIC))));
+                }
+
+                e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(message));
             }
         } else if (e.getEntity().getKiller() instanceof Player) {
 
