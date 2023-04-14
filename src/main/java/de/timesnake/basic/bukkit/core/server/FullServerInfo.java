@@ -16,8 +16,7 @@ import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
 import java.util.Objects;
 
-public class FullServerInfo extends ServerInfo implements
-        de.timesnake.basic.bukkit.util.server.Info {
+public class FullServerInfo extends ServerInfo {
 
     private final Type.Server<?> type;
     private String task;
@@ -44,7 +43,6 @@ public class FullServerInfo extends ServerInfo implements
         }
     }
 
-    @Override
     public String getTask() {
         return task;
     }
@@ -61,7 +59,6 @@ public class FullServerInfo extends ServerInfo implements
         super.setStatus(this.database.getStatus());
     }
 
-    @Override
     public Type.Server<?> getType() {
         return type;
     }
