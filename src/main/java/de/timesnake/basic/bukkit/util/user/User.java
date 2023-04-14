@@ -132,7 +132,8 @@ public class User extends UserPlayerDelegation implements
     private final ServerInfo lastLobbyServer;
     private final Set<ExPermission> permissions = new HashSet<>();
     private final SortedSet<DisplayGroup> displayGroups;
-    protected Component chatName;
+    protected Component chatNameComponent;
+    protected String TDChatName;
     private Status.User status;
     private boolean service;
     private String task;
@@ -391,17 +392,6 @@ public class User extends UserPlayerDelegation implements
         return this.privacyPolicyDateTime != null;
     }
 
-    public void sendPrivacyPolicyAgreeMessage() {
-        this.sendPluginMessage(Plugin.NETWORK,
-                Component.text("Please accept our privacy policy", ExTextColor.WARNING));
-        this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
-                .append(Component.text("/pp agree", ExTextColor.VALUE))
-                .append(Component.text(" to accept", ExTextColor.WARNING)));
-        this.sendPluginMessage(Plugin.NETWORK, Component.text("Type ", ExTextColor.WARNING)
-                .append(Component.text("/pp disagree", ExTextColor.VALUE))
-                .append(Component.text(" to deny", ExTextColor.WARNING)));
-    }
-
     /**
      * Deletes the database entries from the user
      */
@@ -474,16 +464,23 @@ public class User extends UserPlayerDelegation implements
      * Gets the user chat-name
      *
      * @return the chat-name
+     * @deprecated in favour of {@link User#getTDChatName}
      */
+    @Deprecated
     @Override
     public String getChatName() {
-        return LegacyComponentSerializer.legacySection().serialize(chatName);
+        return LegacyComponentSerializer.legacySection().serialize(chatNameComponent);
+    }
+
+    @NotNull
+    public String getTDChatName() {
+        return TDChatName;
     }
 
     @NotNull
     @Override
     public Component getChatNameComponent() {
-        return this.chatName;
+        return this.chatNameComponent;
     }
 
     /**
@@ -494,6 +491,11 @@ public class User extends UserPlayerDelegation implements
     @Nullable
     public Component getPrefix() {
         return prefix;
+    }
+
+    @Nullable
+    public String getTDPrefix() {
+        return LegacyComponentSerializer.legacyAmpersand().serialize(this.getPrefix());
     }
 
     /**
@@ -516,6 +518,11 @@ public class User extends UserPlayerDelegation implements
         return suffix;
     }
 
+    @Nullable
+    public String getTDSuffix() {
+        return LegacyComponentSerializer.legacyAmpersand().serialize(this.getSuffix());
+    }
+
     /**
      * Sets the user suffix
      *
@@ -534,6 +541,11 @@ public class User extends UserPlayerDelegation implements
     @Nullable
     public Component getNick() {
         return nick;
+    }
+
+    @Nullable
+    public String getTDNick() {
+        return LegacyComponentSerializer.legacyAmpersand().serialize(this.getNick());
     }
 
     /**
@@ -2145,34 +2157,42 @@ public class User extends UserPlayerDelegation implements
 
     protected void updateChatName() {
         Component component = Component.text("");
+        StringBuilder nameTD = new StringBuilder();
 
         if (this.getNick() == null) {
             for (DisplayGroup group : this.getMainDisplayGroups()) {
                 if (group.getPrefix() != null) {
                     component = component.append(
                             Component.text(group.getPrefix()).color(group.getPrefixColor()));
+                    nameTD.append(group.getTDPrefixColor()).append(group.getPrefix());
                 }
             }
 
             if (this.getPrefix() != null) {
                 component = component.append(this.getPrefix());
+                nameTD.append(this.getTDPrefix());
             }
 
             component = component.append(this.getPlayerChatName());
+            nameTD.append("§r").append(this.getPlayer().getName());
 
             if (this.getSuffix() != null) {
                 component = component.append(this.getSuffix());
+                nameTD.append(this.getTDSuffix());
             }
         } else {
             DisplayGroup group = Server.getMemberDisplayGroup();
             if (group.getPrefix() != null) {
                 component = component.append(
                         Component.text(group.getPrefix(), group.getPrefixColor()));
+                nameTD.append(group.getTDPrefixColor()).append(group.getPrefix());
             }
             component.append(this.getNick());
+            nameTD.append("§r").append(this.getTDNick());
 
         }
-        this.chatName = component;
+        this.chatNameComponent = component;
+        this.TDChatName = nameTD.toString();
     }
 
     @NotNull

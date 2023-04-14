@@ -24,6 +24,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDeathEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDropItemEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserInteractEntityEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserInteractEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserMoveEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
@@ -53,6 +54,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -422,7 +424,7 @@ public class UserEventManager implements Listener,
                         .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
                         .append(user.getLastDamager().getDamager().getChatNameComponent()));
             } else {
-                Component message = e.deathMessage();
+                Component message = e.deathMessage().color(ExTextColor.PUBLIC);
                 for (User u : Server.getUsers()) {
                     message = message.replaceText(
                             b -> b.matchLiteral(u.getName()).replacement(u.getChatNameComponent()
@@ -569,6 +571,20 @@ public class UserEventManager implements Listener,
 
         e.setCancelled(userEvent.isCancelled());
         e.setFlyAtPlayer(userEvent.isFlyAtPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        User user = Server.getUser(e.getPlayer());
+
+        // user interact event
+        UserInteractEvent userEvent = new UserInteractEvent(user, e.getItem(),
+                e.getAction(), e.getClickedBlock(), e.getBlockFace(), e.getHand(),
+                e.getInteractionPoint());
+        Bukkit.getPluginManager().callEvent(userEvent);
+
+        e.setUseInteractedBlock(userEvent.getUseClickedBlock());
+        e.setUseItemInHand(userEvent.getUseItemInHand());
     }
 
 }

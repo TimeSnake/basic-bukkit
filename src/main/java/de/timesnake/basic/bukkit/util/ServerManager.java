@@ -15,7 +15,6 @@ import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.GroupManager;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
-import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
@@ -110,9 +109,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     private UserEventManager userEventManager;
     private InventoryEventManager inventoryEventManager;
     private TaskManager taskManager;
-    private Info info;
+    private FullServerInfo info;
     private PacketEntityManager packetEntityManager;
-    private TimeDownParser timeDownParser;
+    protected TimeDownParser timeDownParser;
 
     public final void onEnable() {
         this.timeDownParser = this.initTimeDownParser();
@@ -159,7 +158,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         }
     }
 
-    protected Info initServerInfo(DbServer server) {
+    protected FullServerInfo initServerInfo(DbServer server) {
         return new FullServerInfo(server);
     }
 
@@ -869,7 +868,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         return this.scoreboardManager;
     }
 
-    public final Info getInfo() {
+    public final FullServerInfo getInfo() {
         return this.info;
     }
 

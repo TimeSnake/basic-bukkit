@@ -5,13 +5,13 @@
 package de.timesnake.basic.bukkit.util;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
+import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
 import de.timesnake.basic.bukkit.util.chat.CommandManager;
 import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
-import de.timesnake.basic.bukkit.util.server.Info;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
@@ -662,7 +662,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
         return server.getScoreboardManager();
     }
 
-    public static Info getInfo() {
+    public static FullServerInfo getInfo() {
         return server.getInfo();
     }
 
