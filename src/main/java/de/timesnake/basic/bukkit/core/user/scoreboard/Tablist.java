@@ -38,8 +38,7 @@ public abstract class Tablist extends Board implements Listener,
     protected String footer;
 
     public Tablist(String name, Type type, ScoreboardPacketManager packetManager,
-            TablistUserJoin userJoin,
-            TablistUserQuit userQuit) {
+            TablistUserJoin userJoin, TablistUserQuit userQuit) {
         super(name);
         this.type = type;
         this.packetManager = packetManager;
@@ -50,13 +49,13 @@ public abstract class Tablist extends Board implements Listener,
 
     @Override
     public void setHeader(String header) {
-        this.header = header;
+        this.header = Server.getTimeDownParser().parse2Legacy(header);
         this.updateHeaderFooter();
     }
 
     @Override
     public void setFooter(String footer) {
-        this.footer = footer;
+        this.footer = Server.getTimeDownParser().parse2Legacy(footer);
         this.updateHeaderFooter();
     }
 
