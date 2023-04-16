@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
+import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.library.basic.util.Loggers;
@@ -34,12 +35,12 @@ public class Sideboard extends Board implements
 
     @Override
     public void setTitle(String title) {
-        this.title = title;
+        this.title = Server.getTimeDownParser().parse2Legacy(title);
         for (User user : super.watchingUsers) {
-            user.setSideboardTitle(title);
+            user.setSideboardTitle(this.title);
         }
         Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set title '"
-                + title + "'");
+                + this.title + "'");
     }
 
     /**
@@ -50,6 +51,7 @@ public class Sideboard extends Board implements
      */
     @Override
     public void setScore(Integer line, String text) {
+        text = Server.getTimeDownParser().parse2Legacy(text);
         this.scores.put(line, text);
         for (User user : watchingUsers) {
             user.setSideboardScore(line, text);
