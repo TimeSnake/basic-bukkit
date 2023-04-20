@@ -17,8 +17,11 @@ import org.jetbrains.annotations.NotNull;
 public class ExLocation extends Location {
 
     public static ExLocation fromLocation(Location location) {
-        if (location == null) return null;
-        return new ExLocation(Server.getWorld(location.getWorld()), location.getX(), location.getY(), location.getZ()
+        if (location == null) {
+            return null;
+        }
+        return new ExLocation(Server.getWorld(location.getWorld()), location.getX(),
+                location.getY(), location.getZ()
                 , location.getYaw(), location.getPitch());
     }
 
@@ -28,9 +31,11 @@ public class ExLocation extends Location {
         }
 
         if (list.size() == 3) {
-            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(), list.get(2).doubleValue());
+            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(),
+                    list.get(2).doubleValue());
         } else if (list.size() == 5) {
-            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(), list.get(2).doubleValue(),
+            return new ExLocation(null, list.get(0).doubleValue(), list.get(1).doubleValue(),
+                    list.get(2).doubleValue(),
                     list.get(3).floatValue(), list.get(4).floatValue());
         } else {
             throw new RuntimeException("invalid list size for location");
@@ -40,7 +45,8 @@ public class ExLocation extends Location {
     private ExWorld world;
 
     public ExLocation(ExWorld world, double x, double y, double z) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+        super(world != null ? world.getBukkitWorld()
+                        : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
                 y, z);
         this.world = world;
     }
@@ -50,14 +56,17 @@ public class ExLocation extends Location {
     }
 
     public ExLocation(ExWorld world, double x, double y, double z, float yaw, float pitch) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+        super(world != null ? world.getBukkitWorld()
+                        : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
                 y, z, yaw, pitch);
         this.world = world;
     }
 
     public ExLocation(ExWorld world, Location location) {
-        super(world != null ? world.getBukkitWorld() : Server.getWorldManager().getBasicWorld().getBukkitWorld(),
-                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        super(world != null ? world.getBukkitWorld()
+                        : Server.getWorldManager().getBasicWorld().getBukkitWorld(),
+                location.getX(), location.getY(), location.getZ(), location.getYaw(),
+                location.getPitch());
         this.world = world;
     }
 
@@ -146,8 +155,8 @@ public class ExLocation extends Location {
     }
 
     /**
-     * Gets the {@link BlockFace} facing in the location direction.
-     * The face is rounded to NORTH, EAST, SOUTH, WEST, UP and DOWN.
+     * Gets the {@link BlockFace} facing in the location direction. The face is rounded to NORTH,
+     * EAST, SOUTH, WEST, UP and DOWN.
      *
      * @return the {@link BlockFace}
      */
@@ -156,21 +165,36 @@ public class ExLocation extends Location {
         float yaw = this.getYaw();
         float pitch = this.getPitch();
 
-        if (pitch < -45) return BlockFace.UP;
-        if (pitch > 45) return BlockFace.DOWN;
+        if (pitch < -45) {
+            return BlockFace.UP;
+        }
+        if (pitch > 45) {
+            return BlockFace.DOWN;
+        }
 
-        while (yaw < 0) yaw += 360;
-        while (yaw >= 360) yaw -= 360;
+        while (yaw < 0) {
+            yaw += 360;
+        }
+        while (yaw >= 360) {
+            yaw -= 360;
+        }
 
-        if (yaw < 45) return BlockFace.NORTH;
-        if (yaw < 135) return BlockFace.WEST;
-        if (yaw < 225) return BlockFace.SOUTH;
+        if (yaw < 45) {
+            return BlockFace.NORTH;
+        }
+        if (yaw < 135) {
+            return BlockFace.WEST;
+        }
+        if (yaw < 225) {
+            return BlockFace.SOUTH;
+        }
         return BlockFace.EAST;
     }
 
     @Override
     public @NotNull ExLocation clone() {
-        return new ExLocation(this.world, this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
+        return new ExLocation(this.world, this.getX(), this.getY(), this.getZ(), this.getYaw(),
+                this.getPitch());
     }
 
     @Override

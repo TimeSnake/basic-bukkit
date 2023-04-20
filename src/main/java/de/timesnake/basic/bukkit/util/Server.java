@@ -327,6 +327,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
      * @param title    The title to send
      * @param subTitle The subtitle to send
      * @param stay     The display time of the title (in ticks)
+     * @deprecated in favour of {@link Server#broadcastTDTitle(String, String, Duration)}
      */
     @Deprecated
     public static void broadcastTitle(String title, String subTitle, Duration stay) {

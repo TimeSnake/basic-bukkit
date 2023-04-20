@@ -796,8 +796,12 @@ public class User extends UserPlayerDelegation implements
     /**
      * Plays the standard item clicked sound for the user Instrument: sticks Note: octave 1, tone A
      */
-    public void playSoundItemClicked() {
+    public void playSoundItemClickSuccessful() {
         this.playNote(Instrument.STICKS, Note.natural(1, Tone.A));
+    }
+
+    public void playSoundItemClickFailed() {
+        this.playNote(Instrument.STICKS, Note.natural(0, Tone.A));
     }
 
     /**
@@ -1461,7 +1465,7 @@ public class User extends UserPlayerDelegation implements
         Server.getNetwork().sendUserToServerLast(this);
     }
 
-    public void lockBlocKBreakPlace() {
+    public void lockBlockBreakPlace() {
         this.blockBreakPlaceLocked = true;
     }
 
