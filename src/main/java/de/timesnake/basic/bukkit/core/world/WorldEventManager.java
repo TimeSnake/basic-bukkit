@@ -143,7 +143,8 @@ public class WorldEventManager implements Listener {
                 }
             }
 
-            if (world.isRestricted(ExWorld.Restriction.OPEN_INVENTORIES).contains(blockType)) {
+            if (world.isRestricted(ExWorld.Restriction.OPEN_INVENTORIES).contains(blockType)
+                    || world.isRestricted(Restriction.OPEN_INVENTORIES).contains(Material.AIR)) {
                 event.setCancelled(true);
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.DENY);
