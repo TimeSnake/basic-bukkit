@@ -5,6 +5,7 @@
 package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.library.basic.util.Tuple;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -13,13 +14,21 @@ import org.bukkit.util.Vector;
 
 public class ExBlock {
 
-    private static final List<Vector> NEAR_BLOCKS = List.of(
+    public static final List<Vector> NEAR_BLOCKS = List.of(
             new Vector(1, 0, 0),
             new Vector(-1, 0, 0),
             new Vector(0, 1, 0),
             new Vector(0, -1, 0),
             new Vector(0, 0, 1),
             new Vector(0, 0, -1));
+
+    public static final List<Tuple<Vector, BlockFace>> NEAR_BLOCKS_WITH_FACING = List.of(
+            new Tuple<>(new Vector(1, 0, 0), BlockFace.WEST),
+            new Tuple<>(new Vector(-1, 0, 0), BlockFace.EAST),
+            new Tuple<>(new Vector(0, 1, 0), BlockFace.DOWN),
+            new Tuple<>(new Vector(0, -1, 0), BlockFace.UP),
+            new Tuple<>(new Vector(0, 0, 1), BlockFace.NORTH),
+            new Tuple<>(new Vector(0, 0, -1), BlockFace.SOUTH));
 
     private final ExLocation location;
 
@@ -39,10 +48,12 @@ public class ExBlock {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         return this.location.equals(((ExBlock) o).getLocation());
     }
 

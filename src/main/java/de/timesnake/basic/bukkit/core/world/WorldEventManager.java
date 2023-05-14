@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.core.world;
 
+import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
@@ -12,15 +13,21 @@ import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserBlockBreakEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserBlockPlaceEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
+import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorld.Restriction;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.basic.util.Tuple;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import java.util.Set;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Candle;
+import org.bukkit.block.data.type.Fire;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -29,7 +36,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -43,6 +52,7 @@ import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class WorldEventManager implements Listener {
 
@@ -523,7 +533,7 @@ public class WorldEventManager implements Listener {
     public void onBlockSpread(BlockSpreadEvent e) {
         ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
 
-        if (!world.isRestricted(ExWorld.Restriction.FIRE_SPREAD)) {
+        if (!world.isRestricted(Restriction.BLOCK_SPREAD)) {
             return;
         }
 
@@ -547,17 +557,19 @@ public class WorldEventManager implements Listener {
     public void onBlockIgnite(BlockIgniteEvent e) {
         ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
 
-        if (!world.isRestricted(ExWorld.Restriction.BLOCK_IGNITE)) {
+        if (!world.isRestricted(Restriction.BLOCK_IGNITE)) {
+            this.checkFireSpread(e.getBlock().getLocation(), world);
             return;
         }
 
-        if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
+        if (e.getCause().equals(IgniteCause.FLINT_AND_STEEL)
+                && !world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
             return;
         }
 
         if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
-                && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(
-                e.getBlock().getType()))) {
+                && (Tag.CAMPFIRES.isTagged(e.getBlock().getType())
+                || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
             return;
         }
 
@@ -567,5 +579,80 @@ public class WorldEventManager implements Listener {
 
         e.setCancelled(true);
         Loggers.WORLDS.info("Cancelled block ignite event");
+    }
+
+    @EventHandler
+    public void onTNTPrime(TNTPrimeEvent e) {
+        ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
+
+        if (!world.isRestricted(ExWorld.Restriction.TNT_PRIME)) {
+            return;
+        }
+
+        if (world.isExceptService() && e.getPrimerEntity() instanceof Player
+                && Server.getUser(((Player) e.getPrimerEntity())).isService()) {
+            return;
+        }
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler()
+    public void onBlockFromTo(BlockFromToEvent e) {
+        Block block = e.getBlock();
+        ExWorld world = this.worldManager.getWorld(block.getWorld());
+
+        if (!world.isRestricted(Restriction.FLUID_FLOW)) {
+            return;
+        }
+
+        if (block.getType() == Material.WATER || block.getType() == Material.LAVA) {
+            e.setCancelled(true);
+            Loggers.WORLDS.info("Cancelled block burn-up event");
+        }
+    }
+
+    private void checkFireSpread(Location loc, ExWorld world) {
+        int fires = (int) world.getRandom()
+                .nextFloat(0, world.isRestricted(Restriction.FIRE_SPREAD_SPEED));
+
+        if (fires > 0) {
+            this.scanForIgnitable(loc, world, fires);
+        }
+    }
+
+    private void scanForIgnitable(Location loc, ExWorld world, int fires) {
+        for (Block block : world.getBlocksWithinDistance(loc,
+                world.isRestricted(Restriction.FIRE_SPREAD_DISTANCE))) {
+            if (!block.isEmpty()) {
+                continue;
+            }
+
+            for (Tuple<Vector, BlockFace> tuple : ExBlock.NEAR_BLOCKS_WITH_FACING) {
+                Vector vec = tuple.getA();
+                BlockFace blockFace = tuple.getB();
+
+                Block nearBlock = block.getLocation().add(vec).getBlock();
+
+                if (!nearBlock.isBurnable()) {
+                    continue;
+                }
+
+                nearBlock.setType(Material.FIRE);
+                if (blockFace != BlockFace.DOWN) {
+                    BlockData blockData = nearBlock.getBlockData();
+                    if (blockData instanceof Fire) {
+                        ((Fire) blockData).setFace(blockFace, true);
+                        nearBlock.setBlockData(blockData);
+                        if (--fires == 0) {
+                            return;
+                        }
+                        break;
+                    }
+
+                }
+            }
+        }
+
     }
 }

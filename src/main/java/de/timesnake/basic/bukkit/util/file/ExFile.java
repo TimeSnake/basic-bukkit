@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Use {@link ExToml} instead
+ * @deprecated in favour of {@link ExToml}
  */
 @Deprecated
 public class ExFile {

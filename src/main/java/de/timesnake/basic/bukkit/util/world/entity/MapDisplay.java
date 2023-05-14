@@ -6,8 +6,8 @@ package de.timesnake.basic.bukkit.util.world.entity;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.library.entities.entity.bukkit.ExItemFrame;
 import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutMap;
@@ -15,8 +15,6 @@ import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.Rotation;
@@ -108,10 +106,10 @@ public class MapDisplay extends PacketEntity {
     private final ExItemStack[][] maps;
     private final ExBlock[][] frameLocations;
     private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
-    private final Set<User> mapLoadedForUser = new HashSet<>();
 
-    public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace, BlockFace orientationUp,
-                      boolean placeOnBlock) {
+    public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace,
+            BlockFace orientationUp,
+            boolean placeOnBlock) {
         super(baseBlock.getLocation());
         this.blockFace = blockFace;
         this.orientation = orientationUp;
@@ -145,14 +143,6 @@ public class MapDisplay extends PacketEntity {
 
     @Override
     public void spawnForUser(User user) {
-
-        boolean loadMap = false;
-        if (!this.mapLoadedForUser.contains(user)) {
-            loadMap = true;
-            this.mapLoadedForUser.add(user);
-        }
-
-        boolean finalLoadMap = loadMap;
         Server.runTaskAsynchrony(() -> {
             ExItemFrame[][] frames = this.framesByUser.get(user);
 
@@ -171,7 +161,8 @@ public class MapDisplay extends PacketEntity {
                         frame.setFacingDirection(blockFace);
                         frame.setVisible(false);
                         frame.setRotation(this.rotation);
-                        frame.setPosition(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ(),
+                        frame.setPosition(block.getBlock().getX(), block.getBlock().getY(),
+                                block.getBlock().getZ(),
                                 false);
 
                         frames[x][y] = frame;
@@ -214,8 +205,10 @@ public class MapDisplay extends PacketEntity {
             return;
         }
 
-        Server.runTaskLoopAsynchrony((frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
-                Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()), BasicBukkit.getPlugin());
+        Server.runTaskLoopAsynchrony(
+                (frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
+                Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()),
+                BasicBukkit.getPlugin());
 
     }
 
