@@ -16,6 +16,9 @@ import de.timesnake.library.extension.util.cmd.CommandExitException;
 import de.timesnake.library.extension.util.cmd.CommandListenerBasis;
 import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.cmd.IncCommandContext;
+import de.timesnake.library.extension.util.cmd.IncCommandListener;
+import de.timesnake.library.extension.util.cmd.IncCommandOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +34,7 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
         CommandExecutor {
 
     private final HashMap<String, ExCommand<Sender, Argument>> commands = new HashMap<>();
+    private final HashMap<String, IncCommandContext> incCmdContexts = new HashMap<>();
 
     private final TabCompleteManager tabCompleteManager = new TabCompleteManager();
 
@@ -51,6 +55,33 @@ public class CommandManager implements de.timesnake.basic.bukkit.util.chat.Comma
                 } else if (basicCmd.getListener() instanceof ExCommandListener listener) {
                     listener.onCommand(sender, basicCmd, new ExArguments(sender, args,
                             listener.allowDuplicates(cmdName, args)));
+                } else if (basicCmd.getListener() instanceof IncCommandListener listener) {
+                    IncCommandContext context = incCmdContexts.get(sender.getName());
+                    if (context != null) {
+                        IncCommandOption option = (IncCommandOption) listener.getOptions().stream()
+                                .filter(o -> ((IncCommandOption) o).getName().equals(args[0]))
+                                .findFirst().orElse(null);
+
+                        if (option == null) {
+                            return false;
+                        }
+
+                        Object value = option.parseValue(args[1]);
+                        context.addOption(option, value);
+
+                        boolean finished = listener.onUpdate(sender, context, option, value);
+
+                        if (finished) {
+                            incCmdContexts.remove(sender.getName());
+                        }
+                    } else {
+                        context = listener.onCommand(sender, basicCmd, new Arguments(sender, args));
+
+                        if (context != null) {
+                            incCmdContexts.put(sender.getName(), context);
+                        }
+
+                    }
                 }
             } catch (CommandExitException ignored) {
 

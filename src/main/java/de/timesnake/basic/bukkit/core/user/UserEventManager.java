@@ -183,9 +183,8 @@ public class UserEventManager implements Listener,
         user.quit();
 
         // async user quit event
-        Server.runTaskAsynchrony(
-                () -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
-                BasicBukkit.getPlugin());
+        Server.runTaskAsynchrony(() -> Bukkit.getPluginManager()
+                .callEvent(new AsyncUserQuitEvent(user)), BasicBukkit.getPlugin());
 
         // user quit event
         Bukkit.getPluginManager().callEvent(new UserQuitEvent(user));

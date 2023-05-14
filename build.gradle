@@ -32,6 +32,8 @@ dependencies {
     implementation project(':library-basic')
     implementation project(':library-chat')
 
+    implementation project.gson
+
     compileOnly project(':database-bukkit')
     compileOnly project(':database-api')
 

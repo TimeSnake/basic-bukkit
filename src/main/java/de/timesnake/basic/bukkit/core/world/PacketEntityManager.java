@@ -12,6 +12,7 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.entity.MapDisplayBuilder;
 import de.timesnake.basic.bukkit.util.world.entity.PacketEntity;
+import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.Tuple;
 import de.timesnake.library.packets.core.packet.out.ExClientboundLevelChunkWithLightPacket;
 import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutChunkUnload;
@@ -30,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,7 +41,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
     public static final String FAKE_PLAYER_TEAM_NAME = "fake_players";
 
-    private final ConcurrentHashMap<Chunk, Collection<PacketEntity>> entitiesByChunk = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Triple<World, Integer, Integer>, Collection<PacketEntity>> entitiesByChunk = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<UUID, Collection<Chunk>> preLoadedChunksByUuid = new ConcurrentHashMap<>();
 
@@ -49,7 +51,8 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
         Server.getPacketManager().addListener(this);
     }
 
-    @PacketHandler(type = {ExPacket.Type.PLAY_OUT_LEVEL_CHUNK_WITH_LIGHT_PACKET, ExPacket.Type.PLAY_OUT_CHUNK_UNLOAD})
+    @PacketHandler(type = {ExPacket.Type.PLAY_OUT_LEVEL_CHUNK_WITH_LIGHT_PACKET,
+            ExPacket.Type.PLAY_OUT_CHUNK_UNLOAD})
     public void onPacket(ExPacketPlayOut packet, Player receiver) {
 
         boolean load;
@@ -71,14 +74,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
         chunk = world.getChunkAt(coords.getA(), coords.getB());
 
-
-        if (load) {
-            this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
-        }
-
         User user = Server.getUser(receiver);
 
         if (user == null) {
+            this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>())
+                    .add(chunk);
             return;
         }
 
@@ -91,33 +91,41 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     }
 
     private void loadEntitiesInChunk(User user, Chunk chunk) {
-        for (PacketEntity entity : this.entitiesByChunk.getOrDefault(chunk,
-                ConcurrentHashMap.newKeySet(0)).stream().filter(e -> e.isUserWatching(user)).toList()) {
+        for (PacketEntity entity : this.entitiesByChunk
+                .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()),
+                        ConcurrentHashMap.newKeySet(0))
+                .stream().filter(e -> e.isUserWatching(user)).toList()) {
             entity.loadForUser(user);
         }
     }
 
     private void unloadEntitiesInChunk(User user, Chunk chunk) {
-        for (PacketEntity entity : this.entitiesByChunk.getOrDefault(chunk,
-                ConcurrentHashMap.newKeySet(0)).stream().filter(e -> e.isUserWatching(user)).toList()) {
+        for (PacketEntity entity : this.entitiesByChunk
+                .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()),
+                        ConcurrentHashMap.newKeySet(0)).stream()
+                .filter(e -> e.isUserWatching(user)).toList()) {
             entity.unloadForUser(user);
         }
     }
 
     private Collection<PacketEntity> getAllEntities() {
-        return this.entitiesByChunk.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        return this.entitiesByChunk.values().stream().flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     public void tryLoadEntityForUser(PacketEntity entity, User user) {
         if (this.preLoadedChunksByUuid.containsKey(user.getUniqueId())) {
-            if (this.preLoadedChunksByUuid.get(user.getUniqueId()).contains(entity.getLocation().getChunk())) {
+            Chunk chunk = entity.getLocation().getChunk();
+            if (this.preLoadedChunksByUuid.get(user.getUniqueId()).contains(chunk)) {
                 entity.loadForUser(user);
             }
         }
     }
 
     private void addEntity(PacketEntity entity) {
-        this.entitiesByChunk.computeIfAbsent(entity.getLocation().getChunk(), u -> ConcurrentHashMap.newKeySet()).add(entity);
+        Chunk chunk = entity.getLocation().getChunk();
+        this.entitiesByChunk.computeIfAbsent(new Triple<>(entity.getLocation().getWorld(),
+                chunk.getX(), chunk.getZ()), u -> ConcurrentHashMap.newKeySet()).add(entity);
     }
 
     private void removeEntity(PacketEntity entity) {
@@ -128,8 +136,6 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     public void registerEntity(PacketEntity entity) {
         this.addEntity(entity);
         entity.setPublic(true);
-
-        Server.getUsers().forEach(entity::addWatcher);
     }
 
     @Override
@@ -152,16 +158,16 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     @Override
     public Set<PacketEntity> getEntitiesByWorld(ExWorld world) {
         return new HashSet<>(this.entitiesByChunk.entrySet().stream()
-                .filter(entry -> entry.getKey().getWorld().equals(world.getBukkitWorld()))
+                .filter(entry -> entry.getKey().getA().equals(world.getBukkitWorld()))
                 .map(Map.Entry::getValue).flatMap(Collection::stream)
                 .toList());
     }
 
     @Override
     public <EntityType extends PacketEntity> Set<EntityType> getEntitiesByWorld(ExWorld world,
-                                                                                Class<EntityType> entityClass) {
+            Class<EntityType> entityClass) {
         return ((Set<EntityType>) this.entitiesByChunk.entrySet().stream()
-                .filter(entry -> entry.getKey().getWorld().equals(world.getBukkitWorld()))
+                .filter(entry -> entry.getKey().getA().equals(world.getBukkitWorld()))
                 .map(Map.Entry::getValue).flatMap(Collection::stream)
                 .filter(entity -> entityClass.isAssignableFrom(entity.getClass()))
                 .collect(Collectors.toSet()));
@@ -173,13 +179,14 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
                 ExPacketPlayOutTablistTeamCreation.wrap(FAKE_PLAYER_TEAM_NAME, "", ChatColor.WHITE,
                         ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER));
 
-        Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(e.getUser().getUniqueId());
+        Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(
+                e.getUser().getUniqueId());
 
         if (preLoadedChunks != null) {
             for (Chunk chunk : preLoadedChunks) {
-                Server.runTaskLaterAsynchrony(() -> {
-                    this.loadEntitiesInChunk(e.getUser(), chunk);
-                }, 20 * 3, BasicBukkit.getPlugin());
+                Server.runTaskLaterAsynchrony(
+                        () -> this.loadEntitiesInChunk(e.getUser(), chunk),
+                        20 * 3, BasicBukkit.getPlugin());
 
             }
         }
@@ -192,5 +199,4 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
         this.preLoadedChunksByUuid.remove(user.getUniqueId());
     }
-
 }

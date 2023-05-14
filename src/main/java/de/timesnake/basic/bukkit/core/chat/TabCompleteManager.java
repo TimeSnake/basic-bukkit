@@ -20,6 +20,7 @@ import de.timesnake.library.extension.util.cmd.ArgumentParseException;
 import de.timesnake.library.extension.util.cmd.CommandExitException;
 import de.timesnake.library.extension.util.cmd.DuplicateOptionException;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.cmd.IncCommandListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +54,9 @@ public class TabCompleteManager implements TabCompleter,
                 return listener.getTabCompletion(basicCmd,
                         new CommandManager.ExArguments(sender, args,
                                 listener.allowDuplicates(cmdName, args)));
+            } else if (basicCmd.getListener() instanceof IncCommandListener listener) {
+                return listener.getTabCompletion(basicCmd,
+                        new CommandManager.Arguments(sender, args));
             }
         } catch (CommandExitException | ArgumentParseException | DuplicateOptionException ignored) {
         }
