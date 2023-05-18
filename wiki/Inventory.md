@@ -2,27 +2,36 @@
 
 ### [ExInventory] (`Server#createExInventory(...)`)
 
-The `ExInventory` provides some additional methods on inventories. Like a constructor with item varargs, which
+The `ExInventory` provides some additional methods on inventories. Like a constructor with item
+varargs, which
 calculates
 the needed inventory size.
 
 ### Excluded Inventories
 
-Inventories held by an instance of an [ExcludedInventoryHolder] are completely excluded by move- and drop-lock,
+Inventories held by an instance of an [ExcludedInventoryHolder] are completely excluded by move- and
+drop-lock,
 click-events.
 
 ### [ExItemStack]
 
-The `ExItemStack` class extends the bukkit `ItemStack` class. Each `ExItemStack` is tagged with a unique id. For
-instantiating an item many constructors a given. Additionally, many methods are supporting the builder pattern.
-The `equals(Object)` and `hashCode()` methods are based on the id. `equals` compares the ids of the items. If the other
-item is a bukkit `ItemStack`, it is wrapped to a `ExItemStack` (the id will be extracted, if possible). The `hashCode`
+The `ExItemStack` class extends the bukkit `ItemStack` class. Each `ExItemStack` is tagged with a
+unique id. For
+instantiating an item many constructors a given. Additionally, many methods are supporting the
+builder pattern.
+The `equals(Object)` and `hashCode()` methods are based on the id. `equals` compares the ids of the
+items. If the other
+item is a bukkit `ItemStack`, it is wrapped to a `ExItemStack` (the id will be extracted, if
+possible). The `hashCode`
 of the item is the hash of the id (allows use of `HashMap`).
 
-**Important:** The unique id of an item could change on a server restart. So items, which are in a player inventory
+**Important:** The unique id of an item could change on a server restart. So items, which are in a
+player inventory
 tagged
-with an id are not valid anymore. To prevent these use the `ExItemStack#getHashedIdItem(Material material, String name)`
-method to use a persistent tagging with the given name. If the given name already exists, a `DuplicateItemIdException`
+with an id are not valid anymore. To prevent these use
+the `ExItemStack#getHashedIdItem(Material material, String name)`
+method to use a persistent tagging with the given name. If the given name already exists,
+a `DuplicateItemIdException`
 will be thrown.
 
 #### Cloning
@@ -30,9 +39,11 @@ will be thrown.
 For cloning multiple clone types are possible:
 
 - `clone()` - Clones the item with a new id, so the items are no longer the same.
-- `cloneWithId()` - Clones the item with the current id, so they are treated as "same" items. Changes on the cloned have
+- `cloneWithId()` - Clones the item with the current id, so they are treated as "same" items.
+  Changes on the cloned have
   no effect on the original item. This is useful for user specific item.
-- `cloneWithoutId()` - Clones the item and clears all tags. This method returns a bukkit `ItemStack`.
+- `cloneWithoutId()` - Clones the item and clears all tags. This method returns a
+  bukkit `ItemStack`.
 
 #### Extra Tags
 
@@ -56,7 +67,8 @@ The inventory listeners are based on two registration types:
 
 #### [UserInventoryClickListener]
 
-Called by the `InventoryClickEvent`. Each listener is only called if the registered item is clicked or an item is
+Called by the `InventoryClickEvent`. Each listener is only called if the registered item is clicked
+or an item is
 clicked, in the inventory hold by the registered holder.
 
 Example for click-listener:
@@ -85,7 +97,8 @@ public class ClickAction implements InventoryHolder, UserInventoryClickListener 
 
 #### [UserInventoryInteractListener]
 
-Called by the `InventoryInteractEvent`. Each listener is only called if the registered item is clicked.
+Called by the `InventoryInteractEvent`. Each listener is only called if the registered item is
+clicked.
 
 Example for interact-listener:
 

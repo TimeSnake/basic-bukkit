@@ -9,18 +9,18 @@ import org.bukkit.entity.Player;
 
 public interface TablistablePlayer {
 
-    String getTablistName();
+  String getTablistName();
 
-    TablistableGroup getTablistGroup(TablistGroupType type);
+  TablistableGroup getTablistGroup(TablistGroupType type);
 
-    Player getPlayer();
+  Player getPlayer();
 
-    String getFullRank(LinkedList<TablistGroupType> types);
+  String getFullRank(LinkedList<TablistGroupType> types);
 
-    String getFullPrefix(LinkedList<TablistGroupType> types);
+  String getFullPrefix(LinkedList<TablistGroupType> types);
 
-    boolean showInTablist();
+  boolean showInTablist();
 
-    String getTablistPrefix();
+  String getTablistPrefix();
 
 }

@@ -12,25 +12,26 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class UserTeleportEvent extends UserMoveEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    private final PlayerTeleportEvent.TeleportCause cause;
+  private final PlayerTeleportEvent.TeleportCause cause;
 
-    public UserTeleportEvent(User user, boolean cancelled, Location from, Location to, PlayerTeleportEvent.TeleportCause cause) {
-        super(user, cancelled, from, to);
-        this.cause = cause;
-    }
+  public UserTeleportEvent(User user, boolean cancelled, Location from, Location to,
+      PlayerTeleportEvent.TeleportCause cause) {
+    super(user, cancelled, from, to);
+    this.cause = cause;
+  }
 
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Nonnull
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 
-    public PlayerTeleportEvent.TeleportCause getCause() {
-        return cause;
-    }
+  public PlayerTeleportEvent.TeleportCause getCause() {
+    return cause;
+  }
 }

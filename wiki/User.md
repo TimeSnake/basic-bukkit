@@ -2,7 +2,8 @@
 
 ## Injection
 
-To inject your own user class, you must override the [ServerManager]`#loadUser(Player player)` method.
+To inject your own user class, you must override the [ServerManager]`#loadUser(Player player)`
+method.
 
 ``` java
 public class YourServerManager extends ServerManager() {

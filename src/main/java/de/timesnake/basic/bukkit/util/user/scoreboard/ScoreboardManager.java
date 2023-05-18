@@ -6,27 +6,27 @@ package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 public interface ScoreboardManager {
 
-    GroupTablist registerGroupTablist(TablistBuilder builder);
+  GroupTablist registerGroupTablist(TablistBuilder builder);
 
-    TeamTablist registerTeamTablist(TeamTablistBuilder builder);
+  TeamTablist registerTeamTablist(TeamTablistBuilder builder);
 
-    TeamTablist registerTagTeamTablist(TeamTablistBuilder builder);
+  TeamTablist registerTagTeamTablist(TeamTablistBuilder builder);
 
-    Tablist getTablist(String name);
+  Tablist getTablist(String name);
 
-    void removeTablist(String name);
+  void removeTablist(String name);
 
-    Sideboard registerSideboard(SideboardBuilder builder);
+  Sideboard registerSideboard(SideboardBuilder builder);
 
-    ExSideboard registerExSideboard(ExSideboardBuilder builder);
+  ExSideboard registerExSideboard(ExSideboardBuilder builder);
 
-    Sideboard getSideboard(String name);
+  Sideboard getSideboard(String name);
 
-    void removeSideboard(String name);
+  void removeSideboard(String name);
 
-    Tablist getActiveTablist();
+  Tablist getActiveTablist();
 
-    void setActiveTablist(Tablist tablist);
+  void setActiveTablist(Tablist tablist);
 
-    ScoreboardPacketManager getPacketManager();
+  ScoreboardPacketManager getPacketManager();
 }

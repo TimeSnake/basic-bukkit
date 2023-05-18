@@ -25,195 +25,195 @@ import org.bukkit.util.Vector;
 
 public class MapDisplay extends PacketEntity {
 
-    public static Rotation blockFaceToRotation(BlockFace blockFace, BlockFace orientation) {
-        if (blockFace.getModY() != 0) {
-            if (orientation.equals(BlockFace.SOUTH)) {
-                return Rotation.CLOCKWISE;
-            }
+  public static Rotation blockFaceToRotation(BlockFace blockFace, BlockFace orientation) {
+    if (blockFace.getModY() != 0) {
+      if (orientation.equals(BlockFace.SOUTH)) {
+        return Rotation.CLOCKWISE;
+      }
 
-            if (blockFace.equals(BlockFace.UP)) {
-                if (orientation.equals(BlockFace.WEST)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.EAST)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-            } else if (blockFace.equals(BlockFace.DOWN)) {
-                if (orientation.equals(BlockFace.WEST)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.EAST)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-            }
-
-            return Rotation.NONE;
+      if (blockFace.equals(BlockFace.UP)) {
+        if (orientation.equals(BlockFace.WEST)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
         }
-
-        if (blockFace.getModZ() != 0) {
-            if (orientation.equals(BlockFace.DOWN)) {
-                return Rotation.CLOCKWISE;
-            }
-
-            if (blockFace.equals(BlockFace.SOUTH)) {
-                if (orientation.equals(BlockFace.WEST)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.EAST)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-            } else if (blockFace.equals(BlockFace.NORTH)) {
-                if (orientation.equals(BlockFace.WEST)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.EAST)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-            }
-            return Rotation.NONE;
+        if (orientation.equals(BlockFace.EAST)) {
+          return Rotation.CLOCKWISE_45;
         }
-
-        if (blockFace.getModX() != 0) {
-            if (orientation.equals(BlockFace.DOWN)) {
-                return Rotation.CLOCKWISE;
-            }
-
-            if (blockFace.equals(BlockFace.WEST)) {
-                if (orientation.equals(BlockFace.SOUTH)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.NORTH)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-            } else if (blockFace.equals(BlockFace.EAST)) {
-                if (orientation.equals(BlockFace.NORTH)) {
-                    return Rotation.CLOCKWISE_45;
-                }
-                if (orientation.equals(BlockFace.SOUTH)) {
-                    return Rotation.COUNTER_CLOCKWISE_45;
-                }
-            }
-            return Rotation.NONE;
+      } else if (blockFace.equals(BlockFace.DOWN)) {
+        if (orientation.equals(BlockFace.WEST)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
         }
+        if (orientation.equals(BlockFace.EAST)) {
+          return Rotation.CLOCKWISE_45;
+        }
+      }
 
-        return null;
+      return Rotation.NONE;
     }
 
-    protected final ExBlock baseBlock;
-    protected final BlockFace blockFace;
-    protected final BlockFace orientation;
-    protected final Rotation rotation;
-    private final ExItemStack[][] maps;
-    private final ExBlock[][] frameLocations;
-    private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
+    if (blockFace.getModZ() != 0) {
+      if (orientation.equals(BlockFace.DOWN)) {
+        return Rotation.CLOCKWISE;
+      }
 
-    public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace,
-            BlockFace orientationUp,
-            boolean placeOnBlock) {
-        super(baseBlock.getLocation());
-        this.blockFace = blockFace;
-        this.orientation = orientationUp;
-        this.rotation = blockFaceToRotation(blockFace, orientationUp);
-
-        this.maps = maps;
-
-        if (placeOnBlock) {
-            this.baseBlock = baseBlock.getRelative(blockFace);
-        } else {
-            this.baseBlock = baseBlock;
+      if (blockFace.equals(BlockFace.SOUTH)) {
+        if (orientation.equals(BlockFace.WEST)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
         }
+        if (orientation.equals(BlockFace.EAST)) {
+          return Rotation.CLOCKWISE_45;
+        }
+      } else if (blockFace.equals(BlockFace.NORTH)) {
+        if (orientation.equals(BlockFace.WEST)) {
+          return Rotation.CLOCKWISE_45;
+        }
+        if (orientation.equals(BlockFace.EAST)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
+        }
+      }
+      return Rotation.NONE;
+    }
 
-        Vector orientationVector = this.orientation.getDirection();
+    if (blockFace.getModX() != 0) {
+      if (orientation.equals(BlockFace.DOWN)) {
+        return Rotation.CLOCKWISE;
+      }
 
-        Vector xVector = blockFace.getDirection().crossProduct(orientationVector).multiply(-1);
-        Vector yVector = orientationVector.clone().multiply(-1);
+      if (blockFace.equals(BlockFace.WEST)) {
+        if (orientation.equals(BlockFace.SOUTH)) {
+          return Rotation.CLOCKWISE_45;
+        }
+        if (orientation.equals(BlockFace.NORTH)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
+        }
+      } else if (blockFace.equals(BlockFace.EAST)) {
+        if (orientation.equals(BlockFace.NORTH)) {
+          return Rotation.CLOCKWISE_45;
+        }
+        if (orientation.equals(BlockFace.SOUTH)) {
+          return Rotation.COUNTER_CLOCKWISE_45;
+        }
+      }
+      return Rotation.NONE;
+    }
 
-        this.frameLocations = new ExBlock[maps.length][maps[0].length];
+    return null;
+  }
+
+  protected final ExBlock baseBlock;
+  protected final BlockFace blockFace;
+  protected final BlockFace orientation;
+  protected final Rotation rotation;
+  private final ExItemStack[][] maps;
+  private final ExBlock[][] frameLocations;
+  private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
+
+  public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace,
+      BlockFace orientationUp,
+      boolean placeOnBlock) {
+    super(baseBlock.getLocation());
+    this.blockFace = blockFace;
+    this.orientation = orientationUp;
+    this.rotation = blockFaceToRotation(blockFace, orientationUp);
+
+    this.maps = maps;
+
+    if (placeOnBlock) {
+      this.baseBlock = baseBlock.getRelative(blockFace);
+    } else {
+      this.baseBlock = baseBlock;
+    }
+
+    Vector orientationVector = this.orientation.getDirection();
+
+    Vector xVector = blockFace.getDirection().crossProduct(orientationVector).multiply(-1);
+    Vector yVector = orientationVector.clone().multiply(-1);
+
+    this.frameLocations = new ExBlock[maps.length][maps[0].length];
+
+    for (int x = 0; x < maps.length; x++) {
+
+      ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
+
+      for (int y = 0; y < maps[x].length; y++) {
+        frameLocations[x][y] = block;
+        block = block.getRelative(yVector);
+      }
+    }
+  }
+
+  @Override
+  public void spawnForUser(User user) {
+    Server.runTaskAsynchrony(() -> {
+      ExItemFrame[][] frames = this.framesByUser.get(user);
+
+      if (frames == null) {
+        frames = new ExItemFrame[this.maps.length][this.maps[0].length];
 
         for (int x = 0; x < maps.length; x++) {
+          for (int y = 0; y < maps[x].length; y++) {
+            ExBlock block = this.frameLocations[x][y];
+            ExItemStack map = maps[x][y];
 
-            ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
+            ExItemFrame frame = new ExItemFrame(block.getLocation().getWorld());
+            frame.setFixed(true);
+            frame.setItem(map, false);
+            frame.setInvulnerable(true);
+            frame.setFacingDirection(blockFace);
+            frame.setVisible(false);
+            frame.setRotation(this.rotation);
+            frame.setPosition(block.getBlock().getX(), block.getBlock().getY(),
+                block.getBlock().getZ(),
+                false);
 
-            for (int y = 0; y < maps[x].length; y++) {
-                frameLocations[x][y] = block;
-                block = block.getRelative(yVector);
-            }
+            frames[x][y] = frame;
+          }
         }
-    }
+        this.framesByUser.put(user, frames);
+      }
 
-    @Override
-    public void spawnForUser(User user) {
-        Server.runTaskAsynchrony(() -> {
-            ExItemFrame[][] frames = this.framesByUser.get(user);
+      for (int x = 0; x < maps.length; x++) {
+        for (int y = 0; y < maps[x].length; y++) {
+          ExItemFrame frame = frames[x][y];
+          ExItemStack map = this.maps[x][y];
 
-            if (frames == null) {
-                frames = new ExItemFrame[this.maps.length][this.maps[0].length];
+          MapView view = ((MapMeta) map.getItemMeta()).getMapView();
 
-                for (int x = 0; x < maps.length; x++) {
-                    for (int y = 0; y < maps[x].length; y++) {
-                        ExBlock block = this.frameLocations[x][y];
-                        ExItemStack map = maps[x][y];
+          frame.setItem(map, false);
+          frame.setVisible(true);
+          frame.setVisible(false);
+          frame.setRotation(this.rotation.rotateClockwise());
+          frame.setRotation(this.rotation);
 
-                        ExItemFrame frame = new ExItemFrame(block.getLocation().getWorld());
-                        frame.setFixed(true);
-                        frame.setItem(map, false);
-                        frame.setInvulnerable(true);
-                        frame.setFacingDirection(blockFace);
-                        frame.setVisible(false);
-                        frame.setRotation(this.rotation);
-                        frame.setPosition(block.getBlock().getX(), block.getBlock().getY(),
-                                block.getBlock().getZ(),
-                                false);
+          user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(frame,
+              ExPacketPlayOutSpawnEntity.blockFaceToRotation(blockFace)));
 
-                        frames[x][y] = frame;
-                    }
-                }
-                this.framesByUser.put(user, frames);
-            }
+          user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(frame,
+              ExPacketPlayOutEntityMetadata.DataType.UPDATE, false));
 
-            for (int x = 0; x < maps.length; x++) {
-                for (int y = 0; y < maps[x].length; y++) {
-                    ExItemFrame frame = frames[x][y];
-                    ExItemStack map = this.maps[x][y];
-
-                    MapView view = ((MapMeta) map.getItemMeta()).getMapView();
-
-                    frame.setItem(map, false);
-                    frame.setVisible(true);
-                    frame.setVisible(false);
-                    frame.setRotation(this.rotation.rotateClockwise());
-                    frame.setRotation(this.rotation);
-
-                    user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(frame,
-                            ExPacketPlayOutSpawnEntity.blockFaceToRotation(blockFace)));
-
-                    user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(frame,
-                            ExPacketPlayOutEntityMetadata.DataType.UPDATE, false));
-
-                    user.sendPacket(new ExPacketPlayOutMap(view.getId(), view.getScale().getValue(),
-                            view.isLocked(), view, user.getPlayer()));
-                }
-            }
-        }, BasicBukkit.getPlugin());
-    }
-
-    @Override
-    public void despawnForUser(User user) {
-        ExItemFrame[][] frames = this.framesByUser.get(user);
-
-        if (frames == null) {
-            return;
+          user.sendPacket(new ExPacketPlayOutMap(view.getId(), view.getScale().getValue(),
+              view.isLocked(), view, user.getPlayer()));
         }
+      }
+    }, BasicBukkit.getPlugin());
+  }
 
-        Server.runTaskLoopAsynchrony(
-                (frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
-                Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()),
-                BasicBukkit.getPlugin());
+  @Override
+  public void despawnForUser(User user) {
+    ExItemFrame[][] frames = this.framesByUser.get(user);
 
+    if (frames == null) {
+      return;
     }
 
-    @Override
-    public void onUserQuit(User user) {
-        this.despawnForUser(user);
-    }
+    Server.runTaskLoopAsynchrony(
+        (frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
+        Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()),
+        BasicBukkit.getPlugin());
+
+  }
+
+  @Override
+  public void onUserQuit(User user) {
+    this.despawnForUser(user);
+  }
 }

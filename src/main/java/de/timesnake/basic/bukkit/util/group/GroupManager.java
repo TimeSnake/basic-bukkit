@@ -7,19 +7,20 @@ package de.timesnake.basic.bukkit.util.group;
 import java.util.Collection;
 
 public interface GroupManager {
-    PermGroup getPermGroup(String group);
 
-    PermGroup getGuestPermGroup();
+  PermGroup getPermGroup(String group);
 
-    PermGroup getMemberPermGroup();
+  PermGroup getGuestPermGroup();
 
-    Collection<PermGroup> getPermGroups();
+  PermGroup getMemberPermGroup();
 
-    DisplayGroup getDisplayGroup(String group);
+  Collection<PermGroup> getPermGroups();
 
-    Collection<DisplayGroup> getDisplayGroups();
+  DisplayGroup getDisplayGroup(String group);
 
-    DisplayGroup getGuestDisplayGroup();
+  Collection<DisplayGroup> getDisplayGroups();
 
-    DisplayGroup getMemberDisplayGroup();
+  DisplayGroup getGuestDisplayGroup();
+
+  DisplayGroup getMemberDisplayGroup();
 }

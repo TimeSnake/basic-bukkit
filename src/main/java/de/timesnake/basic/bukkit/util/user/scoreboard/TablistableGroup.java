@@ -8,14 +8,14 @@ import org.bukkit.ChatColor;
 
 public interface TablistableGroup {
 
-    String getTablistRank();
+  String getTablistRank();
 
-    String getTablistName();
+  String getTablistName();
 
-    String getTablistPrefix();
+  String getTablistPrefix();
 
-    ChatColor getTablistPrefixChatColor();
+  ChatColor getTablistPrefixChatColor();
 
-    ChatColor getTablistChatColor();
+  ChatColor getTablistChatColor();
 
 }

@@ -17,78 +17,78 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DisplayGroup extends
-        de.timesnake.library.extension.util.chat.DisplayGroup<User> implements TablistableGroup {
+    de.timesnake.library.extension.util.chat.DisplayGroup<User> implements TablistableGroup {
 
 
-    public static final TablistGroupType TABLIST_TYPE_0 = TablistGroupType.DISPLAY_GROUP_0;
-    public static final TablistGroupType TABLIST_TYPE_1 = TablistGroupType.DISPLAY_GROUP_1;
-    public static final TablistGroupType TABLIST_TYPE_2 = TablistGroupType.DISPLAY_GROUP_2;
+  public static final TablistGroupType TABLIST_TYPE_0 = TablistGroupType.DISPLAY_GROUP_0;
+  public static final TablistGroupType TABLIST_TYPE_1 = TablistGroupType.DISPLAY_GROUP_1;
+  public static final TablistGroupType TABLIST_TYPE_2 = TablistGroupType.DISPLAY_GROUP_2;
 
-    public static final LinkedList<TablistGroupType> MAIN_TABLIST_GROUPS = new LinkedList<>(
-            List.of(TABLIST_TYPE_0,
-                    TABLIST_TYPE_1, TABLIST_TYPE_2));
+  public static final LinkedList<TablistGroupType> MAIN_TABLIST_GROUPS = new LinkedList<>(
+      List.of(TABLIST_TYPE_0,
+          TABLIST_TYPE_1, TABLIST_TYPE_2));
 
-    public static final int RANK_LENGTH = 6;
+  public static final int RANK_LENGTH = 6;
 
-    private final String tablistRank;
+  private final String tablistRank;
 
-    public DisplayGroup(DbDisplayGroup database) throws UnsupportedGroupRankException {
-        super(database);
+  public DisplayGroup(DbDisplayGroup database) throws UnsupportedGroupRankException {
+    super(database);
 
-        if (String.valueOf(this.rank).length() > RANK_LENGTH) {
-            throw new UnsupportedGroupRankException(this.name, this.rank);
-        }
-
-        this.tablistRank = "0".repeat(Math.max(0, RANK_LENGTH - String.valueOf(this.rank).length()))
-                + this.rank;
-
-        Loggers.GROUPS.info("Loaded display-group '" + this.name + "'");
+    if (String.valueOf(this.rank).length() > RANK_LENGTH) {
+      throw new UnsupportedGroupRankException(this.name, this.rank);
     }
 
-    private void loadPrefix() {
-        this.prefix = this.database.getPrefix();
-        if (this.prefix == null) {
-            this.prefix = "";
-        }
-        this.prefixColor = this.database.getChatColor();
-    }
+    this.tablistRank = "0".repeat(Math.max(0, RANK_LENGTH - String.valueOf(this.rank).length()))
+        + this.rank;
 
-    @NotNull
-    @Override
-    public String getTablistRank() {
-        return this.tablistRank;
-    }
+    Loggers.GROUPS.info("Loaded display-group '" + this.name + "'");
+  }
 
-    @Nullable
-    @Override
-    public String getTablistPrefix() {
-        return this.getPrefix();
+  private void loadPrefix() {
+    this.prefix = this.database.getPrefix();
+    if (this.prefix == null) {
+      this.prefix = "";
     }
+    this.prefixColor = this.database.getChatColor();
+  }
 
-    @Nullable
-    @Override
-    public ChatColor getTablistPrefixChatColor() {
-        return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
-                this.getPrefixColor());
-    }
+  @NotNull
+  @Override
+  public String getTablistRank() {
+    return this.tablistRank;
+  }
 
-    @Nullable
-    @Override
-    public ChatColor getTablistChatColor() {
-        return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
-                this.prefixColor);
-    }
+  @Nullable
+  @Override
+  public String getTablistPrefix() {
+    return this.getPrefix();
+  }
 
-    @NotNull
-    @Override
-    public String getTablistName() {
-        return this.tablistRank;
-    }
+  @Nullable
+  @Override
+  public ChatColor getTablistPrefixChatColor() {
+    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
+        this.getPrefixColor());
+  }
 
-    public void updatePrefix() {
-        this.loadPrefix();
-        for (User user : this.users) {
-            user.updateAlias();
-        }
+  @Nullable
+  @Override
+  public ChatColor getTablistChatColor() {
+    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
+        this.prefixColor);
+  }
+
+  @NotNull
+  @Override
+  public String getTablistName() {
+    return this.tablistRank;
+  }
+
+  public void updatePrefix() {
+    this.loadPrefix();
+    for (User user : this.users) {
+      user.updateAlias();
     }
+  }
 }

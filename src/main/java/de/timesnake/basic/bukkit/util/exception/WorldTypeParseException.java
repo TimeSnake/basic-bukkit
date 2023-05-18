@@ -6,11 +6,11 @@ package de.timesnake.basic.bukkit.util.exception;
 
 public class WorldTypeParseException extends RuntimeException {
 
-    public WorldTypeParseException() {
+  public WorldTypeParseException() {
 
-    }
+  }
 
-    public WorldTypeParseException(String message) {
-        super(message);
-    }
+  public WorldTypeParseException(String message) {
+    super(message);
+  }
 }

@@ -31,63 +31,63 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BasicBukkit extends JavaPlugin {
 
-    public static JavaPlugin getPlugin() {
-        return BasicBukkit.plugin;
+  public static JavaPlugin getPlugin() {
+    return BasicBukkit.plugin;
+  }
+
+  public static void registerEvents(Listener listener) {
+    Bukkit.getPluginManager().registerEvents(listener, BasicBukkit.getPlugin());
+  }
+
+  private static JavaPlugin plugin;
+
+  @Override
+  public void onEnable() {
+    BasicBukkit.plugin = this;
+
+    PluginManager pm = Bukkit.getPluginManager();
+
+    pm.registerEvents(new PreCmd(), this);
+    pm.registerEvents(new CmdPrivacyPolicy(), this);
+
+    DbServer server = Database.getServers().getServer(Bukkit.getPort());
+
+    if (server != null) {
+      ChannelBukkit.start(server.getName(), Network.PROXY_PORT);
+      server.setStatusSynchronized(Status.Server.LOADING);
+      server.setOnlinePlayers(0);
+    } else {
+      Bukkit.getLogger().log(Level.WARNING, "Server is not in database");
+      Bukkit.shutdown();
     }
 
-    public static void registerEvents(Listener listener) {
-        Bukkit.getPluginManager().registerEvents(listener, BasicBukkit.getPlugin());
-    }
+    ServerManager.getInstance().onEnable();
 
-    private static JavaPlugin plugin;
+    Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
+        new CmdPrivacyPolicy(), Plugin.NETWORK);
+    Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
-    @Override
-    public void onEnable() {
-        BasicBukkit.plugin = this;
+    Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
+        ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.BUKKIT);
 
-        PluginManager pm = Bukkit.getPluginManager();
+    Server.getCommandManager().addCommand(this, "logger", List.of("log"),
+        new LoggerCmd(), Plugin.SYSTEM);
 
-        pm.registerEvents(new PreCmd(), this);
-        pm.registerEvents(new CmdPrivacyPolicy(), this);
+    Server.getCommandManager().addCommand(this, "password", List.of("pwd"),
+        new PasswordCmd(), Plugin.SYSTEM);
 
-        DbServer server = Database.getServers().getServer(Bukkit.getPort());
+    Server.getCommandManager().addCommand(this, "code", new CodeCmd(), Plugin.SYSTEM);
+  }
 
-        if (server != null) {
-            ChannelBukkit.start(server.getName(), Network.PROXY_PORT);
-            server.setStatusSynchronized(Status.Server.LOADING);
-            server.setOnlinePlayers(0);
-        } else {
-            Bukkit.getLogger().log(Level.WARNING, "Server is not in database");
-            Bukkit.shutdown();
-        }
+  @Override
+  public void onDisable() {
+    Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getName(),
+        MessageType.Server.STATUS, Status.Server.OFFLINE));
 
-        ServerManager.getInstance().onEnable();
+    ServerManager.getInstance().onDisable();
 
-        Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
-                new CmdPrivacyPolicy(), Plugin.NETWORK);
-        Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
-
-        Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
-                ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.BUKKIT);
-
-        Server.getCommandManager().addCommand(this, "logger", List.of("log"),
-                new LoggerCmd(), Plugin.SYSTEM);
-
-        Server.getCommandManager().addCommand(this, "password", List.of("pwd"),
-                new PasswordCmd(), Plugin.SYSTEM);
-
-        Server.getCommandManager().addCommand(this, "code", new CodeCmd(), Plugin.SYSTEM);
-    }
-
-    @Override
-    public void onDisable() {
-        Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getName(),
-                MessageType.Server.STATUS, Status.Server.OFFLINE));
-
-        ServerManager.getInstance().onDisable();
-
-        DatabaseBukkit.disconnect();
-        ChannelBukkit.stop();
-    }
+    DatabaseBukkit.disconnect();
+    ChannelBukkit.stop();
+  }
 
 }

@@ -5,9 +5,10 @@
 package de.timesnake.basic.bukkit.util.user;
 
 public interface PvPManager {
-    void setPvP(boolean oldPvP);
 
-    boolean isOldPvP();
+  void setPvP(boolean oldPvP);
 
-    void broadcastPvPTypeMessage();
+  boolean isOldPvP();
+
+  void broadcastPvPTypeMessage();
 }

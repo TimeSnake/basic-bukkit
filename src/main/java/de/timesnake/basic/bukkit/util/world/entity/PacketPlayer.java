@@ -18,36 +18,41 @@ import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayer
 
 public class PacketPlayer extends PacketEntity {
 
-    protected final ExPlayer player;
+  protected final ExPlayer player;
 
-    public PacketPlayer(ExPlayer player, ExLocation location) {
-        super(location);
-        this.player = player;
+  public PacketPlayer(ExPlayer player, ExLocation location) {
+    super(location);
+    this.player = player;
+  }
+
+  @Override
+  public void spawnForUser(User user) {
+    if (!player.getChunk().isLoaded()) {
+      return;
     }
 
-    @Override
-    public void spawnForUser(User user) {
-        if (!player.getChunk().isLoaded()) {
-            return;
-        }
+    Server.getScoreboardManager().getPacketManager().sendPacket(user,
+        ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
+    Server.getScoreboardManager().getPacketManager().sendPacket(user,
+        ExPacketPlayOutTablistTeamPlayerAdd.wrap(PacketEntityManager.FAKE_PLAYER_TEAM_NAME,
+            player.getName()));
 
-        Server.getScoreboardManager().getPacketManager().sendPacket(user,
-                ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.ADD_PLAYER, player));
-        Server.getScoreboardManager().getPacketManager().sendPacket(user,
-                ExPacketPlayOutTablistTeamPlayerAdd.wrap(PacketEntityManager.FAKE_PLAYER_TEAM_NAME, player.getName()));
+    user.sendPacket(ExPacketPlayOutSpawnNamedEntity.wrap(player));
+    user.sendPacket(
+        ExPacketPlayOutEntityMetadata.wrap(player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
 
-        user.sendPacket(ExPacketPlayOutSpawnNamedEntity.wrap(player));
-        user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(player, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
+    Server.runTaskLaterSynchrony(
+        () -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
+            ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)),
+        6,
+        BasicBukkit.getPlugin());
+  }
 
-        Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
-                        ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player)), 6,
-                BasicBukkit.getPlugin());
-    }
-
-    @Override
-    public void despawnForUser(User user) {
-        Server.getScoreboardManager().getPacketManager().sendPacket(user,
-                ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
-        Server.getScoreboardManager().getPacketManager().sendPacket(user, ExPacketPlayOutEntityDestroy.wrap(player));
-    }
+  @Override
+  public void despawnForUser(User user) {
+    Server.getScoreboardManager().getPacketManager().sendPacket(user,
+        ExPacketPlayOutPlayerInfo.wrap(ExPacketPlayOutPlayerInfo.Action.REMOVE_PLAYER, player));
+    Server.getScoreboardManager().getPacketManager()
+        .sendPacket(user, ExPacketPlayOutEntityDestroy.wrap(player));
+  }
 }

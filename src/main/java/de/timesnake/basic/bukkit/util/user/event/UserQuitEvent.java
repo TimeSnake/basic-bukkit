@@ -10,22 +10,22 @@ import org.bukkit.event.HandlerList;
 
 public class UserQuitEvent extends UserEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    public UserQuitEvent(User user) {
-        super(user);
-    }
+  public UserQuitEvent(User user) {
+    super(user);
+  }
 
-    public UserQuitEvent(boolean async, User user) {
-        super(async, user);
-    }
+  public UserQuitEvent(boolean async, User user) {
+    super(async, user);
+  }
 
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Nonnull
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }

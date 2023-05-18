@@ -9,5 +9,5 @@ import de.timesnake.basic.bukkit.util.user.event.UserChatCommandEvent;
 @FunctionalInterface
 public interface UserChatCommandListener {
 
-    void onUserChatCommand(UserChatCommandEvent event);
+  void onUserChatCommand(UserChatCommandEvent event);
 }

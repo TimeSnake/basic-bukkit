@@ -10,34 +10,34 @@ import org.bukkit.event.HandlerList;
 
 public class UserChatCommandEvent extends CancelableUserEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
-    private final String message;
-    private boolean removeLisener = true;
+  private static final HandlerList HANDLERS = new HandlerList();
+  private final String message;
+  private boolean removeLisener = true;
 
-    public UserChatCommandEvent(User user, boolean isCanceled, String message) {
-        super(user, isCanceled);
-        this.message = message;
-    }
+  public UserChatCommandEvent(User user, boolean isCanceled, String message) {
+    super(user, isCanceled);
+    this.message = message;
+  }
 
-    @Override
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Override
+  @Nonnull
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public boolean isRemoveLisener() {
-        return removeLisener;
-    }
+  public boolean isRemoveLisener() {
+    return removeLisener;
+  }
 
-    public void removeLisener(boolean removeLisener) {
-        this.removeLisener = removeLisener;
-    }
+  public void removeLisener(boolean removeLisener) {
+    this.removeLisener = removeLisener;
+  }
 }

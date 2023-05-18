@@ -15,134 +15,134 @@ import java.util.Set;
 
 public class ExToml {
 
-    protected final File file;
+  protected final File file;
 
-    protected Toml toml;
-    protected TomlWriter tomlWriter;
+  protected Toml toml;
+  protected TomlWriter tomlWriter;
 
-    public ExToml(File file) {
-        this.file = file;
-        this.create();
-        this.reload();
+  public ExToml(File file) {
+    this.file = file;
+    this.create();
+    this.reload();
+  }
+
+  public ExToml(Toml toml) {
+    this.file = null;
+    this.toml = toml;
+  }
+
+  public void create() {
+    if (!this.file.exists()) {
+      try {
+        this.file.createNewFile();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+  }
 
-    public ExToml(Toml toml) {
-        this.file = null;
-        this.toml = toml;
+  public void reload() {
+    if (this.file != null) {
+      this.toml = new Toml().read(this.file);
+      this.tomlWriter = new TomlWriter();
     }
+  }
 
-    public void create() {
-        if (!this.file.exists()) {
-            try {
-                this.file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+  public String getString(String key) {
+    return toml.getString(key);
+  }
 
-    public void reload() {
-        if (this.file != null) {
-            this.toml = new Toml().read(this.file);
-            this.tomlWriter = new TomlWriter();
-        }
-    }
+  public String getString(String key, String defaultValue) {
+    return toml.getString(key, defaultValue);
+  }
 
-    public String getString(String key) {
-        return toml.getString(key);
-    }
+  public Long getLong(String key) {
+    return toml.getLong(key);
+  }
 
-    public String getString(String key, String defaultValue) {
-        return toml.getString(key, defaultValue);
-    }
+  public Long getLong(String key, Long defaultValue) {
+    return toml.getLong(key, defaultValue);
+  }
 
-    public Long getLong(String key) {
-        return toml.getLong(key);
-    }
+  public <T> List<T> getList(String key) {
+    return toml.getList(key);
+  }
 
-    public Long getLong(String key, Long defaultValue) {
-        return toml.getLong(key, defaultValue);
-    }
+  public <T> List<T> getList(String key, List<T> defaultValue) {
+    return toml.getList(key, defaultValue);
+  }
 
-    public <T> List<T> getList(String key) {
-        return toml.getList(key);
-    }
+  public Boolean getBoolean(String key) {
+    return toml.getBoolean(key);
+  }
 
-    public <T> List<T> getList(String key, List<T> defaultValue) {
-        return toml.getList(key, defaultValue);
-    }
+  public Boolean getBoolean(String key, Boolean defaultValue) {
+    return toml.getBoolean(key, defaultValue);
+  }
 
-    public Boolean getBoolean(String key) {
-        return toml.getBoolean(key);
-    }
+  public Date getDate(String key) {
+    return toml.getDate(key);
+  }
 
-    public Boolean getBoolean(String key, Boolean defaultValue) {
-        return toml.getBoolean(key, defaultValue);
-    }
+  public Date getDate(String key, Date defaultValue) {
+    return toml.getDate(key, defaultValue);
+  }
 
-    public Date getDate(String key) {
-        return toml.getDate(key);
-    }
+  public Double getDouble(String key) {
+    return toml.getDouble(key);
+  }
 
-    public Date getDate(String key, Date defaultValue) {
-        return toml.getDate(key, defaultValue);
-    }
+  public Double getDouble(String key, Double defaultValue) {
+    return toml.getDouble(key, defaultValue);
+  }
 
-    public Double getDouble(String key) {
-        return toml.getDouble(key);
-    }
+  public Toml getTable(String key) {
+    return toml.getTable(key);
+  }
 
-    public Double getDouble(String key, Double defaultValue) {
-        return toml.getDouble(key, defaultValue);
-    }
+  public List<Toml> getTables(String key) {
+    return toml.getTables(key);
+  }
 
-    public Toml getTable(String key) {
-        return toml.getTable(key);
-    }
+  public boolean contains(String key) {
+    return toml.contains(key);
+  }
 
-    public List<Toml> getTables(String key) {
-        return toml.getTables(key);
-    }
+  public boolean containsPrimitive(String key) {
+    return toml.containsPrimitive(key);
+  }
 
-    public boolean contains(String key) {
-        return toml.contains(key);
-    }
+  public boolean containsTable(String key) {
+    return toml.containsTable(key);
+  }
 
-    public boolean containsPrimitive(String key) {
-        return toml.containsPrimitive(key);
-    }
+  public boolean containsTableArray(String key) {
+    return toml.containsTableArray(key);
+  }
 
-    public boolean containsTable(String key) {
-        return toml.containsTable(key);
-    }
+  public boolean isEmpty() {
+    return toml.isEmpty();
+  }
 
-    public boolean containsTableArray(String key) {
-        return toml.containsTableArray(key);
-    }
+  public <T> T to(Class<T> targetClass) {
+    return toml.to(targetClass);
+  }
 
-    public boolean isEmpty() {
-        return toml.isEmpty();
-    }
+  public Map<String, Object> toMap() {
+    return toml.toMap();
+  }
 
-    public <T> T to(Class<T> targetClass) {
-        return toml.to(targetClass);
-    }
+  public Set<Map.Entry<String, Object>> entrySet() {
+    return toml.entrySet();
+  }
 
-    public Map<String, Object> toMap() {
-        return toml.toMap();
+  public boolean write(Object from) {
+    try {
+      tomlWriter.write(from, this.file);
+      return true;
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    public Set<Map.Entry<String, Object>> entrySet() {
-        return toml.entrySet();
-    }
-
-    public boolean write(Object from) {
-        try {
-            tomlWriter.write(from, this.file);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+    return false;
+  }
 }

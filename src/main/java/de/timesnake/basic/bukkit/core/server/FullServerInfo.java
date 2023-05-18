@@ -18,68 +18,68 @@ import java.util.Objects;
 
 public class FullServerInfo extends ServerInfo {
 
-    private final Type.Server<?> type;
-    private String task;
+  private final Type.Server<?> type;
+  private String task;
 
-    public FullServerInfo(DbServer server) {
-        super(server);
-        if (server instanceof DbNonTmpGameServer) {
-            this.type = Type.Server.GAME;
-            this.task = ((DbNonTmpGameServer) server).getTask();
-        } else if (server instanceof DbTmpGameServer) {
-            this.type = Type.Server.TEMP_GAME;
-            this.task = ((DbTmpGameServer) server).getTask();
-        } else if (server instanceof DbLoungeServer) {
-            this.type = Type.Server.LOUNGE;
-            this.task = ((DbLoungeServer) server).getTask();
-        } else if (server instanceof DbLobbyServer) {
-            this.type = Type.Server.LOBBY;
-            this.task = "lobby";
-        } else if (server instanceof DbBuildServer) {
-            this.type = Type.Server.BUILD;
-            this.task = "build";
-        } else {
-            this.type = null;
-        }
+  public FullServerInfo(DbServer server) {
+    super(server);
+    if (server instanceof DbNonTmpGameServer) {
+      this.type = Type.Server.GAME;
+      this.task = ((DbNonTmpGameServer) server).getTask();
+    } else if (server instanceof DbTmpGameServer) {
+      this.type = Type.Server.TEMP_GAME;
+      this.task = ((DbTmpGameServer) server).getTask();
+    } else if (server instanceof DbLoungeServer) {
+      this.type = Type.Server.LOUNGE;
+      this.task = ((DbLoungeServer) server).getTask();
+    } else if (server instanceof DbLobbyServer) {
+      this.type = Type.Server.LOBBY;
+      this.task = "lobby";
+    } else if (server instanceof DbBuildServer) {
+      this.type = Type.Server.BUILD;
+      this.task = "build";
+    } else {
+      this.type = null;
     }
+  }
 
-    public String getTask() {
-        return task;
-    }
+  public String getTask() {
+    return task;
+  }
 
-    @Override
-    public void setStatus(Status.Server status) {
-        if (super.status != status) {
-            this.database.setStatus(status);
-        }
-        super.setStatus(status);
+  @Override
+  public void setStatus(Status.Server status) {
+    if (super.status != status) {
+      this.database.setStatus(status);
     }
+    super.setStatus(status);
+  }
 
-    public void updateStatus() {
-        super.setStatus(this.database.getStatus());
-    }
+  public void updateStatus() {
+    super.setStatus(this.database.getStatus());
+  }
 
-    public Type.Server<?> getType() {
-        return type;
-    }
+  public Type.Server<?> getType() {
+    return type;
+  }
 
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
+  @Override
+  public String getPassword() {
+    return this.password;
+  }
 
-    @Override
-    public void setPassword(String password) throws TooLongEntryException {
-        if (!Objects.equals(password, this.password)) {
-            this.database.setPassword(password);
-        }
-        super.setPassword(password);
+  @Override
+  public void setPassword(String password) throws TooLongEntryException {
+    if (!Objects.equals(password, this.password)) {
+      this.database.setPassword(password);
     }
+    super.setPassword(password);
+  }
 
-    public void setOnlinePlayers(Integer players) {
-        if (!super.maxPlayers.equals(players)) {
-            this.database.setOnlinePlayers(players);
-        }
-        this.onlinePlayers = players;
+  public void setOnlinePlayers(Integer players) {
+    if (!super.maxPlayers.equals(players)) {
+      this.database.setOnlinePlayers(players);
     }
+    this.onlinePlayers = players;
+  }
 }

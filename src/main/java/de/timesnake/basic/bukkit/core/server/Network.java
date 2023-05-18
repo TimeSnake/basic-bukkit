@@ -21,73 +21,78 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.util.server.Network, ChannelListener {
+public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.util.server.Network,
+    ChannelListener {
 
-    private final Set<UUID> userSwitching = new HashSet<>();
-    private Integer playerAmount;
+  private final Set<UUID> userSwitching = new HashSet<>();
+  private Integer playerAmount;
 
-    public Network(Integer playerAmount) {
-        super(Database.getNetwork().getNetworkFile("network").getFile().toPath());
-        this.playerAmount = playerAmount;
-        Server.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
+  public Network(Integer playerAmount) {
+    super(Database.getNetwork().getNetworkFile("network").getFile().toPath());
+    this.playerAmount = playerAmount;
+    Server.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
+  }
+
+  @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
+  public void onServerMessage(ChannelServerMessage<?> msg) {
+    this.setPlayerAmount((Integer) msg.getValue());
+  }
+
+  @Override
+  public String getName() {
+    return Channel.PROXY_NAME;
+  }
+
+  @Override
+  public Integer getPlayerAmount() {
+    return playerAmount;
+  }
+
+  public void setPlayerAmount(Integer playerAmount) {
+    this.playerAmount = playerAmount;
+  }
+
+  @Override
+  public boolean sendUserToServer(User user, Integer server) {
+    UUID uuid = user.getUniqueId();
+    if (userSwitching.contains(uuid)) {
+      return false;
     }
+    this.userSwitching.add(uuid);
 
-    @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
-    public void onServerMessage(ChannelServerMessage<?> msg) {
-        this.setPlayerAmount((Integer) msg.getValue());
+    Server.getChannel()
+        .sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_PORT, server));
+
+    Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20,
+        BasicBukkit.getPlugin());
+
+    return true;
+  }
+
+  @Override
+  public boolean sendUserToServer(User user, String server) {
+    UUID uuid = user.getUniqueId();
+    if (userSwitching.contains(uuid)) {
+      return false;
     }
+    this.userSwitching.add(uuid);
 
-    @Override
-    public String getName() {
-        return Channel.PROXY_NAME;
-    }
+    Server.getChannel()
+        .sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_NAME, server));
 
-    @Override
-    public Integer getPlayerAmount() {
-        return playerAmount;
-    }
+    Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20,
+        BasicBukkit.getPlugin());
 
-    public void setPlayerAmount(Integer playerAmount) {
-        this.playerAmount = playerAmount;
-    }
+    return true;
+  }
 
-    @Override
-    public boolean sendUserToServer(User user, Integer server) {
-        UUID uuid = user.getUniqueId();
-        if (userSwitching.contains(uuid)) {
-            return false;
-        }
-        this.userSwitching.add(uuid);
+  @Override
+  public boolean sendUserToLobbyLast(User user) {
+    return this.sendUserToServer(user, user.getLastLobbyServer().getPort());
+  }
 
-        Server.getChannel().sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_PORT, server));
-
-        Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20, BasicBukkit.getPlugin());
-
-        return true;
-    }
-
-    @Override
-    public boolean sendUserToServer(User user, String server) {
-        UUID uuid = user.getUniqueId();
-        if (userSwitching.contains(uuid)) {
-            return false;
-        }
-        this.userSwitching.add(uuid);
-
-        Server.getChannel().sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_NAME, server));
-
-        Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20, BasicBukkit.getPlugin());
-
-        return true;
-    }
-
-    @Override
-    public boolean sendUserToLobbyLast(User user) {
-        return this.sendUserToServer(user, user.getLastLobbyServer().getPort());
-    }
-
-    @Override
-    public boolean sendUserToServerLast(User user) {
-        return this.sendUserToServer(user, user.getLastServer().getPort());
-    }
+  @Override
+  public boolean sendUserToServerLast(User user) {
+    return this.sendUserToServer(user, user.getLastServer().getPort());
+  }
 }

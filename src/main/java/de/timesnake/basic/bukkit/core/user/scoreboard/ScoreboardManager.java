@@ -19,127 +19,127 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class ScoreboardManager implements Listener,
-        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
+    de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
 
-    private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
-    private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
-            new HashMap<>();
-    private final ScoreboardPacketManager packetManager;
-    private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist activeTablist;
+  private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
+  private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
+      new HashMap<>();
+  private final ScoreboardPacketManager packetManager;
+  private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist activeTablist;
 
-    public ScoreboardManager() {
-        this.packetManager = new ScoreboardPacketManager();
+  public ScoreboardManager() {
+    this.packetManager = new ScoreboardPacketManager();
 
-        GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
-                .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
-        standard.setHeader("§6Time§2Snake§9.de");
-        standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n"
-                + Server.SUPPORT_EMAIL);
+    GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
+        .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
+    standard.setHeader("§6Time§2Snake§9.de");
+    standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n"
+        + Server.SUPPORT_EMAIL);
 
-        this.activeTablist = standard;
+    this.activeTablist = standard;
 
-        Server.registerListener(this, BasicBukkit.getPlugin());
+    Server.registerListener(this, BasicBukkit.getPlugin());
 
-        Loggers.SCOREBOARD.info("Loaded manager");
+    Loggers.SCOREBOARD.info("Loaded manager");
+  }
+
+  @Override
+  public GroupTablist registerGroupTablist(TablistBuilder builder) {
+    GroupTablist tablist = new GroupTablist(builder, this.packetManager);
+    this.tablists.put(tablist.getName(), tablist);
+    Loggers.SCOREBOARD.info("Created group tablist '" + tablist.getName() + "'");
+    return tablist;
+  }
+
+  @Override
+  public TeamTablist registerTeamTablist(TeamTablistBuilder builder) {
+    TeamTablist tablist = new TeamTablist(builder, this.packetManager);
+    this.tablists.put(tablist.getName(), tablist);
+    Loggers.SCOREBOARD.info("Created team tablist '" + tablist.getName() + "'");
+    return tablist;
+  }
+
+  @Override
+  public TagTeamTablist registerTagTeamTablist(TeamTablistBuilder builder) {
+
+    TagTeamTablist tablist = new TagTeamTablist(builder, this.packetManager);
+    this.tablists.put(tablist.getName(), tablist);
+    Loggers.SCOREBOARD.info("Created tag-team tablist '" + tablist.getName() + "'");
+    return tablist;
+  }
+
+  @Override
+  public de.timesnake.basic.bukkit.util.user.scoreboard.Tablist getTablist(String name) {
+    return this.tablists.get(name);
+  }
+
+  @Override
+  public void removeTablist(String name) {
+    this.tablists.remove(name);
+    Loggers.SCOREBOARD.info("Removed tablist '" + name + "'");
+  }
+
+  @Override
+  public Sideboard registerSideboard(SideboardBuilder builder) {
+    Sideboard sideboard = new Sideboard(builder);
+    this.sideboards.put(sideboard.getName(), sideboard);
+    Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
+    return sideboard;
+  }
+
+  @Override
+  public ExSideboard registerExSideboard(ExSideboardBuilder builder) {
+    ExSideboard sideboard = new ExSideboard(builder);
+    this.sideboards.put(sideboard.getName(), sideboard);
+    Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
+    return sideboard;
+  }
+
+
+  @Override
+  public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard getSideboard(String name) {
+    return this.sideboards.get(name);
+  }
+
+  @Override
+  public void removeSideboard(String name) {
+    this.sideboards.remove(name);
+  }
+
+  @Override
+  public de.timesnake.basic.bukkit.util.user.scoreboard.Tablist getActiveTablist() {
+    return this.activeTablist;
+  }
+
+  @Override
+  public void setActiveTablist(de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist) {
+    this.activeTablist = tablist;
+  }
+
+  public void updatePlayerGroup(TablistablePlayer player) {
+    this.tablists.values().stream().filter(tablist -> tablist.getEntries().contains(player))
+        .forEach(tablist -> {
+          tablist.removeEntry(player);
+          tablist.addEntry(player);
+        });
+  }
+
+  @EventHandler
+  public void onUserJoin(UserJoinEvent e) {
+    e.getUser().setTablist(this.activeTablist);
+  }
+
+  @EventHandler
+  public void onUserQuit(UserQuitEvent e) {
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
+      ((Tablist) tablist).removeWatchingUser(e.getUser());
     }
-
-    @Override
-    public GroupTablist registerGroupTablist(TablistBuilder builder) {
-        GroupTablist tablist = new GroupTablist(builder, this.packetManager);
-        this.tablists.put(tablist.getName(), tablist);
-        Loggers.SCOREBOARD.info("Created group tablist '" + tablist.getName() + "'");
-        return tablist;
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard : this.sideboards.values()) {
+      sideboard.removeWatchingUser(e.getUser());
     }
+  }
 
-    @Override
-    public TeamTablist registerTeamTablist(TeamTablistBuilder builder) {
-        TeamTablist tablist = new TeamTablist(builder, this.packetManager);
-        this.tablists.put(tablist.getName(), tablist);
-        Loggers.SCOREBOARD.info("Created team tablist '" + tablist.getName() + "'");
-        return tablist;
-    }
-
-    @Override
-    public TagTeamTablist registerTagTeamTablist(TeamTablistBuilder builder) {
-
-        TagTeamTablist tablist = new TagTeamTablist(builder, this.packetManager);
-        this.tablists.put(tablist.getName(), tablist);
-        Loggers.SCOREBOARD.info("Created tag-team tablist '" + tablist.getName() + "'");
-        return tablist;
-    }
-
-    @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.Tablist getTablist(String name) {
-        return this.tablists.get(name);
-    }
-
-    @Override
-    public void removeTablist(String name) {
-        this.tablists.remove(name);
-        Loggers.SCOREBOARD.info("Removed tablist '" + name + "'");
-    }
-
-    @Override
-    public Sideboard registerSideboard(SideboardBuilder builder) {
-        Sideboard sideboard = new Sideboard(builder);
-        this.sideboards.put(sideboard.getName(), sideboard);
-        Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
-        return sideboard;
-    }
-
-    @Override
-    public ExSideboard registerExSideboard(ExSideboardBuilder builder) {
-        ExSideboard sideboard = new ExSideboard(builder);
-        this.sideboards.put(sideboard.getName(), sideboard);
-        Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
-        return sideboard;
-    }
-
-
-    @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard getSideboard(String name) {
-        return this.sideboards.get(name);
-    }
-
-    @Override
-    public void removeSideboard(String name) {
-        this.sideboards.remove(name);
-    }
-
-    @Override
-    public de.timesnake.basic.bukkit.util.user.scoreboard.Tablist getActiveTablist() {
-        return this.activeTablist;
-    }
-
-    @Override
-    public void setActiveTablist(de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist) {
-        this.activeTablist = tablist;
-    }
-
-    public void updatePlayerGroup(TablistablePlayer player) {
-        this.tablists.values().stream().filter(tablist -> tablist.getEntries().contains(player))
-                .forEach(tablist -> {
-                    tablist.removeEntry(player);
-                    tablist.addEntry(player);
-                });
-    }
-
-    @EventHandler
-    public void onUserJoin(UserJoinEvent e) {
-        e.getUser().setTablist(this.activeTablist);
-    }
-
-    @EventHandler
-    public void onUserQuit(UserQuitEvent e) {
-        for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
-            ((Tablist) tablist).removeWatchingUser(e.getUser());
-        }
-        for (de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard : this.sideboards.values()) {
-            sideboard.removeWatchingUser(e.getUser());
-        }
-    }
-
-    public de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager getPacketManager() {
-        return packetManager;
-    }
+  public de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager getPacketManager() {
+    return packetManager;
+  }
 }
