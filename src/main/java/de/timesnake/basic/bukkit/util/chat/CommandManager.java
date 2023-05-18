@@ -11,13 +11,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public interface CommandManager {
 
-    void addCommand(JavaPlugin mainClass, String cmd,
-            CommandListenerBasis<? extends Sender, ? extends Argument> listener,
-            Plugin basicPlugin);
+  void addCommand(JavaPlugin mainClass, String cmd,
+      CommandListenerBasis<? extends Sender, ? extends Argument> listener,
+      Plugin basicPlugin);
 
-    void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases,
-            CommandListenerBasis<? extends Sender, ? extends Argument> listener,
-            Plugin basicPlugin);
+  void addCommand(JavaPlugin mainClass, String cmd, List<String> aliases,
+      CommandListenerBasis<? extends Sender, ? extends Argument> listener,
+      Plugin basicPlugin);
 
-    TabCompleteManager getTabCompleter();
+  TabCompleteManager getTabCompleter();
 }

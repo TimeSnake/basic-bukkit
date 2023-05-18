@@ -19,47 +19,47 @@ import net.kyori.adventure.text.Component;
 
 public class PasswordCmd implements CommandListener {
 
-    private Code perm;
+  private Code perm;
 
-    @Override
-    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
-            Arguments<Argument> args) {
-        if (!sender.hasPermission(this.perm)) {
-            return;
-        }
-
-        if (!args.isLengthLowerEquals(1, true)) {
-            return;
-        }
-
-        String password = null;
-
-        if (args.length() == 1) {
-            password = args.getString(0);
-        }
-
-        try {
-            Server.setPassword(password);
-        } catch (TooLongEntryException e) {
-            sender.sendPluginMessage(
-                    Component.text("Could not set password, too long", ExTextColor.WARNING));
-            return;
-        }
-
-        sender.sendPluginMessage(Component.text("Updated password", ExTextColor.PERSONAL));
+  @Override
+  public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
+      Arguments<Argument> args) {
+    if (!sender.hasPermission(this.perm)) {
+      return;
     }
 
-    @Override
-    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
-            Arguments<Argument> args) {
-        if (args.length() == 1) {
-            return List.of("<password>");
-        }
-        return List.of();
+    if (!args.isLengthLowerEquals(1, true)) {
+      return;
     }
 
-    @Override
-    public void loadCodes(Plugin plugin) {
-        this.perm = plugin.createPermssionCode("password");
+    String password = null;
+
+    if (args.length() == 1) {
+      password = args.getString(0);
     }
+
+    try {
+      Server.setPassword(password);
+    } catch (TooLongEntryException e) {
+      sender.sendPluginMessage(
+          Component.text("Could not set password, too long", ExTextColor.WARNING));
+      return;
+    }
+
+    sender.sendPluginMessage(Component.text("Updated password", ExTextColor.PERSONAL));
+  }
+
+  @Override
+  public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
+      Arguments<Argument> args) {
+    if (args.length() == 1) {
+      return List.of("<password>");
+    }
+    return List.of();
+  }
+
+  @Override
+  public void loadCodes(Plugin plugin) {
+    this.perm = plugin.createPermssionCode("password");
+  }
 }

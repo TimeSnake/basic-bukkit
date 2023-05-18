@@ -12,33 +12,33 @@ import org.bukkit.entity.Player;
 
 public interface UserManager {
 
-    Collection<User> getUsers();
+  Collection<User> getUsers();
 
-    Collection<User> getUsers(Predicate<User> predicate);
+  Collection<User> getUsers(Predicate<User> predicate);
 
-    Collection<User> getNotServiceUsers();
+  Collection<User> getNotServiceUsers();
 
-    Collection<User> getServiceUsers();
+  Collection<User> getServiceUsers();
 
-    Collection<User> getPreGameUsers();
+  Collection<User> getPreGameUsers();
 
-    Collection<User> getInGameUsers();
+  Collection<User> getInGameUsers();
 
-    Collection<User> getOutGameUsers();
+  Collection<User> getOutGameUsers();
 
-    Collection<User> getSpectatorUsers();
+  Collection<User> getSpectatorUsers();
 
-    Collection<User> getOnlineUsers();
+  Collection<User> getOnlineUsers();
 
-    Collection<User> getGameUsers();
+  Collection<User> getGameUsers();
 
-    Collection<User> getGameNotServiceUsers();
+  Collection<User> getGameNotServiceUsers();
 
-    User getUser(UUID uuid);
+  User getUser(UUID uuid);
 
-    User getUser(Player p);
+  User getUser(Player p);
 
-    Collection<User> getInOutGameUsers();
+  Collection<User> getInOutGameUsers();
 
-    void storeUser(UUID uniqueId, Future<User> result);
+  void storeUser(UUID uniqueId, Future<User> result);
 }

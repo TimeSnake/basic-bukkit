@@ -19,43 +19,43 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 
 public class ScoreboardPacketManager implements PacketPlayOutListener,
-        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
+    de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager {
 
-    private final Map<Player, Set<ExPacketPlayOut>> packets = new ConcurrentHashMap<>();
+  private final Map<Player, Set<ExPacketPlayOut>> packets = new ConcurrentHashMap<>();
 
-    public ScoreboardPacketManager() {
-        Server.getPacketManager().addListener(this);
+  public ScoreboardPacketManager() {
+    Server.getPacketManager().addListener(this);
+  }
+
+  @PacketHandler(type = ExPacket.Type.PLAY_OUT_TABLIST, modify = true)
+  public ExPacketPlayOut onPacketPlayOut(ExPacketPlayOut packet, Player receiver) {
+    Set<ExPacketPlayOut> packets = this.packets.get(receiver);
+    if (packets != null && packets.contains(packet)) {
+      packets.remove(packet);
+      return packet;
+    }
+    return null;
+  }
+
+  @Override
+  public void sendPacket(Collection<? extends User> receivers, ExPacketPlayOut packet) {
+    for (User user : receivers) {
+      sendPacket(user, packet);
+    }
+  }
+
+  @Override
+  public void sendPacket(User user, ExPacketPlayOut packet) {
+    Set<ExPacketPlayOut> packets = this.packets.get(user.getPlayer());
+
+    if (packets == null) {
+      packets = this.packets.computeIfAbsent(user.getPlayer(), v -> new HashSet<>());
     }
 
-    @PacketHandler(type = ExPacket.Type.PLAY_OUT_TABLIST, modify = true)
-    public ExPacketPlayOut onPacketPlayOut(ExPacketPlayOut packet, Player receiver) {
-        Set<ExPacketPlayOut> packets = this.packets.get(receiver);
-        if (packets != null && packets.contains(packet)) {
-            packets.remove(packet);
-            return packet;
-        }
-        return null;
-    }
+    packets.add(packet);
+    user.sendPacket(packet);
+    Loggers.SCOREBOARD.fine(
+        "Send packet '" + packet.getInfo() + "' to '" + user.getName() + "'");
 
-    @Override
-    public void sendPacket(Collection<? extends User> receivers, ExPacketPlayOut packet) {
-        for (User user : receivers) {
-            sendPacket(user, packet);
-        }
-    }
-
-    @Override
-    public void sendPacket(User user, ExPacketPlayOut packet) {
-        Set<ExPacketPlayOut> packets = this.packets.get(user.getPlayer());
-
-        if (packets == null) {
-            packets = this.packets.computeIfAbsent(user.getPlayer(), v -> new HashSet<>());
-        }
-
-        packets.add(packet);
-        user.sendPacket(packet);
-        Loggers.SCOREBOARD.fine(
-                "Send packet '" + packet.getInfo() + "' to '" + user.getName() + "'");
-
-    }
+  }
 }

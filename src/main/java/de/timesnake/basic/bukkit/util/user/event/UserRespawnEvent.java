@@ -11,28 +11,28 @@ import org.bukkit.event.HandlerList;
 
 public class UserRespawnEvent extends UserEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
-    private Location respawnLocation;
+  private static final HandlerList HANDLERS = new HandlerList();
+  private Location respawnLocation;
 
-    public UserRespawnEvent(User user, Location respawnLocation) {
-        super(user);
-        this.respawnLocation = respawnLocation;
-    }
+  public UserRespawnEvent(User user, Location respawnLocation) {
+    super(user);
+    this.respawnLocation = respawnLocation;
+  }
 
-    @Nonnull
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Nonnull
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 
-    public Location getRespawnLocation() {
-        return respawnLocation;
-    }
+  public Location getRespawnLocation() {
+    return respawnLocation;
+  }
 
-    public void setRespawnLocation(Location respawnLocation) {
-        this.respawnLocation = respawnLocation;
-    }
+  public void setRespawnLocation(Location respawnLocation) {
+    this.respawnLocation = respawnLocation;
+  }
 }

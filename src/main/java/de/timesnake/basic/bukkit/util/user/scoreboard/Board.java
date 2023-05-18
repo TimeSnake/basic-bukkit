@@ -9,11 +9,11 @@ import java.util.Set;
 
 public interface Board {
 
-    String getName();
+  String getName();
 
-    void addWatchingUser(User user);
+  void addWatchingUser(User user);
 
-    void removeWatchingUser(User user);
+  void removeWatchingUser(User user);
 
-    Set<User> getWatchingUsers();
+  Set<User> getWatchingUsers();
 }

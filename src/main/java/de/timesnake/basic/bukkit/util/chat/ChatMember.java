@@ -9,16 +9,16 @@ import net.kyori.adventure.text.event.ClickEvent;
 
 public interface ChatMember {
 
-    void sendTDMessage(String message);
+  void sendTDMessage(String message);
 
-    void sendMessage(Component component);
+  void sendMessage(Component component);
 
-    void sendClickableTDMessage(String text, String exec, String info, ClickEvent.Action action);
+  void sendClickableTDMessage(String text, String exec, String info, ClickEvent.Action action);
 
-    void sendClickableMessage(Component text, String exec, Component info,
-            ClickEvent.Action action);
+  void sendClickableMessage(Component text, String exec, Component info,
+      ClickEvent.Action action);
 
-    String getChatName();
+  String getChatName();
 
-    Component getChatNameComponent();
+  Component getChatNameComponent();
 }

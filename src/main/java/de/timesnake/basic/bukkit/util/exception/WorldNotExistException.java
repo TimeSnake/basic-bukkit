@@ -6,17 +6,17 @@ package de.timesnake.basic.bukkit.util.exception;
 
 public class WorldNotExistException extends Exception {
 
-    private String worldName;
+  private String worldName;
 
-    public WorldNotExistException(String worldName) {
-        this.worldName = worldName;
-    }
+  public WorldNotExistException(String worldName) {
+    this.worldName = worldName;
+  }
 
-    public String getMessage() {
-        return "World not exists";
-    }
+  public String getMessage() {
+    return "World not exists";
+  }
 
-    public String getWorldName() {
-        return worldName;
-    }
+  public String getWorldName() {
+    return worldName;
+  }
 }

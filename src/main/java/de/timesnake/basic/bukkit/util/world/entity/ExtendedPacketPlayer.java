@@ -15,18 +15,19 @@ import org.bukkit.Location;
 
 public class ExtendedPacketPlayer extends PacketPlayer {
 
-    private final ExZombie symEntity;
+  private final ExZombie symEntity;
 
-    public ExtendedPacketPlayer(ExPlayer player, ExLocation location) {
-        super(player, location);
-        this.symEntity = new ExZombie(location.getWorld(), false, false);
-        this.symEntity.setPosition(location.getX(), location.getY(), location.getZ());
-    }
+  public ExtendedPacketPlayer(ExPlayer player, ExLocation location) {
+    super(player, location);
+    this.symEntity = new ExZombie(location.getWorld(), false, false);
+    this.symEntity.setPosition(location.getX(), location.getY(), location.getZ());
+  }
 
-    public CompletableFuture<Location> moveTo(Location location) {
-        ExPathEntity path = this.symEntity.getNavigation().calcExPathTo(location.getX(), location.getY(), location.getZ(), 32);
-        List<ExPathPoint> points = path.getExPathPoints();
+  public CompletableFuture<Location> moveTo(Location location) {
+    ExPathEntity path = this.symEntity.getNavigation()
+        .calcExPathTo(location.getX(), location.getY(), location.getZ(), 32);
+    List<ExPathPoint> points = path.getExPathPoints();
 
-        return null;
-    }
+    return null;
+  }
 }

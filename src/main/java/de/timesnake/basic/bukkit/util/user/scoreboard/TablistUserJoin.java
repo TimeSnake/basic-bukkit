@@ -9,5 +9,5 @@ import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 @FunctionalInterface
 public interface TablistUserJoin {
 
-    void onUserJoin(UserJoinEvent e, Tablist tablist);
+  void onUserJoin(UserJoinEvent e, Tablist tablist);
 }

@@ -15,50 +15,51 @@ import java.util.List;
 
 public class HoloDisplay extends PacketEntity {
 
-    private final List<String> text;
+  private final List<String> text;
 
-    private final List<ExArmorStand> stands;
+  private final List<ExArmorStand> stands;
 
-    public HoloDisplay(ExLocation location, List<String> text) {
-        super(location);
-        this.text = text;
+  public HoloDisplay(ExLocation location, List<String> text) {
+    super(location);
+    this.text = text;
 
-        this.stands = new ArrayList<>();
+    this.stands = new ArrayList<>();
 
-        double offset = (this.text.size() - 1) * 0.275;
-        for (String line : this.text) {
-            ExArmorStand stand = new ExArmorStand(location.getWorld());
+    double offset = (this.text.size() - 1) * 0.275;
+    for (String line : this.text) {
+      ExArmorStand stand = new ExArmorStand(location.getWorld());
 
-            stand.setCustomName(line);
-            stand.setCustomNameVisible(true);
-            stand.setSmall(true);
-            stand.setInvulnerable(false);
-            stand.setInvisible(true);
-            stand.setNoGravity(true);
-            stand.setPosition(this.location.getX(), this.location.getY() + offset, this.location.getZ());
+      stand.setCustomName(line);
+      stand.setCustomNameVisible(true);
+      stand.setSmall(true);
+      stand.setInvulnerable(false);
+      stand.setInvisible(true);
+      stand.setNoGravity(true);
+      stand.setPosition(this.location.getX(), this.location.getY() + offset, this.location.getZ());
 
-            offset -= 0.275;
+      offset -= 0.275;
 
-            this.stands.add(stand);
-        }
+      this.stands.add(stand);
     }
+  }
 
-    public List<String> getText() {
-        return text;
-    }
+  public List<String> getText() {
+    return text;
+  }
 
-    @Override
-    public void spawnForUser(User user) {
-        for (ExArmorStand stand : this.stands) {
-            user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(stand));
-            user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(stand, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
-        }
+  @Override
+  public void spawnForUser(User user) {
+    for (ExArmorStand stand : this.stands) {
+      user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(stand));
+      user.sendPacket(
+          ExPacketPlayOutEntityMetadata.wrap(stand, ExPacketPlayOutEntityMetadata.DataType.UPDATE));
     }
+  }
 
-    @Override
-    public void despawnForUser(User user) {
-        for (ExArmorStand stand : this.stands) {
-            user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(stand));
-        }
+  @Override
+  public void despawnForUser(User user) {
+    for (ExArmorStand stand : this.stands) {
+      user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(stand));
     }
+  }
 }

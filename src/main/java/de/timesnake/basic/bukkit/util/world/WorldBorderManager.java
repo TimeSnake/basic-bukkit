@@ -5,11 +5,12 @@
 package de.timesnake.basic.bukkit.util.world;
 
 public interface WorldBorderManager {
-    boolean isCustomBorders();
 
-    void setCustomBorders(boolean customBorders);
+  boolean isCustomBorders();
 
-    boolean isEnderpearlThrouBorderAllowed();
+  void setCustomBorders(boolean customBorders);
 
-    void allowEnderpearlThrouBorder(boolean allowEnderpearl);
+  boolean isEnderpearlThrouBorderAllowed();
+
+  void allowEnderpearlThrouBorder(boolean allowEnderpearl);
 }

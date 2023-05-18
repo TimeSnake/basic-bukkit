@@ -11,28 +11,28 @@ import org.bukkit.inventory.ItemStack;
 
 public class UserDropItemEvent extends CancelableUserEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
-    private final Item item;
+  private static final HandlerList HANDLERS = new HandlerList();
+  private final Item item;
 
-    public UserDropItemEvent(User user, boolean isCanceled, Item item) {
-        super(user, isCanceled);
-        this.item = item;
-    }
+  public UserDropItemEvent(User user, boolean isCanceled, Item item) {
+    super(user, isCanceled);
+    this.item = item;
+  }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 
-    public Item getItemDrop() {
-        return item;
-    }
+  public Item getItemDrop() {
+    return item;
+  }
 
-    public ItemStack getItemStack() {
-        return this.item.getItemStack();
-    }
+  public ItemStack getItemStack() {
+    return this.item.getItemStack();
+  }
 }

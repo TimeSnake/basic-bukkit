@@ -9,19 +9,19 @@ import org.bukkit.event.Event;
 
 public abstract class UserEvent extends Event {
 
-    private final User user;
+  private final User user;
 
-    protected UserEvent(User user) {
-        this.user = user;
-    }
+  protected UserEvent(User user) {
+    this.user = user;
+  }
 
-    protected UserEvent(boolean async, User user) {
-        super(async);
-        this.user = user;
-    }
+  protected UserEvent(boolean async, User user) {
+    super(async);
+    this.user = user;
+  }
 
-    public User getUser() {
-        return user;
-    }
+  public User getUser() {
+    return user;
+  }
 
 }

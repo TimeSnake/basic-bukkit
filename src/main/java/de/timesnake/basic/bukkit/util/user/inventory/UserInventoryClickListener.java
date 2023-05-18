@@ -7,6 +7,6 @@ package de.timesnake.basic.bukkit.util.user.inventory;
 @FunctionalInterface
 public interface UserInventoryClickListener {
 
-    void onUserInventoryClick(UserInventoryClickEvent event);
+  void onUserInventoryClick(UserInventoryClickEvent event);
 
 }

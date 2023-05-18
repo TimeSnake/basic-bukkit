@@ -9,11 +9,11 @@ import java.util.logging.Logger;
 
 public class Plugin extends de.timesnake.library.extension.util.chat.Plugin {
 
-    public static final Plugin WORLDS = new Plugin("Worlds", "BSW", LogHelper.getLogger("Worlds"));
-    public static final Plugin PACKETS = new Plugin("Packets", "BPS",
-            LogHelper.getLogger("Packets"));
+  public static final Plugin WORLDS = new Plugin("Worlds", "BSW", LogHelper.getLogger("Worlds"));
+  public static final Plugin PACKETS = new Plugin("Packets", "BPS",
+      LogHelper.getLogger("Packets"));
 
-    protected Plugin(String name, String code, Logger logger) {
-        super(name, code);
-    }
+  protected Plugin(String name, String code, Logger logger) {
+    super(name, code);
+  }
 }

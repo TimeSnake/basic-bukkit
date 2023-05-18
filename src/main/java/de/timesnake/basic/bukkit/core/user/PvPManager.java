@@ -19,71 +19,71 @@ import org.bukkit.event.Listener;
 
 public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user.PvPManager {
 
-    public static final Integer ATTACK_SPEED = 10;
-    public static final Integer MAX_NO_DAMAGE_TICKS = 4;
-    public static final double DAMAGE_MULTIPLIER = 0.7;
+  public static final Integer ATTACK_SPEED = 10;
+  public static final Integer MAX_NO_DAMAGE_TICKS = 4;
+  public static final double DAMAGE_MULTIPLIER = 0.7;
 
-    private boolean oldPvP;
+  private boolean oldPvP;
 
-    public PvPManager() {
-        if (Server.getDatabase() instanceof DbPvPServer) {
-            this.oldPvP = ((DbPvPServer) Server.getDatabase()).isOldPvP();
-        } else {
-            this.oldPvP = false;
-        }
-        Server.registerListener(this, BasicBukkit.getPlugin());
+  public PvPManager() {
+    if (Server.getDatabase() instanceof DbPvPServer) {
+      this.oldPvP = ((DbPvPServer) Server.getDatabase()).isOldPvP();
+    } else {
+      this.oldPvP = false;
     }
+    Server.registerListener(this, BasicBukkit.getPlugin());
+  }
 
-    @Override
-    public void setPvP(boolean oldPvP) {
-        this.oldPvP = oldPvP;
-        for (User user : Server.getUsers()) {
-            this.updateAttributesOfUser(user);
+  @Override
+  public void setPvP(boolean oldPvP) {
+    this.oldPvP = oldPvP;
+    for (User user : Server.getUsers()) {
+      this.updateAttributesOfUser(user);
 
-            if (this.oldPvP) {
-                user.getPlayer().setMaximumNoDamageTicks(MAX_NO_DAMAGE_TICKS);
-            } else {
-                user.getPlayer().setMaximumNoDamageTicks(10);
-            }
-        }
+      if (this.oldPvP) {
+        user.getPlayer().setMaximumNoDamageTicks(MAX_NO_DAMAGE_TICKS);
+      } else {
+        user.getPlayer().setMaximumNoDamageTicks(10);
+      }
     }
+  }
 
-    @Override
-    public boolean isOldPvP() {
-        return oldPvP;
-    }
+  @Override
+  public boolean isOldPvP() {
+    return oldPvP;
+  }
 
-    @EventHandler
-    public void onUserJoin(UserJoinEvent event) {
-        User user = event.getUser();
-        this.updateAttributesOfUser(user);
-    }
+  @EventHandler
+  public void onUserJoin(UserJoinEvent event) {
+    User user = event.getUser();
+    this.updateAttributesOfUser(user);
+  }
 
-    private void updateAttributesOfUser(User user) {
-        user.setPvpMode(this.oldPvP);
-    }
+  private void updateAttributesOfUser(User user) {
+    user.setPvpMode(this.oldPvP);
+  }
 
-    @EventHandler
-    public void onUserDamageByUser(UserDamageByUserEvent e) {
-        if (this.oldPvP) {
-            e.setDamage(DAMAGE_MULTIPLIER * e.getDamage());
-        }
+  @EventHandler
+  public void onUserDamageByUser(UserDamageByUserEvent e) {
+    if (this.oldPvP) {
+      e.setDamage(DAMAGE_MULTIPLIER * e.getDamage());
     }
+  }
 
-    @Override
-    public void broadcastPvPTypeMessage() {
-        if (this.oldPvP) {
-            Server.broadcastMessage(Plugin.BUKKIT,
-                    Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
-                            .append(Component.text(
-                                    "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.",
-                                    ExTextColor.WARNING)));
-        } else {
-            Server.broadcastMessage(Plugin.BUKKIT,
-                    Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
-                            .append(Component.text("1.9+ pvp is activated, so you should hit slow.",
-                                    ExTextColor.WARNING)));
-        }
+  @Override
+  public void broadcastPvPTypeMessage() {
+    if (this.oldPvP) {
+      Server.broadcastMessage(Plugin.BUKKIT,
+          Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
+              .append(Component.text(
+                  "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.",
+                  ExTextColor.WARNING)));
+    } else {
+      Server.broadcastMessage(Plugin.BUKKIT,
+          Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
+              .append(Component.text("1.9+ pvp is activated, so you should hit slow.",
+                  ExTextColor.WARNING)));
     }
+  }
 
 }

@@ -13,22 +13,22 @@ import org.bukkit.event.player.PlayerJoinEvent;
  */
 public class UserJoinEvent extends UserEvent {
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+  public static HandlerList getHandlerList() {
+    return HANDLERS;
+  }
 
-    private static final HandlerList HANDLERS = new HandlerList();
+  private static final HandlerList HANDLERS = new HandlerList();
 
-    public UserJoinEvent(User user) {
-        super(user);
-    }
+  public UserJoinEvent(User user) {
+    super(user);
+  }
 
-    public UserJoinEvent(boolean async, User user) {
-        super(async, user);
-    }
+  public UserJoinEvent(boolean async, User user) {
+    super(async, user);
+  }
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+  @Override
+  public HandlerList getHandlers() {
+    return HANDLERS;
+  }
 }

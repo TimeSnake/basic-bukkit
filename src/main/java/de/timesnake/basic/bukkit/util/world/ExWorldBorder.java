@@ -24,348 +24,348 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class ExWorldBorder implements Listener {
 
-    private final ExWorld world;
+  private final ExWorld world;
 
-    private final UserSet<User> users = new UserSet<>();
-    private final UserSet<User> spectators = new UserSet<>();
+  private final UserSet<User> users = new UserSet<>();
+  private final UserSet<User> spectators = new UserSet<>();
 
-    private double centerX;
-    private double centerZ;
-    private double size;
-    private int warningDistance;
-    private int warningTime;
+  private double centerX;
+  private double centerZ;
+  private double size;
+  private int warningDistance;
+  private int warningTime;
 
-    private double damagePerSec;
+  private double damagePerSec;
 
-    private boolean shrinking = false;
+  private boolean shrinking = false;
 
-    private BukkitTask damageTask;
+  private BukkitTask damageTask;
 
-    private BukkitTask shrinkingTask;
-    private double shrinkSize;
-    private int shrinkTime;
-    private double shrinkPerTick;
+  private BukkitTask shrinkingTask;
+  private double shrinkSize;
+  private int shrinkTime;
+  private double shrinkPerTick;
 
-    private boolean sound;
+  private boolean sound;
 
-    public ExWorldBorder(Builder builder) {
-        this.world = builder.world;
-        this.centerX = builder.centerX;
-        this.centerZ = builder.centerZ;
-        this.size = builder.size;
-        this.warningDistance = builder.warningDistance;
-        this.warningTime = builder.warningTime;
-        this.damagePerSec = builder.damagePerSec;
-        this.sound = builder.sound;
+  public ExWorldBorder(Builder builder) {
+    this.world = builder.world;
+    this.centerX = builder.centerX;
+    this.centerZ = builder.centerZ;
+    this.size = builder.size;
+    this.warningDistance = builder.warningDistance;
+    this.warningTime = builder.warningTime;
+    this.damagePerSec = builder.damagePerSec;
+    this.sound = builder.sound;
 
-        this.users.onRemove(
-                u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-                        ExClientboundInitializeBorderPacket.wrapToMaxBorder(
-                                this.world.getBukkitWorld()), u));
+    this.users.onRemove(
+        u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
+            ExClientboundInitializeBorderPacket.wrapToMaxBorder(
+                this.world.getBukkitWorld()), u));
 
-        this.spectators.onRemove(
-                u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-                        ExClientboundInitializeBorderPacket.wrapToMaxBorder(
-                                this.world.getBukkitWorld()), u));
+    this.spectators.onRemove(
+        u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
+            ExClientboundInitializeBorderPacket.wrapToMaxBorder(
+                this.world.getBukkitWorld()), u));
 
-        Server.registerListener(this, BasicBukkit.getPlugin());
-        this.startDamageTask();
+    Server.registerListener(this, BasicBukkit.getPlugin());
+    this.startDamageTask();
 
+  }
+
+  public void destroy() {
+
+    if (this.damageTask != null) {
+      this.damageTask.cancel();
     }
 
-    public void destroy() {
+    if (this.shrinkingTask != null) {
+      this.shrinkingTask.cancel();
+    }
 
-        if (this.damageTask != null) {
-            this.damageTask.cancel();
+    for (User user : this.users) {
+      this.removeUser(user);
+    }
+  }
+
+  public void addUser(User user) {
+
+    if (user == null) {
+      return;
+    }
+
+    this.spectators.remove(user);
+
+    boolean added = this.users.add(user);
+
+    if (!added) {
+      return;
+    }
+
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(this.getUserInitPacket(), user);
+  }
+
+  public void addSpectator(User user) {
+
+    if (user == null) {
+      return;
+    }
+
+    boolean added = this.spectators.add(user);
+
+    if (!added) {
+      return;
+    }
+
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(this.getSpectatorInitPacket(), user);
+  }
+
+  public void removeUser(User user) {
+    this.users.remove(user);
+  }
+
+  public void removeSpectator(User user) {
+    this.spectators.remove(user);
+  }
+
+  public void setCenter(double centerX, double centerZ) {
+    this.centerX = centerX;
+    this.centerZ = centerZ;
+    this.broadcastUserPacket(this.getUserInitPacket());
+    this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
+  }
+
+  public void setSize(double size, int time, boolean forceStop) {
+    if (this.shrinking) {
+      if (forceStop) {
+        this.stopShrink();
+      } else {
+        return;
+      }
+    }
+
+    this.shrinkSize = size < 0 ? 0 : size;
+    this.shrinkTime = time;
+    this.shrinking();
+  }
+
+  public void stopShrink() {
+    if (this.shrinkingTask != null) {
+      this.shrinkingTask.cancel();
+    }
+
+    this.shrinkTime = 0;
+    this.shrinkSize = this.size;
+    this.shrinkPerTick = 0;
+  }
+
+  private void shrinking() {
+    this.shrinking = true;
+
+    ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(
+        this.world.getBukkitWorld(), this.size, this.shrinkSize, this.shrinkTime * 50L);
+
+    this.broadcastUserPacket(packet);
+    this.broadcastSpectatorPacket(packet);
+
+    this.shrinkPerTick = (this.size - this.shrinkSize) / this.shrinkTime;
+
+    this.shrinkingTask = new BukkitRunnable() {
+      @Override
+      public void run() {
+        ExWorldBorder.this.size -= shrinkPerTick;
+
+        if (shrinkTime == 0) {
+          ExWorldBorder.this.size = shrinkSize;
+          shrinkPerTick = 0;
+          shrinking = false;
+          this.cancel();
+          return;
         }
+        shrinkTime--;
+      }
+    }.runTaskTimer(BasicBukkit.getPlugin(), 0, 1);
+  }
 
-        if (this.shrinkingTask != null) {
-            this.shrinkingTask.cancel();
-        }
+  public Set<User> getUsers() {
+    return users;
+  }
 
-        for (User user : this.users) {
-            this.removeUser(user);
-        }
+  public double getCenterX() {
+    return centerX;
+  }
+
+  public double getCenterZ() {
+    return centerZ;
+  }
+
+  public double getSize() {
+    return size;
+  }
+
+  public void setSize(double size) {
+    this.size = size < 0 ? 0 : size;
+    this.broadcastUserPacket(this.getUserInitPacket());
+    this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
+    if (this.shrinking) {
+      if (this.shrinkingTask != null) {
+        this.shrinkingTask.cancel();
+      }
+      this.shrinking = false;
     }
+  }
 
-    public void addUser(User user) {
+  public int getWarningDistance() {
+    return warningDistance;
+  }
 
-        if (user == null) {
-            return;
-        }
+  public int getWarningTime() {
+    return warningTime;
+  }
 
-        this.spectators.remove(user);
+  public double getDamagePerSec() {
+    return damagePerSec;
+  }
 
-        boolean added = this.users.add(user);
+  public void setDamagePerSec(double damagePerSec) {
+    this.damagePerSec = damagePerSec;
+  }
 
-        if (!added) {
-            return;
-        }
+  public boolean isSound() {
+    return sound;
+  }
 
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-                .sendPacket(this.getUserInitPacket(), user);
+  public void setSound(boolean sound) {
+    this.sound = sound;
+  }
+
+  private void broadcastUserPacket(ExPacketPlayOutWorldBorder packet) {
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(packet, this.users);
+  }
+
+  private void broadcastSpectatorPacket(ExPacketPlayOutWorldBorder packet) {
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(packet, this.spectators);
+  }
+
+  private ExPacketPlayOutWorldBorder getUserInitPacket() {
+    if (!this.shrinking) {
+      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+          this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance,
+          this.warningTime);
+    } else {
+      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+          this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
+          this.warningDistance, this.warningTime);
     }
+  }
 
-    public void addSpectator(User user) {
-
-        if (user == null) {
-            return;
-        }
-
-        boolean added = this.spectators.add(user);
-
-        if (!added) {
-            return;
-        }
-
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-                .sendPacket(this.getSpectatorInitPacket(), user);
+  private ExPacketPlayOutWorldBorder getSpectatorInitPacket() {
+    if (!this.shrinking) {
+      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+          this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
+    } else {
+      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+          this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
+          0, 0);
     }
+  }
 
-    public void removeUser(User user) {
-        this.users.remove(user);
-    }
-
-    public void removeSpectator(User user) {
-        this.spectators.remove(user);
-    }
-
-    public void setCenter(double centerX, double centerZ) {
-        this.centerX = centerX;
-        this.centerZ = centerZ;
-        this.broadcastUserPacket(this.getUserInitPacket());
-        this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
-    }
-
-    public void setSize(double size, int time, boolean forceStop) {
-        if (this.shrinking) {
-            if (forceStop) {
-                this.stopShrink();
-            } else {
-                return;
-            }
-        }
-
-        this.shrinkSize = size < 0 ? 0 : size;
-        this.shrinkTime = time;
-        this.shrinking();
-    }
-
-    public void stopShrink() {
-        if (this.shrinkingTask != null) {
-            this.shrinkingTask.cancel();
-        }
-
-        this.shrinkTime = 0;
-        this.shrinkSize = this.size;
-        this.shrinkPerTick = 0;
-    }
-
-    private void shrinking() {
-        this.shrinking = true;
-
-        ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(
-                this.world.getBukkitWorld(), this.size, this.shrinkSize, this.shrinkTime * 50L);
-
-        this.broadcastUserPacket(packet);
-        this.broadcastSpectatorPacket(packet);
-
-        this.shrinkPerTick = (this.size - this.shrinkSize) / this.shrinkTime;
-
-        this.shrinkingTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                ExWorldBorder.this.size -= shrinkPerTick;
-
-                if (shrinkTime == 0) {
-                    ExWorldBorder.this.size = shrinkSize;
-                    shrinkPerTick = 0;
-                    shrinking = false;
-                    this.cancel();
-                    return;
-                }
-                shrinkTime--;
-            }
-        }.runTaskTimer(BasicBukkit.getPlugin(), 0, 1);
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public double getCenterX() {
-        return centerX;
-    }
-
-    public double getCenterZ() {
-        return centerZ;
-    }
-
-    public double getSize() {
-        return size;
-    }
-
-    public void setSize(double size) {
-        this.size = size < 0 ? 0 : size;
-        this.broadcastUserPacket(this.getUserInitPacket());
-        this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
-        if (this.shrinking) {
-            if (this.shrinkingTask != null) {
-                this.shrinkingTask.cancel();
-            }
-            this.shrinking = false;
-        }
-    }
-
-    public int getWarningDistance() {
-        return warningDistance;
-    }
-
-    public int getWarningTime() {
-        return warningTime;
-    }
-
-    public double getDamagePerSec() {
-        return damagePerSec;
-    }
-
-    public void setDamagePerSec(double damagePerSec) {
-        this.damagePerSec = damagePerSec;
-    }
-
-    public boolean isSound() {
-        return sound;
-    }
-
-    public void setSound(boolean sound) {
-        this.sound = sound;
-    }
-
-    private void broadcastUserPacket(ExPacketPlayOutWorldBorder packet) {
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-                .sendPacket(packet, this.users);
-    }
-
-    private void broadcastSpectatorPacket(ExPacketPlayOutWorldBorder packet) {
-        ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-                .sendPacket(packet, this.spectators);
-    }
-
-    private ExPacketPlayOutWorldBorder getUserInitPacket() {
-        if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
-                    this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance,
-                    this.warningTime);
-        } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
-                    this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
-                    this.warningDistance, this.warningTime);
-        }
-    }
-
-    private ExPacketPlayOutWorldBorder getSpectatorInitPacket() {
-        if (!this.shrinking) {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
-                    this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
-        } else {
-            return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
-                    this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
-                    0, 0);
-        }
-    }
-
-    public boolean isInside(Location loc) {
-        return this.centerX + this.size / 2 > loc.getX()
-                && this.centerX - this.size / 2 < loc.getX()
-                && this.centerZ + this.size / 2 > loc.getZ()
-                && this.centerZ - this.size / 2 < loc.getZ();
-    }
+  public boolean isInside(Location loc) {
+    return this.centerX + this.size / 2 > loc.getX()
+        && this.centerX - this.size / 2 < loc.getX()
+        && this.centerZ + this.size / 2 > loc.getZ()
+        && this.centerZ - this.size / 2 < loc.getZ();
+  }
 
 
-    private void startDamageTask() {
-        this.damageTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (User user : users) {
-                    if (!isInside(user.getLocation())) {
-                        if (sound) {
-                            user.playNote(Instrument.PLING, Note.natural(0, Note.Tone.A));
-                        }
-
-                        Server.runTaskSynchrony(() -> user.getPlayer().damage(damagePerSec),
-                                BasicBukkit.getPlugin());
-                    }
-                }
-            }
-        }.runTaskTimerAsynchronously(BasicBukkit.getPlugin(), 0, 20);
-    }
-
-    public static class Builder implements BuilderBasis {
-
-        private ExWorld world;
-        private double centerX = 0;
-        private double centerZ = 0;
-        private Double size;
-        private int warningDistance = 0;
-        private int warningTime = 0;
-        private double damagePerSec = 0;
-        private boolean sound = false;
-
-        public Builder world(ExWorld world) {
-            this.world = world;
-            return this;
-        }
-
-        public Builder centerX(double x) {
-            this.centerX = x;
-            return this;
-        }
-
-        public Builder centerZ(double z) {
-            this.centerZ = z;
-            return this;
-        }
-
-        public Builder size(double size) {
-            this.size = size;
-            return this;
-        }
-
-        public Builder warningDistance(int warningDistance) {
-            this.warningDistance = warningDistance;
-            return this;
-        }
-
-        public Builder warningTime(int warningTime) {
-            this.warningTime = warningTime;
-            return this;
-        }
-
-        public Builder damagePerSec(double damagePerSec) {
-            this.damagePerSec = damagePerSec;
-            return this;
-        }
-
-        public Builder sound(boolean sound) {
-            this.sound = sound;
-            return this;
-        }
-
-        @Override
-        public void checkBuild() {
-            if (this.world == null) {
-                throw new BuilderNotFullyInstantiatedException("world is null");
+  private void startDamageTask() {
+    this.damageTask = new BukkitRunnable() {
+      @Override
+      public void run() {
+        for (User user : users) {
+          if (!isInside(user.getLocation())) {
+            if (sound) {
+              user.playNote(Instrument.PLING, Note.natural(0, Note.Tone.A));
             }
 
-            if (this.size == null) {
-                throw new BuilderNotFullyInstantiatedException("size is null");
-            }
+            Server.runTaskSynchrony(() -> user.getPlayer().damage(damagePerSec),
+                BasicBukkit.getPlugin());
+          }
         }
+      }
+    }.runTaskTimerAsynchronously(BasicBukkit.getPlugin(), 0, 20);
+  }
 
-        @Override
-        public ExWorldBorder build() {
-            this.checkBuild();
-            return new ExWorldBorder(this);
-        }
+  public static class Builder implements BuilderBasis {
+
+    private ExWorld world;
+    private double centerX = 0;
+    private double centerZ = 0;
+    private Double size;
+    private int warningDistance = 0;
+    private int warningTime = 0;
+    private double damagePerSec = 0;
+    private boolean sound = false;
+
+    public Builder world(ExWorld world) {
+      this.world = world;
+      return this;
     }
+
+    public Builder centerX(double x) {
+      this.centerX = x;
+      return this;
+    }
+
+    public Builder centerZ(double z) {
+      this.centerZ = z;
+      return this;
+    }
+
+    public Builder size(double size) {
+      this.size = size;
+      return this;
+    }
+
+    public Builder warningDistance(int warningDistance) {
+      this.warningDistance = warningDistance;
+      return this;
+    }
+
+    public Builder warningTime(int warningTime) {
+      this.warningTime = warningTime;
+      return this;
+    }
+
+    public Builder damagePerSec(double damagePerSec) {
+      this.damagePerSec = damagePerSec;
+      return this;
+    }
+
+    public Builder sound(boolean sound) {
+      this.sound = sound;
+      return this;
+    }
+
+    @Override
+    public void checkBuild() {
+      if (this.world == null) {
+        throw new BuilderNotFullyInstantiatedException("world is null");
+      }
+
+      if (this.size == null) {
+        throw new BuilderNotFullyInstantiatedException("size is null");
+      }
+    }
+
+    @Override
+    public ExWorldBorder build() {
+      this.checkBuild();
+      return new ExWorldBorder(this);
+    }
+  }
 }

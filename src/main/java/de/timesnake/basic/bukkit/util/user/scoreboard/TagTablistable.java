@@ -6,7 +6,7 @@ package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 public interface TagTablistable {
 
-    NameTagVisibility isNameTagVisibleBy(TablistablePlayer player, TablistableGroup otherGroup);
+  NameTagVisibility isNameTagVisibleBy(TablistablePlayer player, TablistableGroup otherGroup);
 
-    NameTagVisibility isNameTagVisible(TablistablePlayer player);
+  NameTagVisibility isNameTagVisible(TablistablePlayer player);
 }

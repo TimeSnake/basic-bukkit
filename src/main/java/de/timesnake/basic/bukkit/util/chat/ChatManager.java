@@ -11,30 +11,30 @@ import org.bukkit.Location;
 
 public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
 
-    Chat createChat(String name, String displayName, ExTextColor chatColor,
-            Set<ChatMember> members);
+  Chat createChat(String name, String displayName, ExTextColor chatColor,
+      Set<ChatMember> members);
 
-    boolean deleteChat(String name);
+  boolean deleteChat(String name);
 
-    Chat getChat(String name);
+  Chat getChat(String name);
 
-    Chat getGlobalChat();
+  Chat getGlobalChat();
 
-    Component getSenderMember(ChatMember member);
+  Component getSenderMember(ChatMember member);
 
-    Component getSender(Sender sender);
+  Component getSender(Sender sender);
 
-    Component getLocationBlockText(Location loc);
+  Component getLocationBlockText(Location loc);
 
-    Component getLocationText(Location loc);
+  Component getLocationText(Location loc);
 
-    Argument createArgument(Sender sender, String s);
+  Argument createArgument(Sender sender, String s);
 
-    Argument createArgument(Sender sender, Component component);
+  Argument createArgument(Sender sender, Component component);
 
-    void broadcastJoinQuit(boolean broadcast);
+  void broadcastJoinQuit(boolean broadcast);
 
-    boolean isBroadcastingJoinQuit();
+  boolean isBroadcastingJoinQuit();
 
 }
 

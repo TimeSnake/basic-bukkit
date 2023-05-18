@@ -17,35 +17,36 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class FlatStoneGenerator extends ChunkGenerator {
 
-    @Override
-    @Nonnull
-    public List<BlockPopulator> getDefaultPopulators(World world) {
-        return Collections.emptyList();
+  @Override
+  @Nonnull
+  public List<BlockPopulator> getDefaultPopulators(World world) {
+    return Collections.emptyList();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  @Nonnull
+  public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
+      BiomeGrid biome) {
+    ChunkData chunkData = super.createChunkData(world);
+
+    for (int x = 0; x < 16; x++) {
+      for (int z = 0; z < 16; z++) {
+        biome.setBiome(x, z, Biome.PLAINS);
+        chunkData.setBlock(x, 64, z, Material.STONE);
+      }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    @Nonnull
-    public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
-        ChunkData chunkData = super.createChunkData(world);
+    return chunkData;
+  }
 
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                biome.setBiome(x, z, Biome.PLAINS);
-                chunkData.setBlock(x, 64, z, Material.STONE);
-            }
-        }
+  @Override
+  public boolean canSpawn(World world, int x, int z) {
+    return true;
+  }
 
-        return chunkData;
-    }
-
-    @Override
-    public boolean canSpawn(World world, int x, int z) {
-        return true;
-    }
-
-    @Override
-    public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 0, 128, 0);
-    }
+  @Override
+  public Location getFixedSpawnLocation(World world, Random random) {
+    return new Location(world, 0, 128, 0);
+  }
 }

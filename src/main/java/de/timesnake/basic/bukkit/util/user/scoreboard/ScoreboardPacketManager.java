@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public interface ScoreboardPacketManager {
 
-    void sendPacket(Collection<? extends User> receivers, ExPacketPlayOut packet);
+  void sendPacket(Collection<? extends User> receivers, ExPacketPlayOut packet);
 
-    void sendPacket(User user, ExPacketPlayOut packet);
+  void sendPacket(User user, ExPacketPlayOut packet);
 }
