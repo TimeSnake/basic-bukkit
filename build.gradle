@@ -1,50 +1,50 @@
 repositories {
-    mavenLocal()
-    maven {
-        url = uri 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        content {
-            includeGroup 'org.bukkit'
-            includeGroup 'org.spigotmc'
-        }
+  mavenLocal()
+  maven {
+    url = uri 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    content {
+      includeGroup 'org.bukkit'
+      includeGroup 'org.spigotmc'
     }
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/central")
-    }
-    maven {
-        url = uri 'https://papermc.io/repo/repository/maven-public/'
-    }
-    maven {
-        url = uri 'https://repo.maven.apache.org/maven2/'
-    }
+  }
+  maven {
+    url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+  }
+  maven {
+    url = uri("https://oss.sonatype.org/content/repositories/central")
+  }
+  maven {
+    url = uri 'https://papermc.io/repo/repository/maven-public/'
+  }
+  maven {
+    url = uri 'https://repo.maven.apache.org/maven2/'
+  }
 }
 
 dependencies {
-    implementation project.toml
+  implementation project.toml
 
-    implementation project(':library-network')
-    implementation project(':library-entities')
-    implementation project(':library-packets')
-    implementation project(':library-reflection')
-    implementation project(':library-extension')
-    implementation project(':library-basic')
-    implementation project(':library-chat')
+  implementation project(':library-network')
+  implementation project(':library-entities')
+  implementation project(':library-packets')
+  implementation project(':library-reflection')
+  implementation project(':library-extension')
+  implementation project(':library-basic')
+  implementation project(':library-chat')
 
-    implementation project.gson
+  implementation project.gson
 
-    compileOnly project(':database-bukkit')
-    compileOnly project(':database-api')
+  compileOnly project(':database-bukkit')
+  compileOnly project(':database-api')
 
-    compileOnly project(':channel-bukkit')
-    compileOnly project(':channel-api')
+  compileOnly project(':channel-bukkit')
+  compileOnly project(':channel-api')
 
-    compileOnly project.paper_api
-    compileOnly project.spigot_api
-    compileOnly project.spigot
+  compileOnly project.paper_api
+  compileOnly project.spigot_api
+  compileOnly project.spigot
 
-    compileOnly project.freemarker
+  compileOnly project.freemarker
 }
 
 group = project.group
@@ -52,33 +52,33 @@ version = '1.2-SNAPSHOT'
 archivesBaseName = 'basic-bukkit'
 
 publishing {
-    publications {
-        mavenJavaAll(MavenPublication) {
-            version version + '-all'
-            artifact {
-                file "build/libs/" + archivesBaseName + "-" + version + ".jar"
-            }
-        }
+  publications {
+    mavenJavaAll(MavenPublication) {
+      version version + '-all'
+      artifact {
+        file "build/libs/" + archivesBaseName + "-" + version + ".jar"
+      }
     }
+  }
 }
 
 task buildFatJar(type: Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    classifier = "all"
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  classifier = "all"
+  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
 }
 
 task deleteOldPluginJar(type: Delete) {
-    delete fileTree(dir: "${project.plugins_dir}", include: "**/${archivesBaseName}-*.jar")
-    onlyIf {
-        !jar.state.upToDate
-    }
+  delete fileTree(dir: "${project.plugins_dir}", include: "**/${archivesBaseName}-*.jar")
+  onlyIf {
+    !jar.state.upToDate
+  }
 }
 
 task copyJarToPlugins(type: Copy) {
-    from "build/libs/" + archivesBaseName + "-" + version + "-all" + ".jar"
-    into project.plugins_dir
+  from "build/libs/" + archivesBaseName + "-" + version + "-all" + ".jar"
+  into project.plugins_dir
 }
 
 jar.finalizedBy(buildFatJar)
