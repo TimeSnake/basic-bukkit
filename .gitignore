@@ -4,6 +4,6 @@
 .idea/dataSources
 /.gradle/
 /build/
-/gradle/
+
 gradlew
 gradlew.bat
