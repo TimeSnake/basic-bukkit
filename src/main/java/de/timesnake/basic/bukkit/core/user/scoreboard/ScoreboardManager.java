@@ -14,6 +14,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.extension.util.NetworkVariables;
 import java.util.HashMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,9 +33,16 @@ public class ScoreboardManager implements Listener,
 
     GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
         .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
-    standard.setHeader("§6Time§2Snake§9.de");
-    standard.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \n"
-        + Server.SUPPORT_EMAIL);
+
+    String networkName = Server.getNetwork().getVariables().getValue(NetworkVariables.NETWORK_NAME);
+    if (networkName != null) {
+      standard.setHeader("§6" + networkName);
+    } else {
+      standard.setHeader("§6" + "Network");
+    }
+
+    standard.setFooter(
+        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager.getDefaultFooter());
 
     this.activeTablist = standard;
 

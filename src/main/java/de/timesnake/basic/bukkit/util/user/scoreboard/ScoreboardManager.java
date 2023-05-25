@@ -4,7 +4,25 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
+import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.library.extension.util.NetworkVariables;
+
 public interface ScoreboardManager {
+
+  static String getDefaultFooter() {
+    String supportEmail = Server.getNetwork().getVariables()
+        .getValue(NetworkVariables.SUPPORT_EMAIL);
+    if (supportEmail != null) {
+      return "§7Server: " + Server.getName()
+          + "\n§cSupport: /ticket or "
+          + "\n" + supportEmail
+          + "\n§8Powered by " + Server.CREATOR_NAME;
+    } else {
+      return "§7Server: " + Server.getName()
+          + "\n§cSupport: /ticket"
+          + "\n§8Powered by " + Server.CREATOR_NAME;
+    }
+  }
 
   GroupTablist registerGroupTablist(TablistBuilder builder);
 

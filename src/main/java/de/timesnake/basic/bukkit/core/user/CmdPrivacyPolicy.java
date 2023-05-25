@@ -14,13 +14,17 @@ import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import de.timesnake.library.extension.util.player.UserSet;
 import java.util.List;
+import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class CmdPrivacyPolicy implements CommandListener, Listener {
+
+  private final Set<User> deniedUsers = new UserSet<>();
 
   private Code alreadyAccepted;
 
@@ -51,6 +55,14 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
 
         } else if (args.get(0).equalsIgnoreCase("deny") || args.get(0)
             .equalsIgnoreCase("disagree")) {
+
+          if (!this.deniedUsers.contains(user)) {
+            this.deniedUsers.add(user);
+            sender.sendPluginTDMessage("§wIf you continue, ALL your DATA will be DELETED! "
+                + "Retype §v/pp deny §wto confirm");
+            return;
+          }
+
           user.delete();
           user.getPlayer()
               .kick(Component.text("You disagreed our privacy policy. You must " +
@@ -60,7 +72,7 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
         }
       } else {
         sender.sendTDMessageCommandHelp("Agree", "pp agree");
-        sender.sendTDMessageCommandHelp("Disagree", "pp disagree");
+        sender.sendTDMessageCommandHelp("Disagree", "pp deny");
       }
     }
   }

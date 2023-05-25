@@ -15,6 +15,7 @@ import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.ChannelUserMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
+import de.timesnake.library.extension.util.NetworkVariables;
 import de.timesnake.library.network.NetworkUtils;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,10 +28,14 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
   private final Set<UUID> userSwitching = new HashSet<>();
   private Integer playerAmount;
 
+  private final NetworkVariables variables;
+
   public Network(Integer playerAmount) {
     super(Database.getNetwork().getNetworkFile("network").getFile().toPath());
     this.playerAmount = playerAmount;
-    Server.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
+    this.variables = new NetworkVariables();
+    this.variables.load();
+    Server.getChannel().addListener(this, () -> Collections.singleton(this.getProxyName()));
   }
 
   @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
@@ -39,8 +44,13 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
   }
 
   @Override
-  public String getName() {
+  public String getProxyName() {
     return Channel.PROXY_NAME;
+  }
+
+  @Override
+  public NetworkVariables getVariables() {
+    return this.variables;
   }
 
   @Override
