@@ -12,11 +12,14 @@ import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardDisplayObjective;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutSideboardScoreSet;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.server.ServerScoreboard;
+import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,7 +41,7 @@ public abstract class Tablist extends Board implements Listener,
   protected String footer;
 
   public Tablist(String name, Type type, ScoreboardPacketManager packetManager,
-      TablistUserJoin userJoin, TablistUserQuit userQuit) {
+                 TablistUserJoin userJoin, TablistUserQuit userQuit) {
     super(name);
     this.type = type;
     this.packetManager = packetManager;
@@ -75,13 +78,11 @@ public abstract class Tablist extends Board implements Listener,
 
   @Override
   public void updateEntryValue(TablistablePlayer entry, Integer value) {
-    ExPacketPlayOutSideboardScoreSet packet = ExPacketPlayOutSideboardScoreSet.wrap(this.name,
-        value,
-        entry.getTablistName());
-    this.packetManager.sendPacket(this.watchingUsers, packet);
+    this.packetManager.sendPacket(this.watchingUsers,
+        new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name, entry.getTablistName(), value));
   }
 
-  protected void broadcastPacket(ExPacketPlayOut packet) {
+  protected void broadcastPacket(Packet<?> packet) {
     for (User user : this.watchingUsers) {
       this.packetManager.sendPacket(user, packet);
     }
@@ -89,8 +90,7 @@ public abstract class Tablist extends Board implements Listener,
 
   protected void updateHeaderFooter() {
     this.packetManager.sendPacket(this.watchingUsers,
-        ExPacketPlayOutTablistHeaderFooter.wrap(this.header,
-            this.footer));
+        new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
   }
 
   @EventHandler
@@ -103,8 +103,8 @@ public abstract class Tablist extends Board implements Listener,
       if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || user.getPlayer()
           .getGameMode().equals(GameMode.ADVENTURE)) {
         this.packetManager.sendPacket(this.watchingUsers,
-            ExPacketPlayOutSideboardScoreSet.wrap(this.name,
-                ((int) user.getHealth()), user.getName()));
+            new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
+                user.getName(), ((int) user.getHealth())));
       }
 
     }
@@ -149,23 +149,19 @@ public abstract class Tablist extends Board implements Listener,
   }
 
   protected void load(User user) {
-    this.packetManager.sendPacket(user, ExPacketPlayOutScoreboardObjective.wrap(this.name, "",
-        ExPacketPlayOutScoreboardObjective.Display.REMOVE, this.type.getPacketType()));
+    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
 
-    this.packetManager.sendPacket(user, ExPacketPlayOutScoreboardObjective.wrap(this.name, "",
-        ExPacketPlayOutScoreboardObjective.Display.CREATE, this.type.getPacketType()));
+    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name,
+        this.type.getPacketType().getDefaultRenderType()));
 
-    this.packetManager.sendPacket(user,
-        ExPacketPlayOutScoreboardDisplayObjective.wrap(this.name,
-            ExPacketPlayOutScoreboardDisplayObjective.Slot.TABLIST));
+    this.packetManager.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(Scoreboard.DISPLAY_SLOT_LIST, this.name));
 
-    this.packetManager.sendPacket(user,
-        ExPacketPlayOutTablistHeaderFooter.wrap(this.header, this.footer));
+    this.packetManager.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 
     for (User u : Server.getUsers()) {
       if (this.type.equals(Type.HEALTH)) {
-        this.packetManager.sendPacket(user, ExPacketPlayOutSideboardScoreSet.wrap(this.name,
-            ((int) u.getHealth()), user.getName()));
+        this.packetManager.sendPacket(user, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
+            user.getName(), ((int) u.getHealth())));
       }
     }
   }

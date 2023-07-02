@@ -5,12 +5,13 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
+import net.minecraft.network.protocol.Packet;
+
 import java.util.Collection;
 
 public interface ScoreboardPacketManager {
 
-  void sendPacket(Collection<? extends User> receivers, ExPacketPlayOut packet);
+  void sendPacket(Collection<? extends User> receivers, Packet<?> packet);
 
-  void sendPacket(User user, ExPacketPlayOut packet);
+  void sendPacket(User user, Packet<?> packet);
 }

@@ -36,21 +36,10 @@ import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Random;
-import java.util.UUID;
-import java.util.function.Predicate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Instrument;
-import org.bukkit.Location;
-import org.bukkit.Note;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import net.minecraft.network.protocol.Packet;
+import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -59,6 +48,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Random;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 public class Server implements de.timesnake.library.basic.util.server.Server {
 
@@ -253,7 +249,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    */
   @Deprecated
   public static void broadcastClickableMessage(String text, String exec, String info,
-      ClickEvent.Action action) {
+                                               ClickEvent.Action action) {
     server.broadcastClickableTDMessage(text, exec, info, action);
   }
 
@@ -266,7 +262,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    * @param action The action to execute
    */
   public static void broadcastClickableMessage(Component text, String exec, Component info,
-      ClickEvent.Action action) {
+                                               ClickEvent.Action action) {
     server.broadcastClickableMessage(text, exec, info, action);
   }
 
@@ -281,8 +277,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    */
   @Deprecated
   public static void broadcastClickableMessage(Plugin plugin, String text, String exec,
-      String info,
-      ClickEvent.Action action) {
+                                               String info,
+                                               ClickEvent.Action action) {
     server.broadcastClickableMessage(plugin, text, exec, info, action);
   }
 
@@ -296,8 +292,8 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    * @param action The action to execute
    */
   public static void broadcastClickableMessage(Plugin plugin, Component text, String exec,
-      Component info,
-      ClickEvent.Action action) {
+                                               Component info,
+                                               ClickEvent.Action action) {
     server.broadcastClickableMessage(plugin, text, exec, info, action);
   }
 
@@ -364,7 +360,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    * @param stay     The display time of the title (in ticks)
    */
   public static void broadcastTitle(Component title, Component subTitle, Duration stay,
-      Duration fadeIn, Duration fadeOut) {
+                                    Duration fadeIn, Duration fadeOut) {
     server.broadcastTitle(title, subTitle, stay, fadeIn, fadeOut);
   }
 
@@ -376,7 +372,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    * @param stay     The display time of the title (in ticks)
    */
   public static void broadcastTDTitle(String title, String subTitle, Duration stay,
-      Duration fadeIn, Duration fadeOut) {
+                                      Duration fadeIn, Duration fadeOut) {
     server.broadcastTDTitle(title, subTitle, stay, fadeIn, fadeOut);
   }
 
@@ -524,7 +520,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
    */
   @Deprecated
   public static ExInventory createExInventory(int size, String name, InventoryHolder holder,
-      ExItemStack... itemStacks) {
+                                              ExItemStack... itemStacks) {
     return server.createExInventory(size, name, holder, itemStacks);
   }
 
@@ -550,56 +546,56 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
   }
 
   public static BukkitTask runTaskLaterSynchrony(Task task, int delay,
-      org.bukkit.plugin.Plugin plugin) {
+                                                 org.bukkit.plugin.Plugin plugin) {
     return server.runTaskLaterSynchrony(task, delay, plugin);
   }
 
   public static BukkitTask runTaskLaterAsynchrony(Task task, int delay,
-      org.bukkit.plugin.Plugin plugin) {
+                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskLaterAsynchrony(task, delay, plugin);
   }
 
   public static BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                                 org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, delay, period, plugin);
   }
 
   public static BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
 
   public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay,
-      int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                                 int period,
+                                                 org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, time, delay, period, plugin);
   }
 
   public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay,
-      int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                                  int period,
+                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, time, delay, period, plugin);
   }
 
   public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time,
-      boolean cancelOnZero, int delay,
-      int period, org.bukkit.plugin.Plugin plugin) {
+                                                 boolean cancelOnZero, int delay,
+                                                 int period, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
   }
 
   public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time,
-      boolean cancelOnZero, int delay,
-      int period, org.bukkit.plugin.Plugin plugin) {
+                                                  boolean cancelOnZero, int delay,
+                                                  int period, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
   }
 
   public static <Element> void runTaskLoopAsynchrony(LoopTask<Element> task,
-      Iterable<Element> iterable,
-      org.bukkit.plugin.Plugin plugin) {
+                                                     Iterable<Element> iterable,
+                                                     org.bukkit.plugin.Plugin plugin) {
     server.runTaskLoopAsynchrony(task, iterable, plugin);
   }
 
-  public static void broadcastPacket(ExPacketPlayOut packet) {
+  public static void broadcastPacket(Packet<?> packet) {
     server.broadcastPacket(packet);
   }
 

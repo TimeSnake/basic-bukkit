@@ -6,33 +6,23 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
 import de.timesnake.library.basic.util.Loggers;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablist;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamUpdate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import de.timesnake.library.packets.util.packet.TablistHead;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.*;
 
 public class TeamTablist extends Tablist implements
     de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist {
@@ -60,35 +50,29 @@ public class TeamTablist extends Tablist implements
         builder.getUserQuit());
     this.colorType = builder.getColorType();
     if (builder.getTeamType() == null) {
-      throw new BuilderNotFullyInstantiatedException(
-          "team tablist: 'teamType' not instantiated");
+      throw new BuilderNotFullyInstantiatedException("team tablist: 'teamType' not instantiated");
     }
     this.teamType = builder.getTeamType();
     this.teamsTab = new TeamsTab();
     this.tablist = new Tab<>();
 
     if (builder.getTeams() == null) {
-      throw new BuilderNotFullyInstantiatedException(
-          "team tablist: 'teams' not instantiated");
+      throw new BuilderNotFullyInstantiatedException("team tablist: 'teams' not instantiated");
     }
 
     for (TablistableGroup group : builder.getTeams()) {
-      this.teamsTab.addEntry(
-          new TeamTab(group.getTablistRank(), group.getTablistChatColor(), true,
-              builder.getGroupTypes()));
+      this.teamsTab.addEntry(new TeamTab(group.getTablistRank(), group.getTablistChatColor(), true, builder.getGroupTypes()));
     }
 
     for (int i = 0; i < 80; i++) {
-      String rank = i < 10 ? "0" + i : "" + i;
+      String rank = i < 10 ? "0" + i : String.valueOf(i);
       this.fakePlayers.put(rank, new Entry(null, null, null, rank, null, null,
-          new FakeTablistPlayer("§" + i / 10 + "§" + i % 10,
-              ExPacketPlayOutTablist.Head.BLANK)));
+          new FakeTablistPlayer("§" + i / 10 + "§" + i % 10, TablistHead.BLANK)));
     }
 
     if (builder.getRemainTeam() != null) {
       if (builder.getRemainTeamGroupTypes() == null) {
-        throw new BuilderNotFullyInstantiatedException(
-            "team tablist: 'remainTeamGroupTypes' not instantiated");
+        throw new BuilderNotFullyInstantiatedException("team tablist: 'remainTeamGroupTypes' not instantiated");
       }
       this.remainTeam = new TeamTab("0", builder.getRemainTeam().getTablistChatColor(), true,
           builder.getRemainTeamGroupTypes());
@@ -100,27 +84,24 @@ public class TeamTablist extends Tablist implements
   @Override
   protected void load(User user) {
     super.load(user);
-    // set header footer
 
-    this.packetManager.sendPacket(user,
-        ExPacketPlayOutTablistHeaderFooter.wrap(this.header, this.footer));
+    // set header footer
+    this.packetManager.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 
     for (int slot = 0; slot < 80; slot++) {
-      this.packetManager.sendPacket(user,
-          ExPacketPlayOutTablistTeamCreation.wrap(slot < 10 ? "0" + slot :
-              slot + "", "", ChatColor.WHITE, this.nameTagVisibility.getPacketTag()));
+      this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofCreate(slot < 10 ? "0" + slot : String.valueOf(slot),
+          Component.empty(), ChatFormatting.WHITE, this.nameTagVisibility.getPacketTag()));
     }
 
     for (SlotEntry entry : this.tablist) {
       if (entry != null) {
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(),
-                entry.getPrefix(), entry.getChatColor()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
-                entry.getPlayer().getPlayer().getName()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
+        //update team with color and prefix
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofModify(entry.getSlot(),
+            Component.literal(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().name()),
+            this.nameTagVisibility.getPacketTag()));
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getSlot(), entry.getPlayer().getPlayer().getName()));
+
+        this.packetManager.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(entry.getPlayer().getMinecraftPlayer())));
       }
     }
   }
@@ -128,23 +109,18 @@ public class TeamTablist extends Tablist implements
   @Override
   protected void unload(User user) {
 
-    this.packetManager.sendPacket(user, ExPacketPlayOutScoreboardObjective.wrap(this.name, "",
-        ExPacketPlayOutScoreboardObjective.Display.REMOVE, this.type.getPacketType()));
+    this.packetManager.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofRemove(Scoreboard.DISPLAY_SLOT_LIST));
 
     for (SlotEntry entry : this.tablist) {
       if (entry != null) {
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamPlayerRemove.wrap(entry.getSlot(),
-                entry.getPlayer().getPlayer().getName()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistPlayerRemove.wrap(entry.getPlayer().getPlayer()));
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofRemovePlayer(entry.getSlot(),
+            entry.getPlayer().getPlayer().getName()));
+        this.packetManager.sendPacket(user, new ClientboundPlayerInfoRemovePacket(List.of(entry.getPlayer().getPlayer().getUniqueId())));
       }
     }
 
     for (int slot = 0; slot < 80; slot++) {
-      this.packetManager.sendPacket(user,
-          ExPacketPlayOutTablistTeamRemove.wrap(slot < 10 ? "0" + slot :
-              slot + ""));
+      this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofRemove(slot < 10 ? "0" + slot : String.valueOf(slot)));
     }
   }
 
@@ -169,7 +145,7 @@ public class TeamTablist extends Tablist implements
     //blank
     if (this.blankSlots != null) {
       for (Integer slot : this.blankSlots) {
-        String slotRank = slot < 10 ? "0" + slot : "" + slot;
+        String slotRank = slot < 10 ? "0" + slot : String.valueOf(slot);
         this.tablist.addEntry(this.fakePlayers.get(slotRank).toTablistEntry(slot));
       }
     }
@@ -197,20 +173,17 @@ public class TeamTablist extends Tablist implements
 
         // not remove moved players
         if (!movedPlayers.contains(oldEntry.getPlayer())) {
-          this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(
-              oldEntry.getPlayer().getPlayer()));
+          this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(List.of(oldEntry.getPlayer().getPlayer().getUniqueId())));
         }
 
         //update team with color and prefix
-        this.broadcastPacket(ExPacketPlayOutTablistTeamUpdate.wrap(newEntry.getSlot(),
-            newEntry.getPrefix(),
-            newEntry.getChatColor()));
+        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofModify(newEntry.getSlot(),
+            Component.literal(newEntry.getPrefix()), ChatFormatting.getByName(newEntry.getChatColor().name()),
+            this.nameTagVisibility.getPacketTag()));
 
         // add new player
-        this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(newEntry.getSlot(),
-            newPlayer.getName()));
-        this.broadcastPacket(
-            ExPacketPlayOutTablistPlayerAdd.wrap(newEntry.getPlayer().getPlayer()));
+        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(newEntry.getSlot(), newPlayer.getName()));
+        this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(newEntry.getPlayer().getMinecraftPlayer())));
 
         // mark as moved
         movedPlayers.add(newEntry.getPlayer());
@@ -222,8 +195,7 @@ public class TeamTablist extends Tablist implements
       SlotEntry oldEntry = oldIt.next();
       // not remove moved players
       if (!movedPlayers.remove(oldEntry.getPlayer())) {
-        this.broadcastPacket(
-            ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
+        this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(List.of(oldEntry.getPlayer().getPlayer().getUniqueId())));
       }
 
     }
@@ -231,13 +203,12 @@ public class TeamTablist extends Tablist implements
     // add new entries and update team
     while (it.hasNext()) {
       SlotEntry entry = it.next();
-      this.broadcastPacket(
-          ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(), entry.getPrefix(),
-              entry.getChatColor()));
-      this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
-          entry.getPlayer().getPlayer().getName()));
-      this.broadcastPacket(
-          ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
+
+      //update team with color and prefix
+      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofModify(entry.getSlot(),
+          Component.literal(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().name()), this.nameTagVisibility.getPacketTag()));
+      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getSlot(), entry.getPlayer().getPlayer().getName()));
+      this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(entry.getPlayer().getMinecraftPlayer())));
     }
   }
 
@@ -247,8 +218,7 @@ public class TeamTablist extends Tablist implements
   }
 
   private void addEntry(TablistablePlayer player, boolean update) {
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
 
     if (!player.showInTablist()) {
       return;
@@ -263,8 +233,7 @@ public class TeamTablist extends Tablist implements
 
     if (update) {
       this.updateChanges();
-      Loggers.SCOREBOARD
-          .fine("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+      Loggers.SCOREBOARD.info("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
     }
   }
 
@@ -274,9 +243,7 @@ public class TeamTablist extends Tablist implements
   }
 
   private void addRemainEntry(TablistablePlayer player, boolean update) {
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' try to add remain '" + player.getTablistName()
-            + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add remain '" + player.getTablistName() + "'");
 
     if (!player.showInTablist()) {
       return;
@@ -290,33 +257,27 @@ public class TeamTablist extends Tablist implements
     String groupRank = player.getFullRank(this.remainTeam.types);
 
     // build prefix
-    String prefix = player.getFullPrefix(new LinkedList<>(List.of(this.teamType))) +
-        player.getFullPrefix(this.remainTeam.types);
+    String prefix = player.getFullPrefix(new LinkedList<>(List.of(this.teamType))) + player.getFullPrefix(this.remainTeam.types);
     if (player.getTablistPrefix() != null) {
       prefix += player.getTablistPrefix();
     }
 
     this.remainTeam.addEntry(new Entry(this.remainTeam, player.getTablistGroup(this.teamType),
-        this.remainTeam.getRank(), groupRank, prefix, this.remainTeam.getChatColor(),
-        player));
+        this.remainTeam.getRank(), groupRank, prefix, this.remainTeam.getChatColor(), player));
 
     if (update) {
       this.updateChanges();
-      Loggers.SCOREBOARD
-          .info("tablist '" + this.name + "' added remain '" + player.getTablistName()
-              + "'");
+      Loggers.SCOREBOARD.info("tablist '" + this.name + "' added remain '" + player.getTablistName() + "'");
     }
   }
 
   @Override
   public boolean removeEntry(TablistablePlayer player) {
     Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' try to remove '" + player.getTablistName()
-            + "'");
+        .info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
     boolean removed = this.removeEntry(player, true);
     if (removed) {
-      Loggers.SCOREBOARD
-          .info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+      Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
     }
     return removed;
   }
@@ -363,28 +324,25 @@ public class TeamTablist extends Tablist implements
 
   @Override
   public void addTeamHeader(String teamRank, String headerRank, String name,
-      ExPacketPlayOutTablist.Head head) {
+                            TablistHead head) {
     this.teamsTab.addHeaderToEntry(teamRank, headerRank, name, head);
     this.updateChanges();
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
   }
 
   @Override
   public void addTeamHeader(String teamRank, String headerRank, String name) {
     this.teamsTab.addHeaderToEntry(teamRank, headerRank, name,
-        ExPacketPlayOutTablist.Head.BLANK);
+        TablistHead.BLANK);
     this.updateChanges();
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
   }
 
   @Override
   public void removeTeamHeader(String teamRank, String headerRank) {
     this.teamsTab.removeHeaderFromEntry(teamRank, headerRank);
     this.updateChanges();
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' removed team header to team '" + teamRank + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed team header to team '" + teamRank + "'");
   }
 
   public TeamTablist setNameTagVisibility(NameTagVisibility visibility) {
@@ -408,8 +366,8 @@ public class TeamTablist extends Tablist implements
     private final ChatColor chatColor;
 
     public SlotEntry(String slot, TablistablePlayer player, TablistableGroup team,
-        String prefix,
-        ChatColor chatColor) {
+                     String prefix,
+                     ChatColor chatColor) {
       super(slot);
       this.player = player;
       this.team = team;
@@ -519,7 +477,7 @@ public class TeamTablist extends Tablist implements
     }
 
     public void addHeaderToEntry(String teamRank, String headerRank, String name,
-        ExPacketPlayOutTablist.Head head) {
+                                 TablistHead head) {
       for (TeamTab team : this) {
         if (team.getRank().equals(teamRank)) {
           team.addHeader(new Entry(team, null, teamRank, headerRank, null, null,
@@ -551,7 +509,7 @@ public class TeamTablist extends Tablist implements
     private ArrayList<String> slots;
 
     public TeamTab(String rank, ChatColor chatColor, boolean fillFake,
-        LinkedList<TablistGroupType> types) {
+                   LinkedList<TablistGroupType> types) {
       super(rank);
       this.chatColor = chatColor;
       this.fillFake = fillFake;
@@ -628,7 +586,7 @@ public class TeamTablist extends Tablist implements
     private void addSlots(Integer size) {
       int to = counter + size;
       for (; counter < to; counter++) {
-        this.slots.add(counter < 10 ? "0" + counter : "" + counter);
+        this.slots.add(counter < 10 ? "0" + counter : String.valueOf(counter));
       }
     }
   }
@@ -647,9 +605,9 @@ public class TeamTablist extends Tablist implements
     protected ChatColor chatColor;
 
     public Entry(TeamTab teamTab, TablistableGroup team, String teamRank, String rank,
-        String prefix,
-        ChatColor chatColor,
-        TablistablePlayer player) {
+                 String prefix,
+                 ChatColor chatColor,
+                 TablistablePlayer player) {
       super(rank);
       this.teamTab = teamTab;
       this.team = team;
@@ -691,7 +649,7 @@ public class TeamTablist extends Tablist implements
     }
 
     public SlotEntry toTablistEntry(Integer slot) {
-      return this.toTablistEntry(slot < 10 ? "0" + slot : "" + slot);
+      return this.toTablistEntry(slot < 10 ? "0" + slot : String.valueOf(slot));
     }
 
     public SlotEntry toTablistEntry(String slotRank) {
@@ -894,7 +852,7 @@ public class TeamTablist extends Tablist implements
     }
 
     private void calcTripleRemain(TeamTab first, TeamTab second, TeamTab third,
-        TeamTab remain) {
+                                  TeamTab remain) {
       int firstSize = first.getSize();
       int secondSize = second.getSize();
       int thirdSize = third.getSize();
@@ -961,12 +919,12 @@ public class TeamTablist extends Tablist implements
     }
 
     private void calcQuintuple(TeamTab first, TeamTab second, TeamTab third, TeamTab fourth,
-        TeamTab fifth) {
+                               TeamTab fifth) {
       return;
     }
 
     private void calcSixtuple(TeamTab first, TeamTab second, TeamTab third, TeamTab fourth,
-        TeamTab fifth, TeamTab sixth) {
+                              TeamTab fifth, TeamTab sixth) {
       return;
     }
 
@@ -1077,8 +1035,8 @@ public class TeamTablist extends Tablist implements
     }
 
     private void calcQuadrupleRemain(TeamTab first, TeamTab second, TeamTab third,
-        TeamTab fourth,
-        TeamTab remain) {
+                                     TeamTab fourth,
+                                     TeamTab remain) {
       int firstSize = first.getSize();
       int secondSize = second.getSize();
       int thirdSize = third.getSize();
