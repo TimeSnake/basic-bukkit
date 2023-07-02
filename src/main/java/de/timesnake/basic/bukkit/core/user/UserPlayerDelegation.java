@@ -4,32 +4,22 @@
 
 package de.timesnake.basic.bukkit.core.user;
 
+
 import com.destroystokyo.paper.ClientOption;
 import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.block.TargetBlockInfo;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.entity.LookAnchor;
-import io.papermc.paper.entity.RelativeTeleportFlag;
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collector;
+import io.papermc.paper.entity.TeleportFlag;
+import io.papermc.paper.math.Position;
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.chat.ChatType;
+import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
@@ -44,49 +34,17 @@ import net.kyori.adventure.title.TitlePart;
 import net.kyori.adventure.util.TriState;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.BanEntry;
-import org.bukkit.Chunk;
-import org.bukkit.DyeColor;
-import org.bukkit.Effect;
-import org.bukkit.EntityEffect;
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.GameMode;
-import org.bukkit.Instrument;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Note;
-import org.bukkit.Particle;
-import org.bukkit.Server;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.Statistic;
-import org.bukkit.WeatherType;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.PistonMoveReaction;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityCategory;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.FishHook;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Pose;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.SpawnCategory;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -94,14 +52,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MainHand;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.map.MapView;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permission;
@@ -115,38 +66,18 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.*;
+
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 public class UserPlayerDelegation implements Player {
-
-  public static @NotNull Audience empty() {
-    return Audience.empty();
-  }
-
-  public static @NotNull Audience audience(@NotNull Audience @NotNull ... audiences) {
-    return Audience.audience(audiences);
-  }
-
-  public static @NotNull ForwardingAudience audience(
-      @NotNull Iterable<? extends Audience> audiences) {
-    return Audience.audience(audiences);
-  }
-
-  public static @NotNull Collector<? super Audience, ?, ForwardingAudience> toAudience() {
-    return Audience.toAudience();
-  }
-
-  public static @Nullable <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {
-    return HoverEventSource.unbox(source);
-  }
-
-  public static net.kyori.adventure.sound.Sound.@NotNull Emitter self() {
-    return net.kyori.adventure.sound.Sound.Emitter.self();
-  }
 
   protected final Player player;
 
@@ -155,28 +86,33 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void stopSound(@NotNull SoundCategory soundCategory) {
-    this.player.stopSound(soundCategory);
-  }
-
-  @Override
-  public FishHook getFishHook() {
-    return this.player.getFishHook();
-  }
-
-  @Override
-  public @NotNull Identity identity() {
+  @NotNull
+  public Identity identity() {
     return player.identity();
   }
 
   @Override
-  public @NotNull Component displayName() {
+  @UnmodifiableView
+  @NotNull
+  public Iterable<? extends BossBar> activeBossBars() {
+    return player.activeBossBars();
+  }
+
+  @Override
+  @NotNull
+  public Component displayName() {
     return player.displayName();
   }
 
   @Override
   public void displayName(@Nullable Component displayName) {
     player.displayName(displayName);
+  }
+
+  @Override
+  @NotNull
+  public String getName() {
+    return player.getName();
   }
 
   @Override
@@ -198,17 +134,20 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Component playerListName() {
+  @NotNull
+  public Component playerListName() {
     return player.playerListName();
   }
 
   @Override
-  public @Nullable Component playerListHeader() {
+  @Nullable
+  public Component playerListHeader() {
     return player.playerListHeader();
   }
 
   @Override
-  public @Nullable Component playerListFooter() {
+  @Nullable
+  public Component playerListFooter() {
     return player.playerListFooter();
   }
 
@@ -234,15 +173,15 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public void setPlayerListHeader(@Nullable String header) {
-    player.setPlayerListHeader(header);
+  @Nullable
+  public String getPlayerListFooter() {
+    return player.getPlayerListFooter();
   }
 
   @Override
   @Deprecated
-  @Nullable
-  public String getPlayerListFooter() {
-    return player.getPlayerListFooter();
+  public void setPlayerListHeader(@Nullable String header) {
+    player.setPlayerListHeader(header);
   }
 
   @Override
@@ -258,17 +197,19 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Location getCompassTarget() {
-    return player.getCompassTarget();
-  }
-
-  @Override
   public void setCompassTarget(@NotNull Location loc) {
     player.setCompassTarget(loc);
   }
 
   @Override
-  public @Nullable InetSocketAddress getAddress() {
+  @NotNull
+  public Location getCompassTarget() {
+    return player.getCompassTarget();
+  }
+
+  @Override
+  @Nullable
+  public InetSocketAddress getAddress() {
     return player.getAddress();
   }
 
@@ -345,17 +286,18 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean isSleepingIgnored() {
-    return player.isSleepingIgnored();
-  }
-
-  @Override
   public void setSleepingIgnored(boolean isSleeping) {
     player.setSleepingIgnored(isSleeping);
   }
 
   @Override
-  public @Nullable Location getBedSpawnLocation() {
+  public boolean isSleepingIgnored() {
+    return player.isSleepingIgnored();
+  }
+
+  @Override
+  @Nullable
+  public Location getBedSpawnLocation() {
     return player.getBedSpawnLocation();
   }
 
@@ -366,8 +308,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   public void setBedSpawnLocation(@Nullable Location location, boolean force) {
-    player.setBedSpawnLocation(location,
-        force);
+    player.setBedSpawnLocation(location, force);
   }
 
   @Override
@@ -382,28 +323,22 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void playSound(@NotNull Location location, @NotNull Sound sound, float volume,
-      float pitch) {
+  public void playSound(@NotNull Location location, @NotNull Sound sound, float volume, float pitch) {
     player.playSound(location, sound, volume, pitch);
   }
 
   @Override
-  public void playSound(@NotNull Location location, @NotNull String sound, float volume,
-      float pitch) {
+  public void playSound(@NotNull Location location, @NotNull String sound, float volume, float pitch) {
     player.playSound(location, sound, volume, pitch);
   }
 
   @Override
-  public void playSound(@NotNull Location location, @NotNull Sound sound,
-      @NotNull SoundCategory category,
-      float volume, float pitch) {
+  public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory category, float volume, float pitch) {
     player.playSound(location, sound, category, volume, pitch);
   }
 
   @Override
-  public void playSound(@NotNull Location location, @NotNull String sound,
-      @NotNull SoundCategory category,
-      float volume, float pitch) {
+  public void playSound(@NotNull Location location, @NotNull String sound, @NotNull SoundCategory category, float volume, float pitch) {
     player.playSound(location, sound, category, volume, pitch);
   }
 
@@ -413,9 +348,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void playSound(@NotNull Entity entity, @NotNull Sound sound,
-      @NotNull SoundCategory category, float volume
-      , float pitch) {
+  public void playSound(@NotNull Entity entity, @NotNull String sound, float volume, float pitch) {
+    player.playSound(entity, sound, volume, pitch);
+  }
+
+  @Override
+  public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory category, float volume, float pitch) {
+    player.playSound(entity, sound, category, volume, pitch);
+  }
+
+  @Override
+  public void playSound(@NotNull Entity entity, @NotNull String sound, @NotNull SoundCategory category, float volume, float pitch) {
     player.playSound(entity, sound, category, volume, pitch);
   }
 
@@ -440,6 +383,11 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void stopSound(@NotNull SoundCategory category) {
+    player.stopSound(category);
+  }
+
+  @Override
   public void stopAllSounds() {
     player.stopAllSounds();
   }
@@ -447,8 +395,7 @@ public class UserPlayerDelegation implements Player {
   @Override
   @Deprecated
   public void playEffect(@NotNull Location loc, @NotNull Effect effect, int data) {
-    player.playEffect(loc, effect,
-        data);
+    player.playEffect(loc, effect, data);
   }
 
   @Override
@@ -473,74 +420,94 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void sendBlockChanges(@NotNull Collection<BlockState> blocks) {
+    player.sendBlockChanges(blocks);
+  }
+
+  @Override
+  @Deprecated
+  public void sendBlockChanges(@NotNull Collection<BlockState> blocks, boolean suppressLightUpdates) {
+    player.sendBlockChanges(blocks, suppressLightUpdates);
+  }
+
+  @Override
   public void sendBlockDamage(@NotNull Location loc, float progress) {
     player.sendBlockDamage(loc, progress);
   }
 
   @Override
-  public void sendMultiBlockChange(@NotNull Map<Location, BlockData> blockChanges) {
+  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> blockChanges) {
     player.sendMultiBlockChange(blockChanges);
   }
 
   @Override
-  public void sendMultiBlockChange(@NotNull Map<Location, BlockData> blockChanges,
-      boolean suppressLightUpdates) {
+  @Deprecated
+  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> blockChanges, boolean suppressLightUpdates) {
     player.sendMultiBlockChange(blockChanges, suppressLightUpdates);
   }
 
   @Override
-  public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull EquipmentSlot slot,
-      @NotNull ItemStack item) {
+  public void sendBlockDamage(@NotNull Location loc, float progress, @NotNull Entity source) {
+    player.sendBlockDamage(loc, progress, source);
+  }
+
+  @Override
+  public void sendBlockDamage(@NotNull Location loc, float progress, int sourceId) {
+    player.sendBlockDamage(loc, progress, sourceId);
+  }
+
+  @Override
+  public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull EquipmentSlot slot, @Nullable ItemStack item) {
     player.sendEquipmentChange(entity, slot, item);
   }
 
   @Override
-  public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines)
-      throws IllegalArgumentException {
+  public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull Map<EquipmentSlot, ItemStack> items) {
+    player.sendEquipmentChange(entity, items);
+  }
+
+  @Override
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines) throws IllegalArgumentException {
     player.sendSignChange(loc, lines);
   }
 
   @Override
-  public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines,
-      @NotNull DyeColor dyeColor) throws IllegalArgumentException {
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
     player.sendSignChange(loc, lines, dyeColor);
   }
 
   @Override
-  public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines,
-      boolean hasGlowingText) throws IllegalArgumentException {
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, boolean hasGlowingText) throws IllegalArgumentException {
     player.sendSignChange(loc, lines, hasGlowingText);
   }
 
   @Override
-  public void sendSignChange(@NotNull Location loc, @Nullable List<Component> lines,
-      @NotNull DyeColor dyeColor,
-      boolean hasGlowingText) throws IllegalArgumentException {
-    player.sendSignChange(loc,
-        lines, dyeColor, hasGlowingText);
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, @NotNull DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException {
+    player.sendSignChange(loc, lines, dyeColor, hasGlowingText);
   }
 
   @Override
   @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines)
-      throws IllegalArgumentException {
+  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines) throws IllegalArgumentException {
     player.sendSignChange(loc, lines);
   }
 
   @Override
   @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines,
-      @NotNull DyeColor dyeColor) throws IllegalArgumentException {
+  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
     player.sendSignChange(loc, lines, dyeColor);
   }
 
   @Override
   @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines,
-      @NotNull DyeColor dyeColor,
-      boolean hasGlowingText) throws IllegalArgumentException {
-    player.sendSignChange(loc,
-        lines, dyeColor, hasGlowingText);
+  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException {
+    player.sendSignChange(loc, lines, dyeColor, hasGlowingText);
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public void sendBlockUpdate(@NotNull Location loc, @NotNull TileState tileState) throws IllegalArgumentException {
+    player.sendBlockUpdate(loc, tileState);
   }
 
   @Override
@@ -549,70 +516,90 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason) {
+  public void showWinScreen() {
+    player.showWinScreen();
+  }
+
+  @Override
+  public boolean hasSeenWinScreen() {
+    return player.hasSeenWinScreen();
+  }
+
+  @Override
+  public void setHasSeenWinScreen(boolean hasSeenWinScreen) {
+    player.setHasSeenWinScreen(hasSeenWinScreen);
+  }
+
+  @Override
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason) {
     return player.banPlayerFull(reason);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
     return player.banPlayerFull(reason, source);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayerFull(reason, expires);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires,
-      @Nullable String source) {
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayerFull(reason, expires, source);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
     return player.banPlayerIP(reason, kickPlayer);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source,
-      boolean kickPlayer) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
     return player.banPlayerIP(reason, source, kickPlayer);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires,
-      boolean kickPlayer) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
     return player.banPlayerIP(reason, expires, kickPlayer);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason) {
     return player.banPlayerIP(reason);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
     return player.banPlayerIP(reason, source);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayerIP(reason, expires);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires,
-      @Nullable String source) {
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayerIP(reason, expires, source);
   }
 
   @Override
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires,
-      @Nullable String source,
-      boolean kickPlayer) {
-    return player.banPlayerIP(reason, expires, source,
-        kickPlayer);
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
+    return player.banPlayerIP(reason, expires, source, kickPlayer);
   }
 
   @Override
@@ -624,8 +611,7 @@ public class UserPlayerDelegation implements Player {
   @Override
   @Deprecated
   public void sendActionBar(char alternateChar, @NotNull String message) {
-    player.sendActionBar(alternateChar,
-        message);
+    player.sendActionBar(alternateChar, message);
   }
 
   @Override
@@ -649,29 +635,25 @@ public class UserPlayerDelegation implements Player {
   @Override
   @Deprecated
   public void sendMessage(ChatMessageType position, BaseComponent... components) {
-    player.sendMessage(position,
-        components);
+    player.sendMessage(position, components);
   }
 
   @Override
   @Deprecated
-  public void setPlayerListHeaderFooter(@Nullable BaseComponent[] header,
-      @Nullable BaseComponent[] footer) {
+  public void setPlayerListHeaderFooter(@Nullable BaseComponent[] header, @Nullable BaseComponent[] footer) {
     player.setPlayerListHeaderFooter(header, footer);
   }
 
   @Override
   @Deprecated
-  public void setPlayerListHeaderFooter(@Nullable BaseComponent header,
-      @Nullable BaseComponent footer) {
+  public void setPlayerListHeaderFooter(@Nullable BaseComponent header, @Nullable BaseComponent footer) {
     player.setPlayerListHeaderFooter(header, footer);
   }
 
   @Override
   @Deprecated
   public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks) {
-    player.setTitleTimes(fadeInTicks,
-        stayTicks, fadeOutTicks);
+    player.setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
   }
 
   @Override
@@ -700,20 +682,14 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public void showTitle(@Nullable BaseComponent[] title, @Nullable BaseComponent[] subtitle,
-      int fadeInTicks,
-      int stayTicks, int fadeOutTicks) {
-    player.showTitle(title, subtitle, fadeInTicks, stayTicks,
-        fadeOutTicks);
+  public void showTitle(@Nullable BaseComponent[] title, @Nullable BaseComponent[] subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+    player.showTitle(title, subtitle, fadeInTicks, stayTicks, fadeOutTicks);
   }
 
   @Override
   @Deprecated
-  public void showTitle(@Nullable BaseComponent title, @Nullable BaseComponent subtitle,
-      int fadeInTicks,
-      int stayTicks, int fadeOutTicks) {
-    player.showTitle(title, subtitle, fadeInTicks, stayTicks,
-        fadeOutTicks);
+  public void showTitle(@Nullable BaseComponent title, @Nullable BaseComponent subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+    player.showTitle(title, subtitle, fadeInTicks, stayTicks, fadeOutTicks);
   }
 
   @Override
@@ -735,12 +711,34 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void sendHurtAnimation(float yaw) {
+    player.sendHurtAnimation(yaw);
+  }
+
+  @Override
+  public void addCustomChatCompletions(@NotNull Collection<String> completions) {
+    player.addCustomChatCompletions(completions);
+  }
+
+  @Override
+  public void removeCustomChatCompletions(@NotNull Collection<String> completions) {
+    player.removeCustomChatCompletions(completions);
+  }
+
+  @Override
+  public void setCustomChatCompletions(@NotNull Collection<String> completions) {
+    player.setCustomChatCompletions(completions);
+  }
+
+  @Override
+  @ApiStatus.Internal
   public void updateInventory() {
     player.updateInventory();
   }
 
   @Override
-  public @Nullable GameMode getPreviousGameMode() {
+  @Nullable
+  public GameMode getPreviousGameMode() {
     return player.getPreviousGameMode();
   }
 
@@ -770,13 +768,14 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable WeatherType getPlayerWeather() {
-    return player.getPlayerWeather();
+  public void setPlayerWeather(@NotNull WeatherType type) {
+    player.setPlayerWeather(type);
   }
 
   @Override
-  public void setPlayerWeather(@NotNull WeatherType type) {
-    player.setPlayerWeather(type);
+  @Nullable
+  public WeatherType getPlayerWeather() {
+    return player.getPlayerWeather();
   }
 
   @Override
@@ -787,6 +786,16 @@ public class UserPlayerDelegation implements Player {
   @Override
   public void giveExp(int amount) {
     player.giveExp(amount);
+  }
+
+  @Override
+  public int getExpCooldown() {
+    return player.getExpCooldown();
+  }
+
+  @Override
+  public void setExpCooldown(int ticks) {
+    player.setExpCooldown(ticks);
   }
 
   @Override
@@ -855,6 +864,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void setFlyingFallDamage(@NotNull TriState flyingFallDamage) {
+    player.setFlyingFallDamage(flyingFallDamage);
+  }
+
+  @Override
+  @NotNull
+  public TriState hasFlyingFallDamage() {
+    return player.hasFlyingFallDamage();
+  }
+
+  @Override
   @Deprecated
   public void hidePlayer(@NotNull Player player) {
     this.player.hidePlayer(player);
@@ -910,23 +930,23 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public float getFlySpeed() {
-    return player.getFlySpeed();
-  }
-
-  @Override
   public void setFlySpeed(float value) throws IllegalArgumentException {
     player.setFlySpeed(value);
   }
 
   @Override
-  public float getWalkSpeed() {
-    return player.getWalkSpeed();
+  public void setWalkSpeed(float value) throws IllegalArgumentException {
+    player.setWalkSpeed(value);
   }
 
   @Override
-  public void setWalkSpeed(float value) throws IllegalArgumentException {
-    player.setWalkSpeed(value);
+  public float getFlySpeed() {
+    return player.getFlySpeed();
+  }
+
+  @Override
+  public float getWalkSpeed() {
+    return player.getWalkSpeed();
   }
 
   @Override
@@ -953,8 +973,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void setResourcePack(@NotNull String url, byte @Nullable [] hash,
-      @Nullable Component prompt) {
+  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt) {
     player.setResourcePack(url, hash, prompt);
   }
 
@@ -965,31 +984,29 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt,
-      boolean force) {
+  public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt, boolean force) {
     player.setResourcePack(url, hash, prompt, force);
   }
 
   @Override
-  public void setResourcePack(@NotNull String url, byte @Nullable [] hash,
-      @Nullable Component prompt,
-      boolean force) {
+  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt, boolean force) {
     player.setResourcePack(url, hash, prompt, force);
   }
 
   @Override
-  public @NotNull Scoreboard getScoreboard() {
+  @NotNull
+  public Scoreboard getScoreboard() {
     return player.getScoreboard();
   }
 
   @Override
-  public void setScoreboard(@NotNull Scoreboard scoreboard)
-      throws IllegalArgumentException, IllegalStateException {
+  public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {
     player.setScoreboard(scoreboard);
   }
 
   @Override
-  public @Nullable WorldBorder getWorldBorder() {
+  @Nullable
+  public WorldBorder getWorldBorder() {
     return player.getWorldBorder();
   }
 
@@ -1009,19 +1026,18 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public double getHealthScale() {
-    return player.getHealthScale();
-  }
-
-  @Override
   public void setHealthScale(double scale) throws IllegalArgumentException {
     player.setHealthScale(scale);
   }
 
   @Override
+  public double getHealthScale() {
+    return player.getHealthScale();
+  }
+
+  @Override
   public void sendHealthUpdate(double health, int foodLevel, float saturationLevel) {
-    player.sendHealthUpdate(health
-        , foodLevel, saturationLevel);
+    player.sendHealthUpdate(health, foodLevel, saturationLevel);
   }
 
   @Override
@@ -1030,7 +1046,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Entity getSpectatorTarget() {
+  @Nullable
+  public Entity getSpectatorTarget() {
     return player.getSpectatorTarget();
   }
 
@@ -1047,8 +1064,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay,
-      int fadeOut) {
+  public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
     player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
   }
 
@@ -1068,82 +1084,58 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
-      @Nullable T data) {
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, @Nullable T data) {
     player.spawnParticle(particle, location, count, data);
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
-      @Nullable T data) {
+  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, @Nullable T data) {
     player.spawnParticle(particle, x, y, z, count, data);
   }
 
   @Override
-  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
-      double offsetX,
-      double offsetY, double offsetZ) {
-    player.spawnParticle(particle, location, count,
-        offsetX, offsetY, offsetZ);
+  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ) {
+    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ);
   }
 
   @Override
-  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
-      double offsetX,
-      double offsetY, double offsetZ) {
-    player.spawnParticle(particle, x, y, z, count, offsetX
-        , offsetY, offsetZ);
+  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ) {
+    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ);
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
-      double offsetX,
-      double offsetY, double offsetZ, @Nullable T data) {
-    player.spawnParticle(particle,
-        location, count, offsetX, offsetY, offsetZ, data);
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, @Nullable T data) {
+    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, data);
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
-      double offsetX
-      , double offsetY, double offsetZ, @Nullable T data) {
-    player.spawnParticle(particle, x, y, z, count,
-        offsetX, offsetY, offsetZ, data);
+  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, @Nullable T data) {
+    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, data);
   }
 
   @Override
-  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
-      double offsetX,
-      double offsetY, double offsetZ, double extra) {
-    player.spawnParticle(particle, location,
-        count, offsetX, offsetY, offsetZ, extra);
+  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, double extra) {
+    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra);
   }
 
   @Override
-  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
-      double offsetX,
-      double offsetY, double offsetZ, double extra) {
-    player.spawnParticle(particle, x, y, z,
-        count, offsetX, offsetY, offsetZ, extra);
+  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra) {
+    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra);
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count,
-      double offsetX,
-      double offsetY, double offsetZ, double extra, @Nullable T data) {
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, double extra, @Nullable T data) {
     player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra, data);
   }
 
   @Override
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count,
-      double offsetX
-      , double offsetY, double offsetZ, double extra, @Nullable T data) {
-    player.spawnParticle(particle, x, y, z
-        , count, offsetX, offsetY, offsetZ, extra, data);
+  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, @Nullable T data) {
+    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra, data);
   }
 
   @Override
-  public @NotNull AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
+  @NotNull
+  public AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
     return player.getAdvancementProgress(advancement);
   }
 
@@ -1153,7 +1145,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Locale locale() {
+  @NotNull
+  public Locale locale() {
     return player.locale();
   }
 
@@ -1232,8 +1225,14 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  @Deprecated
   public void openSign(@NotNull Sign sign) {
     player.openSign(sign);
+  }
+
+  @Override
+  public void openSign(@NotNull Sign sign, @NotNull Side side) {
+    player.openSign(sign, side);
   }
 
   @Override
@@ -1247,8 +1246,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent(
-      @NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
+  @NotNull
+  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
     return player.asHoverEvent(op);
   }
 
@@ -1263,10 +1262,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required,
-      @Nullable Component resourcePackPrompt) {
-    player.setResourcePack(url, hash, required,
-        resourcePackPrompt);
+  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required, @Nullable Component resourcePackPrompt) {
+    player.setResourcePack(url, hash, required, resourcePackPrompt);
   }
 
   @Override
@@ -1287,7 +1284,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull PlayerProfile getPlayerProfile() {
+  @NotNull
+  public PlayerProfile getPlayerProfile() {
     return player.getPlayerProfile();
   }
 
@@ -1317,7 +1315,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Firework boostElytra(@NotNull ItemStack firework) {
+  @Nullable
+  public Firework boostElytra(@NotNull ItemStack firework) {
     return player.boostElytra(firework);
   }
 
@@ -1326,41 +1325,120 @@ public class UserPlayerDelegation implements Player {
     player.sendOpLevel(level);
   }
 
-  @Nullable
   @Override
+  @Deprecated(since = "1.20.1")
+  public void addAdditionalChatCompletions(@NotNull Collection<String> completions) {
+    player.addAdditionalChatCompletions(completions);
+  }
+
+  @Override
+  @Deprecated(since = "1.20.1")
+  public void removeAdditionalChatCompletions(@NotNull Collection<String> completions) {
+    player.removeAdditionalChatCompletions(completions);
+  }
+
+  @Override
+  @Nullable
   public String getClientBrandName() {
     return player.getClientBrandName();
   }
 
-  @NotNull
   @Override
+  @ApiStatus.Experimental
+  public void setRotation(float yaw, float pitch) {
+    player.setRotation(yaw, pitch);
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public void lookAt(double x, double y, double z, @NotNull LookAnchor playerAnchor) {
+    player.lookAt(x, y, z, playerAnchor);
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public void lookAt(@NotNull Position position, @NotNull LookAnchor playerAnchor) {
+    player.lookAt(position, playerAnchor);
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public void lookAt(@NotNull Entity entity, @NotNull LookAnchor playerAnchor, @NotNull LookAnchor entityAnchor) {
+    player.lookAt(entity, playerAnchor, entityAnchor);
+  }
+
+  @Override
+  public void showElderGuardian() {
+    player.showElderGuardian();
+  }
+
+  @Override
+  public void showElderGuardian(boolean silent) {
+    player.showElderGuardian(silent);
+  }
+
+  @Override
+  public int getWardenWarningCooldown() {
+    return player.getWardenWarningCooldown();
+  }
+
+  @Override
+  public void setWardenWarningCooldown(int cooldown) {
+    player.setWardenWarningCooldown(cooldown);
+  }
+
+  @Override
+  public int getWardenTimeSinceLastWarning() {
+    return player.getWardenTimeSinceLastWarning();
+  }
+
+  @Override
+  public void setWardenTimeSinceLastWarning(int time) {
+    player.setWardenTimeSinceLastWarning(time);
+  }
+
+  @Override
+  public int getWardenWarningLevel() {
+    return player.getWardenWarningLevel();
+  }
+
+  @Override
+  public void setWardenWarningLevel(int warningLevel) {
+    player.setWardenWarningLevel(warningLevel);
+  }
+
+  @Override
+  public void increaseWardenWarningLevel() {
+    player.increaseWardenWarningLevel();
+  }
+
+  @Override
+  @NotNull
   public Spigot spigot() {
     return player.spigot();
   }
 
   @Override
-  public @NotNull EntityEquipment getEquipment() {
+  @NotNull
+  public EntityEquipment getEquipment() {
     return player.getEquipment();
   }
 
+  @Override
   @NotNull
-  @Override
-  public String getName() {
-    return player.getName();
-  }
-
-  @Override
-  public @NotNull PlayerInventory getInventory() {
+  public PlayerInventory getInventory() {
     return player.getInventory();
   }
 
   @Override
-  public @NotNull Inventory getEnderChest() {
+  @NotNull
+  public Inventory getEnderChest() {
     return player.getEnderChest();
   }
 
   @Override
-  public @NotNull MainHand getMainHand() {
+  @NotNull
+  public MainHand getMainHand() {
     return player.getMainHand();
   }
 
@@ -1370,22 +1448,36 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull InventoryView getOpenInventory() {
+  public int getEnchantmentSeed() {
+    return player.getEnchantmentSeed();
+  }
+
+  @Override
+  public void setEnchantmentSeed(int seed) {
+    player.setEnchantmentSeed(seed);
+  }
+
+  @Override
+  @NotNull
+  public InventoryView getOpenInventory() {
     return player.getOpenInventory();
   }
 
   @Override
-  public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {
+  @Nullable
+  public InventoryView openInventory(@NotNull Inventory inventory) {
     return player.openInventory(inventory);
   }
 
   @Override
-  public @Nullable InventoryView openWorkbench(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openWorkbench(@Nullable Location location, boolean force) {
     return player.openWorkbench(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openEnchanting(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openEnchanting(@Nullable Location location, boolean force) {
     return player.openEnchanting(location, force);
   }
 
@@ -1395,42 +1487,50 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable InventoryView openMerchant(@NotNull Villager trader, boolean force) {
+  @Nullable
+  public InventoryView openMerchant(@NotNull Villager trader, boolean force) {
     return player.openMerchant(trader, force);
   }
 
   @Override
-  public @Nullable InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {
+  @Nullable
+  public InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {
     return player.openMerchant(merchant, force);
   }
 
   @Override
-  public @Nullable InventoryView openAnvil(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openAnvil(@Nullable Location location, boolean force) {
     return player.openAnvil(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openCartographyTable(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openCartographyTable(@Nullable Location location, boolean force) {
     return player.openCartographyTable(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openGrindstone(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openGrindstone(@Nullable Location location, boolean force) {
     return player.openGrindstone(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openLoom(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openLoom(@Nullable Location location, boolean force) {
     return player.openLoom(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openSmithingTable(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openSmithingTable(@Nullable Location location, boolean force) {
     return player.openSmithingTable(location, force);
   }
 
   @Override
-  public @Nullable InventoryView openStonecutter(@Nullable Location location, boolean force) {
+  @Nullable
+  public InventoryView openStonecutter(@Nullable Location location, boolean force) {
     return player.openStonecutter(location, force);
   }
 
@@ -1446,7 +1546,8 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public @NotNull ItemStack getItemInHand() {
+  @NotNull
+  public ItemStack getItemInHand() {
     return player.getItemInHand();
   }
 
@@ -1457,7 +1558,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull ItemStack getItemOnCursor() {
+  @NotNull
+  public ItemStack getItemOnCursor() {
     return player.getItemOnCursor();
   }
 
@@ -1482,6 +1584,11 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void setHurtDirection(float hurtDirection) {
+    player.setHurtDirection(hurtDirection);
+  }
+
+  @Override
   public boolean isDeeplySleeping() {
     return player.isDeeplySleeping();
   }
@@ -1492,8 +1599,15 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Location getPotentialBedLocation() {
+  @Nullable
+  public Location getPotentialBedLocation() {
     return player.getPotentialBedLocation();
+  }
+
+  @Override
+  @Nullable
+  public FishHook getFishHook() {
+    return player.getFishHook();
   }
 
   @Override
@@ -1507,12 +1621,14 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Location getBedLocation() {
+  @NotNull
+  public Location getBedLocation() {
     return player.getBedLocation();
   }
 
   @Override
-  public @NotNull GameMode getGameMode() {
+  @NotNull
+  public GameMode getGameMode() {
     return player.getGameMode();
   }
 
@@ -1532,7 +1648,9 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable ItemStack getItemInUse() {
+  @Deprecated
+  @Nullable
+  public ItemStack getItemInUse() {
     return player.getItemInUse();
   }
 
@@ -1542,12 +1660,14 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Entity releaseLeftShoulderEntity() {
+  @Nullable
+  public Entity releaseLeftShoulderEntity() {
     return player.releaseLeftShoulderEntity();
   }
 
   @Override
-  public @Nullable Entity releaseRightShoulderEntity() {
+  @Nullable
+  public Entity releaseRightShoulderEntity() {
     return player.releaseRightShoulderEntity();
   }
 
@@ -1582,13 +1702,15 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Set<NamespacedKey> getDiscoveredRecipes() {
+  @NotNull
+  public Set<NamespacedKey> getDiscoveredRecipes() {
     return player.getDiscoveredRecipes();
   }
 
   @Override
   @Deprecated
-  public @Nullable Entity getShoulderEntityLeft() {
+  @Nullable
+  public Entity getShoulderEntityLeft() {
     return player.getShoulderEntityLeft();
   }
 
@@ -1600,7 +1722,8 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public @Nullable Entity getShoulderEntityRight() {
+  @Nullable
+  public Entity getShoulderEntityRight() {
     return player.getShoulderEntityRight();
   }
 
@@ -1676,13 +1799,20 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Location getLastDeathLocation() {
+  @Nullable
+  public Location getLastDeathLocation() {
     return player.getLastDeathLocation();
   }
 
   @Override
   public void setLastDeathLocation(@Nullable Location location) {
     player.setLastDeathLocation(location);
+  }
+
+  @Override
+  @Nullable
+  public Firework fireworkBoost(@NotNull ItemStack fireworkItemStack) {
+    return player.fireworkBoost(fireworkItemStack);
   }
 
   @Override
@@ -1696,98 +1826,135 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Location getEyeLocation() {
+  @NotNull
+  public Location getEyeLocation() {
     return player.getEyeLocation();
   }
 
   @Override
-  public @NotNull List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {
+  @NotNull
+  public List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getLineOfSight(transparent, maxDistance);
   }
 
   @Override
-  public @NotNull Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {
+  @NotNull
+  public Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getTargetBlock(transparent, maxDistance);
   }
 
   @Override
-  public @Nullable Block getTargetBlock(int maxDistance) {
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public Block getTargetBlock(int maxDistance) {
     return player.getTargetBlock(maxDistance);
   }
 
   @Override
-  public @Nullable Block getTargetBlock(int maxDistance,
-      TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public Block getTargetBlock(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlock(maxDistance, fluidMode);
   }
 
   @Override
-  public @Nullable BlockFace getTargetBlockFace(int maxDistance) {
+  @Nullable
+  public BlockFace getTargetBlockFace(int maxDistance) {
     return player.getTargetBlockFace(maxDistance);
   }
 
   @Override
-  public @Nullable BlockFace getTargetBlockFace(int maxDistance,
-      TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public BlockFace getTargetBlockFace(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlockFace(maxDistance, fluidMode);
   }
 
   @Override
-  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance) {
+  @Nullable
+  public BlockFace getTargetBlockFace(int maxDistance, @NotNull FluidCollisionMode fluidMode) {
+    return player.getTargetBlockFace(maxDistance, fluidMode);
+  }
+
+  @Override
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetBlockInfo getTargetBlockInfo(int maxDistance) {
     return player.getTargetBlockInfo(maxDistance);
   }
 
   @Override
-  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance,
-      TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetBlockInfo getTargetBlockInfo(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlockInfo(maxDistance, fluidMode);
   }
 
   @Override
-  public @Nullable Entity getTargetEntity(int maxDistance) {
+  @Nullable
+  public Entity getTargetEntity(int maxDistance) {
     return player.getTargetEntity(maxDistance);
   }
 
   @Override
-  public @Nullable Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {
+  @Nullable
+  public Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {
     return player.getTargetEntity(maxDistance, ignoreBlocks);
   }
 
   @Override
-  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance) {
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetEntityInfo getTargetEntityInfo(int maxDistance) {
     return player.getTargetEntityInfo(maxDistance);
   }
 
   @Override
-  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {
+  @Nullable
+  public RayTraceResult rayTraceEntities(int maxDistance) {
+    return player.rayTraceEntities(maxDistance);
+  }
+
+  @Override
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {
     return player.getTargetEntityInfo(maxDistance, ignoreBlocks);
   }
 
   @Override
-  public @NotNull List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent,
-      int maxDistance) {
+  @Nullable
+  public RayTraceResult rayTraceEntities(int maxDistance, boolean ignoreBlocks) {
+    return player.rayTraceEntities(maxDistance, ignoreBlocks);
+  }
+
+  @Override
+  @NotNull
+  public List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getLastTwoTargetBlocks(transparent, maxDistance);
   }
 
   @Override
-  public @Nullable Block getTargetBlockExact(int maxDistance) {
+  @Nullable
+  public Block getTargetBlockExact(int maxDistance) {
     return player.getTargetBlockExact(maxDistance);
   }
 
   @Override
-  public @Nullable Block getTargetBlockExact(int maxDistance,
-      @NotNull FluidCollisionMode fluidCollisionMode) {
+  @Nullable
+  public Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
     return player.getTargetBlockExact(maxDistance, fluidCollisionMode);
   }
 
   @Override
-  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance) {
+  @Nullable
+  public RayTraceResult rayTraceBlocks(double maxDistance) {
     return player.rayTraceBlocks(maxDistance);
   }
 
   @Override
-  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance,
-      @NotNull FluidCollisionMode fluidCollisionMode) {
+  @Nullable
+  public RayTraceResult rayTraceBlocks(double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
     return player.rayTraceBlocks(maxDistance, fluidCollisionMode);
   }
 
@@ -1829,6 +1996,11 @@ public class UserPlayerDelegation implements Player {
   @Override
   public void setArrowsInBody(int count) {
     player.setArrowsInBody(count);
+  }
+
+  @Override
+  public void setArrowsInBody(int count, boolean fireEvent) {
+    player.setArrowsInBody(count, fireEvent);
   }
 
   @Override
@@ -1881,8 +2053,8 @@ public class UserPlayerDelegation implements Player {
     player.setNoDamageTicks(ticks);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Player getKiller() {
     return player.getKiller();
   }
@@ -1900,8 +2072,7 @@ public class UserPlayerDelegation implements Player {
   @Override
   @Deprecated
   public boolean addPotionEffect(@NotNull PotionEffect effect, boolean force) {
-    return player.addPotionEffect(effect
-        , force);
+    return player.addPotionEffect(effect, force);
   }
 
   @Override
@@ -1915,7 +2086,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable PotionEffect getPotionEffect(@NotNull PotionEffectType type) {
+  @Nullable
+  public PotionEffect getPotionEffect(@NotNull PotionEffectType type) {
     return player.getPotionEffect(type);
   }
 
@@ -1925,8 +2097,14 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Collection<PotionEffect> getActivePotionEffects() {
+  @NotNull
+  public Collection<PotionEffect> getActivePotionEffects() {
     return player.getActivePotionEffects();
+  }
+
+  @Override
+  public boolean clearActivePotionEffects() {
+    return player.clearActivePotionEffects();
   }
 
   @Override
@@ -1950,13 +2128,13 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean getCanPickupItems() {
-    return player.getCanPickupItems();
+  public void setCanPickupItems(boolean pickup) {
+    player.setCanPickupItems(pickup);
   }
 
   @Override
-  public void setCanPickupItems(boolean pickup) {
-    player.setCanPickupItems(pickup);
+  public boolean getCanPickupItems() {
+    return player.getCanPickupItems();
   }
 
   @Override
@@ -1965,7 +2143,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Entity getLeashHolder() throws IllegalStateException {
+  @NotNull
+  public Entity getLeashHolder() throws IllegalStateException {
     return player.getLeashHolder();
   }
 
@@ -1990,6 +2169,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  @Deprecated
   public void setSwimming(boolean swimming) {
     player.setSwimming(swimming);
   }
@@ -2035,17 +2215,18 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean isCollidable() {
-    return player.isCollidable();
-  }
-
-  @Override
   public void setCollidable(boolean collidable) {
     player.setCollidable(collidable);
   }
 
   @Override
-  public @NotNull Set<UUID> getCollidableExemptions() {
+  public boolean isCollidable() {
+    return player.isCollidable();
+  }
+
+  @Override
+  @NotNull
+  public Set<UUID> getCollidableExemptions() {
     return player.getCollidableExemptions();
   }
 
@@ -2056,18 +2237,60 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T memoryValue) {
-    player.setMemory(memoryKey,
-        memoryValue);
+    player.setMemory(memoryKey, memoryValue);
   }
 
   @Override
-  public @NotNull EntityCategory getCategory() {
+  @Nullable
+  public Sound getHurtSound() {
+    return player.getHurtSound();
+  }
+
+  @Override
+  @Nullable
+  public Sound getDeathSound() {
+    return player.getDeathSound();
+  }
+
+  @Override
+  @NotNull
+  public Sound getFallDamageSound(int fallHeight) {
+    return player.getFallDamageSound(fallHeight);
+  }
+
+  @Override
+  @NotNull
+  public Sound getFallDamageSoundSmall() {
+    return player.getFallDamageSoundSmall();
+  }
+
+  @Override
+  @NotNull
+  public Sound getFallDamageSoundBig() {
+    return player.getFallDamageSoundBig();
+  }
+
+  @Override
+  @NotNull
+  public Sound getDrinkingSound(@NotNull ItemStack itemStack) {
+    return player.getDrinkingSound(itemStack);
+  }
+
+  @Override
+  @NotNull
+  public Sound getEatingSound(@NotNull ItemStack itemStack) {
+    return player.getEatingSound(itemStack);
+  }
+
+  @Override
+  public boolean canBreatheUnderwater() {
+    return player.canBreatheUnderwater();
+  }
+
+  @Override
+  @NotNull
+  public EntityCategory getCategory() {
     return player.getCategory();
-  }
-
-  @Override
-  public boolean isInvisible() {
-    return player.isInvisible();
   }
 
   @Override
@@ -2076,11 +2299,18 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public boolean isInvisible() {
+    return player.isInvisible();
+  }
+
+  @Override
+  @Deprecated
   public int getArrowsStuck() {
     return player.getArrowsStuck();
   }
 
   @Override
+  @Deprecated
   public void setArrowsStuck(int arrows) {
     player.setArrowsStuck(arrows);
   }
@@ -2096,7 +2326,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable ItemStack getActiveItem() {
+  @NotNull
+  public ItemStack getActiveItem() {
     return player.getActiveItem();
   }
 
@@ -2116,7 +2347,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull EquipmentSlot getHandRaised() {
+  @NotNull
+  public EquipmentSlot getHandRaised() {
     return player.getHandRaised();
   }
 
@@ -2137,8 +2369,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   public void playPickupItemAnimation(@NotNull Item item, int quantity) {
-    player.playPickupItemAnimation(item,
-        quantity);
+    player.playPickupItemAnimation(item, quantity);
   }
 
   @Override
@@ -2147,12 +2378,49 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void setHurtDirection(float hurtDirection) {
-    player.setHurtDirection(hurtDirection);
+  public void swingHand(@NotNull EquipmentSlot hand) {
+    player.swingHand(hand);
   }
 
   @Override
-  public @Nullable AttributeInstance getAttribute(@NotNull Attribute attribute) {
+  public void knockback(double strength, double directionX, double directionZ) {
+    player.knockback(strength, directionX, directionZ);
+  }
+
+  @Override
+  public void broadcastSlotBreak(@NotNull EquipmentSlot slot) {
+    player.broadcastSlotBreak(slot);
+  }
+
+  @Override
+  public void broadcastSlotBreak(@NotNull EquipmentSlot slot, @NotNull Collection<Player> players) {
+    player.broadcastSlotBreak(slot, players);
+  }
+
+  @Override
+  @NotNull
+  public ItemStack damageItemStack(@NotNull ItemStack stack, int amount) {
+    return player.damageItemStack(stack, amount);
+  }
+
+  @Override
+  public void damageItemStack(@NotNull EquipmentSlot slot, int amount) {
+    player.damageItemStack(slot, amount);
+  }
+
+  @Override
+  public float getBodyYaw() {
+    return player.getBodyYaw();
+  }
+
+  @Override
+  public void setBodyYaw(float bodyYaw) {
+    player.setBodyYaw(bodyYaw);
+  }
+
+  @Override
+  @Nullable
+  public AttributeInstance getAttribute(@NotNull Attribute attribute) {
     return player.getAttribute(attribute);
   }
 
@@ -2210,24 +2478,27 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Location getLocation() {
+  @NotNull
+  public Location getLocation() {
     return player.getLocation();
   }
 
   @Override
   @Contract("null -> null; !null -> !null")
-  public @Nullable Location getLocation(@Nullable Location loc) {
+  @Nullable
+  public Location getLocation(@Nullable Location loc) {
     return player.getLocation(loc);
-  }
-
-  @Override
-  public @NotNull Vector getVelocity() {
-    return player.getVelocity();
   }
 
   @Override
   public void setVelocity(@NotNull Vector velocity) {
     player.setVelocity(velocity);
+  }
+
+  @Override
+  @NotNull
+  public Vector getVelocity() {
+    return player.getVelocity();
   }
 
   @Override
@@ -2241,7 +2512,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull BoundingBox getBoundingBox() {
+  @NotNull
+  public BoundingBox getBoundingBox() {
     return player.getBoundingBox();
   }
 
@@ -2251,38 +2523,21 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull World getWorld() {
+  @NotNull
+  public World getWorld() {
     return player.getWorld();
   }
 
   @Override
-  public void setRotation(float yaw, float pitch) {
-    player.setRotation(yaw, pitch);
+  @ApiStatus.Experimental
+  public boolean teleport(@NotNull Location location, @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    return player.teleport(location, teleportFlags);
   }
 
   @Override
-  public boolean teleport(@NotNull Location location,
-      PlayerTeleportEvent.@NotNull TeleportCause cause, boolean ignorePassengers,
-      boolean dismount) {
-    return player.teleport(location, cause, ignorePassengers, dismount);
-  }
-
-  @Override
-  public boolean teleport(@NotNull Location location,
-      PlayerTeleportEvent.@NotNull TeleportCause cause, boolean ignorePassengers, boolean dismount,
-      @NotNull RelativeTeleportFlag @NotNull ... teleportFlags) {
-    return player.teleport(location, cause, ignorePassengers, dismount, teleportFlags);
-  }
-
-  @Override
-  public void lookAt(double x, double y, double z, @NotNull LookAnchor playerAnchor) {
-    player.lookAt(x, y, z, playerAnchor);
-  }
-
-  @Override
-  public void lookAt(@NotNull Entity entity, @NotNull LookAnchor playerAnchor,
-      @NotNull LookAnchor entityAnchor) {
-    player.lookAt(entity, playerAnchor, entityAnchor);
+  @ApiStatus.Experimental
+  public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause, @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    return player.teleport(location, cause, teleportFlags);
   }
 
   @Override
@@ -2291,8 +2546,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean teleport(@NotNull Location location,
-      PlayerTeleportEvent.@NotNull TeleportCause cause) {
+  public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
     return player.teleport(location, cause);
   }
 
@@ -2302,26 +2556,26 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean teleport(@NotNull Entity destination,
-      PlayerTeleportEvent.@NotNull TeleportCause cause) {
+  public boolean teleport(@NotNull Entity destination, PlayerTeleportEvent.@NotNull TeleportCause cause) {
     return player.teleport(destination, cause);
   }
 
   @Override
-  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
+  @NotNull
+  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
     return player.teleportAsync(loc);
   }
 
   @Override
-  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc,
-      PlayerTeleportEvent.@NotNull TeleportCause cause) {
+  @NotNull
+  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc, PlayerTeleportEvent.@NotNull TeleportCause cause) {
     return player.teleportAsync(loc, cause);
   }
 
   @Override
-  public @NotNull List<Entity> getNearbyEntities(double x, double y, double z) {
-    return player.getNearbyEntities(x,
-        y, z);
+  @NotNull
+  public List<Entity> getNearbyEntities(double x, double y, double z) {
+    return player.getNearbyEntities(x, y, z);
   }
 
   @Override
@@ -2335,18 +2589,13 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void setFireTicks(int ticks) {
-    player.setFireTicks(ticks);
-  }
-
-  @Override
   public int getMaxFireTicks() {
     return player.getMaxFireTicks();
   }
 
   @Override
-  public boolean isVisualFire() {
-    return player.isVisualFire();
+  public void setFireTicks(int ticks) {
+    player.setFireTicks(ticks);
   }
 
   @Override
@@ -2355,18 +2604,23 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public boolean isVisualFire() {
+    return player.isVisualFire();
+  }
+
+  @Override
   public int getFreezeTicks() {
     return player.getFreezeTicks();
   }
 
   @Override
-  public void setFreezeTicks(int ticks) {
-    player.setFreezeTicks(ticks);
+  public int getMaxFreezeTicks() {
+    return player.getMaxFreezeTicks();
   }
 
   @Override
-  public int getMaxFreezeTicks() {
-    return player.getMaxFreezeTicks();
+  public void setFreezeTicks(int ticks) {
+    player.setFreezeTicks(ticks);
   }
 
   @Override
@@ -2400,7 +2654,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Server getServer() {
+  @NotNull
+  public Server getServer() {
     return player.getServer();
   }
 
@@ -2416,7 +2671,8 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  public @Nullable Entity getPassenger() {
+  @Nullable
+  public Entity getPassenger() {
     return player.getPassenger();
   }
 
@@ -2427,7 +2683,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull List<Entity> getPassengers() {
+  @NotNull
+  public List<Entity> getPassengers() {
     return player.getPassengers();
   }
 
@@ -2462,17 +2719,19 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable EntityDamageEvent getLastDamageCause() {
-    return player.getLastDamageCause();
-  }
-
-  @Override
   public void setLastDamageCause(@Nullable EntityDamageEvent event) {
     player.setLastDamageCause(event);
   }
 
   @Override
-  public @NotNull UUID getUniqueId() {
+  @Nullable
+  public EntityDamageEvent getLastDamageCause() {
+    return player.getLastDamageCause();
+  }
+
+  @Override
+  @NotNull
+  public UUID getUniqueId() {
     return player.getUniqueId();
   }
 
@@ -2492,8 +2751,27 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull EntityType getType() {
+  @NotNull
+  public EntityType getType() {
     return player.getType();
+  }
+
+  @Override
+  @NotNull
+  public Sound getSwimSound() {
+    return player.getSwimSound();
+  }
+
+  @Override
+  @NotNull
+  public Sound getSwimSplashSound() {
+    return player.getSwimSplashSound();
+  }
+
+  @Override
+  @NotNull
+  public Sound getSwimHighSpeedSplashSound() {
+    return player.getSwimHighSpeedSplashSound();
   }
 
   @Override
@@ -2507,13 +2785,9 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Entity getVehicle() {
+  @Nullable
+  public Entity getVehicle() {
     return player.getVehicle();
-  }
-
-  @Override
-  public boolean isCustomNameVisible() {
-    return player.isCustomNameVisible();
   }
 
   @Override
@@ -2522,8 +2796,20 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean isGlowing() {
-    return player.isGlowing();
+  public boolean isCustomNameVisible() {
+    return player.isCustomNameVisible();
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public void setVisibleByDefault(boolean visible) {
+    player.setVisibleByDefault(visible);
+  }
+
+  @Override
+  @ApiStatus.Experimental
+  public boolean isVisibleByDefault() {
+    return player.isVisibleByDefault();
   }
 
   @Override
@@ -2532,13 +2818,18 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean isInvulnerable() {
-    return player.isInvulnerable();
+  public boolean isGlowing() {
+    return player.isGlowing();
   }
 
   @Override
   public void setInvulnerable(boolean flag) {
     player.setInvulnerable(flag);
+  }
+
+  @Override
+  public boolean isInvulnerable() {
+    return player.isInvulnerable();
   }
 
   @Override
@@ -2572,7 +2863,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Set<String> getScoreboardTags() {
+  @NotNull
+  public Set<String> getScoreboardTags() {
     return player.getScoreboardTags();
   }
 
@@ -2587,32 +2879,38 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull PistonMoveReaction getPistonMoveReaction() {
+  @NotNull
+  public PistonMoveReaction getPistonMoveReaction() {
     return player.getPistonMoveReaction();
   }
 
   @Override
-  public @NotNull BlockFace getFacing() {
+  @NotNull
+  public BlockFace getFacing() {
     return player.getFacing();
   }
 
   @Override
-  public @NotNull Pose getPose() {
+  @NotNull
+  public Pose getPose() {
     return player.getPose();
   }
 
   @Override
-  public @NotNull SpawnCategory getSpawnCategory() {
+  @NotNull
+  public SpawnCategory getSpawnCategory() {
     return player.getSpawnCategory();
   }
 
   @Override
-  public @NotNull Component teamDisplayName() {
+  @NotNull
+  public Component teamDisplayName() {
     return player.teamDisplayName();
   }
 
   @Override
-  public @Nullable Location getOrigin() {
+  @Nullable
+  public Location getOrigin() {
     return player.getOrigin();
   }
 
@@ -2622,13 +2920,19 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Chunk getChunk() {
+  @NotNull
+  public Chunk getChunk() {
     return player.getChunk();
   }
 
   @Override
   public CreatureSpawnEvent.@NotNull SpawnReason getEntitySpawnReason() {
     return player.getEntitySpawnReason();
+  }
+
+  @Override
+  public boolean isUnderWater() {
+    return player.isUnderWater();
   }
 
   @Override
@@ -2667,7 +2971,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Set<Player> getTrackedPlayers() {
+  @NotNull
+  public Set<Player> getTrackedPlayers() {
     return player.getTrackedPlayers();
   }
 
@@ -2677,8 +2982,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public boolean spawnAt(@NotNull Location location,
-      CreatureSpawnEvent.@NotNull SpawnReason reason) {
+  public boolean spawnAt(@NotNull Location location, CreatureSpawnEvent.@NotNull SpawnReason reason) {
     return player.spawnAt(location, reason);
   }
 
@@ -2688,12 +2992,29 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public boolean collidesAt(@NotNull Location location) {
+    return player.collidesAt(location);
+  }
+
+  @Override
+  public boolean wouldCollideUsing(@NotNull BoundingBox boundingBox) {
+    return player.wouldCollideUsing(boundingBox);
+  }
+
+  @Override
+  @NotNull
+  public EntityScheduler getScheduler() {
+    return player.getScheduler();
+  }
+
+  @Override
   public void setMetadata(@NotNull String metadataKey, @NotNull MetadataValue newMetadataValue) {
     player.setMetadata(metadataKey, newMetadataValue);
   }
 
   @Override
-  public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {
+  @NotNull
+  public List<MetadataValue> getMetadata(@NotNull String metadataKey) {
     return player.getMetadata(metadataKey);
   }
 
@@ -2708,38 +3029,73 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  @ApiStatus.Obsolete
   public void sendMessage(@NotNull String message) {
     player.sendMessage(message);
   }
 
   @Override
+  @ApiStatus.Obsolete
   public void sendMessage(@NotNull String... messages) {
     player.sendMessage(messages);
   }
 
   @Override
+  @Deprecated
   public void sendMessage(@Nullable UUID sender, @NotNull String message) {
     player.sendMessage(sender, message);
   }
 
   @Override
+  @Deprecated
   public void sendMessage(@Nullable UUID sender, @NotNull String... messages) {
     player.sendMessage(sender, messages);
   }
 
   @Override
-  public @NotNull Component name() {
+  @NotNull
+  public Component name() {
     return player.name();
   }
 
   @Override
-  public void sendMessage(@NotNull Identity identity, @NotNull Component message,
-      @NotNull MessageType type) {
+  public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {
     player.sendMessage(identity, message, type);
   }
 
   @Override
-  public @NotNull Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
+  public void sendRichMessage(@NotNull String message) {
+    player.sendRichMessage(message);
+  }
+
+  @Override
+  public void sendPlainMessage(@NotNull String message) {
+    player.sendPlainMessage(message);
+  }
+
+  @NotNull
+  public static Audience empty() {
+    return Audience.empty();
+  }
+
+  @NotNull
+  public static Audience audience(@NotNull Audience @NotNull ... audiences) {
+    return Audience.audience(audiences);
+  }
+
+  @NotNull
+  public static ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
+    return Audience.audience(audiences);
+  }
+
+  @NotNull
+  public static Collector<? super Audience, ?, ForwardingAudience> toAudience() {
+    return Audience.toAudience();
+  }
+
+  @Override
+  @NotNull
+  public Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
     return player.filterAudience(filter);
   }
 
@@ -2749,20 +3105,9 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+
   public void sendMessage(@NotNull ComponentLike message) {
     player.sendMessage(message);
-  }
-
-  @Override
-  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
-    player.sendMessage(source,
-        message);
-  }
-
-  @Override
-  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
-    player.sendMessage(source,
-        message);
   }
 
   @Override
@@ -2771,46 +3116,101 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void sendMessage(@NotNull Identified source, @NotNull Component message) {
-    player.sendMessage(source,
-        message);
-  }
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
 
-  @Override
-  public void sendMessage(@NotNull Identity source, @NotNull Component message) {
-    player.sendMessage(source, message);
-  }
-
-  @Override
+  @Deprecated
   public void sendMessage(@NotNull ComponentLike message, @NotNull MessageType type) {
-    player.sendMessage(message,
-        type);
+    player.sendMessage(message, type);
   }
 
   @Override
-  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message,
-      @NotNull MessageType type) {
-    player.sendMessage(source, message, type);
-  }
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
 
-  @Override
-  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message,
-      @NotNull MessageType type) {
-    player.sendMessage(source, message, type);
-  }
-
-  @Override
+  @Deprecated
   public void sendMessage(@NotNull Component message, @NotNull MessageType type) {
     player.sendMessage(message, type);
   }
 
   @Override
-  public void sendMessage(@NotNull Identified source, @NotNull Component message,
-      @NotNull MessageType type) {
+
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
+    player.sendMessage(source, message);
+  }
+
+  @Override
+
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
+    player.sendMessage(source, message);
+  }
+
+  @Override
+
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull Component message) {
+    player.sendMessage(source, message);
+  }
+
+  @Override
+
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull Component message) {
+    player.sendMessage(source, message);
+  }
+
+  @Override
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {
     player.sendMessage(source, message, type);
   }
 
   @Override
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {
+    player.sendMessage(source, message, type);
+  }
+
+  @Override
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull Component message, @NotNull MessageType type) {
+    player.sendMessage(source, message, type);
+  }
+
+  @Override
+  public void sendMessage(@NotNull Component message, ChatType.@NotNull Bound boundChatType) {
+    player.sendMessage(message, boundChatType);
+  }
+
+  @Override
+
+  public void sendMessage(@NotNull ComponentLike message, ChatType.@NotNull Bound boundChatType) {
+    player.sendMessage(message, boundChatType);
+  }
+
+  @Override
+  public void sendMessage(@NotNull SignedMessage signedMessage, ChatType.@NotNull Bound boundChatType) {
+    player.sendMessage(signedMessage, boundChatType);
+  }
+
+  @Override
+
+  public void deleteMessage(@NotNull SignedMessage signedMessage) {
+    player.deleteMessage(signedMessage);
+  }
+
+  @Override
+  public void deleteMessage(SignedMessage.@NotNull Signature signature) {
+    player.deleteMessage(signature);
+  }
+
+  @Override
+
   public void sendActionBar(@NotNull ComponentLike message) {
     player.sendActionBar(message);
   }
@@ -2821,6 +3221,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+
   public void sendPlayerListHeader(@NotNull ComponentLike header) {
     player.sendPlayerListHeader(header);
   }
@@ -2831,6 +3232,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+
   public void sendPlayerListFooter(@NotNull ComponentLike footer) {
     player.sendPlayerListFooter(footer);
   }
@@ -2841,8 +3243,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header,
-      @NotNull ComponentLike footer) {
+
+  public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header, @NotNull ComponentLike footer) {
     player.sendPlayerListHeaderAndFooter(header, footer);
   }
 
@@ -2852,6 +3254,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+
   public void showTitle(net.kyori.adventure.title.@NotNull Title title) {
     player.showTitle(title);
   }
@@ -2882,20 +3285,19 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, double x, double y,
-      double z) {
+  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, double x, double y, double z) {
     player.playSound(sound, x, y, z);
   }
 
   @Override
-  public void stopSound(net.kyori.adventure.sound.@NotNull Sound sound) {
-    player.stopSound(sound);
+  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, net.kyori.adventure.sound.Sound.@NotNull Emitter emitter) {
+    player.playSound(sound, emitter);
   }
 
   @Override
-  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound,
-      net.kyori.adventure.sound.Sound.@NotNull Emitter emitter) {
-    player.playSound(sound, emitter);
+
+  public void stopSound(net.kyori.adventure.sound.@NotNull Sound sound) {
+    player.stopSound(sound);
   }
 
   @Override
@@ -2904,6 +3306,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+
   public void openBook(Book.@NotNull Builder book) {
     player.openBook(book);
   }
@@ -2914,7 +3317,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull <T> Optional<T> get(@NotNull Pointer<T> pointer) {
+  @NotNull
+  public <T> Optional<T> get(@NotNull Pointer<T> pointer) {
     return player.get(pointer);
   }
 
@@ -2925,13 +3329,13 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public <T> @UnknownNullability T getOrDefaultFrom(@NotNull Pointer<T> pointer,
-      @NotNull Supplier<? extends T> defaultValue) {
+  public <T> @UnknownNullability T getOrDefaultFrom(@NotNull Pointer<T> pointer, @NotNull Supplier<? extends T> defaultValue) {
     return player.getOrDefaultFrom(pointer, defaultValue);
   }
 
   @Override
-  public @NotNull Pointers pointers() {
+  @NotNull
+  public Pointers pointers() {
     return player.pointers();
   }
 
@@ -2956,26 +3360,26 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name,
-      boolean value) {
+  @NotNull
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
     return player.addAttachment(plugin, name, value);
   }
 
   @Override
-  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
+  @NotNull
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin) {
     return player.addAttachment(plugin);
   }
 
   @Override
-  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name,
-      boolean value,
-      int ticks) {
-    return player.addAttachment(plugin, name, value,
-        ticks);
+  @Nullable
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
+    return player.addAttachment(plugin, name, value, ticks);
   }
 
   @Override
-  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
+  @Nullable
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
     return player.addAttachment(plugin, ticks);
   }
 
@@ -2990,17 +3394,20 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  @NotNull
+  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
     return player.getEffectivePermissions();
   }
 
   @Override
-  public @NotNull TriState permissionValue(@NotNull Permission permission) {
+  @NotNull
+  public TriState permissionValue(@NotNull Permission permission) {
     return player.permissionValue(permission);
   }
 
   @Override
-  public @NotNull TriState permissionValue(@NotNull String permission) {
+  @NotNull
+  public TriState permissionValue(@NotNull String permission) {
     return player.permissionValue(permission);
   }
 
@@ -3015,7 +3422,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable Component customName() {
+  @Nullable
+  public Component customName() {
     return player.customName();
   }
 
@@ -3038,25 +3446,50 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull PersistentDataContainer getPersistentDataContainer() {
+  @NotNull
+  public PersistentDataContainer getPersistentDataContainer() {
     return player.getPersistentDataContainer();
   }
 
-  @Override
-  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
-    return player.asHoverEvent();
+  @Nullable
+  public static <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {
+    return HoverEventSource.unbox(source);
   }
 
   @Override
-  public <T extends Projectile> @NotNull T launchProjectile(
-      @NotNull Class<? extends T> projectile) {
+  @NotNull
+  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
+    return player.asHoverEvent();
+  }
+
+  public static net.kyori.adventure.sound.Sound.@NotNull Emitter self() {
+    return net.kyori.adventure.sound.Sound.Emitter.self();
+  }
+
+  @Override
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile) {
     return player.launchProjectile(projectile);
   }
 
   @Override
-  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile,
-      @Nullable Vector velocity) {
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile, @Nullable Vector velocity) {
     return player.launchProjectile(projectile, velocity);
+  }
+
+  @Override
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile, @Nullable Vector velocity, org.bukkit.util.@Nullable Consumer<T> function) {
+    return player.launchProjectile(projectile, velocity, function);
+  }
+
+  @Override
+  @NotNull
+  public TriState getFrictionState() {
+    return player.getFrictionState();
+  }
+
+  @Override
+  public void setFrictionState(@NotNull TriState state) {
+    player.setFrictionState(state);
   }
 
   @Override
@@ -3080,12 +3513,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void abandonConversation(@NotNull Conversation conversation,
-      @NotNull ConversationAbandonedEvent details) {
+  public void abandonConversation(@NotNull Conversation conversation, @NotNull ConversationAbandonedEvent details) {
     player.abandonConversation(conversation, details);
   }
 
   @Override
+  @Deprecated
   public void sendRawMessage(@Nullable UUID sender, @NotNull String message) {
     player.sendRawMessage(sender, message);
   }
@@ -3101,32 +3534,33 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @NotNull BanEntry banPlayer(@Nullable String reason) {
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason) {
     return player.banPlayer(reason);
   }
 
   @Override
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
     return player.banPlayer(reason, source);
   }
 
   @Override
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayer(reason, expires);
   }
 
   @Override
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires,
-      @Nullable String source) {
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayer(reason, expires, source);
   }
 
   @Override
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires,
-      @Nullable String source,
-      boolean kickIfOnline) {
-    return player.banPlayer(reason, expires, source,
-        kickIfOnline);
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickIfOnline) {
+    return player.banPlayer(reason, expires, source, kickIfOnline);
   }
 
   @Override
@@ -3139,8 +3573,8 @@ public class UserPlayerDelegation implements Player {
     player.setWhitelisted(value);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Player getPlayer() {
     return player.getPlayer();
   }
@@ -3182,20 +3616,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void incrementStatistic(@NotNull Statistic statistic, int amount)
-      throws IllegalArgumentException {
+  public void incrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {
     player.incrementStatistic(statistic, amount);
   }
 
   @Override
-  public void decrementStatistic(@NotNull Statistic statistic, int amount)
-      throws IllegalArgumentException {
+  public void decrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {
     player.decrementStatistic(statistic, amount);
   }
 
   @Override
-  public void setStatistic(@NotNull Statistic statistic, int newValue)
-      throws IllegalArgumentException {
+  public void setStatistic(@NotNull Statistic statistic, int newValue) throws IllegalArgumentException {
     player.setStatistic(statistic, newValue);
   }
 
@@ -3205,90 +3636,79 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material)
-      throws IllegalArgumentException {
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
     player.incrementStatistic(statistic, material);
   }
 
   @Override
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material)
-      throws IllegalArgumentException {
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
     player.decrementStatistic(statistic, material);
   }
 
   @Override
-  public int getStatistic(@NotNull Statistic statistic, @NotNull Material material)
-      throws IllegalArgumentException {
+  public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
     return player.getStatistic(statistic, material);
   }
 
   @Override
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material,
-      int amount) throws IllegalArgumentException {
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {
     player.incrementStatistic(statistic, material, amount);
   }
 
   @Override
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material,
-      int amount) throws IllegalArgumentException {
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {
     player.decrementStatistic(statistic, material, amount);
   }
 
   @Override
-  public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int newValue)
-      throws IllegalArgumentException {
+  public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int newValue) throws IllegalArgumentException {
     player.setStatistic(statistic, material, newValue);
   }
 
   @Override
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
-      throws IllegalArgumentException {
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
     player.incrementStatistic(statistic, entityType);
   }
 
   @Override
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
-      throws IllegalArgumentException {
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
     player.decrementStatistic(statistic, entityType);
   }
 
   @Override
-  public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType)
-      throws IllegalArgumentException {
+  public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
     return player.getStatistic(statistic, entityType);
   }
 
   @Override
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType,
-      int amount) throws IllegalArgumentException {
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) throws IllegalArgumentException {
     player.incrementStatistic(statistic, entityType, amount);
   }
 
   @Override
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType,
-      int amount) {
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) {
     player.decrementStatistic(statistic, entityType, amount);
   }
 
   @Override
-  public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType,
-      int newValue) {
+  public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int newValue) {
     player.setStatistic(statistic, entityType, newValue);
   }
 
   @Override
-  public @NotNull Map<String, Object> serialize() {
+  @NotNull
+  public Map<String, Object> serialize() {
     return player.serialize();
   }
 
   @Override
-  public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel,
-      @NotNull byte[] message) {
+  public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {
     player.sendPluginMessage(source, channel, message);
   }
 
   @Override
-  public @NotNull Set<String> getListeningPluginChannels() {
+  @NotNull
+  public Set<String> getListeningPluginChannels() {
     return player.getListeningPluginChannels();
   }
 
@@ -3298,8 +3718,8 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public @Nullable InetSocketAddress getVirtualHost() {
+  @Nullable
+  public InetSocketAddress getVirtualHost() {
     return player.getVirtualHost();
   }
-
 }

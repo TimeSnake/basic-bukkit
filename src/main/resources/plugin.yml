@@ -2,7 +2,7 @@ main: de.timesnake.basic.bukkit.core.main.BasicBukkit
 version: 1.0
 name: basic-bukkit
 author: Mn
-depend: [ database-bukkit ]
+softdepend: [ database-bukkit, channel-bukkit ]
 api-version: 1.13
 
 commands:

@@ -8,21 +8,17 @@ import de.timesnake.basic.bukkit.core.world.DelegatedWorld;
 import de.timesnake.basic.bukkit.core.world.ExWorldFile;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
+import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 
-public class ExWorld extends DelegatedWorld implements World {
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ExWorld extends DelegatedWorld {
 
   private final ExWorldType type;
   private final ExWorldFile file;
@@ -48,12 +44,12 @@ public class ExWorld extends DelegatedWorld implements World {
   }
 
   public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file,
-      Map<Restriction<?>, Object> restrictions) {
+                 Map<Restriction<?>, Object> restrictions) {
     this(world, type, file, restrictions, false);
   }
 
   public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file,
-      Map<Restriction<?>, Object> restrictions, boolean temporary) {
+                 Map<Restriction<?>, Object> restrictions, boolean temporary) {
     super(world);
     this.type = type;
     this.file = file;
@@ -73,6 +69,10 @@ public class ExWorld extends DelegatedWorld implements World {
         .filter(restriction -> !this.restrictionValues.containsKey(restriction))
         .forEach(restriction -> this.restrictionValues.put(restriction,
             restriction.getDefaultValue()));
+  }
+
+  public ServerLevel getHandle() {
+    return ((CraftWorld) this.world).getHandle();
   }
 
   @Override

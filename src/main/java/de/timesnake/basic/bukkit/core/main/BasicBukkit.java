@@ -14,7 +14,6 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
-import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.channel.bukkit.main.ChannelBukkit;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
@@ -22,12 +21,13 @@ import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
-import java.util.List;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.logging.Level;
 
 public class BasicBukkit extends JavaPlugin {
 
@@ -53,7 +53,7 @@ public class BasicBukkit extends JavaPlugin {
     DbServer server = Database.getServers().getServer(Bukkit.getPort());
 
     if (server != null) {
-      ChannelBukkit.start(server.getName(), Network.PROXY_PORT);
+      ChannelBukkit.start(server.getName());
       server.setStatusSynchronized(Status.Server.LOADING);
       server.setOnlinePlayers(0);
     } else {

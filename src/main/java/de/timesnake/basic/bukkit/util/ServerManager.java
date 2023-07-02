@@ -47,23 +47,10 @@ import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.UUID;
-import java.util.function.Predicate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Instrument;
-import org.bukkit.Location;
-import org.bukkit.Note;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import net.minecraft.network.protocol.Packet;
+import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -73,6 +60,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 public class ServerManager implements de.timesnake.library.basic.util.server.Server,
     ChannelListener {
@@ -244,9 +236,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   }
 
   public final void createUser(Player player) {
-    this.userManager.storeUser(player.getUniqueId(),
-        BasicBukkit.getPlugin().getServer().getScheduler()
-            .callSyncMethod(BasicBukkit.getPlugin(), () -> this.loadUser(player)));
+    this.userManager.storeUser(player.getUniqueId(), CompletableFuture.supplyAsync(() -> this.loadUser(player)));
   }
 
   public User loadUser(Player player) {
@@ -472,7 +462,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    * @param action The action to execute
    */
   public final void broadcastClickableTDMessage(String text, String exec, String info,
-      ClickEvent.Action action) {
+                                                ClickEvent.Action action) {
     this.getGlobalChat().broadcastClickableTDMessage(text, exec, info, action);
   }
 
@@ -485,7 +475,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    * @param action The action to execute
    */
   public final void broadcastClickableMessage(Component text, String exec, Component info,
-      ClickEvent.Action action) {
+                                              ClickEvent.Action action) {
     this.getGlobalChat().broadcastClickableMessage(text, exec, info, action);
   }
 
@@ -500,8 +490,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    */
   @Deprecated
   public final void broadcastClickableMessage(Plugin plugin, String text, String exec,
-      String info,
-      ClickEvent.Action action) {
+                                              String info,
+                                              ClickEvent.Action action) {
     this.getGlobalChat().broadcastClickableTDMessage(plugin, text, exec, info, action);
   }
 
@@ -515,8 +505,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    * @param action The action to execute
    */
   public final void broadcastClickableMessage(Plugin plugin, Component text, String exec,
-      Component info,
-      ClickEvent.Action action) {
+                                              Component info,
+                                              ClickEvent.Action action) {
     this.getGlobalChat().broadcastClickableMessage(plugin, text, exec, info, action);
   }
 
@@ -594,7 +584,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    * @param stay     The display time of the title
    */
   public final void broadcastTitle(Component title, Component subTitle, Duration stay,
-      Duration fadeIn, Duration fadeOut) {
+                                   Duration fadeIn, Duration fadeOut) {
     for (User user : this.getUsers()) {
       user.showTitle(title, subTitle, stay, fadeIn, fadeOut);
     }
@@ -608,7 +598,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    * @param stay     The display time of the title
    */
   public final void broadcastTDTitle(String title, String subTitle, Duration stay,
-      Duration fadeIn, Duration fadeOut) {
+                                     Duration fadeIn, Duration fadeOut) {
     for (User user : this.getUsers()) {
       user.showTDTitle(title, subTitle, stay, fadeIn, fadeOut);
     }
@@ -733,7 +723,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
    */
   @Deprecated
   public final ExInventory createExInventory(int size, String name, InventoryHolder holder,
-      ExItemStack... itemStacks) {
+                                             ExItemStack... itemStacks) {
     return new ExInventory(size, name, holder, itemStacks);
   }
 
@@ -782,50 +772,50 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   }
 
   public BukkitTask runTaskLaterAsynchrony(Task task, int delay,
-      org.bukkit.plugin.Plugin plugin) {
+                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskLaterAsynchrony(task, delay, plugin);
   }
 
   public BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                          org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, delay, period, plugin);
   }
 
   public BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
 
   public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                          org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, time, delay, period, plugin);
   }
 
   public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, time, delay, period, plugin);
   }
 
   public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-      int delay, int period,
-      org.bukkit.plugin.Plugin plugin) {
+                                          int delay, int period,
+                                          org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period,
         plugin);
   }
 
   public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-      int delay, int period
+                                           int delay, int period
       , org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period,
         plugin);
   }
 
   public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
-      org.bukkit.plugin.Plugin plugin) {
+                                              org.bukkit.plugin.Plugin plugin) {
     this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
   }
 
-  public void broadcastPacket(ExPacketPlayOut packet) {
+  public void broadcastPacket(Packet<?> packet) {
     for (User user : this.getUsers()) {
       user.sendPacket(packet);
     }

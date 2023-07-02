@@ -11,16 +11,17 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
 import de.timesnake.library.extension.util.player.UserSet;
-import de.timesnake.library.packets.core.packet.out.border.ExPacketPlayOutWorldBorder;
-import de.timesnake.library.packets.util.ExClientboundInitializeBorderPacket;
-import de.timesnake.library.packets.util.ExClientboundSetBorderLerpSizePacket;
-import java.util.Set;
+import de.timesnake.library.packets.core.packet.out.border.ClientboundInitializeBorderPacketBuilder;
+import de.timesnake.library.packets.core.packet.out.border.ClientboundSetBorderLerpSizePacketBuilder;
+import net.minecraft.network.protocol.Packet;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Set;
 
 public class ExWorldBorder implements Listener {
 
@@ -60,13 +61,11 @@ public class ExWorldBorder implements Listener {
 
     this.users.onRemove(
         u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-            ExClientboundInitializeBorderPacket.wrapToMaxBorder(
-                this.world.getBukkitWorld()), u));
+            ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
 
     this.spectators.onRemove(
         u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-            ExClientboundInitializeBorderPacket.wrapToMaxBorder(
-                this.world.getBukkitWorld()), u));
+            ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
 
     Server.registerListener(this, BasicBukkit.getPlugin());
     this.startDamageTask();
@@ -164,8 +163,8 @@ public class ExWorldBorder implements Listener {
   private void shrinking() {
     this.shrinking = true;
 
-    ExPacketPlayOutWorldBorder packet = ExClientboundSetBorderLerpSizePacket.wrap(
-        this.world.getBukkitWorld(), this.size, this.shrinkSize, this.shrinkTime * 50L);
+
+    Packet<?> packet = ClientboundSetBorderLerpSizePacketBuilder.of(this.size, this.shrinkSize, this.shrinkTime * 50L);
 
     this.broadcastUserPacket(packet);
     this.broadcastSpectatorPacket(packet);
@@ -241,34 +240,35 @@ public class ExWorldBorder implements Listener {
     this.sound = sound;
   }
 
-  private void broadcastUserPacket(ExPacketPlayOutWorldBorder packet) {
+  private void broadcastUserPacket(Packet<?> packet) {
     ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
         .sendPacket(packet, this.users);
   }
 
-  private void broadcastSpectatorPacket(ExPacketPlayOutWorldBorder packet) {
+  private void broadcastSpectatorPacket(Packet<?> packet) {
     ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
         .sendPacket(packet, this.spectators);
   }
 
-  private ExPacketPlayOutWorldBorder getUserInitPacket() {
+  private Packet<?> getUserInitPacket() {
     if (!this.shrinking) {
-      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
           this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance,
           this.warningTime);
     } else {
-      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
           this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
           this.warningDistance, this.warningTime);
     }
   }
 
-  private ExPacketPlayOutWorldBorder getSpectatorInitPacket() {
+  private Packet<?> getSpectatorInitPacket() {
     if (!this.shrinking) {
-      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
           this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
     } else {
-      return ExClientboundInitializeBorderPacket.wrap(this.world.getBukkitWorld(),
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
           this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
           0, 0);
     }

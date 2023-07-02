@@ -8,6 +8,8 @@ import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.library.basic.util.Loggers;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +17,7 @@ public abstract class PacketEntity {
 
   protected final ExLocation location;
   protected final Set<User> watchers = ConcurrentHashMap.newKeySet();
-  private final Set<User> userLoadedFor = ConcurrentHashMap.newKeySet();
+  protected final Set<User> userLoadedFor = ConcurrentHashMap.newKeySet();
   protected boolean isPublic = false;
 
   public PacketEntity(ExLocation location) {
@@ -32,6 +34,9 @@ public abstract class PacketEntity {
 
   public void setPublic(boolean aPublic) {
     isPublic = aPublic;
+    for (User user : Server.getUsers()) {
+      ((PacketEntityManager) Server.getEntityManager()).tryLoadEntityForUser(this, user);
+    }
   }
 
   public void addWatcher(User... users) {
@@ -53,12 +58,16 @@ public abstract class PacketEntity {
 
   protected abstract void despawnForUser(User user);
 
-  public void despawnForUser() {
+  public void despawnForUsers() {
     for (User user : this.userLoadedFor) {
       this.despawnForUser(user);
     }
     this.userLoadedFor.clear();
     this.watchers.clear();
+
+    Loggers.ENTITY.info("Unloaded entity at '" + this.location.getWorld().getName() + " "
+        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
+        + this.getType() + "' for all users");
   }
 
   public boolean isLoadedForUser(User user) {
@@ -68,11 +77,19 @@ public abstract class PacketEntity {
   public void loadForUser(User user) {
     this.userLoadedFor.add(user);
     this.spawnForUser(user);
+
+    Loggers.ENTITY.info("Loaded entity at '" + this.location.getWorld().getName() + " "
+        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
+        + this.getType() + "' for user '" + user.getName() + "'");
   }
 
   public void unloadForUser(User user) {
     this.userLoadedFor.remove(user);
     this.despawnForUser(user);
+
+    Loggers.ENTITY.info("Unloaded entity at '" + this.location.getWorld().getName() + " "
+        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
+        + this.getType() + "' for user '" + user.getName() + "'");
   }
 
   public boolean isUserWatching(User user) {
@@ -82,4 +99,6 @@ public abstract class PacketEntity {
   public void onUserQuit(User user) {
     this.watchers.remove(user);
   }
+
+  public abstract String getType();
 }

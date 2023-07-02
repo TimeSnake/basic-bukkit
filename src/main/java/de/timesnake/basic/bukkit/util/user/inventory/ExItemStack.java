@@ -6,35 +6,27 @@ package de.timesnake.basic.bukkit.util.user.inventory;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
@@ -107,7 +99,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public static ExItemStack getPotion(Material material, PotionType type, boolean extended,
-      boolean upgraded) {
+                                      boolean upgraded) {
     ExItemStack item = new ExItemStack(material);
 
     if (!(item.getItemMeta() instanceof PotionMeta meta)) {
@@ -121,7 +113,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public static ExItemStack getPotion(Material material, PotionType type, Color color,
-      boolean extended, boolean upgraded) {
+                                      boolean extended, boolean upgraded) {
     ExItemStack item = ExItemStack.getPotion(material, type, extended, upgraded);
 
     if (!(item.getItemMeta() instanceof PotionMeta meta)) {
@@ -135,18 +127,18 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public static ExItemStack getPotion(Material material, int amount, PotionType type,
-      boolean extended, boolean upgraded) {
+                                      boolean extended, boolean upgraded) {
     return ExItemStack.getPotion(material, type, extended, upgraded).asQuantity(amount);
   }
 
   public static ExItemStack getPotion(Material material, int amount, String displayName,
-      PotionType type, boolean extended, boolean upgraded) {
+                                      PotionType type, boolean extended, boolean upgraded) {
     return ExItemStack.getPotion(material, amount, type, extended, upgraded)
         .setDisplayName(displayName);
   }
 
   public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
-      PotionEffectType effectType, int duration, int level) {
+                                      PotionEffectType effectType, int duration, int level) {
     ExItemStack item = new ExItemStack(type.getMaterial());
 
     item.asQuantity(amount);
@@ -164,7 +156,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public static ExItemStack getPotion(PotionMaterial type, int amount, String displayName,
-      PotionEffectType effectType, int duration, int level, List<String> lore) {
+                                      PotionEffectType effectType, int duration, int level, List<String> lore) {
     return ExItemStack.getPotion(type, amount, displayName, effectType, duration, level)
         .setExLore(lore);
   }
@@ -256,7 +248,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   private static void setAttributes(ItemStack item, Integer id, Boolean dropable,
-      Boolean moveable) {
+                                    Boolean moveable) {
     if (id != null && dropable != null && item.getItemMeta() != null) {
       ItemMeta meta = item.getItemMeta();
       meta.setLocalizedName(
@@ -281,7 +273,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   private boolean immutable = false;
 
   private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable,
-      boolean clone) {
+                      boolean clone) {
     super(clone ? item.clone() : item);
     this.id = id;
     this.dropable = dropable;
@@ -333,7 +325,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable,
-      boolean moveable, boolean clone) {
+                      boolean moveable, boolean clone) {
     this(id, item, slot, clone);
     this.dropable = dropable;
     this.moveable = moveable;
@@ -583,12 +575,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
-  @Override
-  public void lore(@Nullable List<net.kyori.adventure.text.Component> lore) {
-    this.checkImmutable();
-    this._lore(lore);
-  }
-
   protected void _lore(@Nullable List<net.kyori.adventure.text.Component> lore) {
     super.lore(lore);
   }
@@ -804,13 +790,13 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
   @Override
   public <M extends ItemMeta> boolean editMeta(final @NotNull Class<M> metaClass,
-      final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+                                               final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
     this.checkImmutable();
     return this._editMeta(metaClass, consumer);
   }
 
   protected <M extends ItemMeta> boolean _editMeta(final @NotNull Class<M> metaClass,
-      final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+                                                   final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
     return super.editMeta(metaClass, consumer);
   }
 
@@ -940,6 +926,10 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   public ExItemStack removeListener(UserInventoryInteractListener listener) {
     Server.getInventoryEventManager().removeInteractListener(listener);
     return this;
+  }
+
+  public net.minecraft.world.item.ItemStack getHandle() {
+    return CraftItemStack.asNMSCopy(this);
   }
 
   /**

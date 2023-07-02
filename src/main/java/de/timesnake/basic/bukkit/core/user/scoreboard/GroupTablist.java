@@ -12,19 +12,18 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
 import de.timesnake.library.basic.util.Loggers;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamRemove;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import org.bukkit.ChatColor;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
+
+import java.util.*;
 
 public class GroupTablist extends Tablist implements
     de.timesnake.basic.bukkit.util.user.scoreboard.GroupTablist {
@@ -44,8 +43,7 @@ public class GroupTablist extends Tablist implements
 
   @Override
   public void addEntry(TablistablePlayer player) {
-    Loggers.SCOREBOARD.info(
-        "tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
 
     if (!player.showInTablist()) {
       return;
@@ -66,14 +64,9 @@ public class GroupTablist extends Tablist implements
 
     this.groupTab.addEntry(new Entry(rank, prefix, player));
 
-    this.packetManager.sendPacket(this.watchingUsers,
-        ExPacketPlayOutTablistTeamPlayerAdd.wrap(rank,
-            player.getPlayer().getName()));
-    this.packetManager.sendPacket(this.watchingUsers,
-        ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
-
-    Loggers.SCOREBOARD.fine(
-        "tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+    this.packetManager.sendPacket(this.watchingUsers, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(rank, player.getPlayer().getName()));
+    this.packetManager.sendPacket(this.watchingUsers, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player.getMinecraftPlayer())));
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
   }
 
   @Override
@@ -84,7 +77,7 @@ public class GroupTablist extends Tablist implements
 
     boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
     if (removed) {
-      Loggers.SCOREBOARD.fine(
+      Loggers.SCOREBOARD.info(
           "tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
     }
     return removed;
@@ -105,44 +98,37 @@ public class GroupTablist extends Tablist implements
 
     // set entries
     for (Entry entry : this.groupTab) {
-
-      this.packetManager.sendPacket(user,
-          ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(),
-              entry.getPrefix(), ChatColor.WHITE));
+      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofCreate(entry.getRank(), Component.literal(entry.getPrefix()),
+          ChatFormatting.WHITE, Team.Visibility.ALWAYS));
 
       for (TablistablePlayer player : entry.getPlayers()) {
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getRank(),
-                player.getPlayer().getName()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistPlayerAdd.wrap(player.getPlayer()));
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getRank(), player.getPlayer().getName()));
+        this.packetManager.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player.getMinecraftPlayer())));
       }
-
     }
+
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' loaded for '" + user.getName() + "'");
   }
 
   @Override
   protected void unload(User user) {
 
-    this.packetManager.sendPacket(user, ExPacketPlayOutScoreboardObjective.wrap(this.name, "",
-        ExPacketPlayOutScoreboardObjective.Display.REMOVE, this.type.getPacketType()));
+    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
 
-    this.packetManager.sendPacket(user, ExPacketPlayOutTablistHeaderFooter.wrap(null, null));
+    this.packetManager.sendPacket(user, new ClientboundTabListPacket(null, null));
 
     for (Entry entry : this.groupTab) {
 
       for (TablistablePlayer player : entry.getPlayers()) {
         this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistPlayerRemove.wrap(player.getPlayer()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamPlayerRemove.wrap(entry.getRank(),
-                player.getPlayer().getName()));
+            ClientboundSetPlayerTeamPacketBuilder.ofRemovePlayer(entry.getRank(), player.getPlayer().getName()));
+        this.packetManager.sendPacket(user, new ClientboundPlayerInfoRemovePacket(List.of(player.getPlayer().getUniqueId())));
       }
 
-      this.packetManager.sendPacket(user,
-          ExPacketPlayOutTablistTeamRemove.wrap(entry.getRank()));
-
+      this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacket.createRemovePacket(new PlayerTeam(null, entry.getRank())));
     }
+
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' unloaded for '" + user.getName() + "'");
   }
 
   protected static class Entry extends TabEntry<Entry> {
@@ -208,8 +194,8 @@ public class GroupTablist extends Tablist implements
       boolean merged = super.addEntry(entry);
       if (!merged) {
         GroupTablist.this.packetManager.sendPacket(GroupTablist.this.watchingUsers,
-            ExPacketPlayOutTablistTeamCreation.wrap(entry.getRank(), entry.getPrefix(),
-                ChatColor.WHITE));
+            ClientboundSetPlayerTeamPacketBuilder.ofCreate(entry.getRank(), Component.literal(entry.getPrefix()),
+                ChatFormatting.WHITE, Team.Visibility.ALWAYS));
       }
       return merged;
     }

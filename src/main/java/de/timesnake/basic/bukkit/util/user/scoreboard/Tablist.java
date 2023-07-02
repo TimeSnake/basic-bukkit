@@ -4,9 +4,10 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutScoreboardObjective;
-import java.util.LinkedList;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.scoreboard.RenderType;
+
+import java.util.LinkedList;
 
 public interface Tablist {
 
@@ -22,20 +23,19 @@ public interface Tablist {
 
   LinkedList<TablistablePlayer> getEntries();
 
+  @Deprecated
   enum Type {
-    DUMMY("dummy", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER),
-    HEARTS("hearts", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS),
-    HEALTH("health", RenderType.HEARTS, ExPacketPlayOutScoreboardObjective.ScoreboardType.HEARTS),
-    XP("xp", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER),
-    LEVEL("level", RenderType.INTEGER, ExPacketPlayOutScoreboardObjective.ScoreboardType.INTEGER);
+    DUMMY("dummy", RenderType.INTEGER, ObjectiveCriteria.DUMMY),
+    HEALTH("health", RenderType.HEARTS, ObjectiveCriteria.HEALTH),
+    XP("xp", RenderType.INTEGER, ObjectiveCriteria.EXPERIENCE),
+    LEVEL("level", RenderType.INTEGER, ObjectiveCriteria.LEVEL);
 
 
     private final String criteria;
     private final RenderType renderType;
-    private final ExPacketPlayOutScoreboardObjective.ScoreboardType packetType;
+    private final ObjectiveCriteria packetType;
 
-    Type(String criteria, RenderType renderType,
-        ExPacketPlayOutScoreboardObjective.ScoreboardType packetType) {
+    Type(String criteria, RenderType renderType, ObjectiveCriteria packetType) {
       this.criteria = criteria;
       this.renderType = renderType;
       this.packetType = packetType;
@@ -49,7 +49,7 @@ public interface Tablist {
       return renderType;
     }
 
-    public ExPacketPlayOutScoreboardObjective.ScoreboardType getPacketType() {
+    public ObjectiveCriteria getPacketType() {
       return packetType;
     }
   }

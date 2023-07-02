@@ -12,34 +12,75 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.entity.MapDisplayBuilder;
 import de.timesnake.basic.bukkit.util.world.entity.PacketEntity;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.Tuple;
-import de.timesnake.library.packets.core.packet.out.ExClientboundLevelChunkWithLightPacket;
-import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutChunkUnload;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
-import de.timesnake.library.packets.util.packet.ExPacket;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import org.bukkit.ChatColor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 public class PacketEntityManager implements Listener, PacketPlayOutListener,
     de.timesnake.basic.bukkit.util.world.entity.EntityManager {
 
   public static final String FAKE_PLAYER_TEAM_NAME = "fake_players";
+  public static final PlayerTeam FAKE_PLAYER_TEAM = new PlayerTeam(null, FAKE_PLAYER_TEAM_NAME) {
+    @Override
+    public Component getPlayerPrefix() {
+      return Component.empty();
+    }
+
+    @Override
+    public Component getPlayerSuffix() {
+      return Component.empty();
+    }
+
+    @Override
+    public ChatFormatting getColor() {
+      return ChatFormatting.WHITE;
+    }
+
+    @Override
+    public CollisionRule getCollisionRule() {
+      return CollisionRule.NEVER;
+    }
+
+    @Override
+    public Component getDisplayName() {
+      return Component.empty();
+    }
+
+    @Override
+    public String getName() {
+      return FAKE_PLAYER_TEAM_NAME;
+    }
+
+    @Override
+    public Visibility getDeathMessageVisibility() {
+      return Visibility.NEVER;
+    }
+
+    @Override
+    public Visibility getNameTagVisibility() {
+      return Visibility.NEVER;
+    }
+  };
 
   private final ConcurrentHashMap<Triple<World, Integer, Integer>, Collection<PacketEntity>> entitiesByChunk = new ConcurrentHashMap<>();
 
@@ -51,9 +92,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     Server.getPacketManager().addListener(this);
   }
 
-  @PacketHandler(type = {ExPacket.Type.PLAY_OUT_LEVEL_CHUNK_WITH_LIGHT_PACKET,
-      ExPacket.Type.PLAY_OUT_CHUNK_UNLOAD})
-  public void onPacket(ExPacketPlayOut packet, Player receiver) {
+  @PacketHandler(type = {
+      ClientboundLevelChunkWithLightPacket.class,
+      ClientboundForgetLevelChunkPacket.class
+  })
+  public void onPacket(Packet<?> packet, Player receiver) {
 
     boolean load;
     Chunk chunk;
@@ -62,12 +105,12 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
     Tuple<Integer, Integer> coords;
 
-    if (packet instanceof ExClientboundLevelChunkWithLightPacket p) {
+    if (packet instanceof ClientboundLevelChunkWithLightPacket p) {
       load = true;
-      coords = p.getChunkCoordinates();
-    } else if (packet instanceof ExPacketPlayOutChunkUnload p) {
+      coords = new Tuple<>(p.getX(), p.getZ());
+    } else if (packet instanceof ClientboundForgetLevelChunkPacket p) {
       load = false;
-      coords = p.getChunkCoordinates();
+      coords = new Tuple<>(p.getX(), p.getZ());
     } else {
       return;
     }
@@ -77,8 +120,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     User user = Server.getUser(receiver);
 
     if (user == null) {
-      this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>())
-          .add(chunk);
+      this.preLoadedChunksByUuid.computeIfAbsent(receiver.getUniqueId(), p -> new HashSet<>()).add(chunk);
       return;
     }
 
@@ -114,11 +156,9 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   }
 
   public void tryLoadEntityForUser(PacketEntity entity, User user) {
-    if (this.preLoadedChunksByUuid.containsKey(user.getUniqueId())) {
-      Chunk chunk = entity.getLocation().getChunk();
-      if (this.preLoadedChunksByUuid.get(user.getUniqueId()).contains(chunk)) {
-        entity.loadForUser(user);
-      }
+    if (user.getChunk().getX() - entity.getLocation().getChunk().getX() <= user.getViewDistance()
+        && user.getChunk().getZ() - entity.getLocation().getChunk().getZ() <= user.getViewDistance()) {
+      entity.loadForUser(user);
     }
   }
 
@@ -136,12 +176,21 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   public void registerEntity(PacketEntity entity) {
     this.addEntity(entity);
     entity.setPublic(true);
+
+    Loggers.ENTITY.info("Registered public entity at '" + entity.getLocation().getWorld().getName() + " "
+        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
+        + "' of type '" + entity.getType() + "'");
   }
 
   @Override
   public void registerEntity(PacketEntity entity, Collection<? extends User> users) {
     this.addEntity(entity);
     users.forEach(entity::addWatcher);
+
+    Loggers.ENTITY.info("Registered entity at '" + entity.getLocation().getWorld().getName() + " "
+        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
+        + "' of type '" + entity.getType() + "' for users '" +
+        String.join("' , '", users.stream().map(User::getName).toList()) + "' ");
   }
 
   @Override
@@ -152,7 +201,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   @Override
   public void unregisterEntity(PacketEntity entity) {
     this.removeEntity(entity);
-    entity.despawnForUser();
+    entity.despawnForUsers();
+
+    Loggers.ENTITY.info("Unregistered entity at '" + entity.getLocation().getWorld().getName() + " "
+        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
+        + "' of type '" + entity.getType() + "'");
   }
 
   @Override
@@ -165,7 +218,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
   @Override
   public <EntityType extends PacketEntity> Set<EntityType> getEntitiesByWorld(ExWorld world,
-      Class<EntityType> entityClass) {
+                                                                              Class<EntityType> entityClass) {
     return ((Set<EntityType>) this.entitiesByChunk.entrySet().stream()
         .filter(entry -> entry.getKey().getA().equals(world.getBukkitWorld()))
         .map(Map.Entry::getValue).flatMap(Collection::stream)
@@ -175,9 +228,14 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
   @EventHandler
   public void onUserJoin(AsyncUserJoinEvent e) {
-    Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(),
-        ExPacketPlayOutTablistTeamCreation.wrap(FAKE_PLAYER_TEAM_NAME, "", ChatColor.WHITE,
-            ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER));
+    PlayerTeam team = new PlayerTeam(ClientboundSetPlayerTeamPacketBuilder.DUMMY, FAKE_PLAYER_TEAM_NAME);
+    team.setNameTagVisibility(Team.Visibility.NEVER);
+    team.setColor(ChatFormatting.WHITE);
+    team.setCollisionRule(Team.CollisionRule.NEVER);
+    team.setDeathMessageVisibility(Team.Visibility.NEVER);
+    Packet<?> packet = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true);
+
+    Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(), packet);
 
     Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(
         e.getUser().getUniqueId());

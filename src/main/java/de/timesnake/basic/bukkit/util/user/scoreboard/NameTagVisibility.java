@@ -4,24 +4,24 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
+import net.minecraft.world.scores.Team;
 
 public enum NameTagVisibility {
 
-  ALWAYS(ExPacketPlayOutTablistTeamCreation.NameTagVisibility.ALWAYS),
-  NEVER(ExPacketPlayOutTablistTeamCreation.NameTagVisibility.NEVER),
+  ALWAYS(Team.Visibility.ALWAYS),
+  NEVER(Team.Visibility.NEVER),
   // not required due to explicit check methods
-  //HIDE_FOR_OTHER_TEAMS(ExPacketPlayOutTablistTeamCreation.NameTagVisibility.HIDE_FOR_OTHER_TEAMS),
-  //HIDE_FOR_OWN_TEAM(ExPacketPlayOutTablistTeamCreation.NameTagVisibility.HIDE_FOR_OWN_TEAM)
+  //HIDE_FOR_OTHER_TEAMS(Team.Visibility),
+  //HIDE_FOR_OWN_TEAM(Team.Visibility)
   ;
 
-  private final ExPacketPlayOutTablistTeamCreation.NameTagVisibility packetTag;
+  private final Team.Visibility packetTag;
 
-  NameTagVisibility(ExPacketPlayOutTablistTeamCreation.NameTagVisibility packetTag) {
+  NameTagVisibility(Team.Visibility packetTag) {
     this.packetTag = packetTag;
   }
 
-  public ExPacketPlayOutTablistTeamCreation.NameTagVisibility getPacketTag() {
+  public Team.Visibility getPacketTag() {
     return packetTag;
   }
 }

@@ -5,22 +5,20 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TagTablistable;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistHeaderFooter;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistPlayerRemove;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamCreation;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamPlayerAdd;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutTablistTeamUpdate;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
+import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import org.bukkit.entity.Player;
+
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 public class TagTeamTablist extends TeamTablist {
 
@@ -33,26 +31,21 @@ public class TagTeamTablist extends TeamTablist {
     super.load(user);
     // set header footer
 
-    this.packetManager.sendPacket(user,
-        ExPacketPlayOutTablistHeaderFooter.wrap(this.header, this.footer));
+    this.packetManager.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 
     for (int slot = 0; slot < 80; slot++) {
-      this.packetManager.sendPacket(user,
-          ExPacketPlayOutTablistTeamCreation.wrap(slot < 10 ? "0" + slot :
-              slot + "", "", ChatColor.WHITE));
+      this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofCreate(slot < 10 ? "0" + slot : String.valueOf(slot),
+          Component.empty(), ChatFormatting.WHITE, this.nameTagVisibility.getPacketTag()));
     }
 
     for (SlotEntry entry : this.tablist) {
       if (entry != null) {
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(),
-                entry.getPrefix(), entry.getChatColor(),
-                this.getNameTagVisibility(user, entry).getPacketTag()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
-                entry.getPlayer().getPlayer().getName()));
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofModify(entry.getSlot(),
+            Component.literal(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().name()),
+            this.getNameTagVisibility(user, entry).getPacketTag()));
+
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getSlot(), entry.getPlayer().getPlayer().getName()));
+        this.packetManager.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(entry.getPlayer().getMinecraftPlayer())));
       }
     }
   }
@@ -80,23 +73,19 @@ public class TagTeamTablist extends TeamTablist {
 
         // not remove moved players
         if (!movedPlayers.contains(oldEntry.getPlayer())) {
-          this.broadcastPacket(ExPacketPlayOutTablistPlayerRemove.wrap(
-              oldEntry.getPlayer().getPlayer()));
+          this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(List.of(oldEntry.getPlayer().getPlayer().getUniqueId())));
         }
 
         //update team with color and prefix
         for (User user : this.watchingUsers) {
-          this.packetManager.sendPacket(user,
-              ExPacketPlayOutTablistTeamUpdate.wrap(newEntry.getSlot(),
-                  newEntry.getPrefix(), newEntry.getChatColor(),
-                  this.getNameTagVisibility(user, newEntry).getPacketTag()));
+          this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofModify(newEntry.getSlot(),
+              Component.literal(newEntry.getPrefix()), ChatFormatting.getByName(newEntry.getChatColor().name()),
+              this.getNameTagVisibility(user, newEntry).getPacketTag()));
         }
 
         // add new player
-        this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(newEntry.getSlot(),
-            newPlayer.getName()));
-        this.broadcastPacket(
-            ExPacketPlayOutTablistPlayerAdd.wrap(newEntry.getPlayer().getPlayer()));
+        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(newEntry.getSlot(), newPlayer.getName()));
+        this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(newEntry.getPlayer().getMinecraftPlayer())));
 
         // mark as moved
         movedPlayers.add(newEntry.getPlayer());
@@ -108,8 +97,7 @@ public class TagTeamTablist extends TeamTablist {
       SlotEntry oldEntry = oldIt.next();
       // not remove moved players
       if (!movedPlayers.remove(oldEntry.getPlayer())) {
-        this.broadcastPacket(
-            ExPacketPlayOutTablistPlayerRemove.wrap(oldEntry.getPlayer().getPlayer()));
+        this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(List.of(oldEntry.getPlayer().getPlayer().getUniqueId())));
       }
 
     }
@@ -118,15 +106,13 @@ public class TagTeamTablist extends TeamTablist {
     while (it.hasNext()) {
       SlotEntry entry = it.next();
       for (User user : this.watchingUsers) {
-        this.packetManager.sendPacket(user,
-            ExPacketPlayOutTablistTeamUpdate.wrap(entry.getSlot(), entry.getPrefix(),
-                entry.getChatColor(),
-                this.getNameTagVisibility(user, entry).getPacketTag()));
+        this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofModify(entry.getSlot(),
+            Component.literal(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().name()),
+            this.getNameTagVisibility(user, entry).getPacketTag()));
       }
-      this.broadcastPacket(ExPacketPlayOutTablistTeamPlayerAdd.wrap(entry.getSlot(),
-          entry.getPlayer().getPlayer().getName()));
-      this.broadcastPacket(
-          ExPacketPlayOutTablistPlayerAdd.wrap(entry.getPlayer().getPlayer()));
+
+      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getSlot(), entry.getPlayer().getPlayer().getName()));
+      this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(entry.getPlayer().getMinecraftPlayer())));
     }
   }
 

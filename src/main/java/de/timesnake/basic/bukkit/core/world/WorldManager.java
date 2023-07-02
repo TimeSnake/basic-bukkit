@@ -12,21 +12,6 @@ import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorldLoadEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorldType;
 import de.timesnake.library.basic.util.Loggers;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,6 +23,9 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.*;
+import java.util.*;
 
 public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.world.WorldManager {
 
@@ -136,7 +124,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       HashMap<ExWorld, ExLocation> locationByWorld = new HashMap<>();
 
       for (ExWorld world : this.getWorlds()) {
-        locationByWorld.put(world, new ExLocation(world, file.getUserLocation(world)));
+        locationByWorld.put(world, new ExLocation(world, file.getUserLocation(world.getBukkitWorld())));
       }
 
       this.locationsPerWorldByUuid.put(uuid, locationByWorld);

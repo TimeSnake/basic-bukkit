@@ -7,7 +7,6 @@ package de.timesnake.basic.bukkit.core.server;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.channel.core.Channel;
 import de.timesnake.channel.util.listener.ChannelHandler;
 import de.timesnake.channel.util.listener.ChannelListener;
 import de.timesnake.channel.util.listener.ListenerType;
@@ -17,6 +16,7 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.extension.util.NetworkVariables;
 import de.timesnake.library.network.NetworkUtils;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
 
   @Override
   public String getProxyName() {
-    return Channel.PROXY_NAME;
+    return Server.getChannel().getProxyName();
   }
 
   @Override

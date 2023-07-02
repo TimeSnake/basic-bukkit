@@ -9,19 +9,22 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
-import de.timesnake.library.entities.entity.bukkit.ExItemFrame;
-import de.timesnake.library.packets.core.packet.out.ExPacketPlayOutMap;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityDestroy;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
-import de.timesnake.library.packets.util.packet.ExPacketPlayOutSpawnEntity;
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import de.timesnake.library.packets.core.packet.out.ClientboundMapItemDataPacketBuilder;
+import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapView;
 import org.bukkit.util.Vector;
+
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class MapDisplay extends PacketEntity {
 
@@ -105,11 +108,11 @@ public class MapDisplay extends PacketEntity {
   protected final Rotation rotation;
   private final ExItemStack[][] maps;
   private final ExBlock[][] frameLocations;
-  private final ConcurrentHashMap<User, ExItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<User, ItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
 
   public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace,
-      BlockFace orientationUp,
-      boolean placeOnBlock) {
+                    BlockFace orientationUp,
+                    boolean placeOnBlock) {
     super(baseBlock.getLocation());
     this.blockFace = blockFace;
     this.orientation = orientationUp;
@@ -144,26 +147,24 @@ public class MapDisplay extends PacketEntity {
   @Override
   public void spawnForUser(User user) {
     Server.runTaskAsynchrony(() -> {
-      ExItemFrame[][] frames = this.framesByUser.get(user);
+      ItemFrame[][] frames = this.framesByUser.get(user);
 
       if (frames == null) {
-        frames = new ExItemFrame[this.maps.length][this.maps[0].length];
+        frames = new ItemFrame[this.maps.length][this.maps[0].length];
 
         for (int x = 0; x < maps.length; x++) {
           for (int y = 0; y < maps[x].length; y++) {
             ExBlock block = this.frameLocations[x][y];
             ExItemStack map = maps[x][y];
 
-            ExItemFrame frame = new ExItemFrame(block.getLocation().getWorld());
-            frame.setFixed(true);
-            frame.setItem(map, false);
+            ItemFrame frame = new ItemFrame(EntityType.ITEM_FRAME, block.getLocation().getExWorld().getHandle());
+            frame.fixed = true;
+            frame.setItem(map.getHandle(), false);
             frame.setInvulnerable(true);
-            frame.setFacingDirection(blockFace);
-            frame.setVisible(false);
-            frame.setRotation(this.rotation);
-            frame.setPosition(block.getBlock().getX(), block.getBlock().getY(),
-                block.getBlock().getZ(),
-                false);
+            frame.setDirection(Direction.fromDelta(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()));
+            frame.setInvisible(true);
+            frame.setRotation(rotationToInteger(this.rotation));
+            frame.setPos(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ());
 
             frames[x][y] = frame;
           }
@@ -173,25 +174,21 @@ public class MapDisplay extends PacketEntity {
 
       for (int x = 0; x < maps.length; x++) {
         for (int y = 0; y < maps[x].length; y++) {
-          ExItemFrame frame = frames[x][y];
+          ItemFrame frame = frames[x][y];
           ExItemStack map = this.maps[x][y];
 
           MapView view = ((MapMeta) map.getItemMeta()).getMapView();
 
-          frame.setItem(map, false);
-          frame.setVisible(true);
-          frame.setVisible(false);
-          frame.setRotation(this.rotation.rotateClockwise());
-          frame.setRotation(this.rotation);
+          frame.setItem(map.getHandle(), false);
+          frame.setInvisible(true);
+          frame.setRotation(rotationToInteger(this.rotation.rotateClockwise()));
+          frame.setRotation(rotationToInteger(this.rotation));
 
-          user.sendPacket(ExPacketPlayOutSpawnEntity.wrap(frame,
-              ExPacketPlayOutSpawnEntity.blockFaceToRotation(blockFace)));
+          user.sendPacket(new ClientboundAddEntityPacket(frame, ItemFrameRotation.blockFaceToRotation(blockFace).getNms()));
 
-          user.sendPacket(ExPacketPlayOutEntityMetadata.wrap(frame,
-              ExPacketPlayOutEntityMetadata.DataType.UPDATE, false));
+          user.sendPacket(new ClientboundSetEntityDataPacketBuilder(frame).update().build());
 
-          user.sendPacket(new ExPacketPlayOutMap(view.getId(), view.getScale().getValue(),
-              view.isLocked(), view, user.getPlayer()));
+          user.sendPacket(ClientboundMapItemDataPacketBuilder.of(view, user.getCraftPlayer()));
         }
       }
     }, BasicBukkit.getPlugin());
@@ -199,14 +196,14 @@ public class MapDisplay extends PacketEntity {
 
   @Override
   public void despawnForUser(User user) {
-    ExItemFrame[][] frames = this.framesByUser.get(user);
+    ItemFrame[][] frames = this.framesByUser.get(user);
 
     if (frames == null) {
       return;
     }
 
     Server.runTaskLoopAsynchrony(
-        (frame) -> user.sendPacket(ExPacketPlayOutEntityDestroy.wrap(frame)),
+        (frame) -> user.sendPacket(new ClientboundRemoveEntitiesPacket(frame.getId())),
         Arrays.stream(frames).flatMap(Arrays::stream).collect(Collectors.toList()),
         BasicBukkit.getPlugin());
 
@@ -215,5 +212,56 @@ public class MapDisplay extends PacketEntity {
   @Override
   public void onUserQuit(User user) {
     this.despawnForUser(user);
+  }
+
+  @Override
+  public String getType() {
+    return "map";
+  }
+
+  enum ItemFrameRotation {
+
+    DOWN(0),
+    UP(1),
+    NORTH(2),
+    SOUTH(3),
+    WEST(4),
+    EAST(5);
+
+    private final int nms;
+
+    ItemFrameRotation(int nms) {
+      this.nms = nms;
+    }
+
+    public int getNms() {
+      return nms;
+    }
+
+    static ItemFrameRotation blockFaceToRotation(BlockFace face) {
+      return switch (face) {
+        case DOWN -> ItemFrameRotation.DOWN;
+        case UP -> ItemFrameRotation.UP;
+        case NORTH -> ItemFrameRotation.NORTH;
+        case SOUTH -> ItemFrameRotation.SOUTH;
+        case WEST -> ItemFrameRotation.WEST;
+        case EAST -> ItemFrameRotation.EAST;
+        default -> null;
+      };
+    }
+  }
+
+  static int rotationToInteger(Rotation rotation) {
+    return switch (rotation) {
+      case NONE -> 0;
+      case CLOCKWISE_45 -> 1;
+      case CLOCKWISE -> 2;
+      case CLOCKWISE_135 -> 3;
+      case FLIPPED -> 4;
+      case FLIPPED_45 -> 5;
+      case COUNTER_CLOCKWISE -> 6;
+      case COUNTER_CLOCKWISE_45 -> 7;
+      default -> throw new IllegalArgumentException(rotation + " is not applicable to an ItemFrame");
+    };
   }
 }

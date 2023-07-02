@@ -4,8 +4,10 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import java.util.LinkedList;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.entity.Player;
+
+import java.util.LinkedList;
 
 public interface TablistablePlayer {
 
@@ -14,6 +16,8 @@ public interface TablistablePlayer {
   TablistableGroup getTablistGroup(TablistGroupType type);
 
   Player getPlayer();
+
+  ServerPlayer getMinecraftPlayer();
 
   String getFullRank(LinkedList<TablistGroupType> types);
 

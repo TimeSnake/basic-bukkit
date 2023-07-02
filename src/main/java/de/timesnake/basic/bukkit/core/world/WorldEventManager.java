@@ -4,22 +4,16 @@
 
 package de.timesnake.basic.bukkit.core.world;
 
-import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.CancelPriority;
-import de.timesnake.basic.bukkit.util.user.event.EntityDamageByUserEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserBlockBreakEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserBlockPlaceEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
+import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorld.Restriction;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Tuple;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
-import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -34,25 +28,18 @@ import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
-import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import java.util.Set;
 
 public class WorldEventManager implements Listener {
 
@@ -589,8 +576,8 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (world.isExceptService() && e.getPrimerEntity() instanceof Player
-        && Server.getUser(((Player) e.getPrimerEntity())).isService()) {
+    if (world.isExceptService() && e.getPrimingEntity() instanceof Player
+        && Server.getUser(((Player) e.getPrimingEntity())).isService()) {
       return;
     }
 
@@ -613,8 +600,13 @@ public class WorldEventManager implements Listener {
   }
 
   private void checkFireSpread(Location loc, ExWorld world) {
-    int fires = (int) world.getRandom()
-        .nextFloat(0, world.isRestricted(Restriction.FIRE_SPREAD_SPEED));
+    float maxFires = world.isRestricted(Restriction.FIRE_SPREAD_SPEED);
+
+    if (maxFires == 0) {
+      return;
+    }
+
+    int fires = (int) world.getRandom().nextFloat(0, maxFires);
 
     if (fires > 0) {
       this.scanForIgnitable(loc, world, fires);
