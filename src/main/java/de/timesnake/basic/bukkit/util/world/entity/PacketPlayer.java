@@ -18,11 +18,14 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PacketPlayer extends PacketEntity {
 
   protected final Player player;
+  private final Map<ClientboundSetEntityDataPacketBuilder.Type, Boolean> poseTags = new HashMap<>();
 
   public PacketPlayer(Player player, ExLocation location) {
     super(location);
@@ -42,7 +45,7 @@ public class PacketPlayer extends PacketEntity {
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(((ServerPlayer) player))));
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
-    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).update().build());
+    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).update().setFlags(poseTags).build());
 
     Server.runTaskLaterSynchrony(
         () -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
@@ -65,5 +68,13 @@ public class PacketPlayer extends PacketEntity {
 
   public Player getPlayer() {
     return player;
+  }
+
+  public Map<ClientboundSetEntityDataPacketBuilder.Type, Boolean> getPoseTags() {
+    return poseTags;
+  }
+
+  public void setPoseTag(ClientboundSetEntityDataPacketBuilder.Type type, boolean value) {
+    this.poseTags.put(type, value);
   }
 }

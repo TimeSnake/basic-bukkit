@@ -6,11 +6,13 @@ package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExBlock {
 
@@ -29,6 +31,10 @@ public class ExBlock {
       new Tuple<>(new Vector(0, -1, 0), BlockFace.UP),
       new Tuple<>(new Vector(0, 0, 1), BlockFace.NORTH),
       new Tuple<>(new Vector(0, 0, -1), BlockFace.SOUTH));
+
+  public static ExBlock fromBlock(Block block) {
+    return new ExBlock(block);
+  }
 
   private final ExLocation location;
 
@@ -81,5 +87,11 @@ public class ExBlock {
     }
 
     return false;
+  }
+
+  public List<Block> getBesideBlocks() {
+    return NEAR_BLOCKS.stream()
+        .map(v -> this.location.add(v).getBlock())
+        .collect(Collectors.toList());
   }
 }

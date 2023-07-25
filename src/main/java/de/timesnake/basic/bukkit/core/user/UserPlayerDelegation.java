@@ -9,7 +9,6 @@ import com.destroystokyo.paper.ClientOption;
 import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.block.TargetBlockInfo;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
-import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.entity.LookAnchor;
 import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.math.Position;
@@ -62,12 +61,14 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.*;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -86,8 +87,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Identity identity() {
+  public @NotNull Identity identity() {
     return player.identity();
   }
 
@@ -99,8 +99,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Component displayName() {
+  public @NotNull Component displayName() {
     return player.displayName();
   }
 
@@ -134,20 +133,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Component playerListName() {
+  public @NotNull Component playerListName() {
     return player.playerListName();
   }
 
   @Override
-  @Nullable
-  public Component playerListHeader() {
+  public @Nullable Component playerListHeader() {
     return player.playerListHeader();
   }
 
   @Override
-  @Nullable
-  public Component playerListFooter() {
+  public @Nullable Component playerListFooter() {
     return player.playerListFooter();
   }
 
@@ -202,14 +198,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Location getCompassTarget() {
+  public @NotNull Location getCompassTarget() {
     return player.getCompassTarget();
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getAddress() {
+  public @Nullable InetSocketAddress getAddress() {
     return player.getAddress();
   }
 
@@ -237,6 +231,16 @@ public class UserPlayerDelegation implements Player {
   @Override
   public void kick(@Nullable Component message, PlayerKickEvent.@NotNull Cause cause) {
     player.kick(message, cause);
+  }
+
+  @Override
+  public @Nullable BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
+    return player.ban(reason, expires, source, kickPlayer);
+  }
+
+  @Override
+  public @Nullable BanEntry<InetAddress> banIp(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
+    return player.banIp(reason, expires, source, kickPlayer);
   }
 
   @Override
@@ -296,8 +300,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Location getBedSpawnLocation() {
+  public @Nullable Location getBedSpawnLocation() {
     return player.getBedSpawnLocation();
   }
 
@@ -531,74 +534,62 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerFull(@Nullable String reason) {
+  public @Nullable BanEntry banPlayerFull(@Nullable String reason) {
     return player.banPlayerFull(reason);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
+  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
     return player.banPlayerFull(reason, source);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
+  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayerFull(reason, expires);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayerFull(reason, expires, source);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
     return player.banPlayerIP(reason, kickPlayer);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
     return player.banPlayerIP(reason, source, kickPlayer);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
     return player.banPlayerIP(reason, expires, kickPlayer);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason) {
     return player.banPlayerIP(reason);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
     return player.banPlayerIP(reason, source);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayerIP(reason, expires);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayerIP(reason, expires, source);
   }
 
   @Override
-  @Nullable
-  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
+  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
     return player.banPlayerIP(reason, expires, source, kickPlayer);
   }
 
@@ -737,8 +728,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public GameMode getPreviousGameMode() {
+  public @Nullable GameMode getPreviousGameMode() {
     return player.getPreviousGameMode();
   }
 
@@ -773,8 +763,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public WeatherType getPlayerWeather() {
+  public @Nullable WeatherType getPlayerWeather() {
     return player.getPlayerWeather();
   }
 
@@ -869,8 +858,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public TriState hasFlyingFallDamage() {
+  public @NotNull TriState hasFlyingFallDamage() {
     return player.hasFlyingFallDamage();
   }
 
@@ -994,8 +982,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Scoreboard getScoreboard() {
+  public @NotNull Scoreboard getScoreboard() {
     return player.getScoreboard();
   }
 
@@ -1005,14 +992,23 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public WorldBorder getWorldBorder() {
+  public @Nullable WorldBorder getWorldBorder() {
     return player.getWorldBorder();
   }
 
   @Override
   public void setWorldBorder(@Nullable WorldBorder border) {
     player.setWorldBorder(border);
+  }
+
+  @Override
+  public void sendHealthUpdate(double health, int foodLevel, float saturation) {
+    player.sendHealthUpdate(health, foodLevel, saturation);
+  }
+
+  @Override
+  public void sendHealthUpdate() {
+    player.sendHealthUpdate();
   }
 
   @Override
@@ -1036,18 +1032,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  public void sendHealthUpdate(double health, int foodLevel, float saturationLevel) {
-    player.sendHealthUpdate(health, foodLevel, saturationLevel);
-  }
-
-  @Override
-  public void sendHealthUpdate() {
-    player.sendHealthUpdate();
-  }
-
-  @Override
-  @Nullable
-  public Entity getSpectatorTarget() {
+  public @Nullable Entity getSpectatorTarget() {
     return player.getSpectatorTarget();
   }
 
@@ -1134,8 +1119,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
+  public @NotNull AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
     return player.getAdvancementProgress(advancement);
   }
 
@@ -1145,8 +1129,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Locale locale() {
+  public @NotNull Locale locale() {
     return player.locale();
   }
 
@@ -1246,8 +1229,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
+  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
     return player.asHoverEvent(op);
   }
 
@@ -1284,13 +1266,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public PlayerProfile getPlayerProfile() {
+  public com.destroystokyo.paper.profile.@NotNull PlayerProfile getPlayerProfile() {
     return player.getPlayerProfile();
   }
 
   @Override
-  public void setPlayerProfile(@NotNull PlayerProfile profile) {
+  public void setPlayerProfile(com.destroystokyo.paper.profile.@NotNull PlayerProfile profile) {
     player.setPlayerProfile(profile);
   }
 
@@ -1315,8 +1296,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Firework boostElytra(@NotNull ItemStack firework) {
+  public @Nullable Firework boostElytra(@NotNull ItemStack firework) {
     return player.boostElytra(firework);
   }
 
@@ -1419,26 +1399,22 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public EntityEquipment getEquipment() {
+  public @NotNull EntityEquipment getEquipment() {
     return player.getEquipment();
   }
 
   @Override
-  @NotNull
-  public PlayerInventory getInventory() {
+  public @NotNull PlayerInventory getInventory() {
     return player.getInventory();
   }
 
   @Override
-  @NotNull
-  public Inventory getEnderChest() {
+  public @NotNull Inventory getEnderChest() {
     return player.getEnderChest();
   }
 
   @Override
-  @NotNull
-  public MainHand getMainHand() {
+  public @NotNull MainHand getMainHand() {
     return player.getMainHand();
   }
 
@@ -1458,26 +1434,22 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public InventoryView getOpenInventory() {
+  public @NotNull InventoryView getOpenInventory() {
     return player.getOpenInventory();
   }
 
   @Override
-  @Nullable
-  public InventoryView openInventory(@NotNull Inventory inventory) {
+  public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {
     return player.openInventory(inventory);
   }
 
   @Override
-  @Nullable
-  public InventoryView openWorkbench(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openWorkbench(@Nullable Location location, boolean force) {
     return player.openWorkbench(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openEnchanting(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openEnchanting(@Nullable Location location, boolean force) {
     return player.openEnchanting(location, force);
   }
 
@@ -1487,50 +1459,42 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public InventoryView openMerchant(@NotNull Villager trader, boolean force) {
+  public @Nullable InventoryView openMerchant(@NotNull Villager trader, boolean force) {
     return player.openMerchant(trader, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {
+  public @Nullable InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {
     return player.openMerchant(merchant, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openAnvil(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openAnvil(@Nullable Location location, boolean force) {
     return player.openAnvil(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openCartographyTable(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openCartographyTable(@Nullable Location location, boolean force) {
     return player.openCartographyTable(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openGrindstone(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openGrindstone(@Nullable Location location, boolean force) {
     return player.openGrindstone(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openLoom(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openLoom(@Nullable Location location, boolean force) {
     return player.openLoom(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openSmithingTable(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openSmithingTable(@Nullable Location location, boolean force) {
     return player.openSmithingTable(location, force);
   }
 
   @Override
-  @Nullable
-  public InventoryView openStonecutter(@Nullable Location location, boolean force) {
+  public @Nullable InventoryView openStonecutter(@Nullable Location location, boolean force) {
     return player.openStonecutter(location, force);
   }
 
@@ -1546,8 +1510,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  @NotNull
-  public ItemStack getItemInHand() {
+  public @NotNull ItemStack getItemInHand() {
     return player.getItemInHand();
   }
 
@@ -1558,8 +1521,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public ItemStack getItemOnCursor() {
+  public @NotNull ItemStack getItemOnCursor() {
     return player.getItemOnCursor();
   }
 
@@ -1599,14 +1561,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Location getPotentialBedLocation() {
+  public @Nullable Location getPotentialBedLocation() {
     return player.getPotentialBedLocation();
   }
 
   @Override
-  @Nullable
-  public FishHook getFishHook() {
+  public @Nullable FishHook getFishHook() {
     return player.getFishHook();
   }
 
@@ -1621,14 +1581,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Location getBedLocation() {
+  public @NotNull Location getBedLocation() {
     return player.getBedLocation();
   }
 
   @Override
-  @NotNull
-  public GameMode getGameMode() {
+  public @NotNull GameMode getGameMode() {
     return player.getGameMode();
   }
 
@@ -1649,8 +1607,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  @Nullable
-  public ItemStack getItemInUse() {
+  public @Nullable ItemStack getItemInUse() {
     return player.getItemInUse();
   }
 
@@ -1660,14 +1617,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Entity releaseLeftShoulderEntity() {
+  public @Nullable Entity releaseLeftShoulderEntity() {
     return player.releaseLeftShoulderEntity();
   }
 
   @Override
-  @Nullable
-  public Entity releaseRightShoulderEntity() {
+  public @Nullable Entity releaseRightShoulderEntity() {
     return player.releaseRightShoulderEntity();
   }
 
@@ -1702,15 +1657,13 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<NamespacedKey> getDiscoveredRecipes() {
+  public @NotNull Set<NamespacedKey> getDiscoveredRecipes() {
     return player.getDiscoveredRecipes();
   }
 
   @Override
   @Deprecated
-  @Nullable
-  public Entity getShoulderEntityLeft() {
+  public @Nullable Entity getShoulderEntityLeft() {
     return player.getShoulderEntityLeft();
   }
 
@@ -1722,8 +1675,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  @Nullable
-  public Entity getShoulderEntityRight() {
+  public @Nullable Entity getShoulderEntityRight() {
     return player.getShoulderEntityRight();
   }
 
@@ -1799,8 +1751,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Location getLastDeathLocation() {
+  public @Nullable Location getLastDeathLocation() {
     return player.getLastDeathLocation();
   }
 
@@ -1810,8 +1761,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Firework fireworkBoost(@NotNull ItemStack fireworkItemStack) {
+  public @Nullable Firework fireworkBoost(@NotNull ItemStack fireworkItemStack) {
     return player.fireworkBoost(fireworkItemStack);
   }
 
@@ -1826,135 +1776,114 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Location getEyeLocation() {
+  public @NotNull Location getEyeLocation() {
     return player.getEyeLocation();
   }
 
   @Override
-  @NotNull
-  public List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {
+  public @NotNull List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getLineOfSight(transparent, maxDistance);
   }
 
   @Override
-  @NotNull
-  public Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {
+  public @NotNull Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getTargetBlock(transparent, maxDistance);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public Block getTargetBlock(int maxDistance) {
+  public @Nullable Block getTargetBlock(int maxDistance) {
     return player.getTargetBlock(maxDistance);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public Block getTargetBlock(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  public @Nullable Block getTargetBlock(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlock(maxDistance, fluidMode);
   }
 
   @Override
-  @Nullable
-  public BlockFace getTargetBlockFace(int maxDistance) {
+  public @Nullable BlockFace getTargetBlockFace(int maxDistance) {
     return player.getTargetBlockFace(maxDistance);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public BlockFace getTargetBlockFace(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  public @Nullable BlockFace getTargetBlockFace(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlockFace(maxDistance, fluidMode);
   }
 
   @Override
-  @Nullable
-  public BlockFace getTargetBlockFace(int maxDistance, @NotNull FluidCollisionMode fluidMode) {
+  public @Nullable BlockFace getTargetBlockFace(int maxDistance, @NotNull FluidCollisionMode fluidMode) {
     return player.getTargetBlockFace(maxDistance, fluidMode);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public TargetBlockInfo getTargetBlockInfo(int maxDistance) {
+  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance) {
     return player.getTargetBlockInfo(maxDistance);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public TargetBlockInfo getTargetBlockInfo(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
+  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
     return player.getTargetBlockInfo(maxDistance, fluidMode);
   }
 
   @Override
-  @Nullable
-  public Entity getTargetEntity(int maxDistance) {
+  public @Nullable Entity getTargetEntity(int maxDistance) {
     return player.getTargetEntity(maxDistance);
   }
 
   @Override
-  @Nullable
-  public Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {
+  public @Nullable Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {
     return player.getTargetEntity(maxDistance, ignoreBlocks);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public TargetEntityInfo getTargetEntityInfo(int maxDistance) {
+  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance) {
     return player.getTargetEntityInfo(maxDistance);
   }
 
   @Override
-  @Nullable
-  public RayTraceResult rayTraceEntities(int maxDistance) {
+  public @Nullable RayTraceResult rayTraceEntities(int maxDistance) {
     return player.rayTraceEntities(maxDistance);
   }
 
   @Override
   @Deprecated(forRemoval = true)
-  @Nullable
-  public TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {
+  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {
     return player.getTargetEntityInfo(maxDistance, ignoreBlocks);
   }
 
   @Override
-  @Nullable
-  public RayTraceResult rayTraceEntities(int maxDistance, boolean ignoreBlocks) {
+  public @Nullable RayTraceResult rayTraceEntities(int maxDistance, boolean ignoreBlocks) {
     return player.rayTraceEntities(maxDistance, ignoreBlocks);
   }
 
   @Override
-  @NotNull
-  public List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent, int maxDistance) {
+  public @NotNull List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent, int maxDistance) {
     return player.getLastTwoTargetBlocks(transparent, maxDistance);
   }
 
   @Override
-  @Nullable
-  public Block getTargetBlockExact(int maxDistance) {
+  public @Nullable Block getTargetBlockExact(int maxDistance) {
     return player.getTargetBlockExact(maxDistance);
   }
 
   @Override
-  @Nullable
-  public Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
+  public @Nullable Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
     return player.getTargetBlockExact(maxDistance, fluidCollisionMode);
   }
 
   @Override
-  @Nullable
-  public RayTraceResult rayTraceBlocks(double maxDistance) {
+  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance) {
     return player.rayTraceBlocks(maxDistance);
   }
 
   @Override
-  @Nullable
-  public RayTraceResult rayTraceBlocks(double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
+  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
     return player.rayTraceBlocks(maxDistance, fluidCollisionMode);
   }
 
@@ -2054,6 +1983,16 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public int getNoActionTicks() {
+    return player.getNoActionTicks();
+  }
+
+  @Override
+  public void setNoActionTicks(int ticks) {
+    player.setNoActionTicks(ticks);
+  }
+
+  @Override
   @Nullable
   public Player getKiller() {
     return player.getKiller();
@@ -2086,8 +2025,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public PotionEffect getPotionEffect(@NotNull PotionEffectType type) {
+  public @Nullable PotionEffect getPotionEffect(@NotNull PotionEffectType type) {
     return player.getPotionEffect(type);
   }
 
@@ -2097,8 +2035,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Collection<PotionEffect> getActivePotionEffects() {
+  public @NotNull Collection<PotionEffect> getActivePotionEffects() {
     return player.getActivePotionEffects();
   }
 
@@ -2143,8 +2080,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Entity getLeashHolder() throws IllegalStateException {
+  public @NotNull Entity getLeashHolder() throws IllegalStateException {
     return player.getLeashHolder();
   }
 
@@ -2215,6 +2151,11 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
+  public void playHurtAnimation(float yaw) {
+    player.playHurtAnimation(yaw);
+  }
+
+  @Override
   public void setCollidable(boolean collidable) {
     player.setCollidable(collidable);
   }
@@ -2225,8 +2166,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<UUID> getCollidableExemptions() {
+  public @NotNull Set<UUID> getCollidableExemptions() {
     return player.getCollidableExemptions();
   }
 
@@ -2241,44 +2181,37 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Sound getHurtSound() {
+  public @Nullable Sound getHurtSound() {
     return player.getHurtSound();
   }
 
   @Override
-  @Nullable
-  public Sound getDeathSound() {
+  public @Nullable Sound getDeathSound() {
     return player.getDeathSound();
   }
 
   @Override
-  @NotNull
-  public Sound getFallDamageSound(int fallHeight) {
+  public @NotNull Sound getFallDamageSound(int fallHeight) {
     return player.getFallDamageSound(fallHeight);
   }
 
   @Override
-  @NotNull
-  public Sound getFallDamageSoundSmall() {
+  public @NotNull Sound getFallDamageSoundSmall() {
     return player.getFallDamageSoundSmall();
   }
 
   @Override
-  @NotNull
-  public Sound getFallDamageSoundBig() {
+  public @NotNull Sound getFallDamageSoundBig() {
     return player.getFallDamageSoundBig();
   }
 
   @Override
-  @NotNull
-  public Sound getDrinkingSound(@NotNull ItemStack itemStack) {
+  public @NotNull Sound getDrinkingSound(@NotNull ItemStack itemStack) {
     return player.getDrinkingSound(itemStack);
   }
 
   @Override
-  @NotNull
-  public Sound getEatingSound(@NotNull ItemStack itemStack) {
+  public @NotNull Sound getEatingSound(@NotNull ItemStack itemStack) {
     return player.getEatingSound(itemStack);
   }
 
@@ -2288,8 +2221,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public EntityCategory getCategory() {
+  public @NotNull EntityCategory getCategory() {
     return player.getCategory();
   }
 
@@ -2326,8 +2258,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public ItemStack getActiveItem() {
+  public @NotNull ItemStack getActiveItem() {
     return player.getActiveItem();
   }
 
@@ -2347,8 +2278,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public EquipmentSlot getHandRaised() {
+  public @NotNull EquipmentSlot getHandRaised() {
     return player.getHandRaised();
   }
 
@@ -2398,8 +2328,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public ItemStack damageItemStack(@NotNull ItemStack stack, int amount) {
+  public @NotNull ItemStack damageItemStack(@NotNull ItemStack stack, int amount) {
     return player.damageItemStack(stack, amount);
   }
 
@@ -2419,8 +2348,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public AttributeInstance getAttribute(@NotNull Attribute attribute) {
+  public @Nullable AttributeInstance getAttribute(@NotNull Attribute attribute) {
     return player.getAttribute(attribute);
   }
 
@@ -2478,15 +2406,13 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Location getLocation() {
+  public @NotNull Location getLocation() {
     return player.getLocation();
   }
 
   @Override
   @Contract("null -> null; !null -> !null")
-  @Nullable
-  public Location getLocation(@Nullable Location loc) {
+  public @Nullable Location getLocation(@Nullable Location loc) {
     return player.getLocation(loc);
   }
 
@@ -2496,8 +2422,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Vector getVelocity() {
+  public @NotNull Vector getVelocity() {
     return player.getVelocity();
   }
 
@@ -2512,8 +2437,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public BoundingBox getBoundingBox() {
+  public @NotNull BoundingBox getBoundingBox() {
     return player.getBoundingBox();
   }
 
@@ -2523,8 +2447,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public World getWorld() {
+  public @NotNull World getWorld() {
     return player.getWorld();
   }
 
@@ -2561,20 +2484,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
+  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
     return player.teleportAsync(loc);
   }
 
   @Override
-  @NotNull
-  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc, PlayerTeleportEvent.@NotNull TeleportCause cause) {
+  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc, PlayerTeleportEvent.@NotNull TeleportCause cause) {
     return player.teleportAsync(loc, cause);
   }
 
   @Override
-  @NotNull
-  public List<Entity> getNearbyEntities(double x, double y, double z) {
+  public @NotNull List<Entity> getNearbyEntities(double x, double y, double z) {
     return player.getNearbyEntities(x, y, z);
   }
 
@@ -2654,8 +2574,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Server getServer() {
+  public @NotNull Server getServer() {
     return player.getServer();
   }
 
@@ -2671,8 +2590,7 @@ public class UserPlayerDelegation implements Player {
 
   @Override
   @Deprecated
-  @Nullable
-  public Entity getPassenger() {
+  public @Nullable Entity getPassenger() {
     return player.getPassenger();
   }
 
@@ -2683,8 +2601,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public List<Entity> getPassengers() {
+  public @NotNull List<Entity> getPassengers() {
     return player.getPassengers();
   }
 
@@ -2724,14 +2641,12 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public EntityDamageEvent getLastDamageCause() {
+  public @Nullable EntityDamageEvent getLastDamageCause() {
     return player.getLastDamageCause();
   }
 
   @Override
-  @NotNull
-  public UUID getUniqueId() {
+  public @NotNull UUID getUniqueId() {
     return player.getUniqueId();
   }
 
@@ -2751,26 +2666,22 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public EntityType getType() {
+  public @NotNull EntityType getType() {
     return player.getType();
   }
 
   @Override
-  @NotNull
-  public Sound getSwimSound() {
+  public @NotNull Sound getSwimSound() {
     return player.getSwimSound();
   }
 
   @Override
-  @NotNull
-  public Sound getSwimSplashSound() {
+  public @NotNull Sound getSwimSplashSound() {
     return player.getSwimSplashSound();
   }
 
   @Override
-  @NotNull
-  public Sound getSwimHighSpeedSplashSound() {
+  public @NotNull Sound getSwimHighSpeedSplashSound() {
     return player.getSwimHighSpeedSplashSound();
   }
 
@@ -2785,8 +2696,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Entity getVehicle() {
+  public @Nullable Entity getVehicle() {
     return player.getVehicle();
   }
 
@@ -2863,8 +2773,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<String> getScoreboardTags() {
+  public @NotNull Set<String> getScoreboardTags() {
     return player.getScoreboardTags();
   }
 
@@ -2879,38 +2788,32 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public PistonMoveReaction getPistonMoveReaction() {
+  public @NotNull PistonMoveReaction getPistonMoveReaction() {
     return player.getPistonMoveReaction();
   }
 
   @Override
-  @NotNull
-  public BlockFace getFacing() {
+  public @NotNull BlockFace getFacing() {
     return player.getFacing();
   }
 
   @Override
-  @NotNull
-  public Pose getPose() {
+  public @NotNull Pose getPose() {
     return player.getPose();
   }
 
   @Override
-  @NotNull
-  public SpawnCategory getSpawnCategory() {
+  public @NotNull SpawnCategory getSpawnCategory() {
     return player.getSpawnCategory();
   }
 
   @Override
-  @NotNull
-  public Component teamDisplayName() {
+  public @NotNull Component teamDisplayName() {
     return player.teamDisplayName();
   }
 
   @Override
-  @Nullable
-  public Location getOrigin() {
+  public @Nullable Location getOrigin() {
     return player.getOrigin();
   }
 
@@ -2920,8 +2823,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Chunk getChunk() {
+  public @NotNull Chunk getChunk() {
     return player.getChunk();
   }
 
@@ -2971,8 +2873,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<Player> getTrackedPlayers() {
+  public @NotNull Set<Player> getTrackedPlayers() {
     return player.getTrackedPlayers();
   }
 
@@ -3002,8 +2903,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public EntityScheduler getScheduler() {
+  public @NotNull EntityScheduler getScheduler() {
     return player.getScheduler();
   }
 
@@ -3013,8 +2913,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public List<MetadataValue> getMetadata(@NotNull String metadataKey) {
+  public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {
     return player.getMetadata(metadataKey);
   }
 
@@ -3053,8 +2952,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Component name() {
+  public @NotNull Component name() {
     return player.name();
   }
 
@@ -3073,29 +2971,24 @@ public class UserPlayerDelegation implements Player {
     player.sendPlainMessage(message);
   }
 
-  @NotNull
-  public static Audience empty() {
+  public static @NotNull Audience empty() {
     return Audience.empty();
   }
 
-  @NotNull
-  public static Audience audience(@NotNull Audience @NotNull ... audiences) {
+  public static @NotNull Audience audience(@NotNull Audience @NotNull ... audiences) {
     return Audience.audience(audiences);
   }
 
-  @NotNull
-  public static ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
+  public static @NotNull ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
     return Audience.audience(audiences);
   }
 
-  @NotNull
-  public static Collector<? super Audience, ?, ForwardingAudience> toAudience() {
+  public static @NotNull Collector<? super Audience, ?, ForwardingAudience> toAudience() {
     return Audience.toAudience();
   }
 
   @Override
-  @NotNull
-  public Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
+  public @NotNull Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
     return player.filterAudience(filter);
   }
 
@@ -3317,8 +3210,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public <T> Optional<T> get(@NotNull Pointer<T> pointer) {
+  public @NotNull <T> Optional<T> get(@NotNull Pointer<T> pointer) {
     return player.get(pointer);
   }
 
@@ -3334,8 +3226,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Pointers pointers() {
+  public @NotNull Pointers pointers() {
     return player.pointers();
   }
 
@@ -3360,26 +3251,22 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
+  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
     return player.addAttachment(plugin, name, value);
   }
 
   @Override
-  @NotNull
-  public PermissionAttachment addAttachment(@NotNull Plugin plugin) {
+  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
     return player.addAttachment(plugin);
   }
 
   @Override
-  @Nullable
-  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
+  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
     return player.addAttachment(plugin, name, value, ticks);
   }
 
   @Override
-  @Nullable
-  public PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
+  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
     return player.addAttachment(plugin, ticks);
   }
 
@@ -3394,20 +3281,17 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
     return player.getEffectivePermissions();
   }
 
   @Override
-  @NotNull
-  public TriState permissionValue(@NotNull Permission permission) {
+  public @NotNull TriState permissionValue(@NotNull Permission permission) {
     return player.permissionValue(permission);
   }
 
   @Override
-  @NotNull
-  public TriState permissionValue(@NotNull String permission) {
+  public @NotNull TriState permissionValue(@NotNull String permission) {
     return player.permissionValue(permission);
   }
 
@@ -3422,8 +3306,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public Component customName() {
+  public @Nullable Component customName() {
     return player.customName();
   }
 
@@ -3446,19 +3329,16 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public PersistentDataContainer getPersistentDataContainer() {
+  public @NotNull PersistentDataContainer getPersistentDataContainer() {
     return player.getPersistentDataContainer();
   }
 
-  @Nullable
-  public static <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {
+  public static @Nullable <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {
     return HoverEventSource.unbox(source);
   }
 
   @Override
-  @NotNull
-  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
+  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
     return player.asHoverEvent();
   }
 
@@ -3482,8 +3362,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public TriState getFrictionState() {
+  public @NotNull TriState getFrictionState() {
     return player.getFrictionState();
   }
 
@@ -3534,33 +3413,33 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public BanEntry banPlayer(@Nullable String reason) {
+  public @NotNull BanEntry banPlayer(@Nullable String reason) {
     return player.banPlayer(reason);
   }
 
   @Override
-  @NotNull
-  public BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
+  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
     return player.banPlayer(reason, source);
   }
 
   @Override
-  @NotNull
-  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
+  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
     return player.banPlayer(reason, expires);
   }
 
   @Override
-  @NotNull
-  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
     return player.banPlayer(reason, expires, source);
   }
 
   @Override
-  @NotNull
-  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickIfOnline) {
+  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickIfOnline) {
     return player.banPlayer(reason, expires, source, kickIfOnline);
+  }
+
+  @Override
+  public @Nullable BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    return player.ban(reason, expires, source);
   }
 
   @Override
@@ -3696,8 +3575,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Map<String, Object> serialize() {
+  public @NotNull Map<String, Object> serialize() {
     return player.serialize();
   }
 
@@ -3707,8 +3585,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @NotNull
-  public Set<String> getListeningPluginChannels() {
+  public @NotNull Set<String> getListeningPluginChannels() {
     return player.getListeningPluginChannels();
   }
 
@@ -3718,8 +3595,7 @@ public class UserPlayerDelegation implements Player {
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getVirtualHost() {
+  public @Nullable InetSocketAddress getVirtualHost() {
     return player.getVirtualHost();
   }
 }
