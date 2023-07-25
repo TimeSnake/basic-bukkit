@@ -6,13 +6,14 @@ package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Triple;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class ExLocation extends Location {
 
@@ -97,6 +98,25 @@ public class ExLocation extends Location {
 
   public ExBlock getExBlock() {
     return new ExBlock(this.getBlock());
+  }
+
+  public ExLocation getRandomNearbyLocation(double maxDistance) {
+    double x = Server.getRandom().nextDouble();
+    double y = Server.getRandom().nextDouble();
+    double z = Server.getRandom().nextDouble();
+
+    double sum = x + y + z;
+
+    x = x / sum * maxDistance;
+    y = y / sum * maxDistance;
+    z = z / sum * maxDistance;
+
+    return this.add(x, y, z);
+  }
+
+  public ExLocation getRandomNearbyLocation(double maxDistanceXZ, double maxDistanceY) {
+    double x = Server.getRandom().nextDouble(maxDistanceXZ);
+    return this.add(x, Server.getRandom().nextDouble(maxDistanceY), maxDistanceXZ - x);
   }
 
   public ExLocation middleBlock() {
@@ -193,8 +213,7 @@ public class ExLocation extends Location {
 
   @Override
   public @NotNull ExLocation clone() {
-    return new ExLocation(this.world, this.getX(), this.getY(), this.getZ(), this.getYaw(),
-        this.getPitch());
+    return new ExLocation(this.world, this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
   }
 
   @Override

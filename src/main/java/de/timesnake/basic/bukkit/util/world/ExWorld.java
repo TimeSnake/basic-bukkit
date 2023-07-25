@@ -172,9 +172,9 @@ public class ExWorld extends DelegatedWorld {
 
     Set<Block> blocks = new HashSet<>();
 
-    for (int x = fromX; x < toX; x++) {
-      for (int y = fromY; y < toY; y++) {
-        for (int z = fromZ; z < toZ; z++) {
+    for (int x = fromX; x <= toX; x++) {
+      for (int y = fromY; y <= toY; y++) {
+        for (int z = fromZ; z <= toZ; z++) {
           blocks.add(this.getBlockAt(x, y, z));
         }
       }
