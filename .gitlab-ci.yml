@@ -1,4 +1,4 @@
 trigger_job:
   trigger:
-    project: timesnake/plugin-root-project
+    project: timesnake/minecraft/plugin-project
 
