@@ -7,16 +7,7 @@ package de.timesnake.basic.bukkit.core.user.inventory;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
-import de.timesnake.basic.bukkit.util.user.inventory.ExcludedInventoryHolder;
-import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickEvent;
-import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickListener;
-import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractEvent;
-import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractListener;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import de.timesnake.basic.bukkit.util.user.inventory.*;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,14 +21,15 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.InventoryHolder;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class InventoryEventManager implements Listener,
     de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager {
 
   private final Map<InventoryHolder, UserInventoryClickListener> clickListenerByHolder = new ConcurrentHashMap<>();
-  private final Map<Integer, Collection<UserInventoryClickListener>> clickListenerByItemId =
-      new ConcurrentHashMap<>();
-  private final Map<Integer, Collection<UserInventoryInteractListener>> interactListenerByItemId =
-      new ConcurrentHashMap<>();
+  private final Map<Integer, Set<UserInventoryClickListener>> clickListenerByItemId = new ConcurrentHashMap<>();
+  private final Map<Integer, Set<InteractListenerInfo>> interactListenerByItemId = new ConcurrentHashMap<>();
   private boolean excludeServiceUsers = true;
 
   public InventoryEventManager() {
@@ -54,12 +46,11 @@ public class InventoryEventManager implements Listener,
 
       User user = Server.getUser((Player) e.getWhoClicked());
 
-      if (!this.isUserExcluded(user) && (user.isInventoryLocked()
-          || user.isInventoryItemMoveLocked())) {
+      if (!this.isUserExcluded(user) && (user.isInventoryLocked() || user.isInventoryItemMoveLocked())) {
         e.setCancelled(true);
       }
 
-      ExItemStack item;
+      ExItemStack item = null;
 
       if (e.getCurrentItem() != null && !e.getCurrentItem().getType().equals(Material.AIR)) {
         item = ExItemStack.getItem(e.getCurrentItem(), true);
@@ -67,16 +58,17 @@ public class InventoryEventManager implements Listener,
           item.setSlot(e.getSlot());
         }
 
-      } else {
-        item = new ExItemStack(Material.AIR);
+      }
+
+      if (item == null) {
+        return;
       }
 
       if (!item.isMoveable()) {
         e.setCancelled(true);
       }
 
-      UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(),
-          e.getView(),
+      UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(),
           e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
 
       InventoryHolder holder = e.getClickedInventory().getHolder();
@@ -99,7 +91,7 @@ public class InventoryEventManager implements Listener,
   }
 
   private void handleInventoryClickListener(Collection<UserInventoryClickListener> listeners,
-      UserInventoryClickEvent event) {
+                                            UserInventoryClickEvent event) {
     if (listeners != null) {
       for (UserInventoryClickListener listener : listeners) {
         listener.onUserInventoryClick(event);
@@ -118,26 +110,39 @@ public class InventoryEventManager implements Listener,
         e.setCancelled(true);
       }
 
-      if (e.getItem() != null) {
-        ExItemStack item = ExItemStack.getItem(e.getItem(), false);
+      if (e.getItem() == null) {
+        return;
+      }
 
-        if (item != null) {
-          UserInventoryInteractEvent event = new UserInventoryInteractEvent(user, e.isCancelled(),
-              item,
-              e.getClickedBlock(), e.getAction());
+      ExItemStack item = ExItemStack.getItem(e.getItem(), false);
 
-          Collection<UserInventoryInteractListener> listeners = interactListenerByItemId.get(
-              item.getId());
+      if (item == null) {
+        return;
+      }
 
-          if (listeners != null && !listeners.isEmpty()) {
+      UserInventoryInteractEvent event = new UserInventoryInteractEvent(user, e.isCancelled(), item,
+          e.getClickedBlock(), e.getAction());
 
-            for (UserInventoryInteractListener listener : listeners) {
-              listener.onUserInventoryInteract(event);
-            }
-            if (event.isCancelled()) {
+      Collection<InteractListenerInfo> listenerInfos = interactListenerByItemId.get(item.getId());
+
+      if (listenerInfos != null && !listenerInfos.isEmpty()) {
+
+        for (InteractListenerInfo listenerInfo : listenerInfos) {
+          if (listenerInfo.isPreventDoubleClick()) {
+            UUID uuid = user.getUniqueId();
+            if (listenerInfo.getClickedUsers().contains(uuid)) {
               e.setCancelled(true);
+              return;
             }
+
+            listenerInfo.getClickedUsers().add(uuid);
+            Server.runTaskLaterAsynchrony(() -> listenerInfo.getClickedUsers().remove(uuid), 10, BasicBukkit.getPlugin());
           }
+
+          listenerInfo.getListener().onUserInventoryInteract(event);
+        }
+        if (event.isCancelled()) {
+          e.setCancelled(true);
         }
       }
     }
@@ -146,8 +151,7 @@ public class InventoryEventManager implements Listener,
   @EventHandler
   public void onSwapHandItem(PlayerSwapHandItemsEvent e) {
     de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
-    if (!this.isUserExcluded(user) && (user.isInventoryLocked()
-        || user.isInventoryItemMoveLocked())) {
+    if (!this.isUserExcluded(user) && (user.isInventoryLocked() || user.isInventoryItemMoveLocked())) {
       e.setCancelled(true);
     } else {
       ExItemStack item = ExItemStack.getItem(e.getMainHandItem(), false);
@@ -166,8 +170,7 @@ public class InventoryEventManager implements Listener,
   @EventHandler
   public void onDropItem(PlayerDropItemEvent e) {
     de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
-    if (!this.isUserExcluded(user) && user.isInventoryLocked()
-        || user.isInventoryItemMoveLocked()) {
+    if (!this.isUserExcluded(user) && user.isInventoryLocked() || user.isInventoryItemMoveLocked()) {
       e.setCancelled(true);
       return;
     }
@@ -190,8 +193,7 @@ public class InventoryEventManager implements Listener,
   @EventHandler
   public void onDamage(PlayerItemDamageEvent e) {
     de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
-    if (!this.isUserExcluded(user) && user.isInventoryLocked()
-        || user.isInventoryItemMoveLocked()) {
+    if (!this.isUserExcluded(user) && user.isInventoryLocked() || user.isInventoryItemMoveLocked()) {
       e.setCancelled(true);
     }
   }
@@ -217,109 +219,58 @@ public class InventoryEventManager implements Listener,
     return user.isService() && this.excludeServiceUsers;
   }
 
-
-  /**
-   * Adds a new {@link UserInventoryClickListener} for InventoryClickEvent
-   *
-   * @param listener The {@link UserInventoryClickListener} to add
-   * @param holder   The {@link InventoryHolder} to add
-   */
   public void addClickListener(UserInventoryClickListener listener, InventoryHolder holder) {
     this.clickListenerByHolder.put(holder, listener);
   }
 
-  /**
-   * Adds a new {@link UserInventoryInteractListener} for InventoryClickEvent
-   *
-   * @param listener   The {@link UserInventoryInteractListener} to add
-   * @param itemStacks The {@link ExItemStack}s to add
-   */
   @Override
   public void addClickListener(UserInventoryClickListener listener, ExItemStack... itemStacks) {
     for (ExItemStack item : itemStacks) {
-      addClickListener(item.getId(), listener);
+      this.addClickListener(item.getId(), listener);
     }
   }
 
-  /**
-   * Adds a new {@link UserInventoryInteractListener} for InventoryClickEvent
-   *
-   * @param listener   The {@link UserInventoryInteractListener} to add
-   * @param itemStacks The {@link ExItemStack}s to add
-   */
   @Override
-  public void addClickListener(UserInventoryClickListener listener,
-      Iterable<ExItemStack> itemStacks) {
+  public void addClickListener(UserInventoryClickListener listener, Iterable<ExItemStack> itemStacks) {
     for (ExItemStack item : itemStacks) {
-      addClickListener(item.getId(), listener);
+      this.addClickListener(item.getId(), listener);
     }
   }
 
-  /**
-   * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
-   *
-   * @param listener   The {@link UserInventoryInteractListener} to add
-   * @param itemStacks The {@link ExItemStack}s to add
-   */
   @Override
-  public void addInteractListener(UserInventoryInteractListener listener,
-      ExItemStack... itemStacks) {
+  public void addInteractListener(UserInventoryInteractListener listener, ExItemStack... itemStacks) {
     for (ExItemStack item : itemStacks) {
-      addInteractListener(item.getId(), listener);
+      this.addInteractListener(item.getId(), listener);
     }
   }
 
-  /**
-   * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
-   *
-   * @param listener   The {@link UserInventoryInteractListener} to add
-   * @param itemStacks The {@link ExItemStack}s to add
-   */
   @Override
-  public void addInteractListener(UserInventoryInteractListener listener,
-      Iterable<ExItemStack> itemStacks) {
+  public void addInteractListener(UserInventoryInteractListener listener, boolean preventDoubleClick, ExItemStack... itemStacks) {
     for (ExItemStack item : itemStacks) {
-      addInteractListener(item.getId(), listener);
+      this.addInteractListener(item.getId(), listener, preventDoubleClick);
     }
   }
 
-  /**
-   * Adds a new {@link UserInventoryClickListener} for InventoryClickEvent
-   *
-   * @param id       The item-id where add the listener
-   * @param listener The {@link UserInventoryClickListener} to add
-   */
   @Override
-  public void addClickListener(Integer id, UserInventoryClickListener listener) {
-    Collection<UserInventoryClickListener> list = this.clickListenerByItemId.get(id);
-    if (list == null) {
-      list = new HashSet<>();
+  public void addInteractListener(UserInventoryInteractListener listener, Iterable<ExItemStack> itemStacks) {
+    for (ExItemStack item : itemStacks) {
+      this.addInteractListener(item.getId(), listener);
     }
-    list.add(listener);
-    this.clickListenerByItemId.put(id, list);
   }
 
-  /**
-   * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
-   *
-   * @param id       The item-id where add the listener
-   * @param listener The {@link UserInventoryInteractListener} to add
-   */
-  @Override
-  public void addInteractListener(Integer id, UserInventoryInteractListener listener) {
-    Collection<UserInventoryInteractListener> list = this.interactListenerByItemId.get(id);
-    if (list == null) {
-      list = new HashSet<>();
-    }
-    list.add(listener);
-    this.interactListenerByItemId.put(id, list);
+  private void addClickListener(Integer id, UserInventoryClickListener listener) {
+    this.clickListenerByItemId.computeIfAbsent(id, k -> ConcurrentHashMap.newKeySet()).add(listener);
   }
 
-  /**
-   * Removes the click-listener
-   *
-   * @param listener The {@link UserInventoryClickListener} to remove
-   */
+  private void addInteractListener(Integer id, UserInventoryInteractListener listener) {
+    this.addInteractListener(id, listener, false);
+  }
+
+  private void addInteractListener(Integer id, UserInventoryInteractListener listener, boolean preventDoubleClick) {
+    this.interactListenerByItemId.computeIfAbsent(id, k -> ConcurrentHashMap.newKeySet())
+        .add(new InteractListenerInfo(listener, preventDoubleClick));
+  }
+
   @Override
   public void removeClickListener(UserInventoryClickListener listener) {
     for (Integer id : this.clickListenerByItemId.keySet()) {
@@ -332,15 +283,10 @@ public class InventoryEventManager implements Listener,
     }
   }
 
-  /**
-   * Removes the interact-listener
-   *
-   * @param listener The {@link UserInventoryInteractListener} to remove
-   */
   @Override
   public void removeInteractListener(UserInventoryInteractListener listener) {
     for (Integer id : this.interactListenerByItemId.keySet()) {
-      this.interactListenerByItemId.get(id).remove(listener);
+      this.interactListenerByItemId.get(id).remove(new InteractListenerInfo(listener, false));
     }
   }
 
@@ -352,5 +298,42 @@ public class InventoryEventManager implements Listener,
   @Override
   public boolean excludingServiceUsers() {
     return excludeServiceUsers;
+  }
+
+  private static class InteractListenerInfo {
+
+    private final UserInventoryInteractListener listener;
+    private final Set<UUID> clickedUsers = ConcurrentHashMap.newKeySet();
+    private final boolean preventDoubleClick;
+
+    public InteractListenerInfo(UserInventoryInteractListener listener, boolean preventDoubleClick) {
+      this.listener = listener;
+      this.preventDoubleClick = preventDoubleClick;
+    }
+
+    public UserInventoryInteractListener getListener() {
+      return listener;
+    }
+
+    public Set<UUID> getClickedUsers() {
+      return clickedUsers;
+    }
+
+    public boolean isPreventDoubleClick() {
+      return preventDoubleClick;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      InteractListenerInfo that = (InteractListenerInfo) o;
+      return Objects.equals(listener, that.listener);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(listener);
+    }
   }
 }

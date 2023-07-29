@@ -911,10 +911,14 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public ExItemStack onInteract(UserInventoryInteractListener listener, boolean cancel) {
+    return this.onInteract(listener, cancel, false);
+  }
+
+  public ExItemStack onInteract(UserInventoryInteractListener listener, boolean cancel, boolean preventDoubleClick) {
     Server.getInventoryEventManager().addInteractListener(event -> {
       listener.onUserInventoryInteract(event);
       event.setCancelled(cancel);
-    }, this);
+    }, preventDoubleClick, this);
     return this;
   }
 

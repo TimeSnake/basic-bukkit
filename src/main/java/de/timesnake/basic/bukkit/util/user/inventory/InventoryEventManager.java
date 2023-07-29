@@ -44,26 +44,19 @@ public interface InventoryEventManager {
    * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
    *
    * @param listener   The {@link UserInventoryInteractListener} to add
+   * @param preventDoubleClick Set true to prevent double clicks
    * @param itemStacks The {@link ExItemStack}s to add
    */
-  void addInteractListener(UserInventoryInteractListener listener,
-      Iterable<ExItemStack> itemStacks);
-
-  /**
-   * Adds a new {@link UserInventoryClickListener} for InventoryClickEvent
-   *
-   * @param id       The item-id where add the listener
-   * @param listener The {@link UserInventoryClickListener} to add
-   */
-  void addClickListener(Integer id, UserInventoryClickListener listener);
+  void addInteractListener(UserInventoryInteractListener listener, boolean preventDoubleClick, ExItemStack... itemStacks);
 
   /**
    * Adds a new {@link UserInventoryInteractListener} for InventoryInteractEvent
    *
-   * @param id       The item-id where add the listener
-   * @param listener The {@link UserInventoryInteractListener} to add
+   * @param listener   The {@link UserInventoryInteractListener} to add
+   * @param itemStacks The {@link ExItemStack}s to add
    */
-  void addInteractListener(Integer id, UserInventoryInteractListener listener);
+  void addInteractListener(UserInventoryInteractListener listener,
+      Iterable<ExItemStack> itemStacks);
 
   /**
    * Removes the click-listener
