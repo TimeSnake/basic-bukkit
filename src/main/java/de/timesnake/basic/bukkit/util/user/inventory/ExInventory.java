@@ -22,21 +22,16 @@ public class ExInventory extends InventoryDelegation {
     super(inventory);
   }
 
-  public ExInventory(int size, Component title, ExItemStack... itemStacks) {
-    size = (int) (Math.ceil(size / 9.0) * 9);
-    this.inventory = Bukkit.createInventory(null, size, title);
+  public ExInventory(int size, Component title, InventoryHolder holder, ExItemStack... itemStacks) {
+    size = size != 0 ? (int) (Math.ceil(size / 9.0) * 9) : 9;
+    this.inventory = Bukkit.createInventory(holder, size > 0 ? size : 9, title);
     for (ExItemStack itemStack : itemStacks) {
       this.setItemStack(itemStack);
     }
   }
 
-  public ExInventory(int size, Component title, InventoryHolder holder,
-      ExItemStack... itemStacks) {
-    size = (int) (Math.ceil(size / 9.0) * 9);
-    this.inventory = Bukkit.createInventory(holder, size > 0 ? size : 9, title);
-    for (ExItemStack itemStack : itemStacks) {
-      this.setItemStack(itemStack);
-    }
+  public ExInventory(int size, Component title, ExItemStack... itemStacks) {
+    this(size, title, null, itemStacks);
   }
 
   public ExInventory(int size, String title, ExItemStack... itemStacks) {
