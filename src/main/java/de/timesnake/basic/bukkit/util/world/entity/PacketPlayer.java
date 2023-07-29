@@ -45,7 +45,7 @@ public class PacketPlayer extends PacketEntity {
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(((ServerPlayer) player))));
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
-    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).update().setFlags(poseTags).build());
+    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setFlagsFromEntity().setFlags(poseTags).build());
 
     Server.runTaskLaterSynchrony(
         () -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
