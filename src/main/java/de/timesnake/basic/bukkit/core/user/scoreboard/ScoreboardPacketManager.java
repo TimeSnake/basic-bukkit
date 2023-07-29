@@ -41,6 +41,13 @@ public class ScoreboardPacketManager implements PacketPlayOutListener,
     if (packets != null && packets.contains(packet)) {
       packets.remove(packet);
       return packet;
+    } else {
+      if (packet instanceof ClientboundPlayerInfoUpdatePacket infoUpdatePacket) {
+        if (!infoUpdatePacket.actions().contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) {
+          return packet;
+        }
+      }
+      Loggers.SCOREBOARD.info("Blocked packet '" + packet.getClass().getSimpleName() + "' to '" + receiver.getName() + "'");
     }
     return null;
   }
