@@ -47,7 +47,7 @@ public class HoloDisplay extends PacketEntity {
   public void spawnForUser(User user) {
     for (ArmorStand stand : this.stands) {
       user.sendPacket(new ClientboundAddEntityPacket(stand));
-      user.sendPacket(new ClientboundSetEntityDataPacketBuilder(stand).update().build());
+      user.sendPacket(new ClientboundSetEntityDataPacketBuilder(stand).setFlagsFromEntity().build());
     }
   }
 
@@ -68,7 +68,7 @@ public class HoloDisplay extends PacketEntity {
       ArmorStand stand = standIterator.next();
       stand.setCustomName(Component.literal(textIterator.next()));
       for (User user : this.userLoadedFor) {
-        user.sendPacket(new ClientboundSetEntityDataPacketBuilder(stand).update().build());
+        user.sendPacket(new ClientboundSetEntityDataPacketBuilder(stand).setFlagsFromEntity().build());
       }
       lineNumber++;
     }
