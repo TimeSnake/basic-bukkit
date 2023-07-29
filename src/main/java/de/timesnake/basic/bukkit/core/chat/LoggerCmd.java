@@ -22,8 +22,7 @@ import net.kyori.adventure.text.Component;
 public class LoggerCmd implements CommandListener {
 
   @Override
-  public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
-      Arguments<Argument> args) {
+  public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
     if (!sender.isConsole(true)) {
       return;
     }
@@ -34,7 +33,7 @@ public class LoggerCmd implements CommandListener {
 
     String loggerName = args.getString(0);
 
-    Logger logger = LogHelper.LOGGER_BY_NAME.get(loggerName);
+    Logger logger = LogHelper.LOGGER_BY_NAME.get(loggerName.toLowerCase());
 
     if (logger == null) {
       sender.sendPluginMessage(Component.text("Logger ", ExTextColor.WARNING)
@@ -45,9 +44,10 @@ public class LoggerCmd implements CommandListener {
 
     String levelName = args.getString(1).toUpperCase();
 
-    Level level = Level.parse(levelName);
-
-    if (level == null) {
+    Level level;
+    try {
+      level = Level.parse(levelName);
+    } catch (IllegalArgumentException e) {
       sender.sendPluginMessage(
           Component.text("Unable to parse log-level ", ExTextColor.WARNING)
               .append(Component.text(loggerName, ExTextColor.VALUE)));
@@ -62,19 +62,12 @@ public class LoggerCmd implements CommandListener {
   }
 
   @Override
-  public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
-      Arguments<Argument> args) {
+  public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
     if (args.length() == 1) {
       return new ArrayList<>(LogHelper.LOGGER_BY_NAME.keySet());
-    } else if (args.length() == 1) {
-      return Stream.of(Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.ALL)
-          .map(Level::getName).toList();
+    } else if (args.length() == 2) {
+      return Stream.of(Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.ALL).map(Level::getName).toList();
     }
     return null;
-  }
-
-  @Override
-  public void loadCodes(Plugin plugin) {
-
   }
 }
