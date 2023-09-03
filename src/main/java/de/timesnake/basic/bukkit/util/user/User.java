@@ -1030,7 +1030,13 @@ public class User extends UserPlayerDelegation implements
    */
   public void setSideboardScore(int line, @Nonnull String text) {
     this.removeSideboardScore(line);
+
+    if (this.sideboard == null) {
+      return;
+    }
+
     this.scores.put(line, text);
+
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.sideboard.getName(), text, line));
   }
@@ -1042,6 +1048,10 @@ public class User extends UserPlayerDelegation implements
    * @param text The text to remove
    */
   public void removeSideboardScore(int line, @Nonnull String text) {
+    if (this.sideboard == null) {
+      return;
+    }
+
     if (!this.scores.containsKey(line)) {
       return;
     }
