@@ -74,17 +74,17 @@ tasks {
   }
 
   reobfJar {
-    outputJar.set(layout.buildDirectory.file("${project.plugins_dir}${project.name}-${project.version}.jar"))
+      outputJar.set(layout.buildDirectory.file("${timesnakePluginDir}${project.name}-${project.version}.jar"))
   }
 }
 
 publishing {
   repositories {
     maven {
-      url getDeployUrl(projectId)
+        url "https://git.timesnake.de/api/v4/projects/" + projectId + "/packages/maven"
       credentials {
-        username = deploy_token_name
-        password = deploy_token_key
+          username = timesnakeDeployUser
+          password = timesnakeDeployKey
       }
 
     }
