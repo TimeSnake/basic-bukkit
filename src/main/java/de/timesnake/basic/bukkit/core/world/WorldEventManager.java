@@ -608,8 +608,10 @@ public class WorldEventManager implements Listener {
 
     int fires = (int) world.getRandom().nextFloat(0, maxFires);
 
-    if (fires > 0) {
-      this.scanForIgnitable(loc, world, fires);
+    if (!loc.getNearbyPlayers(32).isEmpty()) {
+      if (fires > 0) {
+        this.scanForIgnitable(loc, world, fires);
+      }
     }
   }
 
