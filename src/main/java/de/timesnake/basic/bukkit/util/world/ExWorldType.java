@@ -4,21 +4,17 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
-import de.timesnake.basic.bukkit.core.world.generator.CustomFlatGenerator;
-import de.timesnake.basic.bukkit.core.world.generator.CustomHeightGenerator;
-import de.timesnake.basic.bukkit.core.world.generator.CustomIslandGenerator;
-import de.timesnake.basic.bukkit.core.world.generator.FlatStoneGenerator;
-import de.timesnake.basic.bukkit.core.world.generator.MiniWorldGenerator;
-import de.timesnake.basic.bukkit.core.world.generator.VoidGenerator;
+import de.timesnake.basic.bukkit.core.world.generator.*;
 import de.timesnake.basic.bukkit.util.exception.WorldTypeParseException;
 import de.timesnake.library.basic.util.Tuple;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.generator.ChunkGenerator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.generator.ChunkGenerator;
 
 public class ExWorldType {
 
@@ -37,12 +33,9 @@ public class ExWorldType {
       World.Environment.NORMAL, org.bukkit.WorldType.LARGE_BIOMES, null);
   public static final ExWorldType FLAT_STONE = new ExWorldType("flatStone",
       World.Environment.NORMAL, null, new FlatStoneGenerator());
-  public static final ExWorldType MINI_WORLD = new ExWorldType("miniworld",
-      World.Environment.NORMAL, null, null);
 
-  public static final List<ExWorldType> TYPES = List.of(NORMAL, NETHER, END, VOID, FLAT,
-      AMPLIFIED, LARGE_BIOMES,
-      FLAT_STONE, MINI_WORLD);
+  public static final List<ExWorldType> TYPES = List.of(NORMAL, NETHER, END, VOID, FLAT, AMPLIFIED, LARGE_BIOMES,
+      FLAT_STONE);
 
   public static ExWorldType valueOf(String name) {
     if (name == null) {
@@ -137,7 +130,7 @@ public class ExWorldType {
   protected final ChunkGenerator chunkGenerator;
 
   public ExWorldType(String name, World.Environment environment, org.bukkit.WorldType worldType,
-      ChunkGenerator chunkGenerator) {
+                     ChunkGenerator chunkGenerator) {
     this.name = name;
     this.environment = environment;
     this.worldType = worldType;
@@ -196,10 +189,10 @@ public class ExWorldType {
     private final int chunkXSize;
     private final int chunkZSize;
 
-    public MiniWorld(int x, int z) {
-      super("miniworld", World.Environment.NORMAL, null, new MiniWorldGenerator(x, z));
-      this.chunkXSize = x;
-      this.chunkZSize = z;
+    public MiniWorld(int chunkXSize, int chunkZSize) {
+      super("miniworld", World.Environment.NORMAL, null, new MiniWorldGenerator(chunkXSize, chunkZSize));
+      this.chunkXSize = chunkXSize;
+      this.chunkZSize = chunkZSize;
     }
 
     @Override
@@ -271,13 +264,11 @@ public class ExWorldType {
     private final int baseHeight;
     private final List<Tuple<Integer, Material>> materials;
 
-    public CustomHeight(boolean simplexGenerator, double xScale, double yScale, double zScale,
-        double frequency,
+    public CustomHeight(boolean simplexGenerator, double xScale, double yScale, double zScale, double frequency,
         double amplitude, int baseHeight, List<Tuple<Integer, Material>> materials) {
       super("custom_height", World.Environment.NORMAL, null,
-          new CustomHeightGenerator(simplexGenerator, xScale, yScale, zScale, frequency,
-              amplitude,
-              baseHeight, materials));
+          new CustomHeightGenerator(simplexGenerator, xScale, yScale, zScale, frequency, amplitude, baseHeight,
+              materials));
       this.simplexGenerator = simplexGenerator;
       this.xScale = xScale;
       this.yScale = yScale;

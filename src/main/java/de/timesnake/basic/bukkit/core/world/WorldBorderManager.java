@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import net.minecraft.network.protocol.Packet;
@@ -27,7 +28,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
   private final HashMap<Player, Set<Packet<?>>> packetsByPlayer = new HashMap<>();
 
   private boolean customBorders = true;
-  private boolean enderpearlThrouBorder = true;
+  private boolean allowEnderpearlThroughBorder = false;
 
   public WorldBorderManager() {
     Server.getPacketManager().addListener(this);
@@ -61,6 +62,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
     }
     packets.add(packet);
     user.sendPacket(packet);
+    Loggers.WORLDS.info("Sent world border packet '" + packet.getClass().getSimpleName() + "' to user '" + user.getName() + "'");
   }
 
   public void sendPacket(Packet<?> packet, Collection<User> users) {
@@ -71,7 +73,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
 
   @EventHandler
   public void onPlayerTeleport(PlayerTeleportEvent e) {
-    if (this.enderpearlThrouBorder) {
+    if (this.allowEnderpearlThroughBorder) {
       return;
     }
 
@@ -98,12 +100,12 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
 
   @Override
   public boolean isEnderpearlThrouBorderAllowed() {
-    return enderpearlThrouBorder;
+    return allowEnderpearlThroughBorder;
   }
 
   @Override
   public void allowEnderpearlThrouBorder(boolean allowEnderpearl) {
-    this.enderpearlThrouBorder = allowEnderpearl;
+    this.allowEnderpearlThroughBorder = allowEnderpearl;
   }
 
 }

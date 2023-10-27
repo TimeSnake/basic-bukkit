@@ -6,21 +6,22 @@ package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class UserEvent extends Event {
 
   private final User user;
 
-  protected UserEvent(User user) {
+  protected UserEvent(@NotNull User user) {
     this.user = user;
   }
 
-  protected UserEvent(boolean async, User user) {
+  protected UserEvent(boolean async, @NotNull User user) {
     super(async);
     this.user = user;
   }
 
-  public User getUser() {
+  public @NotNull User getUser() {
     return user;
   }
 

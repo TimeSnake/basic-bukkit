@@ -10,6 +10,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.extension.util.player.UserSet;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundInitializeBorderPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundSetBorderLerpSizePacketBuilder;
@@ -59,17 +60,16 @@ public class ExWorldBorder implements Listener {
     this.damagePerSec = builder.damagePerSec;
     this.sound = builder.sound;
 
-    this.users.onRemove(
-        u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-            ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
+    this.users.onRemove(u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
 
-    this.spectators.onRemove(
-        u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(
-            ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
+    this.spectators.onRemove(u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+        .sendPacket(ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
 
     Server.registerListener(this, BasicBukkit.getPlugin());
     this.startDamageTask();
 
+    Loggers.WORLDS.info("Created world border: " + this);
   }
 
   public void destroy() {
@@ -85,6 +85,8 @@ public class ExWorldBorder implements Listener {
     for (User user : this.users) {
       this.removeUser(user);
     }
+
+    Loggers.WORLDS.info("Destroyed world border in world '" + this.world.getName() + "'");
   }
 
   public void addUser(User user) {
@@ -101,8 +103,9 @@ public class ExWorldBorder implements Listener {
       return;
     }
 
-    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(this.getUserInitPacket(), user);
+    Loggers.WORLDS.info("Added user '" + user.getName() + "' to world border in world '" + this.world.getName() + "'");
+
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getUserInitPacket(), user);
   }
 
   public void addSpectator(User user) {
@@ -117,8 +120,9 @@ public class ExWorldBorder implements Listener {
       return;
     }
 
-    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(this.getSpectatorInitPacket(), user);
+    Loggers.WORLDS.info("Added spectator '" + user.getName() + "' to world border in world '" + this.world.getName() + "'");
+
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getSpectatorInitPacket(), user);
   }
 
   public void removeUser(User user) {
@@ -241,36 +245,30 @@ public class ExWorldBorder implements Listener {
   }
 
   private void broadcastUserPacket(Packet<?> packet) {
-    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(packet, this.users);
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(packet, this.users);
   }
 
   private void broadcastSpectatorPacket(Packet<?> packet) {
-    ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(packet, this.spectators);
+    ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(packet, this.spectators);
   }
 
   private Packet<?> getUserInitPacket() {
     if (!this.shrinking) {
-
-      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
-          this.centerX, this.centerZ, this.size, this.size, 0, this.warningDistance,
-          this.warningTime);
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+          this.size, this.size, 0, this.warningDistance, this.warningTime);
     } else {
-      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
-          this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
-          this.warningDistance, this.warningTime);
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+          this.size, this.shrinkSize, this.shrinkTime * 50L, this.warningDistance, this.warningTime);
     }
   }
 
   private Packet<?> getSpectatorInitPacket() {
     if (!this.shrinking) {
-      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
-          this.centerX, this.centerZ, this.size, this.size, 0, 0, 0);
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+          this.size, this.size, 0, 0, 0);
     } else {
-      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(),
-          this.centerX, this.centerZ, this.size, this.shrinkSize, this.shrinkTime * 50L,
-          0, 0);
+      return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
+          this.size, this.shrinkSize, this.shrinkTime * 50L, 0, 0);
     }
   }
 
@@ -292,12 +290,29 @@ public class ExWorldBorder implements Listener {
               user.playNote(Instrument.PLING, Note.natural(0, Note.Tone.A));
             }
 
-            Server.runTaskSynchrony(() -> user.getPlayer().damage(damagePerSec),
-                BasicBukkit.getPlugin());
+            Server.runTaskSynchrony(() -> user.getPlayer().damage(damagePerSec), BasicBukkit.getPlugin());
           }
         }
       }
     }.runTaskTimerAsynchronously(BasicBukkit.getPlugin(), 0, 20);
+  }
+
+  @Override
+  public String toString() {
+    return "ExWorldBorder{" +
+        "world=" + world +
+        ", centerX=" + centerX +
+        ", centerZ=" + centerZ +
+        ", size=" + size +
+        ", warningDistance=" + warningDistance +
+        ", warningTime=" + warningTime +
+        ", damagePerSec=" + damagePerSec +
+        ", shrinking=" + shrinking +
+        ", shrinkSize=" + shrinkSize +
+        ", shrinkTime=" + shrinkTime +
+        ", shrinkPerTick=" + shrinkPerTick +
+        ", sound=" + sound +
+        '}';
   }
 
   public static class Builder implements BuilderBasis {
