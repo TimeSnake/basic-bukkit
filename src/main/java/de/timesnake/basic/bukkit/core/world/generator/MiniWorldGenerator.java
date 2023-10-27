@@ -4,20 +4,24 @@
 
 package de.timesnake.basic.bukkit.core.world.generator;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import javax.annotation.Nonnull;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Generates a world from 0,0 to given chunk size
+ */
 public class MiniWorldGenerator extends ChunkGenerator {
 
-  private final int chunkXSize;
-  private final int chunkZSize;
+  private int chunkXSize;
+  private int chunkZSize;
 
   public MiniWorldGenerator(int chunkXSize, int chunkZSize) {
     this.chunkXSize = chunkXSize;
@@ -33,17 +37,17 @@ public class MiniWorldGenerator extends ChunkGenerator {
   @SuppressWarnings("deprecation")
   @Override
   @Nonnull
-  public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
-      BiomeGrid biome) {
+  public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
     ChunkData chunkData = super.createChunkData(world);
 
-    if (!(chunkX >= -this.chunkXSize && chunkX < this.chunkXSize
-        && chunkZ >= -this.chunkZSize && chunkZ < this.chunkZSize)) {
-      for (int x = 0; x < 16; x++) {
-        for (int z = 0; z < 16; z++) {
-          for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
-            chunkData.setBlock(x, y, z, Material.AIR);
-          }
+    if (chunkX >= 0 && chunkX < this.chunkXSize && chunkZ >= 0 && chunkZ < this.chunkZSize) {
+      return chunkData;
+    }
+
+    for (int x = 0; x < 16; x++) {
+      for (int z = 0; z < 16; z++) {
+        for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
+          chunkData.setBlock(x, y, z, Material.AIR);
         }
       }
     }
@@ -94,7 +98,21 @@ public class MiniWorldGenerator extends ChunkGenerator {
 
   @Override
   public Location getFixedSpawnLocation(World world, Random random) {
-    return world.getHighestBlockAt(0, 0).getLocation();
+    return world.getHighestBlockAt(this.chunkXSize * 16 / 2, this.chunkZSize * 16 / 2).getLocation().add(0, 1, 0);
   }
 
+  public void regenerate(World world, int chunkSizeX, int chunkSizeZ) {
+    int maxX = Math.max(this.chunkXSize, chunkSizeX);
+    int maxZ = Math.max(this.chunkZSize, chunkSizeZ);
+
+    this.chunkXSize = chunkSizeX;
+    this.chunkZSize = chunkSizeZ;
+
+    for (int x = 0; x <= maxX; x++) {
+      for (int z = 0; z <= maxZ; z++) {
+        world.regenerateChunk(x, z);
+      }
+    }
+
+  }
 }

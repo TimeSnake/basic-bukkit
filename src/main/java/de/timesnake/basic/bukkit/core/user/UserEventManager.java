@@ -38,17 +38,15 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-public class UserEventManager implements Listener,
-    de.timesnake.basic.bukkit.util.user.UserEventManager {
+public class UserEventManager implements Listener, de.timesnake.basic.bukkit.util.user.UserEventManager {
 
   private static final Field PERMISSION_FIELD;
 
   static {
     try {
-      PERMISSION_FIELD = Class.forName("org.bukkit.craftbukkit." +
-          Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
-              .split(",")[3]
-          + ".entity.CraftHumanEntity").getDeclaredField("perm");
+      PERMISSION_FIELD =
+          Class.forName("org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().replace(".",
+              ",").split(",")[3] + ".entity.CraftHumanEntity").getDeclaredField("perm");
       PERMISSION_FIELD.setAccessible(true);
     } catch (NoSuchFieldException | ClassNotFoundException e) {
       throw new RuntimeException(e);
@@ -73,9 +71,6 @@ public class UserEventManager implements Listener,
           if (super.hasPermission("*")) {
             return true;
           }
-          if (inName == null) {
-            return true;
-          }
 
           if (super.hasPermission(inName)) {
             return true;
@@ -96,14 +91,13 @@ public class UserEventManager implements Listener,
     } catch (IllegalAccessException ex) {
       Loggers.USERS.warning("Unable to inject player permission checker");
       e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
-      e.disallow(PlayerLoginEvent.Result.KICK_OTHER,
-          Component.text("A fatal error has occurred, please contact an administrator! (permission checker exception)"));
+      e.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A fatal error has occurred, please contact an " +
+          "administrator! (permission checker exception)"));
       return;
     }
 
     // server full checks
-    if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult()
-        .equals(PlayerLoginEvent.Result.KICK_FULL)) {
+    if (Server.getOnlinePlayers() <= Server.getMaxPlayers() && e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) {
       e.allow();
     } else if (Bukkit.getOnlinePlayers().size() > Server.getMaxPlayers()
         && (e.getResult().equals(PlayerLoginEvent.Result.KICK_FULL)) || p.hasPermission("join.full")) {
@@ -137,7 +131,8 @@ public class UserEventManager implements Listener,
     }
 
     // async user join event
-    Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)), BasicBukkit.getPlugin());
+    Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserJoinEvent(user)),
+        BasicBukkit.getPlugin());
 
     // user join event
     Bukkit.getPluginManager().callEvent(new UserJoinEvent(user));
@@ -152,8 +147,8 @@ public class UserEventManager implements Listener,
     if (user != null) {
       user.quit();
       // async user quit event
-      Server.runTaskAsynchrony(() -> Bukkit.getPluginManager()
-          .callEvent(new AsyncUserQuitEvent(user)), BasicBukkit.getPlugin());
+      Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
+          BasicBukkit.getPlugin());
 
       // user quit event
       Bukkit.getPluginManager().callEvent(new UserQuitEvent(user));
@@ -172,8 +167,7 @@ public class UserEventManager implements Listener,
       }
 
       // user damage event
-      UserDamageEvent event = new UserDamageEvent(user, e.isCancelled(), e.getDamage(),
-          e.getCause());
+      UserDamageEvent event = new UserDamageEvent(user, e.isCancelled(), e.getDamage(), e.getCause());
       Bukkit.getPluginManager().callEvent(event);
       if (event.isCancelled()) {
         e.setCancelled(true);
@@ -195,8 +189,7 @@ public class UserEventManager implements Listener,
       User user = Server.getUser((Player) e.getEntity());
       LivingEntity source = null;
 
-      if (damager instanceof Projectile
-          && ((Projectile) damager).getShooter() instanceof LivingEntity) {
+      if (damager instanceof Projectile && ((Projectile) damager).getShooter() instanceof LivingEntity) {
         source = (LivingEntity) ((Projectile) damager).getShooter();
       }
 
@@ -210,9 +203,8 @@ public class UserEventManager implements Listener,
       }
 
       if (userDamager != null) {
-        UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager,
-            e.isCancelled(),
-            e.getDamage(), e.getCause());
+        UserDamageByUserEvent userEvent = new UserDamageByUserEvent(user, userDamager, e.isCancelled(), e.getDamage()
+            , e.getCause());
         Bukkit.getPluginManager().callEvent(userEvent);
 
         if (userEvent.isCancelDamage()) {
@@ -224,17 +216,14 @@ public class UserEventManager implements Listener,
 
         if (!e.isCancelled()) {
           if (damager instanceof Player) {
-            user.setLastDamager(new UserDamage(user, userDamager, e.getCause(),
-                UserDamage.DamageType.PLAYER));
+            user.setLastDamager(new UserDamage(user, userDamager, e.getCause(), UserDamage.DamageType.PLAYER));
           } else {
-            user.setLastDamager(new UserDamage(user, userDamager, e.getCause(),
-                UserDamage.DamageType.PLAYER_BOW));
+            user.setLastDamager(new UserDamage(user, userDamager, e.getCause(), UserDamage.DamageType.PLAYER_BOW));
           }
         }
       }
 
-      UserDamageByEntityEvent userEvent = new UserDamageByEntityEvent(user, e.getDamager(),
-          e.isCancelled(),
+      UserDamageByEntityEvent userEvent = new UserDamageByEntityEvent(user, e.getDamager(), e.isCancelled(),
           e.getDamage(), e.getCause());
       Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -266,8 +255,7 @@ public class UserEventManager implements Listener,
       return;
     }
 
-    EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager,
-        e.isCancelled(),
+    EntityDamageByUserEvent userEvent = new EntityDamageByUserEvent(entity, userDamager, e.isCancelled(),
         e.getDamage(), e.getCause());
     Bukkit.getPluginManager().callEvent(userEvent);
     e.setCancelled(userEvent.isCancelled());
@@ -287,9 +275,8 @@ public class UserEventManager implements Listener,
     }
 
     // async user move event
-    Server.runTaskAsynchrony(
-        () -> Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user,
-            e.getFrom().clone(), e.getTo().clone())), BasicBukkit.getPlugin());
+    Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserMoveEvent(user,
+        e.getFrom().clone(), e.getTo().clone())), BasicBukkit.getPlugin());
 
     // user move event
     UserMoveEvent event = new UserMoveEvent(user, e.isCancelled(), e.getFrom(), e.getTo());
@@ -304,13 +291,15 @@ public class UserEventManager implements Listener,
   @EventHandler
   public void onPlayerTeleport(PlayerTeleportEvent e) {
     de.timesnake.basic.bukkit.util.user.User user = Server.getUser(e.getPlayer());
-    if (e.getFrom() != null && user != null) {
-      Location location = e.getFrom();
-      user.setLastLocation(location);
+
+    if (user == null) {
+      return;
     }
 
-    UserTeleportEvent event = new UserTeleportEvent(user, e.isCancelled(), e.getTo(),
-        e.getFrom(), e.getCause());
+    Location location = e.getFrom();
+    user.setLastLocation(location);
+
+    UserTeleportEvent event = new UserTeleportEvent(user, e.isCancelled(), e.getTo(), e.getFrom(), e.getCause());
     Bukkit.getPluginManager().callEvent(event);
     e.setCancelled(event.isCancelled());
   }
@@ -357,26 +346,22 @@ public class UserEventManager implements Listener,
     }
 
     // user death event
-    UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(),
-        e.getKeepInventory(),
+    UserDeathEvent userDeathEvent = new UserDeathEvent(user, e.getEntity().getKiller(), e.getKeepInventory(),
         e.getDrops());
     Bukkit.getPluginManager().callEvent(userDeathEvent);
 
     if (userDeathEvent.isAutoRespawn()) {
-      Server.runTaskLaterSynchrony(() -> user.getPlayer().spigot().respawn(), 2,
-          BasicBukkit.getPlugin());
+      Server.runTaskLaterSynchrony(() -> user.getPlayer().spigot().respawn(), 2, BasicBukkit.getPlugin());
     }
 
     e.setKeepInventory(userDeathEvent.isKeepInventory());
 
     if (!userDeathEvent.isBroadcastDeathMessage()) {
       if (user.getLastDamager() != null) {
-        Loggers.CHATS.info(user.getName() + " was slain by " +
-            user.getLastDamager().getDamager().getName());
+        Loggers.CHATS.info(user.getName() + " was slain by " + user.getLastDamager().getDamager().getName());
       } else {
         if (user.getLastDamageCause() != null) {
-          Loggers.CHATS.info(user.getName() + " died " +
-              user.getLastDamageCause().getCause().name());
+          Loggers.CHATS.info(user.getName() + " died " + user.getLastDamageCause().getCause().name());
         } else {
           Loggers.CHATS.info(user.getName() + " died");
         }
@@ -386,56 +371,36 @@ public class UserEventManager implements Listener,
     }
 
     if (e.getEntity().getKiller() == null) {
-      if (user.getLastDamager() != null && user.getLastDamager().getDamageType()
-          .equals(UserDamage.DamageType.INSTANT)) {
-        e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-            .append(user.getChatNameComponent())
-            .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
-            .append(user.getLastDamager().getDamager().getChatNameComponent()));
+      if (user.getLastDamager() != null && user.getLastDamager().getDamageType().equals(UserDamage.DamageType.INSTANT)) {
+        e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(user.getChatNameComponent()).append(Component.text(
+            " was slain by ", ExTextColor.PUBLIC)).append(user.getLastDamager().getDamager().getChatNameComponent()));
       } else {
         Component message = e.deathMessage().color(ExTextColor.PUBLIC);
         for (User u : Server.getUsers()) {
-          message = message.replaceText(
-              b -> b.matchLiteral(u.getName()).replacement(u.getChatNameComponent()
-                  .append(Component.text("", ExTextColor.PUBLIC))));
+          message =
+              message.replaceText(b -> b.matchLiteral(u.getName()).replacement(u.getChatNameComponent().append(Component.text("", ExTextColor.PUBLIC))));
         }
 
         e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(message));
       }
-    } else if (e.getEntity().getKiller() instanceof Player) {
-
-      de.timesnake.basic.bukkit.util.user.User killer = Server.getUser(
-          e.getEntity().getKiller());
-      de.timesnake.basic.bukkit.util.user.UserDamage userDamage = user.getLastDamager();
+    } else if (e.getEntity().getKiller() != null) {
+      User killer = Server.getUser(e.getEntity().getKiller());
+      UserDamage userDamage = user.getLastDamager();
 
       if (user.getLastDamager() != null) {
         if (userDamage.getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
           int distance = userDamage.getDistance().intValue();
-          e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-              .append(user.getChatNameComponent())
-              .append(Component.text(" was shot by ", ExTextColor.PUBLIC))
-              .append(killer.getChatNameComponent())
-              .append(Component.text(" from ", ExTextColor.PUBLIC))
-              .append(Component.text(distance, ExTextColor.VALUE))
-              .append(Component.text(" blocks", ExTextColor.PUBLIC)));
+          e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(user.getChatNameComponent()).append(Component.text(" was shot by ", ExTextColor.PUBLIC)).append(killer.getChatNameComponent()).append(Component.text(" from ", ExTextColor.PUBLIC)).append(Component.text(distance, ExTextColor.VALUE)).append(Component.text(" blocks", ExTextColor.PUBLIC)));
         } else {
-          e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-              .append(user.getChatNameComponent())
-              .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
-              .append(killer.getChatNameComponent()));
+          e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(user.getChatNameComponent()).append(Component.text(" was slain by ", ExTextColor.PUBLIC)).append(killer.getChatNameComponent()));
         }
       } else {
-        e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-            .append(user.getChatNameComponent())
-            .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
-            .append(killer.getChatNameComponent()));
+        e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(user.getChatNameComponent()).append(Component.text(
+            " was slain by ", ExTextColor.PUBLIC)).append(killer.getChatNameComponent()));
       }
     } else {
-      e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT)
-          .append(user.getChatNameComponent())
-          .append(Component.text(" was slain by ", ExTextColor.PUBLIC))
-          .append(Component.text(e.getEntity().getLastDamageCause().getCause().name(),
-              ExTextColor.VALUE)));
+      e.deathMessage(Chat.getSenderPlugin(Plugin.BUKKIT).append(user.getChatNameComponent()).append(Component.text(" " +
+          "was slain by ", ExTextColor.PUBLIC)).append(Component.text(e.getEntity().getLastDamageCause().getCause().name(), ExTextColor.VALUE)));
     }
 
     user.setLastDamager(null);
@@ -472,10 +437,8 @@ public class UserEventManager implements Listener,
     }
 
     // user block place event
-    UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(),
-        e.getBlockPlaced(),
-        e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(),
-        e.canBuild());
+    UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(), e.getBlockPlaced(),
+        e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(), e.canBuild());
     Bukkit.getPluginManager().callEvent(userEvent);
 
     e.setCancelled(userEvent.isCancelled());
@@ -495,8 +458,7 @@ public class UserEventManager implements Listener,
     }
 
     // user block break event
-    UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(),
-        e.getExpToDrop(),
+    UserBlockBreakEvent userEvent = new UserBlockBreakEvent(user, e.isCancelled(), e.getBlock(), e.getExpToDrop(),
         e.isDropItems());
     Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -509,9 +471,12 @@ public class UserEventManager implements Listener,
   public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
     User user = Server.getUser(e.getPlayer());
 
+    if (user == null) {
+      return;
+    }
+
     // user interact entity event
-    UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(),
-        e.getRightClicked(),
+    UserInteractEntityEvent userEvent = new UserInteractEntityEvent(user, e.isCancelled(), e.getRightClicked(),
         e.getHand());
     Bukkit.getPluginManager().callEvent(userEvent);
 
@@ -521,6 +486,10 @@ public class UserEventManager implements Listener,
   @EventHandler
   public void onItemDrop(PlayerDropItemEvent e) {
     User user = Server.getUser(e.getPlayer());
+
+    if (user == null) {
+      return;
+    }
 
     // user drop item event
     UserDropItemEvent userEvent = new UserDropItemEvent(user, e.isCancelled(), e.getItemDrop());
@@ -533,9 +502,13 @@ public class UserEventManager implements Listener,
   public void onAttemptPickUpItem(PlayerAttemptPickupItemEvent e) {
     User user = Server.getUser(e.getPlayer());
 
+    if (user == null) {
+      return;
+    }
+
     // user pickup item event
-    UserAttemptPickupItemEvent userEvent = new UserAttemptPickupItemEvent(user, e.isCancelled(),
-        e.getItem(), e.getRemaining());
+    UserAttemptPickupItemEvent userEvent = new UserAttemptPickupItemEvent(user, e.isCancelled(), e.getItem(),
+        e.getRemaining());
     Bukkit.getPluginManager().callEvent(userEvent);
 
     e.setCancelled(userEvent.isCancelled());
@@ -546,10 +519,13 @@ public class UserEventManager implements Listener,
   public void onPlayerInteract(PlayerInteractEvent e) {
     User user = Server.getUser(e.getPlayer());
 
+    if (user == null) {
+      return;
+    }
+
     // user interact event
-    UserInteractEvent userEvent = new UserInteractEvent(user, e.getItem(),
-        e.getAction(), e.getClickedBlock(), e.getBlockFace(), e.getHand(),
-        e.getInteractionPoint());
+    UserInteractEvent userEvent = new UserInteractEvent(user, e.getItem(), e.getAction(), e.getClickedBlock(),
+        e.getBlockFace(), e.getHand(), e.getInteractionPoint());
     Bukkit.getPluginManager().callEvent(userEvent);
 
     e.setUseInteractedBlock(userEvent.getUseClickedBlock());

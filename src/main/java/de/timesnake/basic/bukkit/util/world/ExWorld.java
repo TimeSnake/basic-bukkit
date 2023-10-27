@@ -34,22 +34,21 @@ public class ExWorld extends DelegatedWorld {
   }
 
   public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file) {
-    this(world, type, file, Restriction.VALUES.stream()
-        .collect(Collectors.toMap(r -> r, Restriction::getDefaultValue)));
+    this(world, type, file, Restriction.VALUES.stream().collect(Collectors.toMap(r -> r,
+        Restriction::getDefaultValue)));
   }
 
   public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file, boolean temporary) {
-    this(world, type, file, Restriction.VALUES.stream()
-        .collect(Collectors.toMap(r -> r, Restriction::getDefaultValue)), temporary);
+    this(world, type, file, Restriction.VALUES.stream().collect(Collectors.toMap(r -> r,
+        Restriction::getDefaultValue)), temporary);
   }
 
-  public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file,
-                 Map<Restriction<?>, Object> restrictions) {
+  public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file, Map<Restriction<?>, Object> restrictions) {
     this(world, type, file, restrictions, false);
   }
 
-  public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file,
-                 Map<Restriction<?>, Object> restrictions, boolean temporary) {
+  public ExWorld(org.bukkit.World world, ExWorldType type, ExWorldFile file, Map<Restriction<?>, Object> restrictions,
+                 boolean temporary) {
     super(world);
     this.type = type;
     this.file = file;
@@ -65,10 +64,8 @@ public class ExWorld extends DelegatedWorld {
     }
 
     this.restrictionValues = Objects.requireNonNullElseGet(restrictions, HashMap::new);
-    Restriction.VALUES.stream()
-        .filter(restriction -> !this.restrictionValues.containsKey(restriction))
-        .forEach(restriction -> this.restrictionValues.put(restriction,
-            restriction.getDefaultValue()));
+    Restriction.VALUES.stream().filter(restriction -> !this.restrictionValues.containsKey(restriction))
+        .forEach(restriction -> this.restrictionValues.put(restriction, restriction.getDefaultValue()));
   }
 
   public ServerLevel getHandle() {
@@ -188,91 +185,55 @@ public class ExWorld extends DelegatedWorld {
     for (int x = -distance; x < distance; x++) {
       for (int y = -distance; y < distance; y++) {
         for (int z = -distance; z < distance; z++) {
-          blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y,
-              loc.getBlockZ() + z));
+          blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z));
         }
       }
     }
     return blocks;
   }
 
+  @Override
+  public String toString() {
+    return "ExWorld{" +
+        "name=" + world.getName() +
+        "type=" + type +
+        ", safe=" + safe +
+        ", exceptService=" + exceptService +
+        ", temporary=" + temporary +
+        '}';
+  }
+
   public static class Restriction<Value> {
 
-    public static final Restriction<Boolean> BLOCK_BREAK =
-        new Restriction<>("block_break", false);
-    public static final Restriction<Boolean> FLUID_COLLECT =
-        new Restriction<>("fluid_collect", false);
-    public static final Restriction<Boolean> BLOCK_PLACE =
-        new Restriction<>("block_place", false);
-    public static final Restriction<Boolean> FLUID_PLACE =
-        new Restriction<>("fluid_place", false);
-    public static final Restriction<Boolean> FLUID_FLOW =
-        new Restriction<>("fluid_flow", false);
-    public static final Restriction<Boolean> ENTITY_BLOCK_BREAK =
-        new Restriction<>("entity_block_break", false);
-    public static final Restriction<Boolean> ITEM_FRAME_ROTATE =
-        new Restriction<>("item_frame_rotate", false);
-    public static final Restriction<Boolean> DROP_PICK_ITEM =
-        new Restriction<>("drop_pick_item", false);
-    public static final Restriction<Boolean> NO_PLAYER_DAMAGE =
-        new Restriction<>("no_player_damage", false);
-    public static final Restriction<Boolean> FOOD_CHANGE =
-        new Restriction<>("food_change", false);
-    public static final Restriction<Boolean> ENTITY_EXPLODE =
-        new Restriction<>("entity_explode", false);
-    public static final Restriction<Float> FIRE_SPREAD_SPEED =
-        new Restriction<>("fire_spread_speed", 1f);
-    public static final Restriction<Integer> FIRE_SPREAD_DISTANCE =
-        new Restriction<>("fire_spread_distance", 3);
-    public static final Restriction<Boolean> BLOCK_SPREAD =
-        new Restriction<>("block_spread", true);
-    public static final Restriction<Boolean> BLOCK_BURN_UP =
-        new Restriction<>("block_burn_up", false);
-    public static final Restriction<Boolean> BLOCK_IGNITE =
-        new Restriction<>("block_ignite", false);
-    public static final Restriction<Boolean> TNT_PRIME =
-        new Restriction<>("tnt_prime", false);
-    public static final Restriction<Boolean> LIGHT_UP_INTERACTION =
-        new Restriction<>("light_up_interaction", false);
-    public static final Restriction<Boolean> FLINT_AND_STEEL =
-        new Restriction<>("flint_and_steel", false);
-    public static final Restriction<Boolean> PLACE_IN_BLOCK =
-        new Restriction<>("place_in_block", false);
-    public static final Restriction<Boolean> FIRE_PUNCH_OUT =
-        new Restriction<>("fire_punch_out", false);
-    public static final Restriction<Boolean> CAKE_EAT =
-        new Restriction<>("cake_eat", false);
-    public static final Restriction<Boolean> CRAFTING =
-        new Restriction<>("crafting", false);
-    public static final Restriction<List<Material>> OPEN_INVENTORIES =
-        new Restriction<>("open_inventories", List.of());
+    public static final Restriction<Boolean> BLOCK_BREAK = new Restriction<>("block_break", false);
+    public static final Restriction<Boolean> FLUID_COLLECT = new Restriction<>("fluid_collect", false);
+    public static final Restriction<Boolean> BLOCK_PLACE = new Restriction<>("block_place", false);
+    public static final Restriction<Boolean> FLUID_PLACE = new Restriction<>("fluid_place", false);
+    public static final Restriction<Boolean> FLUID_FLOW = new Restriction<>("fluid_flow", false);
+    public static final Restriction<Boolean> ENTITY_BLOCK_BREAK = new Restriction<>("entity_block_break", false);
+    public static final Restriction<Boolean> ITEM_FRAME_ROTATE = new Restriction<>("item_frame_rotate", false);
+    public static final Restriction<Boolean> DROP_PICK_ITEM = new Restriction<>("drop_pick_item", false);
+    public static final Restriction<Boolean> NO_PLAYER_DAMAGE = new Restriction<>("no_player_damage", false);
+    public static final Restriction<Boolean> FOOD_CHANGE = new Restriction<>("food_change", false);
+    public static final Restriction<Boolean> ENTITY_EXPLODE = new Restriction<>("entity_explode", false);
+    public static final Restriction<Float> FIRE_SPREAD_SPEED = new Restriction<>("fire_spread_speed", 1f);
+    public static final Restriction<Integer> FIRE_SPREAD_DISTANCE = new Restriction<>("fire_spread_distance", 3);
+    public static final Restriction<Boolean> BLOCK_SPREAD = new Restriction<>("block_spread", false);
+    public static final Restriction<Boolean> BLOCK_BURN_UP = new Restriction<>("block_burn_up", false);
+    public static final Restriction<Boolean> BLOCK_IGNITE = new Restriction<>("block_ignite", false);
+    public static final Restriction<Boolean> TNT_PRIME = new Restriction<>("tnt_prime", false);
+    public static final Restriction<Boolean> LIGHT_UP_INTERACTION = new Restriction<>("light_up_interaction", false);
+    public static final Restriction<Boolean> FLINT_AND_STEEL = new Restriction<>("flint_and_steel", false);
+    public static final Restriction<Boolean> PLACE_IN_BLOCK = new Restriction<>("place_in_block", false);
+    public static final Restriction<Boolean> FIRE_PUNCH_OUT = new Restriction<>("fire_punch_out", false);
+    public static final Restriction<Boolean> CAKE_EAT = new Restriction<>("cake_eat", false);
+    public static final Restriction<Boolean> CRAFTING = new Restriction<>("crafting", false);
+    public static final Restriction<List<Material>> OPEN_INVENTORIES = new Restriction<>("open_inventories", List.of());
 
-    public static final List<Restriction<?>> VALUES = List.of(
-        BLOCK_BREAK,
-        FLUID_COLLECT,
-        BLOCK_PLACE,
-        FLUID_PLACE,
-        FLUID_FLOW,
-        ENTITY_BLOCK_BREAK,
-        ITEM_FRAME_ROTATE,
-        DROP_PICK_ITEM,
-        NO_PLAYER_DAMAGE,
-        FOOD_CHANGE,
-        ENTITY_EXPLODE,
-        FIRE_SPREAD_SPEED,
-        FIRE_SPREAD_DISTANCE,
-        BLOCK_SPREAD,
-        BLOCK_BURN_UP,
-        BLOCK_IGNITE,
-        TNT_PRIME,
-        LIGHT_UP_INTERACTION,
-        FLINT_AND_STEEL,
-        PLACE_IN_BLOCK,
-        FIRE_PUNCH_OUT,
-        CAKE_EAT,
-        CRAFTING,
-        OPEN_INVENTORIES
-    );
+    public static final List<Restriction<?>> VALUES = List.of(BLOCK_BREAK, FLUID_COLLECT, BLOCK_PLACE, FLUID_PLACE,
+        FLUID_FLOW, ENTITY_BLOCK_BREAK, ITEM_FRAME_ROTATE, DROP_PICK_ITEM, NO_PLAYER_DAMAGE, FOOD_CHANGE,
+        ENTITY_EXPLODE, FIRE_SPREAD_SPEED, FIRE_SPREAD_DISTANCE, BLOCK_SPREAD, BLOCK_BURN_UP, BLOCK_IGNITE, TNT_PRIME
+        , LIGHT_UP_INTERACTION, FLINT_AND_STEEL, PLACE_IN_BLOCK, FIRE_PUNCH_OUT, CAKE_EAT, CRAFTING, OPEN_INVENTORIES);
 
     private final String name;
     private final Value defaultValue;
