@@ -32,7 +32,6 @@ import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
@@ -54,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 
 public class Server implements de.timesnake.library.basic.util.server.Server {
@@ -537,30 +537,30 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     server.dropItem(location, itemStack);
   }
 
-  public static BukkitTask runTaskSynchrony(Task task, org.bukkit.plugin.Plugin plugin) {
+  public static BukkitTask runTaskSynchrony(Runnable task, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskSynchrony(task, plugin);
   }
 
-  public static BukkitTask runTaskAsynchrony(Task task, org.bukkit.plugin.Plugin plugin) {
+  public static BukkitTask runTaskAsynchrony(Runnable task, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskAsynchrony(task, plugin);
   }
 
-  public static BukkitTask runTaskLaterSynchrony(Task task, int delay,
+  public static BukkitTask runTaskLaterSynchrony(Runnable task, int delay,
                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskLaterSynchrony(task, delay, plugin);
   }
 
-  public static BukkitTask runTaskLaterAsynchrony(Task task, int delay,
+  public static BukkitTask runTaskLaterAsynchrony(Runnable task, int delay,
                                                   org.bukkit.plugin.Plugin plugin) {
     return server.runTaskLaterAsynchrony(task, delay, plugin);
   }
 
-  public static BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
+  public static BukkitTask runTaskTimerSynchrony(Runnable task, int delay, int period,
                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, delay, period, plugin);
   }
 
-  public static BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
+  public static BukkitTask runTaskTimerAsynchrony(Runnable task, int delay, int period,
                                                   org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
@@ -593,6 +593,11 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
                                                      Iterable<Element> iterable,
                                                      org.bukkit.plugin.Plugin plugin) {
     server.runTaskLoopAsynchrony(task, iterable, plugin);
+  }
+
+  public static Future runTaskExpTimerSynchrony(Runnable task, int startPeriod, double speedMultiplier, int maxSpeed,
+                                                boolean async) {
+    return server.runTaskExpTimerSynchrony(task, startPeriod, speedMultiplier, maxSpeed, async);
   }
 
   public static void broadcastPacket(Packet<?> packet) {

@@ -15,8 +15,6 @@ import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.channel.bukkit.main.ChannelBukkit;
-import de.timesnake.channel.util.message.ChannelServerMessage;
-import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.server.DbServer;
@@ -81,8 +79,7 @@ public class BasicBukkit extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    Server.getChannel().sendMessageSynchronized(new ChannelServerMessage<>(Server.getName(),
-        MessageType.Server.STATUS, Status.Server.OFFLINE));
+    Server.getDatabase().setStatusSynchronized(Status.Server.OFFLINE);
 
     ServerManager.getInstance().onDisable();
 

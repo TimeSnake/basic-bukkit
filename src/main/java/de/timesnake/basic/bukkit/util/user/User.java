@@ -1628,27 +1628,25 @@ public class User extends UserPlayerDelegation implements
 
       ExItemStack exItem = new ExItemStack(i, slot);
 
-      if (exItem instanceof ExItemStack) {
-        if (exItem.equals(item)) {
-          int delta = exItem.getAmount() - remain;
-          if (delta > 0) {
-            exItem.setAmount(delta);
-            this.setItem(exItem.getSlot(), exItem);
-            remain = 0;
-            break;
-          } else {
-            remain -= exItem.getAmount();
-            this.setItem(exItem.getSlot(), null);
-          }
-
-          if (remain <= 0) {
-            break;
-          }
-
-          this.updateInventory();
+      if (exItem.equals(item)) {
+        int delta = exItem.getAmount() - remain;
+        if (delta > 0) {
+          exItem.setAmount(delta);
+          this.setItem(exItem.getSlot(), exItem);
+          remain = 0;
+          break;
+        } else {
+          remain -= exItem.getAmount();
+          this.setItem(exItem.getSlot(), null);
         }
 
+        if (remain <= 0) {
+          break;
+        }
+
+        this.updateInventory();
       }
+
     }
     return remain <= 0;
   }
