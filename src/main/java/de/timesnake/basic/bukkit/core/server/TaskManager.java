@@ -4,16 +4,22 @@
 
 package de.timesnake.basic.bukkit.core.server;
 
+import de.timesnake.basic.bukkit.core.main.BasicBukkit;
+import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
-import de.timesnake.library.basic.util.server.Task;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.concurrent.*;
+
 public class TaskManager {
 
-  public BukkitTask runTaskSynchrony(Task task, Plugin plugin) {
+  private final ExecutorService executorService = new ThreadPoolExecutor(5, 100,
+      5L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+
+  public BukkitTask runTaskSynchrony(Runnable task, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -22,7 +28,7 @@ public class TaskManager {
     }.runTask(plugin);
   }
 
-  public BukkitTask runTaskAsynchrony(Task task, Plugin plugin) {
+  public BukkitTask runTaskAsynchrony(Runnable task, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -31,7 +37,7 @@ public class TaskManager {
     }.runTaskAsynchronously(plugin);
   }
 
-  public BukkitTask runTaskLaterSynchrony(Task task, int delay, Plugin plugin) {
+  public BukkitTask runTaskLaterSynchrony(Runnable task, int delay, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -40,7 +46,7 @@ public class TaskManager {
     }.runTaskLater(plugin, delay);
   }
 
-  public BukkitTask runTaskLaterAsynchrony(Task task, int delay, Plugin plugin) {
+  public BukkitTask runTaskLaterAsynchrony(Runnable task, int delay, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -49,7 +55,7 @@ public class TaskManager {
     }.runTaskLaterAsynchronously(plugin, delay);
   }
 
-  public BukkitTask runTaskTimerSynchrony(Task task, int delay, int period, Plugin plugin) {
+  public BukkitTask runTaskTimerSynchrony(Runnable task, int delay, int period, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -58,7 +64,14 @@ public class TaskManager {
     }.runTaskTimer(plugin, delay, period);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period, Plugin plugin) {
+  public Future runTaskExpTimerSynchrony(Runnable task, int startPeriod, double increaseMultiplier, int maxSpeed,
+                                         boolean async) {
+    ExpBukkitRunnable runnable = new ExpBukkitRunnable(task, startPeriod, increaseMultiplier, maxSpeed, async);
+    return this.executorService.submit(runnable);
+  }
+
+
+  public BukkitTask runTaskTimerAsynchrony(Runnable task, int delay, int period, Plugin plugin) {
     return new BukkitRunnable() {
       @Override
       public void run() {
@@ -68,29 +81,29 @@ public class TaskManager {
   }
 
   public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
-      Plugin plugin) {
+                                          Plugin plugin) {
     return new TimeBukkitRunnable(task, time, false).runTaskTimer(plugin, delay, period);
   }
 
   public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
-      Plugin plugin) {
+                                           Plugin plugin) {
     return new TimeBukkitRunnable(task, time, false)
         .runTaskTimerAsynchronously(plugin, delay, period);
   }
 
   public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-      int delay, int period, Plugin plugin) {
+                                          int delay, int period, Plugin plugin) {
     return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimer(plugin, delay, period);
   }
 
   public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-      int delay, int period, Plugin plugin) {
+                                           int delay, int period, Plugin plugin) {
     return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimerAsynchronously(plugin,
         delay, period);
   }
 
   public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
-      Plugin plugin) {
+                                              Plugin plugin) {
     for (Element e : iterable) {
       new BukkitRunnable() {
         @Override
@@ -123,6 +136,46 @@ public class TaskManager {
       }
 
       this.time--;
+    }
+  }
+
+  private static class ExpBukkitRunnable extends BukkitRunnable {
+
+    private final Runnable task;
+    private final boolean async;
+    private double previousValue;
+
+    private final int startPeriod;
+    private final double factor;
+    private final int maxSpeed;
+
+    ExpBukkitRunnable(Runnable task, int startPeriod, double speedMultiplier, int maxSpeed, boolean async) {
+      this.task = task;
+      this.startPeriod = startPeriod;
+      this.factor = Math.pow(0.5, speedMultiplier / startPeriod);
+      this.previousValue = 1;
+      this.maxSpeed = maxSpeed;
+      this.async = async;
+    }
+
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          Thread.sleep((long) (Math.max(this.maxSpeed, this.startPeriod * this.previousValue) * 50));
+        } catch (InterruptedException e) {
+          break;
+        }
+
+        if (this.async) {
+          this.task.run();
+        } else {
+          Server.runTaskSynchrony(this.task, BasicBukkit.getPlugin());
+        }
+
+        this.previousValue *= this.factor;
+      }
+
     }
   }
 }

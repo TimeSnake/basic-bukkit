@@ -43,7 +43,6 @@ import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.server.Task;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
 import de.timesnake.library.packets.util.PacketManager;
@@ -64,6 +63,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 
 public class ServerManager implements de.timesnake.library.basic.util.server.Server,
@@ -759,30 +759,27 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     }
   }
 
-  public BukkitTask runTaskSynchrony(Task task, org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskSynchrony(Runnable task, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskSynchrony(task, plugin);
   }
 
-  public BukkitTask runTaskAsynchrony(Task task, org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskAsynchrony(Runnable task, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskAsynchrony(task, plugin);
   }
 
-  public BukkitTask runTaskLaterSynchrony(Task task, int delay, org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskLaterSynchrony(Runnable task, int delay, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskLaterSynchrony(task, delay, plugin);
   }
 
-  public BukkitTask runTaskLaterAsynchrony(Task task, int delay,
-                                           org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskLaterAsynchrony(Runnable task, int delay, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskLaterAsynchrony(task, delay, plugin);
   }
 
-  public BukkitTask runTaskTimerSynchrony(Task task, int delay, int period,
-                                          org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskTimerSynchrony(Runnable task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, delay, period, plugin);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(Task task, int delay, int period,
-                                           org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskTimerAsynchrony(Runnable task, int delay, int period, org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
 
@@ -796,16 +793,14 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     return this.taskManager.runTaskTimerAsynchrony(task, time, delay, period, plugin);
   }
 
-  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-                                          int delay, int period,
+  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period,
         plugin);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
-                                           int delay, int period
-      , org.bukkit.plugin.Plugin plugin) {
+  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
+                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period,
         plugin);
   }
@@ -813,6 +808,11 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
                                               org.bukkit.plugin.Plugin plugin) {
     this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
+  }
+
+  public Future runTaskExpTimerSynchrony(Runnable task, int startPeriod, double speedMultiplier, int maxSpeed,
+                                         boolean async) {
+    return this.taskManager.runTaskExpTimerSynchrony(task, startPeriod, speedMultiplier, maxSpeed, async);
   }
 
   public void broadcastPacket(Packet<?> packet) {
