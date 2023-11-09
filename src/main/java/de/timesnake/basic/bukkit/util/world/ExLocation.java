@@ -119,7 +119,7 @@ public class ExLocation extends Location {
     return this.add(x, Server.getRandom().nextDouble(maxDistanceY), maxDistanceXZ - x);
   }
 
-  public ExLocation middleBlock() {
+  public ExLocation middleHorizontalBlock() {
     this.zeroBlock();
     this.add(0.5, 0, 0.5);
     return this;
@@ -219,6 +219,21 @@ public class ExLocation extends Location {
   @Override
   public @NotNull ExLocation add(double x, double y, double z) {
     super.add(x, y, z);
+    return this;
+  }
+
+  public ExLocation updateX(double x) {
+    this.setX(x);
+    return this;
+  }
+
+  public ExLocation updateY(double y) {
+    this.setY(y);
+    return this;
+  }
+
+  public ExLocation updateZ(double z) {
+    this.setZ(z);
     return this;
   }
 
