@@ -25,7 +25,7 @@ import java.util.Map;
 public class PacketPlayer extends PacketEntity {
 
   protected final Player player;
-  private final Map<ClientboundSetEntityDataPacketBuilder.Type, Boolean> poseTags = new HashMap<>();
+  private final Map<ClientboundSetEntityDataPacketBuilder.SharedFlags, Boolean> sharedFlags = new HashMap<>();
 
   public PacketPlayer(Player player, ExLocation location) {
     super(location);
@@ -39,17 +39,21 @@ public class PacketPlayer extends PacketEntity {
     }
 
     Server.getScoreboardManager().getPacketManager().sendPacket(user,
-        ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(PacketEntityManager.FAKE_PLAYER_TEAM.getName(), player.getName().getString()));
+        ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(PacketEntityManager.FAKE_PLAYER_TEAM.getName(),
+            player.getName().getString()));
 
     Server.getScoreboardManager().getPacketManager().sendPacket(user,
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(((ServerPlayer) player))));
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
-    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setFlagsFromEntity().setFlags(poseTags).build());
+    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player)
+        .setFlagsFromEntity()
+        .setFlags(this.sharedFlags)
+        .setPoseFromEntity()
+        .build());
 
-    Server.runTaskLaterSynchrony(
-        () -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
-            new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))),
+    Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager()
+            .sendPacket(user, new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))),
         6, BasicBukkit.getPlugin());
   }
 
@@ -70,11 +74,11 @@ public class PacketPlayer extends PacketEntity {
     return player;
   }
 
-  public Map<ClientboundSetEntityDataPacketBuilder.Type, Boolean> getPoseTags() {
-    return poseTags;
+  public Map<ClientboundSetEntityDataPacketBuilder.SharedFlags, Boolean> getSharedFlags() {
+    return sharedFlags;
   }
 
-  public void setPoseTag(ClientboundSetEntityDataPacketBuilder.Type type, boolean value) {
-    this.poseTags.put(type, value);
+  public void setSharedFlag(ClientboundSetEntityDataPacketBuilder.SharedFlags sharedFlags, boolean value) {
+    this.sharedFlags.put(sharedFlags, value);
   }
 }
