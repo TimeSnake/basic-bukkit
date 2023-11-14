@@ -161,7 +161,7 @@ public class ExWorldType {
   public static class CustomFlat extends ExWorldType {
 
     public static ExWorldType.CustomFlat fromString(String string) {
-      return new CustomFlat(ExWorldType.parseMaterialsFromString(string.split(",", 2)[1]));
+      return new CustomFlat(ExWorldType.parseMaterialsFromString(string.split(";", 2)[1]));
     }
 
     private final List<Tuple<Integer, Material>> materials;
@@ -175,7 +175,7 @@ public class ExWorldType {
     @Override
     public String toString() {
       return "custom_flat;" + materials.stream().map(t -> t.getA() + "#" + t.getB())
-          .collect(Collectors.joining(";"));
+          .collect(Collectors.joining(","));
     }
   }
 
