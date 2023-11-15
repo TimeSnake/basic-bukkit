@@ -59,6 +59,9 @@ public class BasicBukkit extends JavaPlugin {
       Bukkit.shutdown();
     }
 
+    if (ServerManager.getInstance() == null) {
+      ServerManager.setInstance(new ServerManager());
+    }
     ServerManager.getInstance().onEnable();
 
     Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
