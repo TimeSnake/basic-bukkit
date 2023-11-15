@@ -70,9 +70,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     ChannelListener {
 
   public static ServerManager getInstance() {
-    if (instance == null) {
-      instance = new ServerManager();
-    }
     return instance;
   }
 
@@ -117,6 +114,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     this.chatManager = this.initChatManager();
 
     this.groupManager = this.initGroupManager();
+    System.out.println(this.groupManager);
     ArrayList<PermGroup> groups = new ArrayList<>(this.getPermGroups());
     groups.sort(PermGroup::compareTo);
     groups.sort(Comparator.reverseOrder());
