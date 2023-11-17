@@ -5,9 +5,10 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
+
 import java.util.Set;
 
-public interface Board {
+public interface Scoreboard {
 
   String getName();
 

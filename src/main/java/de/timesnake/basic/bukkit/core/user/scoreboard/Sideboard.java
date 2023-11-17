@@ -8,9 +8,10 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.library.basic.util.Loggers;
+
 import java.util.HashMap;
 
-public class Sideboard extends Board implements
+public class Sideboard extends Scoreboard implements
     de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
 
   private final HashMap<Integer, String> scores = new HashMap<>();
@@ -23,11 +24,6 @@ public class Sideboard extends Board implements
     scores.putAll(builder.getScores());
   }
 
-  /**
-   * Gets the title of the {@link GroupTablist}
-   *
-   * @return the title
-   */
   @Override
   public String getTitle() {
     return title;
@@ -39,16 +35,9 @@ public class Sideboard extends Board implements
     for (User user : super.watchingUsers) {
       user.setSideboardTitle(this.title);
     }
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set title '"
-        + this.title + "'");
+    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set title '" + this.title + "'");
   }
 
-  /**
-   * Sets the score of the {@link GroupTablist}
-   *
-   * @param line The line to set
-   * @param text The text to set
-   */
   @Override
   public void setScore(Integer line, String text) {
     text = Server.getTimeDownParser().parse2Legacy(text);
@@ -56,15 +45,9 @@ public class Sideboard extends Board implements
     for (User user : watchingUsers) {
       user.setSideboardScore(line, text);
     }
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set score "
-        + line + " '" + text + "'");
+    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set score " + line + " '" + text + "'");
   }
 
-  /**
-   * Removes the score in line
-   *
-   * @param line The line to remove
-   */
   @Override
   public void removeScore(int line) {
     for (User user : watchingUsers) {
@@ -74,19 +57,11 @@ public class Sideboard extends Board implements
     Loggers.SCOREBOARD.info("sideboard '" + this.name + "' remove score " + line);
   }
 
-  /**
-   * Gets the scores of the {@link GroupTablist}
-   *
-   * @return The {@link HashMap} with key line, value text
-   */
   @Override
   public HashMap<Integer, String> getScores() {
     return scores;
   }
 
-  /**
-   * Clears the scores of the {@link Sideboard}
-   */
   @Override
   public void clearScores() {
     for (Integer line : this.scores.keySet()) {

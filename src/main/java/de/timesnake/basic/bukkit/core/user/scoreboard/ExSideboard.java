@@ -7,13 +7,13 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
 import de.timesnake.library.basic.util.Loggers;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class ExSideboard extends Sideboard implements
-    de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboard {
+public class ExSideboard extends Sideboard implements de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboard {
 
   private final HashMap<LineId<?>, Integer> lineByLineId = new HashMap<>();
 
