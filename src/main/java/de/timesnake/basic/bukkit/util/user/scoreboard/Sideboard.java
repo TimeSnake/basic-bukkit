@@ -6,7 +6,7 @@ package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import java.util.HashMap;
 
-public interface Sideboard extends Board {
+public interface Sideboard extends Scoreboard {
 
   String SPACER = "§8----------------";
 

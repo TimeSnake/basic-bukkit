@@ -19,7 +19,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
 import net.minecraft.server.ServerScoreboard;
-import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,7 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public abstract class Tablist extends Board implements Listener,
+public abstract class Tablist extends Scoreboard implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.Tablist {
 
   protected final ScoreboardPacketManager packetManager;
@@ -154,7 +153,9 @@ public abstract class Tablist extends Board implements Listener,
     this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name,
         this.type.getPacketType().getDefaultRenderType()));
 
-    this.packetManager.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(Scoreboard.DISPLAY_SLOT_LIST, this.name));
+    this.packetManager.sendPacket(user,
+        ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_LIST,
+            this.name));
 
     this.packetManager.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 

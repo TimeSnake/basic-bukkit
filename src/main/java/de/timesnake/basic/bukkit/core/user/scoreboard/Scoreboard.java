@@ -5,22 +5,31 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.DuplicateScoreboardException;
 import de.timesnake.library.extension.util.player.UserSet;
-import java.util.Set;
-import org.bukkit.scoreboard.Scoreboard;
 
-public abstract class Board implements de.timesnake.basic.bukkit.util.user.scoreboard.Board {
+import java.util.HashSet;
+import java.util.Set;
+
+public abstract class Scoreboard implements de.timesnake.basic.bukkit.util.user.scoreboard.Scoreboard {
+
+  private static final Set<String> NAMES = new HashSet<>();
 
   protected final String name;
 
   protected final UserSet<User> watchingUsers = new UserSet<>();
 
-  protected Board(String name) {
+  protected Scoreboard(String name) {
+    if (NAMES.contains(name)) {
+      throw new DuplicateScoreboardException(name);
+    }
+    NAMES.add(name);
+
     this.name = name;
   }
 
   /**
-   * Gets the name of the {@link Board}, not the title
+   * Gets the name of the {@link Scoreboard}, not the title
    *
    * @return the name
    */
@@ -30,7 +39,7 @@ public abstract class Board implements de.timesnake.basic.bukkit.util.user.score
   }
 
   /**
-   * Adds a {@link User} The {@link Scoreboard} of the {@link User} will be updated by a board
+   * Adds a {@link User} The {@link org.bukkit.scoreboard.Scoreboard} of the {@link User} will be updated by a board
    * change
    *
    * @param user The {@link User} to add
