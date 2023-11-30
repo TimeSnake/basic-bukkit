@@ -295,9 +295,8 @@ public class User extends UserPlayerDelegation implements
   }
 
   /**
-   * Kills the user Sets the health to 0
+   * Kills the user by setting health to 0
    */
-  @Deprecated
   public void kill() {
     this.player.setHealth(0);
   }
@@ -2137,7 +2136,7 @@ public class User extends UserPlayerDelegation implements
 
   protected void updateChatName() {
     Component component = Component.text("");
-    StringBuilder nameTD = new StringBuilder();
+    StringBuilder nameTD = new StringBuilder("§r");
 
     if (this.getNick() == null) {
       for (DisplayGroup group : this.getMainDisplayGroups()) {

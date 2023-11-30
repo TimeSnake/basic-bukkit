@@ -45,6 +45,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	private final HashMap<String, de.timesnake.basic.bukkit.util.chat.Chat> chats = new HashMap<>();
 
 	private boolean broadcastJoinQuit = true;
+	private boolean broadcastDeath = true;
+
 	private Code globalPerm;
 
 	public ChatManager() {
@@ -231,8 +233,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		}
 
 		// update online players
-		Database.getServers().getServer(Bukkit.getPort())
-				.setOnlinePlayers(Bukkit.getOnlinePlayers().size());
+		Database.getServers().getServer(Bukkit.getPort()).setOnlinePlayers(Bukkit.getOnlinePlayers().size());
 
 		//add user to global chat
 		this.getGlobalChat().addWriter(user);
@@ -251,13 +252,23 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	}
 
 	@Override
-	public void broadcastJoinQuit(boolean broadcast) {
+	public void setBroadcastJoinQuit(boolean broadcast) {
 		this.broadcastJoinQuit = broadcast;
 	}
 
 	@Override
-	public boolean isBroadcastingJoinQuit() {
+	public boolean isBroadCastJoinQuit() {
 		return this.broadcastJoinQuit;
+	}
+
+	@Override
+	public boolean isBroadcastDeath() {
+		return broadcastDeath;
+	}
+
+	@Override
+	public void setBroadcastDeath(boolean broadcastDeath) {
+		this.broadcastDeath = broadcastDeath;
 	}
 
 	@Override
