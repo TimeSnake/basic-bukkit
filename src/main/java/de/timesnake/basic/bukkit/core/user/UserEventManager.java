@@ -360,7 +360,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     e.setKeepInventory(userDeathEvent.isKeepInventory());
 
-    if (!userDeathEvent.isBroadcastDeathMessage()) {
+    if (!userDeathEvent.isBroadcastDeathMessage() || !Server.getChatManager().isBroadcastDeath()) {
       if (user.getLastDamager() != null) {
         Loggers.CHATS.info(user.getName() + " was slain by " + user.getLastDamager().getDamager().getName());
       } else {

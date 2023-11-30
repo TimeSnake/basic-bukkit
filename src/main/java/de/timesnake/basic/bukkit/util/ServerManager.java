@@ -391,12 +391,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     ArrayList<User> users = new ArrayList<>();
     for (User user : this.getUsers()) {
       InventoryView inv = user.getPlayer().getOpenInventory();
-      if (inv != null) {
-        if (inv.getTitle() != null) {
-          if (inv.getTitle().equals(inventoryTitle)) {
-            users.add(user);
-          }
-        }
+      if (inv.getTitle().equals(inventoryTitle)) {
+        users.add(user);
       }
     }
     return users;
