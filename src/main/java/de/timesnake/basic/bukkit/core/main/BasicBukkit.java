@@ -69,7 +69,7 @@ public class BasicBukkit extends JavaPlugin {
     Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
     Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
-        ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.BUKKIT);
+        ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.SERVER);
 
     Server.getCommandManager().addCommand(this, "logger", List.of("log"),
         new LoggerCmd(), Plugin.SYSTEM);

@@ -26,7 +26,7 @@ public class Sender extends de.timesnake.library.extension.util.cmd.Sender {
     if (this.isPlayer(false)) {
       return this.getUser().getChatNameComponent();
     } else if (this.isConsole(false)) {
-      return Component.text(Plugin.BUKKIT.getName());
+      return Component.text(Plugin.SERVER.getName());
     }
     return null;
   }
