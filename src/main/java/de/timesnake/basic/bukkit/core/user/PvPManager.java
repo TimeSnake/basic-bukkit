@@ -73,13 +73,13 @@ public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user
   @Override
   public void broadcastPvPTypeMessage() {
     if (this.oldPvP) {
-      Server.broadcastMessage(Plugin.BUKKIT,
+      Server.broadcastMessage(Plugin.SERVER,
           Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
               .append(Component.text(
                   "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.",
                   ExTextColor.WARNING)));
     } else {
-      Server.broadcastMessage(Plugin.BUKKIT,
+      Server.broadcastMessage(Plugin.SERVER,
           Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
               .append(Component.text("1.9+ pvp is activated, so you should hit slow.",
                   ExTextColor.WARNING)));

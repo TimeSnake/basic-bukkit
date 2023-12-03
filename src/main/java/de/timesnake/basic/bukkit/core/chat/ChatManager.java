@@ -105,14 +105,14 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
 		//mute
 		if (user.isMuted()) {
-			user.asSender(Plugin.BUKKIT).sendMessageMuted();
+      user.asSender(Plugin.SERVER).sendMessageMuted();
 			return;
 		}
 
 		// air mode
 		if (user.isAirMode()) {
 			if (!user.getLastChatMessage().equals(msg)) {
-				user.sendPluginMessage(Plugin.BUKKIT,
+        user.sendPluginMessage(Plugin.SERVER,
 						Component.text("You are in air mode. Resend your chat " +
 								"message to send it.", ExTextColor.PUBLIC));
 				return;
@@ -125,7 +125,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		boolean global = false;
 
 		if (msg.startsWith("!") && msg.length() > 1) {
-			if (user.hasPermission(this.globalPerm, Plugin.BUKKIT)) {
+      if (user.hasPermission(this.globalPerm, Plugin.SERVER)) {
 				msg = msg.replaceFirst("!", "");
 				global = true;
 			}
@@ -220,13 +220,13 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		// catch if user not in database -> error (proxy should add user)
 		if (!Database.getUsers().containsUser(user.getUniqueId())) {
 			user.sendMessage(
-					de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.BUKKIT)
+          de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.SERVER)
 							.append(Component.text("§lContact a supporter!!!",
 									ExTextColor.WARNING)));
 			user.getPlayer().kick(Component.text("Contact a supporter!!!\n", ExTextColor.WARNING,
 							TextDecoration.BOLD)
 					.append(de.timesnake.library.extension.util.chat.Chat.getMessageCode("E", 805,
-							Plugin.BUKKIT))
+              Plugin.SERVER))
 					.append(Component.text("\nDO NOT REJOIN", ExTextColor.WARNING,
 							TextDecoration.BOLD)));
 			return;
