@@ -122,9 +122,9 @@ public class User extends UserPlayerDelegation implements
   private boolean isMuted;
   private String lastChatMessage;
   private PermGroup permGroup;
-  private Component prefix;
-  private Component suffix;
-  private Component nick;
+  private String prefix;
+  private String suffix;
+  private String nick;
   private Tablist tablist;
   private Sideboard sideboard;
   private Location lastLocation;
@@ -151,29 +151,24 @@ public class User extends UserPlayerDelegation implements
 
     String prefix = dbLocalUser.getPrefix();
     if (prefix != null) {
-      this.prefix = LegacyComponentSerializer.legacySection().deserialize(prefix);
+      this.prefix = Server.getTimeDownParser().parse2Legacy(prefix, '&', '§');
+      ;
     }
 
     String suffix = dbLocalUser.getSuffix();
     if (suffix != null) {
-      this.suffix = LegacyComponentSerializer.legacySection().deserialize(suffix);
+      this.suffix = Server.getTimeDownParser().parse2Legacy(suffix, '&', '§');
     }
 
     String nick = dbLocalUser.getNick();
     if (nick != null) {
-      this.nick = LegacyComponentSerializer.legacySection().deserialize(nick);
+      this.nick = Server.getTimeDownParser().parse2Legacy(nick, '&', '§');
     }
 
     if (dbLocalUser.getPermGroup() != null) {
       String groupName = dbLocalUser.getPermGroup().getName();
-      if (groupName != null) {
-        this.permGroup = Server.getPermGroup(groupName);
-        this.permGroup.addUser(this);
-      } else {
-        Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
-        this.player.kick(
-            Component.text("§cA fatal error occurred!\nPlease contact an admin (permission group exception)"));
-      }
+      this.permGroup = Server.getPermGroup(groupName);
+      this.permGroup.addUser(this);
     } else {
       Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
       this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin (permission group exception)"));
@@ -197,12 +192,12 @@ public class User extends UserPlayerDelegation implements
     this.coins = dbLocalUser.getCoins();
 
     if (dbUser.getServerLast() != null) {
-      this.lastServer = new ServerInfo(dbLocalUser.getServerLast());
+      this.lastServer = dbLocalUser.getServerLast() != null ? new ServerInfo(dbLocalUser.getServerLast()) : null;
     } else {
       this.lastServer = null;
     }
     if (dbUser.getServerLobby() != null) {
-      this.lastLobbyServer = new ServerInfo(dbLocalUser.getServerLobby());
+      this.lastLobbyServer = dbLocalUser.getServerLobby() != null ? new ServerInfo(dbLocalUser.getServerLobby()) : null;
     } else {
       this.lastLobbyServer = null;
     }
@@ -475,12 +470,12 @@ public class User extends UserPlayerDelegation implements
    */
   @Nullable
   public Component getPrefix() {
-    return prefix;
+    return Server.getTimeDownParser().parse2Component(this.prefix);
   }
 
   @Nullable
   public String getTDPrefix() {
-    return LegacyComponentSerializer.legacyAmpersand().serialize(this.getPrefix());
+    return this.prefix;
   }
 
   /**
@@ -488,9 +483,9 @@ public class User extends UserPlayerDelegation implements
    *
    * @param prefix The prefix to set
    */
-  public void setPrefix(Component prefix) {
-    this.dbUser.setPrefix(LegacyComponentSerializer.legacyAmpersand().serialize(prefix));
-    this.prefix = prefix;
+  public void setPrefix(String prefix) {
+    this.dbUser.setPrefix(Server.getTimeDownParser().parse2Legacy(prefix, '§', '&'));
+    this.prefix = Server.getTimeDownParser().parse2Legacy(prefix, '&', '§');
   }
 
   /**
@@ -500,12 +495,12 @@ public class User extends UserPlayerDelegation implements
    */
   @Nullable
   public Component getSuffix() {
-    return suffix;
+    return Server.getTimeDownParser().parse2Component(this.suffix);
   }
 
   @Nullable
   public String getTDSuffix() {
-    return LegacyComponentSerializer.legacyAmpersand().serialize(this.getSuffix());
+    return this.suffix;
   }
 
   /**
@@ -513,9 +508,9 @@ public class User extends UserPlayerDelegation implements
    *
    * @param suffix The suffix to set
    */
-  public void setSuffix(Component suffix) {
-    this.dbUser.setSuffix(LegacyComponentSerializer.legacyAmpersand().serialize(suffix));
-    this.suffix = suffix;
+  public void setSuffix(String suffix) {
+    this.dbUser.setSuffix(Server.getTimeDownParser().parse2Legacy(suffix, '§', '&'));
+    this.suffix = Server.getTimeDownParser().parse2Legacy(suffix, '&', '§');
   }
 
   /**
@@ -525,12 +520,12 @@ public class User extends UserPlayerDelegation implements
    */
   @Nullable
   public Component getNick() {
-    return nick;
+    return Server.getTimeDownParser().parse2Component(this.nick);
   }
 
   @Nullable
   public String getTDNick() {
-    return LegacyComponentSerializer.legacyAmpersand().serialize(this.getNick());
+    return this.nick;
   }
 
   /**
@@ -538,9 +533,9 @@ public class User extends UserPlayerDelegation implements
    *
    * @param nick The nick to set
    */
-  public void setNick(Component nick) {
-    this.dbUser.setNick(LegacyComponentSerializer.legacyAmpersand().serialize(nick));
-    this.nick = nick;
+  public void setNick(String nick) {
+    this.dbUser.setNick(Server.getTimeDownParser().parse2Legacy(nick, '§', '&'));
+    this.nick = Server.getTimeDownParser().parse2Legacy(nick, '&', '§');
   }
 
   /**
@@ -2093,17 +2088,18 @@ public class User extends UserPlayerDelegation implements
   public void updateAlias() {
     String prefix = this.dbUser.getPrefix();
     if (prefix != null) {
-      this.prefix = LegacyComponentSerializer.legacySection().deserialize(prefix);
+      this.prefix = Server.getTimeDownParser().parse2Legacy(prefix, '&', '§');
+      ;
     }
 
     String suffix = this.dbUser.getSuffix();
     if (suffix != null) {
-      this.suffix = LegacyComponentSerializer.legacySection().deserialize(suffix);
+      this.suffix = Server.getTimeDownParser().parse2Legacy(suffix, '&', '§');
     }
 
     String nick = this.dbUser.getNick();
     if (nick != null) {
-      this.nick = LegacyComponentSerializer.legacySection().deserialize(nick);
+      this.nick = Server.getTimeDownParser().parse2Legacy(nick, '&', '§');
     }
 
     this.updateChatName();
