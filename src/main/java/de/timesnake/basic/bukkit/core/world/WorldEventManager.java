@@ -24,6 +24,7 @@ import org.bukkit.block.data.type.Candle;
 import org.bukkit.block.data.type.Fire;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -505,14 +506,23 @@ public class WorldEventManager implements Listener {
       }
 
       e.setCancelled(CancelPriority.LOW, true);
-      Loggers.WORLDS.info("Cancelled block place event");
       return;
+    }
+
+    if (e.getBlockPlaced().getType().equals(Material.TNT) && !world.isRestricted(Restriction.AUTO_PRIME_TNT)) {
+      Server.runTaskLaterSynchrony(() -> {
+        if (e.getBlockPlaced().getType().equals(Material.TNT)) {
+          e.getBlockPlaced().setType(Material.AIR);
+          e.getBlockPlaced().getWorld().spawn(e.getBlockPlaced().getLocation().add(0.5, 0, 0.5), TNTPrimed.class);
+        }
+      }, 1, BasicBukkit.getPlugin());
     }
 
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_PLACE)) {
       return;
     }
 
+    Loggers.WORLDS.info("Cancelled block place event");
     e.setCancelled(CancelPriority.LOW, true);
   }
 
