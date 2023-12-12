@@ -5,10 +5,11 @@
 package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import java.util.List;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class UserDeathEvent extends UserEvent {
 
@@ -18,7 +19,7 @@ public class UserDeathEvent extends UserEvent {
 
   private static final HandlerList HANDLERS = new HandlerList();
   private final Entity killer;
-  private List<ItemStack> drops;
+  private final List<ItemStack> drops;
   private boolean broadcastDeathMessage = true;
   private boolean keepInventory;
   private boolean autoRespawn = false;
@@ -68,6 +69,7 @@ public class UserDeathEvent extends UserEvent {
   }
 
   public void setDrops(List<ItemStack> drops) {
-    this.drops = drops;
+    this.drops.clear();
+    this.drops.addAll(drops);
   }
 }

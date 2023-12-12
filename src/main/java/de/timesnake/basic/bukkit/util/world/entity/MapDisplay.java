@@ -185,8 +185,7 @@ public class MapDisplay extends PacketEntity {
           frame.setRotation(rotationToInteger(this.rotation));
 
           user.sendPacket(new ClientboundAddEntityPacket(frame, ItemFrameRotation.blockFaceToRotation(blockFace).getNms()));
-
-          user.sendPacket(new ClientboundSetEntityDataPacketBuilder(frame).setFlagsFromEntity().build());
+          user.sendPacket(new ClientboundSetEntityDataPacketBuilder(frame).setAllFromEntity().build());
 
           user.sendPacket(ClientboundMapItemDataPacketBuilder.of(view, user.getCraftPlayer()));
         }

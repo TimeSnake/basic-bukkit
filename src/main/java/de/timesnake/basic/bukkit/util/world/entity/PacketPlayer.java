@@ -18,14 +18,11 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PacketPlayer extends PacketEntity {
 
   protected final Player player;
-  private final Map<ClientboundSetEntityDataPacketBuilder.SharedFlags, Boolean> sharedFlags = new HashMap<>();
 
   public PacketPlayer(Player player, ExLocation location) {
     super(location);
@@ -47,9 +44,7 @@ public class PacketPlayer extends PacketEntity {
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player)
-        .setFlagsFromEntity()
-        .setFlags(this.sharedFlags)
-        .setPoseFromEntity()
+        .setAllFromEntity()
         .build());
 
     Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager()
@@ -74,11 +69,4 @@ public class PacketPlayer extends PacketEntity {
     return player;
   }
 
-  public Map<ClientboundSetEntityDataPacketBuilder.SharedFlags, Boolean> getSharedFlags() {
-    return sharedFlags;
-  }
-
-  public void setSharedFlag(ClientboundSetEntityDataPacketBuilder.SharedFlags sharedFlags, boolean value) {
-    this.sharedFlags.put(sharedFlags, value);
-  }
 }

@@ -45,7 +45,7 @@ public class ItemEntity extends PacketEntity {
   @Override
   public void spawnForUser(User user) {
     user.sendPacket(new ClientboundAddEntityPacket(this.stand));
-    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(this.stand).setFlagsFromEntity().build());
+    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(this.stand).setAllFromEntity().build());
     user.sendPacket(new ClientboundSetEquipmentPacketBuilder(this.stand).addItem(EquipmentSlot.MAINHAND, this.item).build());
   }
 
