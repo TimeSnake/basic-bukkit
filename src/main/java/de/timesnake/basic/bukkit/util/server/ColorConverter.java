@@ -21,9 +21,9 @@ public class ColorConverter {
       case GRAY -> Material.LIGHT_GRAY_BED;
       case DARK_GRAY -> Material.GRAY_BED;
       case BLUE -> Material.BLUE_BED;
-      case GREEN -> Material.LIME_BED;
+      case GREEN -> Material.GREEN_BED;
       case AQUA -> Material.LIGHT_BLUE_BED;
-      case RED -> Material.ORANGE_BED;
+      case RED -> Material.RED_BED;
       case LIGHT_PURPLE -> Material.PINK_BED;
       case YELLOW -> Material.YELLOW_BED;
       case WHITE -> Material.WHITE_BED;

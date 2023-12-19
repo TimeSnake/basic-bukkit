@@ -457,6 +457,10 @@ public class WorldEventManager implements Listener {
   public void onEntityExplode(EntityExplodeEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getEntity().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.ENTITY_EXPLODE)) {
       return;
     }
@@ -594,7 +598,7 @@ public class WorldEventManager implements Listener {
     e.setCancelled(true);
   }
 
-  @EventHandler()
+  @EventHandler
   public void onBlockFromTo(BlockFromToEvent e) {
     Block block = e.getBlock();
     ExWorld world = this.worldManager.getWorld(block.getWorld());
