@@ -536,4 +536,19 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     e.setUseItemInHand(userEvent.getUseItemInHand());
   }
 
+  @EventHandler
+  public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+    User user = Server.getUser(e.getPlayer());
+
+    if (user == null) {
+      return;
+    }
+
+    // user toggle sneak event
+    UserToggleSneakEvent userEvent = new UserToggleSneakEvent(user, e.isCancelled(), e.isSneaking());
+    Bukkit.getPluginManager().callEvent(userEvent);
+
+    e.setCancelled(userEvent.isCancelled());
+  }
+
 }
