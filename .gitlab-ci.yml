@@ -43,6 +43,12 @@ publish:
     - if: '$CI_COMMIT_TAG =~ /^v?\d+\.\d+\.\d+$/ && $CI_COMMIT_BRANCH == "main"'
   script:
     - gradle publish
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
   tags:
     - gradle
 
