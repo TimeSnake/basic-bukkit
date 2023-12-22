@@ -102,10 +102,13 @@ tasks {
       expand(props)
     }
   }
+}
 
-  reobfJar {
-    outputJar.set(layout.buildDirectory.file("${timesnakePluginDir}/${project.name}-${project.version}.jar"))
-  }
+tasks.register('exportAsPlugin', Copy) {
+  from "$buildDir/libs/${archivesBaseName}-${project.version}.jar"
+  into "${timesnakePluginDir}"
+
+  dependsOn(assemble)
 }
 
 publishing {
