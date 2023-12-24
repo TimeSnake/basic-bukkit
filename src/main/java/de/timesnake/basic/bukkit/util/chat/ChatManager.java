@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
+import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.chat.ExTextColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -41,5 +42,13 @@ public interface ChatManager extends de.timesnake.library.extension.util.chat.Ch
 
   boolean isBroadcastDeath();
 
+  void addUserMessageListener(UserMessageListener listener);
+
+  void removeUserMessageListener(UserMessageListener listener);
+
+  interface UserMessageListener {
+
+    String onUserMessage(User user, String message);
+  }
 }
 

@@ -32,6 +32,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +49,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	private boolean broadcastDeath = true;
 
 	private Code globalPerm;
+
+	private final Set<UserMessageListener> userMessageListener = new HashSet<>();
 
 	public ChatManager() {
 		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null,
@@ -94,8 +97,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
 
 		// event
-		boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user,
-				e.isCancelled(), msg);
+		boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(), msg);
 
 		e.setCancelled(true);
 
@@ -130,6 +132,14 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 				global = true;
 			}
 
+		}
+
+		for (UserMessageListener listener : this.userMessageListener) {
+			msg = listener.onUserMessage(user, msg);
+		}
+
+		if (msg.isBlank()) {
+			return;
 		}
 
 		Component component;
@@ -269,6 +279,16 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	@Override
 	public void setBroadcastDeath(boolean broadcastDeath) {
 		this.broadcastDeath = broadcastDeath;
+	}
+
+	@Override
+	public void addUserMessageListener(UserMessageListener listener) {
+		this.userMessageListener.add(listener);
+	}
+
+	@Override
+	public void removeUserMessageListener(UserMessageListener listener) {
+		this.userMessageListener.remove(listener);
 	}
 
 	@Override
