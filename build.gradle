@@ -77,10 +77,6 @@ configurations.configureEach {
 }
 
 tasks {
-  assemble {
-    dependsOn(reobfJar)
-  }
-
   jar {
     dependsOn(reobfJar)
   }
@@ -132,6 +128,8 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
+
+      artifact "$buildDir/libs/${archivesBaseName}-${project.version}.jar"
     }
   }
 }
@@ -142,9 +140,4 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
   withSourcesJar()
-  with {
-    artifacts {
-      reobfJar
-    }
-  }
 }
