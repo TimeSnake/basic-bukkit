@@ -81,7 +81,7 @@ tasks {
     dependsOn(reobfJar)
   }
 
-  publish {
+  jar {
     dependsOn(reobfJar)
   }
 
