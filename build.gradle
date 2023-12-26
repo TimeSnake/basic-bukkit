@@ -142,4 +142,9 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
   withSourcesJar()
+  with {
+    artifacts {
+      reobfJar
+    }
+  }
 }
