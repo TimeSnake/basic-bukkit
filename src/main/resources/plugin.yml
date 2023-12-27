@@ -49,6 +49,7 @@ commands:
   packetsmessage:
   packetsmessages:
 
+  all:
   global:
   g:
 
