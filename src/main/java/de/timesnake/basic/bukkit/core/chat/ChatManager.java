@@ -113,10 +113,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
 		// air mode
 		if (user.isAirMode()) {
-			if (!user.getLastChatMessage().equals(msg)) {
-        user.sendPluginMessage(Plugin.SERVER,
-						Component.text("You are in air mode. Resend your chat " +
-								"message to send it.", ExTextColor.PUBLIC));
+			if (!msg.equals(user.getLastChatMessage())) {
+				user.sendPluginTDMessage(Plugin.SERVER, "§wYou are in air mode. Resend your chat message to send it.");
 				return;
 			}
 		}
