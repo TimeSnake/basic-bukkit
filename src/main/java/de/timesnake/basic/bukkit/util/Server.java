@@ -29,8 +29,8 @@ import de.timesnake.basic.bukkit.util.world.entity.EntityManager;
 import de.timesnake.channel.util.Channel;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
-import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.library.basic.util.ServerType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
@@ -628,7 +628,7 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     server.setStatus(status);
   }
 
-  public static Type.Server<?> getType() {
+  public static ServerType getType() {
     return server.getType();
   }
 

@@ -39,9 +39,9 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
-import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.basic.util.ServerType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.TimeDownParser;
 import de.timesnake.library.extension.util.chat.Plugin;
@@ -217,7 +217,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     Loggers.SYSTEM.info("Status: " + this.info.getStatus().getShortName());
   }
 
-  public Type.Server<?> getType() {
+  public ServerType getType() {
     return this.info.getType();
   }
 
