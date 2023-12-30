@@ -5,7 +5,6 @@
 package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
@@ -53,8 +52,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	private final Set<UserMessageListener> userMessageListener = new HashSet<>();
 
 	public ChatManager() {
-		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null,
-				null);
+		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(GLOBAL_CHAT_NAME, null, null, null);
 		this.chats.put(GLOBAL_CHAT_NAME, chat);
 
 		Server.registerListener(this, BasicBukkit.getPlugin());
@@ -66,8 +64,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		if (name.equals(GLOBAL_CHAT_NAME)) {
 			return null;
 		}
-		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(name, displayName, chatColor,
-				users);
+		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(name, displayName, chatColor, users);
 		this.chats.put(name, chat);
 		return chat;
 	}
@@ -113,14 +110,8 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
 		// air mode
 		if (user.isAirMode()) {
-			if (!msg.equals(user.getLastChatMessage())) {
-				user.sendPluginTDMessage(Plugin.SERVER, "§wYou are in air mode. Resend your chat message to send it.");
-				return;
-			}
+			return;
 		}
-
-		// last chat msg
-		user.setLastChatMessage(msg);
 
 		boolean global = false;
 
@@ -173,8 +164,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 
 	@Override
 	public Component getLocationBlockText(Location loc) {
-		return Component.text(
-				loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() +
+		return Component.text(loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() +
 						" " + loc.getBlockZ(), ExTextColor.VALUE);
 	}
 
@@ -209,7 +199,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		}
 		// update online players
 		int onlinePlayers = Bukkit.getOnlinePlayers().size() - 1;
-		((FullServerInfo) ServerManager.getInstance().getInfo()).setOnlinePlayers(onlinePlayers);
+		ServerManager.getInstance().getInfo().setOnlinePlayers(onlinePlayers);
 		// remove from chats
 		for (de.timesnake.basic.bukkit.util.chat.Chat chat : this.chats.values()) {
 			chat.removeWriter(user);
@@ -253,8 +243,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 					.append(user.getChatNameComponent().color(ExTextColor.WHITE)));
 			Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
 		} else {
-			Loggers.CHATS.info(">>>" + PlainTextComponentSerializer.plainText()
-					.serialize(user.getChatNameComponent()));
+			Loggers.CHATS.info(">>>" + PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent()));
 		}
 
 	}
@@ -290,8 +279,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	}
 
 	@Override
-	public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
-												Arguments<Argument> args) {
+	public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
 		if (!sender.hasPermission(this.globalPerm)) {
 			return;
 		}
@@ -314,8 +302,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	}
 
 	@Override
-	public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
-																			 Arguments<Argument> args) {
+	public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
 		return null;
 	}
 

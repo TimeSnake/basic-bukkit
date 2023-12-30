@@ -39,11 +39,11 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.object.DbLocation;
-import de.timesnake.database.util.object.Type;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.basic.util.PunishType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.PlayerBuilder;
@@ -120,7 +120,6 @@ public class User extends UserPlayerDelegation implements
   private String task;
   private boolean isQuiting = false;
   private boolean isMuted;
-  private String lastChatMessage;
   private PermGroup permGroup;
   private String prefix;
   private String suffix;
@@ -559,25 +558,6 @@ public class User extends UserPlayerDelegation implements
    */
   public void unMute() {
     this.isMuted = false;
-  }
-
-  /**
-   * Gets the last user chat-message
-   *
-   * @return the last chat-message
-   */
-  @Nullable
-  public String getLastChatMessage() {
-    return lastChatMessage;
-  }
-
-  /**
-   * Sets the last user chat-message
-   *
-   * @param lastChatMessage The message to set last
-   */
-  public void setLastChatMessage(String lastChatMessage) {
-    this.lastChatMessage = lastChatMessage;
   }
 
   /**
@@ -2196,8 +2176,8 @@ public class User extends UserPlayerDelegation implements
    * Updates the punishment from database (only mute)
    */
   public void updatePunishment() {
-    Type.Punishment type = this.dbUser.getPunishment().getType();
-    this.isMuted = type != null && type.equals(Type.Punishment.MUTE);
+    PunishType type = this.dbUser.getPunishment().getType();
+    this.isMuted = type != null && type.equals(PunishType.MUTE);
   }
 
   public void sendPacket(Packet<?> packet) {

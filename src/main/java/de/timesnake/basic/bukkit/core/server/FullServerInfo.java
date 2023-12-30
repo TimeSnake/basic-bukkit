@@ -6,37 +6,33 @@ package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
 import de.timesnake.database.util.object.TooLongEntryException;
-import de.timesnake.database.util.object.Type;
-import de.timesnake.database.util.server.DbBuildServer;
-import de.timesnake.database.util.server.DbLobbyServer;
-import de.timesnake.database.util.server.DbLoungeServer;
-import de.timesnake.database.util.server.DbNonTmpGameServer;
-import de.timesnake.database.util.server.DbServer;
-import de.timesnake.database.util.server.DbTmpGameServer;
+import de.timesnake.database.util.server.*;
+import de.timesnake.library.basic.util.ServerType;
 import de.timesnake.library.basic.util.Status;
+
 import java.util.Objects;
 
 public class FullServerInfo extends ServerInfo {
 
-  private final Type.Server<?> type;
+  private final ServerType type;
   private String task;
 
   public FullServerInfo(DbServer server) {
     super(server);
     if (server instanceof DbNonTmpGameServer) {
-      this.type = Type.Server.GAME;
+      this.type = ServerType.GAME;
       this.task = ((DbNonTmpGameServer) server).getTask();
     } else if (server instanceof DbTmpGameServer) {
-      this.type = Type.Server.TEMP_GAME;
+      this.type = ServerType.TEMP_GAME;
       this.task = ((DbTmpGameServer) server).getTask();
     } else if (server instanceof DbLoungeServer) {
-      this.type = Type.Server.LOUNGE;
+      this.type = ServerType.LOUNGE;
       this.task = ((DbLoungeServer) server).getTask();
     } else if (server instanceof DbLobbyServer) {
-      this.type = Type.Server.LOBBY;
+      this.type = ServerType.LOBBY;
       this.task = "lobby";
     } else if (server instanceof DbBuildServer) {
-      this.type = Type.Server.BUILD;
+      this.type = ServerType.BUILD;
       this.task = "build";
     } else {
       this.type = null;
@@ -59,7 +55,7 @@ public class FullServerInfo extends ServerInfo {
     super.setStatus(this.database.getStatus());
   }
 
-  public Type.Server<?> getType() {
+  public ServerType getType() {
     return type;
   }
 
