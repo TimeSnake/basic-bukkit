@@ -39,8 +39,8 @@ dependencies {
 
   paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
 
-  implementation "de.timesnake:library-network:1.3"
-  implementation "de.timesnake:library-entities:2.1"
+  implementation "de.timesnake:library-network:1.3.1"
+  implementation "de.timesnake:library-entities:2.2"
   implementation "de.timesnake:library-packets:2.1.1"
   implementation "de.timesnake:library-extension:1.2"
   implementation "de.timesnake:library-basic:1.2.2"
@@ -48,11 +48,11 @@ dependencies {
 
   implementation "com.google.code.gson:gson:2.10.1"
 
-  compileOnly "de.timesnake:database-bukkit:2.2.1"
-  compileOnly "de.timesnake:database-api:2.2.1"
+  compileOnly "de.timesnake:database-bukkit:2.2.2"
+  compileOnly "de.timesnake:database-api:2.2.2"
 
-  compileOnly "de.timesnake:channel-bukkit:3.0.5"
-  compileOnly "de.timesnake:channel-api:3.0.5"
+  compileOnly "de.timesnake:channel-bukkit:3.0.6"
+  compileOnly "de.timesnake:channel-api:3.0.6"
 
   compileOnly "org.freemarker:freemarker:2.3.31"
 }
