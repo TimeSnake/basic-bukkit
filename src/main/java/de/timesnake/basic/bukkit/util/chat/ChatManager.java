@@ -4,6 +4,8 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
+import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
+import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.chat.ExTextColor;
 import net.kyori.adventure.text.Component;

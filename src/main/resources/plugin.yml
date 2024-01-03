@@ -1,65 +1,32 @@
 main: de.timesnake.basic.bukkit.core.main.BasicBukkit
 version: 3.1.2
 name: basic-bukkit
-author: Mn
+author: timesnake
 softdepend: [ database-bukkit, channel-bukkit ]
 api-version: 1.13
 
 commands:
 
-  ban:
-  tmpban:
-  tempban:
-  unban:
-  pardon:
-  kick:
-  mute:
-  unmute:
-
-  netban:
-  nettmpban:
-  nettempban:
-  netunban:
-  netpardon:
-  netkick:
-  netmute:
-  netunmute:
-
   pp:
-  privacy:
-  privacypolicy:
+    aliases:
+      - privacy
+      - privacypolicy
 
-  channelmsg:
-  channelmsgs:
-  channelmessages:
-  channelmessage:
 
-  worlds:
-  world:
-  ws:
-  w:
-
-  databasemsg:
-  databasemsgs:
-  databasemessage:
-  databasemessages:
-
-  packetsmsg:
-  packetsmsgs:
-  packetsmessage:
-  packetsmessages:
-
-  all:
   global:
-  g:
+    aliases:
+      - all
+      - g
 
   pid:
 
-  log:
   logger:
+    aliases:
+      - log
 
   password:
-  pwd:
+    aliases:
+      - pwd
 
   code:
      

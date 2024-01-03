@@ -8,17 +8,22 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
-import de.timesnake.basic.bukkit.util.chat.*;
+import de.timesnake.basic.bukkit.util.chat.ChatMember;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
+import de.timesnake.basic.bukkit.util.chat.cmd.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.cmd.Completion;
+import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.commands.PluginCommand;
+import de.timesnake.library.commands.simple.Arguments;
 import de.timesnake.library.extension.util.NetworkVariables;
 import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.cmd.Arguments;
-import de.timesnake.library.extension.util.cmd.ExCommand;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -32,7 +37,6 @@ import org.bukkit.event.Listener;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener,
@@ -47,7 +51,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	private boolean broadcastJoinQuit = true;
 	private boolean broadcastDeath = true;
 
-	private Code globalPerm;
+	private final Code globalPerm = Plugin.SERVER.createPermssionCode("chat.global");
 
 	private final Set<UserMessageListener> userMessageListener = new HashSet<>();
 
@@ -147,7 +151,6 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -175,13 +178,12 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	}
 
 	@Override
-	public de.timesnake.basic.bukkit.util.chat.Argument createArgument(Sender sender,
-																																		 Component component) {
+	public Argument createArgument(Sender sender, Component component) {
 		return new Argument(sender, PlainTextComponentSerializer.plainText().serialize(component));
 	}
 
 	@Override
-	public de.timesnake.basic.bukkit.util.chat.Argument createArgument(Sender sender, String s) {
+	public Argument createArgument(Sender sender, String s) {
 		return new Argument(sender, s);
 	}
 
@@ -279,7 +281,7 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	}
 
 	@Override
-	public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+	public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
 		if (!sender.hasPermission(this.globalPerm)) {
 			return;
 		}
@@ -294,21 +296,25 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		}
 
 		if (sender.isPlayer(false)) {
-			this.getGlobalChat().broadcastMemberMessage(sender.getUser(), component);
+			User user = sender.getUser();
+			if (user.isMuted()) {
+				user.asSender(Plugin.SERVER).sendMessageMuted();
+				return;
+			}
+
+			this.getGlobalChat().broadcastMemberMessage(user, component);
 		} else {
-			this.getGlobalChat()
-					.broadcastPluginMessage(Plugin.INFO, component.color(ExTextColor.WARNING));
+			this.getGlobalChat().broadcastPluginMessage(Plugin.INFO, component.color(ExTextColor.WARNING));
 		}
 	}
 
 	@Override
-	public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
-		return null;
+	public Completion getTabCompletion() {
+		return new Completion(this.globalPerm);
 	}
 
 	@Override
-	public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-		this.globalPerm = plugin.createPermssionCode("chat.global");
-
+	public String getPermission() {
+		return this.globalPerm.getPermission();
 	}
 }

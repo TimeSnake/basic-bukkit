@@ -12,8 +12,8 @@ import de.timesnake.basic.bukkit.core.user.CmdPrivacyPolicy;
 import de.timesnake.basic.bukkit.core.user.PreCmd;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
-import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
+import de.timesnake.basic.bukkit.util.chat.cmd.CommandListener;
 import de.timesnake.channel.bukkit.main.ChannelBukkit;
 import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
@@ -64,18 +64,15 @@ public class BasicBukkit extends JavaPlugin {
     }
     ServerManager.getInstance().onEnable();
 
-    Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"),
-        new CmdPrivacyPolicy(), Plugin.NETWORK);
+    Server.getCommandManager().addCommand(this, "pp", List.of("privacy", "privacypolicy"), new CmdPrivacyPolicy(), Plugin.NETWORK);
     Server.getCommandManager().addCommand(this, "pid", new PidCmd(), Plugin.SYSTEM);
 
     Server.getCommandManager().addCommand(this, "global", List.of("g", "all"),
         ((CommandListener) ServerManager.getInstance().getChatManager()), Plugin.SERVER);
 
-    Server.getCommandManager().addCommand(this, "logger", List.of("log"),
-        new LoggerCmd(), Plugin.SYSTEM);
+    Server.getCommandManager().addCommand(this, "logger", List.of("log"), new LoggerCmd(), Plugin.SYSTEM);
 
-    Server.getCommandManager().addCommand(this, "password", List.of("pwd"),
-        new PasswordCmd(), Plugin.SYSTEM);
+    Server.getCommandManager().addCommand(this, "password", List.of("pwd"), new PasswordCmd(), Plugin.SYSTEM);
 
     Server.getCommandManager().addCommand(this, "code", new CodeCmd(), Plugin.SYSTEM);
   }

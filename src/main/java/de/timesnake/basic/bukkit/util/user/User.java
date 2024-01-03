@@ -4,7 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.user;
 
-import de.timesnake.basic.bukkit.core.chat.ExCommandSender;
+import de.timesnake.basic.bukkit.core.chat.CommandSender;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
 import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
@@ -14,7 +14,7 @@ import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
-import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.basic.bukkit.util.server.ServerInfo;
@@ -41,9 +41,11 @@ import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
+import de.timesnake.database.util.user.DbPunishment;
 import de.timesnake.database.util.user.DbUser;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.PunishType;
+import de.timesnake.library.basic.util.Punishment;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.PlayerBuilder;
@@ -106,31 +108,42 @@ public class User extends UserPlayerDelegation implements
 
   private final DbUser dbUser;
 
-  private final boolean airMode;
-  private final HashMap<Integer, String> scores = new HashMap<>();
-  private final Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
-  private final ServerInfo lastServer;
-  private final ServerInfo lastLobbyServer;
-  private final Set<ExPermission> permissions = new HashSet<>();
-  private final SortedSet<DisplayGroup> displayGroups;
-  protected Component chatNameComponent;
-  protected String TDChatName;
   private Status.User status;
   private boolean service;
+  private final boolean airMode;
   private String task;
-  private boolean isQuiting = false;
-  private boolean isMuted;
+
+  private final HashMap<Integer, String> sideboardScores = new HashMap<>();
+  private final Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
+  private Tablist tablist;
+  private Sideboard sideboard;
+
+  private final ServerInfo lastServer;
+  private final ServerInfo lastLobbyServer;
+
+  private final Set<ExPermission> permissions = new HashSet<>();
   private PermGroup permGroup;
+  private final SortedSet<DisplayGroup> displayGroups;
+
+  protected Component chatNameComponent;
+  protected String TDChatName;
+
+  private LocalDateTime mutedUntil;
+
   private String prefix;
   private String suffix;
   private String nick;
-  private Tablist tablist;
-  private Sideboard sideboard;
+
   private Location lastLocation;
   private Location lockedLocation;
-  private LocalDateTime privacyPolicyDateTime;
-  private float coins;
+
   private UserDamage lastUserDamage;
+
+  private LocalDateTime privacyPolicyDateTime;
+
+  private float coins;
+
+  private boolean isQuiting = false;
 
   private boolean inventoryLocked;
   private boolean inventoryItemMoveLocked;
@@ -184,7 +197,7 @@ public class User extends UserPlayerDelegation implements
 
     this.updatePermissionsSync(true);
 
-    this.updatePunishment();
+    this.updatePunishmentFromDatabase();
 
     this.privacyPolicyDateTime = dbLocalUser.getPrivacyPolicyDateTime();
 
@@ -285,7 +298,7 @@ public class User extends UserPlayerDelegation implements
    */
   @NotNull
   public Sender asSender(de.timesnake.library.extension.util.chat.Plugin plugin) {
-    return new Sender(new ExCommandSender(player), plugin);
+    return new Sender(new CommandSender(player), plugin);
   }
 
   /**
@@ -543,21 +556,21 @@ public class User extends UserPlayerDelegation implements
    * @return if is user muted
    */
   public boolean isMuted() {
-    return isMuted;
-  }
+    if (this.mutedUntil == null) {
+      return false;
+    }
 
-  /**
-   * Mutes the user
-   */
-  public void mute() {
-    this.isMuted = true;
-  }
+    if (this.mutedUntil.isBefore(LocalDateTime.now())) {
+      DbPunishment dbPunishment = this.dbUser.getPunishment();
+      Punishment punishment = dbPunishment.asPunishment();
+      if (punishment.getType().equals(PunishType.TEMP_MUTE) && punishment.isExpired()) {
+        dbPunishment.delete();
+      }
+      this.mutedUntil = null;
+      return false;
+    }
 
-  /**
-   * Unmutes the user
-   */
-  public void unMute() {
-    this.isMuted = false;
+    return true;
   }
 
   /**
@@ -1009,7 +1022,7 @@ public class User extends UserPlayerDelegation implements
       return;
     }
 
-    this.scores.put(line, text);
+    this.sideboardScores.put(line, text);
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.sideboard.getName(), text, line));
@@ -1026,10 +1039,10 @@ public class User extends UserPlayerDelegation implements
       return;
     }
 
-    if (!this.scores.containsKey(line)) {
+    if (!this.sideboardScores.containsKey(line)) {
       return;
     }
-    this.scores.remove(line);
+    this.sideboardScores.remove(line);
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.sideboard.getName(), text, line));
   }
@@ -1040,7 +1053,7 @@ public class User extends UserPlayerDelegation implements
    * @param line The line to remove
    */
   public void removeSideboardScore(int line) {
-    this.removeSideboardScore(line, this.scores.get(line));
+    this.removeSideboardScore(line, this.sideboardScores.get(line));
   }
 
   /**
@@ -1053,7 +1066,7 @@ public class User extends UserPlayerDelegation implements
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetObjectivePacketBuilder.ofRemove(this.sideboard.getName()));
-    this.scores.clear();
+    this.sideboardScores.clear();
     this.setSideboard(null);
   }
 
@@ -2048,7 +2061,7 @@ public class User extends UserPlayerDelegation implements
     } else if (type.equals(MessageType.User.PERMISSION)) {
       this.updatePermissions(true);
     } else if (type.equals(MessageType.User.PUNISH)) {
-      this.updatePunishment();
+      this.updatePunishmentFromDatabase();
     } else if (type.equals(MessageType.User.ALIAS)) {
       this.updateAlias();
     } else if (type.equals(MessageType.User.TASK)) {
@@ -2172,12 +2185,17 @@ public class User extends UserPlayerDelegation implements
         .limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
   }
 
-  /**
-   * Updates the punishment from database (only mute)
-   */
-  public void updatePunishment() {
-    PunishType type = this.dbUser.getPunishment().getType();
-    this.isMuted = type != null && type.equals(PunishType.MUTE);
+  public void updatePunishmentFromDatabase() {
+    Punishment punishment = this.dbUser.getPunishment().asPunishment();
+    PunishType type = punishment.getType();
+
+    if (punishment.isExpired()) {
+      this.mutedUntil = null;
+      Loggers.PUNISH.info("Un-muted user '" + this.getName() + "' (invoked by channel/database update)");
+    } else if (type.equals(PunishType.TEMP_MUTE)) {
+      this.mutedUntil = punishment.getDate().plusSeconds(punishment.getDuration().toSeconds());
+      Loggers.PUNISH.info("Muted user '" + this.getName() + "' (invoked by channel/database update)");
+    }
   }
 
   public void sendPacket(Packet<?> packet) {
