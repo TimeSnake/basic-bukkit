@@ -10,7 +10,7 @@ import de.timesnake.basic.bukkit.core.server.TaskManager;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
-import de.timesnake.basic.bukkit.util.chat.CommandManager;
+import de.timesnake.basic.bukkit.util.chat.cmd.CommandManager;
 import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.GroupManager;
@@ -114,7 +114,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     this.chatManager = this.initChatManager();
 
     this.groupManager = this.initGroupManager();
-    System.out.println(this.groupManager);
+
     ArrayList<PermGroup> groups = new ArrayList<>(this.getPermGroups());
     groups.sort(PermGroup::compareTo);
     groups.sort(Comparator.reverseOrder());

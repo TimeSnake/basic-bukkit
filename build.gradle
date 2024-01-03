@@ -42,6 +42,7 @@ dependencies {
   implementation "de.timesnake:library-network:1.3.1"
   implementation "de.timesnake:library-entities:2.2"
   implementation "de.timesnake:library-packets:2.1.1"
+  implementation "de.timesnake:library-commands:1.0"
   implementation "de.timesnake:library-extension:1.2"
   implementation "de.timesnake:library-basic:1.2.2"
   implementation "de.timesnake:library-chat:1.1"
@@ -69,6 +70,7 @@ configurations.configureEach {
       substitute module("de.timesnake:library-packets") using project(":library-packets")
       substitute module("de.timesnake:library-entities") using project(":library-entities")
       substitute module("de.timesnake:library-network") using project(":library-network")
+      substitute module("de.timesnake:library-commands") using project(":library-commands")
       substitute module("de.timesnake:library-extension") using project(":library-extension")
       substitute module("de.timesnake:library-basic") using project(":library-basic")
       substitute module("de.timesnake:library-chat") using project(":library-chat")

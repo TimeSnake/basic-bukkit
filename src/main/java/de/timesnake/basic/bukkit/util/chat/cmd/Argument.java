@@ -2,23 +2,21 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.chat;
+package de.timesnake.basic.bukkit.util.chat.cmd;
 
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.library.commands.CommandExitException;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.chat.Code.Type;
-import de.timesnake.library.extension.util.cmd.CommandExitException;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldType;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
+import java.util.function.Function;
+
+public class Argument extends de.timesnake.library.commands.Argument {
 
   public static final Code WORLD_TYPE_NON = new Code.Builder()
       .setPlugin(Plugin.SYSTEM)
@@ -38,6 +36,10 @@ public class Argument extends de.timesnake.library.extension.util.cmd.Argument {
 
   public Argument(Sender sender, String string) {
     super(sender, string);
+  }
+
+  public void assertElseExit(Function<Argument, Boolean> function) {
+    super.assertElseExitBasis(function);
   }
 
   public boolean isPlayerName(boolean sendMessage) {

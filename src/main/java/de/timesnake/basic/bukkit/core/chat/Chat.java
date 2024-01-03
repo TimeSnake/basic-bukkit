@@ -8,13 +8,14 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
@@ -172,8 +173,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
       for (ChatMember member : this.listeners) {
         member.sendMessage(msg);
       }
-      Loggers.CHATS.info(this.name + ": " + PlainTextComponentSerializer.plainText()
-          .serialize(msg));
+      Loggers.CHATS.info(this.name + ": " + PlainTextComponentSerializer.plainText().serialize(msg));
     }
   }
 

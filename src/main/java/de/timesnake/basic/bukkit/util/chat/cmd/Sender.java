@@ -2,9 +2,9 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.util.chat;
+package de.timesnake.basic.bukkit.util.chat.cmd;
 
-import de.timesnake.basic.bukkit.core.chat.ExCommandSender;
+import de.timesnake.basic.bukkit.core.chat.CommandSender;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.Loggers;
@@ -12,14 +12,14 @@ import de.timesnake.library.extension.util.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
-public class Sender extends de.timesnake.library.extension.util.cmd.Sender {
+public class Sender extends de.timesnake.library.commands.Sender {
 
-  public Sender(ExCommandSender cmdSender, Plugin plugin) {
+  public Sender(CommandSender cmdSender, Plugin plugin) {
     super(cmdSender, plugin, Server.getTimeDownParser());
   }
 
   public Sender(Player player, Plugin plugin) {
-    super(new ExCommandSender(player), plugin, Server.getTimeDownParser());
+    super(new CommandSender(player), plugin, Server.getTimeDownParser());
   }
 
   public Component getChatName() {
