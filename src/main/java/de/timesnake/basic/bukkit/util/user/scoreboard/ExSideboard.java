@@ -5,7 +5,8 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.chat.Chat;
+
 import java.util.function.Function;
 
 public interface ExSideboard extends Sideboard {

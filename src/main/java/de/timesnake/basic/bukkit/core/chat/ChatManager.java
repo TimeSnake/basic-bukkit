@@ -19,11 +19,11 @@ import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
-import de.timesnake.library.extension.util.NetworkVariables;
-import de.timesnake.library.extension.util.chat.Code;
+import de.timesnake.library.network.NetworkVariables;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChatManager implements de.timesnake.library.extension.util.chat.Chat, Listener,
+public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 		de.timesnake.basic.bukkit.util.chat.ChatManager, CommandListener {
 
 	public static final ExTextColor COLOR = ExTextColor.GRAY;
@@ -156,13 +156,13 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 	@Override
 	public Component getSenderMember(ChatMember member) {
 		return member.getChatNameComponent()
-				.append(de.timesnake.library.extension.util.chat.Chat.getSplitter());
+				.append(de.timesnake.library.chat.Chat.getSplitter());
 	}
 
 	@Override
 	public Component getSender(Sender sender) {
 		return sender.getChatName()
-				.append(de.timesnake.library.extension.util.chat.Chat.getSplitter());
+				.append(de.timesnake.library.chat.Chat.getSplitter());
 	}
 
 	@Override
@@ -220,12 +220,12 @@ public class ChatManager implements de.timesnake.library.extension.util.chat.Cha
 		// catch if user not in database -> error (proxy should add user)
 		if (!Database.getUsers().containsUser(user.getUniqueId())) {
 			user.sendMessage(
-          de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(Plugin.SERVER)
+					de.timesnake.library.chat.Chat.getSenderPlugin(Plugin.SERVER)
 							.append(Component.text("§lContact a supporter!!!",
 									ExTextColor.WARNING)));
 			user.getPlayer().kick(Component.text("Contact a supporter!!!\n", ExTextColor.WARNING,
 							TextDecoration.BOLD)
-					.append(de.timesnake.library.extension.util.chat.Chat.getMessageCode("E", 805,
+					.append(de.timesnake.library.chat.Chat.getMessageCode("E", 805,
               Plugin.SERVER))
 					.append(Component.text("\nDO NOT REJOIN", ExTextColor.WARNING,
 							TextDecoration.BOLD)));

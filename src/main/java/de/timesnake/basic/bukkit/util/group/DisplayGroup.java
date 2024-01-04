@@ -10,14 +10,15 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.library.basic.util.Loggers;
-import java.util.LinkedList;
-import java.util.List;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class DisplayGroup extends
-    de.timesnake.library.extension.util.chat.DisplayGroup<User> implements TablistableGroup {
+    de.timesnake.library.permissions.DisplayGroup<User> implements TablistableGroup {
 
 
   public static final TablistGroupType TABLIST_TYPE_0 = TablistGroupType.DISPLAY_GROUP_0;

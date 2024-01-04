@@ -11,7 +11,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.database.util.server.DbPvPServer;
 import de.timesnake.library.chat.ExTextColor;
-import de.timesnake.library.extension.util.chat.Plugin;
+import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.event.EventHandler;

@@ -14,10 +14,11 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import de.timesnake.library.basic.util.Loggers;
-import de.timesnake.library.extension.util.NetworkVariables;
-import java.util.HashMap;
+import de.timesnake.library.network.NetworkVariables;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+
+import java.util.HashMap;
 
 public class ScoreboardManager implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {

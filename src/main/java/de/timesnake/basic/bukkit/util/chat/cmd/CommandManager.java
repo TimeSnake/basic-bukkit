@@ -4,8 +4,8 @@
 
 package de.timesnake.basic.bukkit.util.chat.cmd;
 
+import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.commands.basis.CommandListenerBasis;
-import de.timesnake.library.extension.util.chat.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;

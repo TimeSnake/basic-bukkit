@@ -9,12 +9,13 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.library.basic.util.Loggers;
-import de.timesnake.library.extension.util.permission.ExPermission;
-import de.timesnake.library.extension.util.player.UserSet;
-import java.util.Collection;
+import de.timesnake.library.basic.util.UserSet;
+import de.timesnake.library.permissions.ExPermission;
 import org.jetbrains.annotations.NotNull;
 
-public class PermGroup extends de.timesnake.library.extension.util.permission.PermGroup<User> {
+import java.util.Collection;
+
+public class PermGroup extends de.timesnake.library.permissions.PermGroup<User> {
 
   private final UserSet<User> users = new UserSet<>();
 

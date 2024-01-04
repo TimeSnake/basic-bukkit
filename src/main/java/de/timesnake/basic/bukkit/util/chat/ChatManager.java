@@ -13,7 +13,7 @@ import org.bukkit.Location;
 
 import java.util.Set;
 
-public interface ChatManager extends de.timesnake.library.extension.util.chat.Chat {
+public interface ChatManager extends de.timesnake.library.chat.Chat {
 
   Chat createChat(String name, String displayName, ExTextColor chatColor,
       Set<ChatMember> members);

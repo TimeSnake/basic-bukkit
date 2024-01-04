@@ -11,7 +11,7 @@ import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
-import de.timesnake.library.extension.util.permission.Permission;
+import de.timesnake.library.permissions.Permission;
 import net.kyori.adventure.text.Component;
 
 public class PidCmd implements CommandListener {

@@ -6,7 +6,7 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.DuplicateScoreboardException;
-import de.timesnake.library.extension.util.player.UserSet;
+import de.timesnake.library.basic.util.UserSet;
 
 import java.util.HashSet;
 import java.util.Set;

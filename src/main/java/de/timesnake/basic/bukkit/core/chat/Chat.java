@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
@@ -138,21 +139,21 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
   }
 
   @Override
-  public void broadcastPluginTDMessage(de.timesnake.library.extension.util.chat.Plugin sender,
-      String... msgs) {
+  public void broadcastPluginTDMessage(Plugin sender,
+                                       String... msgs) {
     for (String msg : msgs) {
       this.broadcastMessage(
-          de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender)
+          de.timesnake.library.chat.Chat.getSenderPlugin(sender)
               .append(Server.getTimeDownParser().parse2Component(msg)));
     }
   }
 
   @Override
-  public void broadcastPluginMessage(de.timesnake.library.extension.util.chat.Plugin sender,
-      Component... msgs) {
+  public void broadcastPluginMessage(Plugin sender,
+                                     Component... msgs) {
     for (Component msg : msgs) {
       this.broadcastMessage(
-          de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(sender)
+          de.timesnake.library.chat.Chat.getSenderPlugin(sender)
               .append(msg));
     }
   }
@@ -194,20 +195,20 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
   }
 
   @Override
-  public void broadcastClickableTDMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
-      String text,
-      String exec, String info, ClickEvent.Action action) {
+  public void broadcastClickableTDMessage(Plugin plugin,
+                                          String text,
+                                          String exec, String info, ClickEvent.Action action) {
     this.broadcastClickableMessage(plugin,
         Server.getTimeDownParser().parse2Component(text), exec,
         Server.getTimeDownParser().parse2Component(info), action);
   }
 
   @Override
-  public void broadcastClickableMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
-      Component text,
-      String exec, Component info, ClickEvent.Action action) {
+  public void broadcastClickableMessage(Plugin plugin,
+                                        Component text,
+                                        String exec, Component info, ClickEvent.Action action) {
     this.broadcastClickableMessage(
-        de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(plugin).append(text),
+        de.timesnake.library.chat.Chat.getSenderPlugin(plugin).append(text),
         exec, info, action);
   }
 

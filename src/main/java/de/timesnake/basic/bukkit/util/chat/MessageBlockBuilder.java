@@ -4,7 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.chat;
 
-import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.chat.Chat;
 
 import java.util.LinkedList;
 import java.util.List;
