@@ -12,7 +12,7 @@ import de.timesnake.library.basic.util.LogHelper;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
-import de.timesnake.library.extension.util.permission.Permission;
+import de.timesnake.library.permissions.Permission;
 import net.kyori.adventure.text.Component;
 
 import java.util.logging.Level;

@@ -11,7 +11,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
 import de.timesnake.library.basic.util.Loggers;
-import de.timesnake.library.extension.util.player.UserSet;
+import de.timesnake.library.basic.util.UserSet;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundInitializeBorderPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundSetBorderLerpSizePacketBuilder;
 import net.minecraft.network.protocol.Packet;

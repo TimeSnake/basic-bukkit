@@ -47,14 +47,14 @@ import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.PunishType;
 import de.timesnake.library.basic.util.Punishment;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.chat.Chat;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.PlayerBuilder;
-import de.timesnake.library.extension.util.chat.Chat;
-import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.permission.ExPermission;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import de.timesnake.library.permissions.ExPermission;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -102,9 +102,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * database. It is recommended to extend these class in a new plugin
  */
 
-public class User extends UserPlayerDelegation implements
-    de.timesnake.library.extension.util.player.User, ChannelListener,
-    TablistablePlayer, ChatMember {
+public class User extends UserPlayerDelegation implements ChannelListener, TablistablePlayer, ChatMember {
 
   private final DbUser dbUser;
 
@@ -297,7 +295,7 @@ public class User extends UserPlayerDelegation implements
    * @return the {@link Sender}
    */
   @NotNull
-  public Sender asSender(de.timesnake.library.extension.util.chat.Plugin plugin) {
+  public Sender asSender(de.timesnake.library.chat.Plugin plugin) {
     return new Sender(new CommandSender(player), plugin);
   }
 
@@ -353,7 +351,6 @@ public class User extends UserPlayerDelegation implements
    * @return The {@link DbUser}
    */
   @NotNull
-  @Override
   public final DbUser getDatabase() {
     return this.dbUser;
   }
@@ -424,7 +421,7 @@ public class User extends UserPlayerDelegation implements
    * @param message The message to send
    */
   @Deprecated
-  public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+  public void sendPluginMessage(de.timesnake.library.chat.Plugin plugin,
                                 String message) {
     this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
   }
@@ -435,7 +432,7 @@ public class User extends UserPlayerDelegation implements
    * @param plugin  The {@link Plugin} to send the message
    * @param message The message to send
    */
-  public void sendPluginMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+  public void sendPluginMessage(de.timesnake.library.chat.Plugin plugin,
                                 Component message) {
     this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin).append(message));
   }
@@ -446,7 +443,7 @@ public class User extends UserPlayerDelegation implements
    * @param plugin  The {@link Plugin} to send the message
    * @param message The message to send
    */
-  public void sendPluginTDMessage(de.timesnake.library.extension.util.chat.Plugin plugin,
+  public void sendPluginTDMessage(de.timesnake.library.chat.Plugin plugin,
                                   String message) {
     this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin)
         .append(Server.getTimeDownParser().parse2Component(message)));
@@ -1267,7 +1264,7 @@ public class User extends UserPlayerDelegation implements
    */
   @Deprecated
   public boolean hasPermission(String permission, Code code,
-                               de.timesnake.library.extension.util.chat.Plugin plugin) {
+                               de.timesnake.library.chat.Plugin plugin) {
     return this.asSender(plugin).hasPermission(permission, code);
   }
 
@@ -1279,7 +1276,7 @@ public class User extends UserPlayerDelegation implements
    * @return if user has
    */
   public boolean hasPermission(Code code,
-                               de.timesnake.library.extension.util.chat.Plugin plugin) {
+                               de.timesnake.library.chat.Plugin plugin) {
     return this.asSender(plugin).hasPermission(code);
   }
 

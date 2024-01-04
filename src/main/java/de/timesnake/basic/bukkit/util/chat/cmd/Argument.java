@@ -8,9 +8,9 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import de.timesnake.library.chat.Code;
+import de.timesnake.library.chat.Code.Type;
 import de.timesnake.library.commands.CommandExitException;
-import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.chat.Code.Type;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 

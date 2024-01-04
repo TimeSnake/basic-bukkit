@@ -9,10 +9,10 @@ import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
 import de.timesnake.basic.bukkit.util.chat.cmd.ExCommandListener;
 import de.timesnake.basic.bukkit.util.chat.cmd.ExCompletion;
 import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.extended.ExArguments;
-import de.timesnake.library.extension.util.chat.Code;
 import net.kyori.adventure.text.Component;
 
 public class CodeCmd implements ExCommandListener {

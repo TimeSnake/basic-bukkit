@@ -14,8 +14,8 @@ import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.ChannelUserMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
-import de.timesnake.library.extension.util.NetworkVariables;
 import de.timesnake.library.network.NetworkUtils;
+import de.timesnake.library.network.NetworkVariables;
 
 import java.util.Collections;
 import java.util.HashSet;

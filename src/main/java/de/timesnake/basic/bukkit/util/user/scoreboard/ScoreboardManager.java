@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.library.extension.util.NetworkVariables;
+import de.timesnake.library.network.NetworkVariables;
 
 public interface ScoreboardManager {
 

@@ -10,10 +10,10 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.game.DbMap;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.commands.Completion;
 import de.timesnake.library.commands.extended.ExArguments;
-import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.permission.PermGroup;
+import de.timesnake.library.permissions.PermGroup;
 
 import java.util.Collection;
 import java.util.List;
