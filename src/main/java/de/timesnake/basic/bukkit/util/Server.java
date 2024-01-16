@@ -6,6 +6,7 @@ package de.timesnake.basic.bukkit.util;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.FullServerInfo;
+import de.timesnake.basic.bukkit.core.user.UserPermissionManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
 import de.timesnake.basic.bukkit.util.chat.cmd.CommandManager;
@@ -706,6 +707,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
 
   public static Random getRandom() {
     return server.getRandom();
+  }
+
+  public static UserPermissionManager getUserPermissionManager() {
+    return server.getUserPermissionManager();
   }
 
   private static final ServerManager server = ServerManager.getInstance();

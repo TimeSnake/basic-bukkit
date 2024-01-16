@@ -42,8 +42,7 @@ public class PermGroup extends de.timesnake.library.permissions.PermGroup<User> 
     this.permissions.clear();
 
     for (DbPermission dbPermission : this.database.getPermissions()) {
-      this.permissions.add(new ExPermission(dbPermission.getName(), dbPermission.getMode(),
-          dbPermission.getServers()));
+      this.permissions.add(new ExPermission(dbPermission.getPermission(), dbPermission.getMode()));
     }
 
     DbPermGroup group = this.database.getInheritance();

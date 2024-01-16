@@ -58,7 +58,7 @@ public class CommandManager extends CommandHandler<Sender, Argument, Arguments<A
       bukkitCommand.setPermission(listener.getPermission());
 
       PluginCommand pluginCommand = new PluginCommand(cmd, basicPlugin);
-      this.addCommand(cmd, listener, pluginCommand.getPlugin());
+      this.addCommand(cmd, aliases, listener, pluginCommand.getPlugin());
     } else {
       Loggers.COMMAND.warning("Error while adding command " + cmd + ". Not registered in plugin.yml");
     }
