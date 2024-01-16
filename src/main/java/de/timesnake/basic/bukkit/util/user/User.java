@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.util.user;
 import de.timesnake.basic.bukkit.core.chat.CommandSender;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.user.PvPManager;
+import de.timesnake.basic.bukkit.core.user.UserPermissible;
 import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
 import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.core.user.scoreboard.TablistablePlayer;
@@ -39,7 +40,6 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.object.DbLocation;
-import de.timesnake.database.util.permission.DbPermission;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DbPunishment;
 import de.timesnake.database.util.user.DbUser;
@@ -54,7 +54,6 @@ import de.timesnake.library.entities.entity.PlayerBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
-import de.timesnake.library.permissions.ExPermission;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -76,8 +75,6 @@ import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -119,7 +116,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   private final ServerInfo lastServer;
   private final ServerInfo lastLobbyServer;
 
-  private final Set<ExPermission> permissions = new HashSet<>();
+  private final UserPermissible permissible;
   private PermGroup permGroup;
   private final SortedSet<DisplayGroup> displayGroups;
 
@@ -187,13 +184,13 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.displayGroups = new TreeSet<>(Comparator.comparingInt(DisplayGroup::getRank));
     this.updateDisplayGroups();
 
+    this.permissible = Server.getUserPermissionManager().getUserPermissible(this.getUniqueId());
+
     // Chat name is being updated by display group update
 
     this.status = dbLocalUser.getStatus();
 
     this.task = dbLocalUser.getTask();
-
-    this.updatePermissionsSync(true);
 
     this.updatePunishmentFromDatabase();
 
@@ -815,8 +812,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     if (this.permGroup == null) {
       this.permGroup = Server.getGuestPermGroup();
       this.getDatabase().setPermGroup(this.permGroup.getName());
-      Server.getChannel().sendMessage(
-          new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
+      Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
               this.permGroup.getName()));
     }
 
@@ -855,8 +851,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   @Nullable
   @Override
   public String getTablistPrefix() {
-    return this.getPrefix() != null ? LegacyComponentSerializer.legacySection()
-        .serialize(this.getPrefix()) : null;
+    return this.getPrefix() != null ? LegacyComponentSerializer.legacySection().serialize(this.getPrefix()) : null;
   }
 
   @Nullable
@@ -921,7 +916,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param player The {@link TablistablePlayer} to remove
    * @param rank   The rank of the group
    */
-  public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player, String rank) {
+  public void removeTablistEntry(TablistablePlayer player, String rank) {
     this.removeTablistEntry(player);
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetPlayerTeamPacketBuilder.ofRemovePlayer(rank, player.getTablistName()));
@@ -943,8 +938,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
     this.tablist = tablist;
     if (this.tablist == null) {
-      de.timesnake.basic.bukkit.core.user.scoreboard.Tablist standard =
-          (de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) Server.getScoreboardManager().getTablist(Server.getName());
+      Tablist standard = Server.getScoreboardManager().getTablist(Server.getName());
       this.setTablist(standard);
       return;
     }
@@ -1182,7 +1176,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       this.dbUser.setService(service);
     }
     this.service = service;
-    this.updatePermissions(false);
+    this.permissible.updatePermissions(false);
   }
 
   /**
@@ -1210,7 +1204,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     }
 
     this.status = status;
-
   }
 
   /**
@@ -1263,8 +1256,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @return if user has
    */
   @Deprecated
-  public boolean hasPermission(String permission, Code code,
-                               de.timesnake.library.chat.Plugin plugin) {
+  public boolean hasPermission(String permission, Code code, de.timesnake.library.chat.Plugin plugin) {
     return this.asSender(plugin).hasPermission(permission, code);
   }
 
@@ -1275,8 +1267,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param plugin The {@link Plugin} of the permission
    * @return if user has
    */
-  public boolean hasPermission(Code code,
-                               de.timesnake.library.chat.Plugin plugin) {
+  public boolean hasPermission(Code code, de.timesnake.library.chat.Plugin plugin) {
     return this.asSender(plugin).hasPermission(code);
   }
 
@@ -1286,82 +1277,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param fromDatabase Set true to update from database and group
    */
   public void updatePermissions(boolean fromDatabase) {
-    Server.runTaskAsynchrony(() -> this.updatePermissionsSync(fromDatabase),
-        BasicBukkit.getPlugin());
-  }
-
-  private void updatePermissionsSync(boolean fromDatabase) {
-    if (fromDatabase) {
-      this.permissions.clear();
-      for (DbPermission perm : Database.getUsers().getUser(getUniqueId()).getPermissions()) {
-        this.permissions.add(
-            new ExPermission(perm.getName(), perm.getMode(), perm.getServers()));
-      }
-    }
-
-    if (this.permGroup != null) {
-      this.permissions.addAll(this.permGroup.getPermissions());
-    }
-
-    if (fromDatabase) {
-      Loggers.PERMISSIONS.info("Updated permissions of user '" + this.getName() + "' from database");
-    } else {
-      Loggers.PERMISSIONS.info("Updated permissions of user '" + this.getName() + "'");
-    }
-
-    Server.runTaskSynchrony(this::loadPermissions, BasicBukkit.getPlugin());
-  }
-
-  private void loadPermissions() {
-    if (player.getEffectivePermissions() != null) {
-      for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-        player.addAttachment(BasicBukkit.getPlugin())
-            .setPermission(attachmentInfo.getPermission(), false);
-      }
-      if (!this.permissions.isEmpty()) {
-        for (ExPermission perm : permissions) {
-          addPermission(perm);
-        }
-      }
-      Loggers.PERMISSIONS.info("Loaded permissions of user '" + this.getName() + "'");
-    }
-  }
-
-  /**
-   * Adds the permission to user Adds with status check from server and user
-   *
-   * @param perm The {@link ExPermission} to add
-   */
-  public void addPermission(ExPermission perm) {
-    Status.Permission mode = perm.getMode();
-    Status.Server statusServer = Server.getStatus();
-    Status.User statusPlayer = this.getStatus();
-    Collection<String> server = perm.getServer();
-    Player p = this.player;
-
-    if (perm.getPermission() == null) {
-      return;
-    }
-
-    if (!(server == null || server.contains(Server.getName()) || server.isEmpty())) {
-      return;
-    }
-
-    if (mode.equals(Status.Permission.IN_GAME)) {
-      PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
-      attachment.setPermission(perm.getPermission(), true);
-    } else if (statusServer.equals(Status.Server.SERVICE)) {
-      PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
-      attachment.setPermission(perm.getPermission(), true);
-    } else if (this.isService()) {
-      PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
-      attachment.setPermission(perm.getPermission(), true);
-    } else if (mode.equals(Status.Permission.ONLINE) && (
-        statusServer.equals(Status.Server.ONLINE)
-            && statusPlayer.equals(Status.User.ONLINE))) {
-      PermissionAttachment attachment = p.addAttachment(BasicBukkit.getPlugin());
-      attachment.setPermission(perm.getPermission(), true);
-    }
+    this.permissible.updatePermissions(fromDatabase);
   }
 
   //network

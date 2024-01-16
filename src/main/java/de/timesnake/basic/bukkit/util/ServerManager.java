@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.util;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.server.TaskManager;
+import de.timesnake.basic.bukkit.core.user.UserPermissionManager;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
@@ -96,6 +97,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   protected de.timesnake.basic.bukkit.util.user.UserManager userManager;
   private DbServer database;
   private UserEventManager userEventManager;
+  private UserPermissionManager userPermissionManager;
   private InventoryEventManager inventoryEventManager;
   private TaskManager taskManager;
   private FullServerInfo info;
@@ -127,6 +129,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     this.worldManager = this.initWorldManager();
 
     this.userEventManager = new de.timesnake.basic.bukkit.core.user.UserEventManager();
+    this.userPermissionManager = new UserPermissionManager();
     this.inventoryEventManager = new de.timesnake.basic.bukkit.core.user.inventory.InventoryEventManager();
     this.pvpManager = this.initPvPManager();
 
@@ -898,5 +901,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
   public Random getRandom() {
     return this.random;
+  }
+
+  public UserPermissionManager getUserPermissionManager() {
+    return userPermissionManager;
   }
 }

@@ -31,27 +31,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.projectiles.ProjectileSource;
-import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class UserEventManager implements Listener, de.timesnake.basic.bukkit.util.user.UserEventManager {
-
-  private static final Field PERMISSION_FIELD;
-
-  static {
-    try {
-      PERMISSION_FIELD =
-          Class.forName("org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().replace(".",
-              ",").split(",")[3] + ".entity.CraftHumanEntity").getDeclaredField("perm");
-      PERMISSION_FIELD.setAccessible(true);
-    } catch (NoSuchFieldException | ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   private final HashMap<User, UserChatCommandListener> chatListener = new HashMap<>();
 
@@ -59,36 +43,13 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     Server.registerListener(this, BasicBukkit.getPlugin());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler
   public void onPlayerLogin(PlayerLoginEvent e) {
     Player p = e.getPlayer();
 
-    // inject custom permission checker
-    try {
-      PERMISSION_FIELD.set(p, new PermissibleBase(p) {
-        @Override
-        public boolean hasPermission(@NotNull String inName) {
-          if (super.hasPermission("*")) {
-            return true;
-          }
+    boolean success = Server.getUserPermissionManager().createUserPermissible(p);
 
-          if (super.hasPermission(inName)) {
-            return true;
-          }
-
-          String[] needPerm = inName.split("\\.");
-          StringBuilder permSum = new StringBuilder();
-
-          for (String permPart : needPerm) {
-            permSum.append(permPart).append(".");
-            if (super.hasPermission(permSum + "*")) {
-              return true;
-            }
-          }
-          return false;
-        }
-      });
-    } catch (IllegalAccessException ex) {
+    if (!success) {
       Loggers.USERS.warning("Unable to inject player permission checker");
       e.setResult(PlayerLoginEvent.Result.KICK_OTHER);
       e.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A fatal error has occurred, please contact an " +
