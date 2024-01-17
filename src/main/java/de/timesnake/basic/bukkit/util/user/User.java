@@ -816,6 +816,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
               this.permGroup.getName()));
     }
 
+    this.permissible.updatePermGroup(this.permGroup);
+
     this.permGroup.addUser(this);
   }
 

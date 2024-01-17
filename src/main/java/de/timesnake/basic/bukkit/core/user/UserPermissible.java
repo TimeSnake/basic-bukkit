@@ -16,10 +16,14 @@ import de.timesnake.library.permissions.ExPermission;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.ServerOperator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +33,6 @@ public class UserPermissible extends PermissibleBase {
   private final DbUser user;
 
   private final Set<ExPermission> permissions = ConcurrentHashMap.newKeySet();
-  private final Set<String> enabledPermissions = ConcurrentHashMap.newKeySet();
 
   private PermGroup permGroup;
 
@@ -60,11 +63,11 @@ public class UserPermissible extends PermissibleBase {
 
   @Override
   public boolean hasPermission(@NotNull String inName) {
-    if (this.enabledPermissions.contains("*")) {
+    if (super.hasPermission("*")) {
       return true;
     }
 
-    if (this.enabledPermissions.contains(inName)) {
+    if (super.hasPermission(inName)) {
       return true;
     }
 
@@ -73,20 +76,19 @@ public class UserPermissible extends PermissibleBase {
 
     for (String permPart : needPerm) {
       permSum.append(permPart).append(".");
-      if (this.enabledPermissions.contains(permSum + "*")) {
+      if (super.hasPermission(permSum + "*")) {
         return true;
       }
     }
 
-    System.out.println("false " + inName);
     return false;
   }
 
-  /**
-   * Updates user permissions async
-   *
-   * @param fromDatabase Set true to update from database and group
-   */
+  @Override
+  public boolean hasPermission(@NotNull Permission perm) {
+    return this.hasPermission(perm.getName().toLowerCase(java.util.Locale.ENGLISH));
+  }
+
   public void updatePermissions(boolean fromDatabase) {
     Server.runTaskAsynchrony(() -> this.updatePermissionsSync(fromDatabase), BasicBukkit.getPlugin());
   }
@@ -95,23 +97,23 @@ public class UserPermissible extends PermissibleBase {
     Status.User status = this.user.getStatus();
     boolean isService = this.user.isService();
 
-    this.enabledPermissions.clear();
+    this.clearAttachments();
 
     if (fromDatabase) {
       this.permissions.clear();
+      this.clearPermissions();
 
-      this.user.getPermissions().parallelStream()
-          .map(p -> new ExPermission(p.getPermission(), p.getMode()))
-          .forEach(p -> {
-            this.permissions.add(p);
-            this.addPermission(p, status, isService);
-          });
+      this.user.getPermissions().forEach(p -> {
+        ExPermission exPerm = new ExPermission(p.getPermission(), p.getMode());
+        this.permissions.add(exPerm);
+        this.addPermission(exPerm, status, isService);
+      });
     } else {
-      this.permissions.parallelStream().forEach(p -> this.addPermission(p, status, isService));
+      this.permissions.forEach(p -> this.addPermission(p, status, isService));
     }
 
     if (this.permGroup != null) {
-      this.permGroup.getPermissions().parallelStream()
+      this.permGroup.getPermissions()
           .forEach(p -> {
             this.permissions.add(p);
             this.addPermission(p, status, isService);
@@ -125,23 +127,44 @@ public class UserPermissible extends PermissibleBase {
     }
   }
 
-  /**
-   * Adds the permission to user Adds with status check from server and user
-   *
-   * @param perm The {@link ExPermission} to add
-   */
+
   public void addPermission(ExPermission perm, Status.User status, boolean isService) {
     Status.Permission mode = perm.getMode();
     Status.Server statusServer = Server.getStatus();
 
     if (mode.equals(Status.Permission.IN_GAME)) {
-      this.enabledPermissions.add(perm.getPermission());
+      this.addAttachment(BasicBukkit.getPlugin()).setPermission(perm.getPermission(), true);
     } else if (statusServer.equals(Status.Server.SERVICE)) {
-      this.enabledPermissions.add(perm.getPermission());
+      this.addAttachment(BasicBukkit.getPlugin()).setPermission(perm.getPermission(), true);
     } else if (isService) {
-      this.enabledPermissions.add(perm.getPermission());
+      this.addAttachment(BasicBukkit.getPlugin()).setPermission(perm.getPermission(), true);
     } else if (mode.equals(Status.Permission.ONLINE) && (statusServer.equals(Status.Server.ONLINE) && status.equals(Status.User.ONLINE))) {
-      this.enabledPermissions.add(perm.getPermission());
+      this.addAttachment(BasicBukkit.getPlugin()).setPermission(perm.getPermission(), true);
     }
+  }
+
+  @Override
+  public synchronized void removeAttachment(@NotNull PermissionAttachment attachment) {
+    try {
+      super.removeAttachment(attachment);
+    } catch (IllegalArgumentException e) {
+      Loggers.PERMISSIONS.warning("Exception while removing attachment: " + e.getMessage());
+    }
+  }
+
+  private void clearAttachments() {
+    try {
+      Field Field = PermissibleBase.class.getDeclaredField("attachments");
+      Field.setAccessible(true);
+      List<?> attachments = (List<?>) Field.get(this);
+      attachments.clear();
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      Loggers.PERMISSIONS.warning("Failed to clear permission attachments of player '" + this.player.getName() + "'");
+    }
+  }
+
+  public void updatePermGroup(PermGroup permGroup) {
+    this.permGroup = permGroup;
+    this.updatePermissions(false);
   }
 }
