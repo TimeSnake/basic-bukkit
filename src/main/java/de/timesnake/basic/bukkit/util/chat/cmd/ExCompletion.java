@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
-import de.timesnake.database.util.game.DbMap;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.commands.Completion;
 import de.timesnake.library.commands.extended.ExArguments;
@@ -45,7 +44,7 @@ public class ExCompletion extends Completion<ExCompletion, Sender, Argument, ExA
     if (game == null) {
       return new ExCompletion();
     }
-    return new ExCompletion(game.getMaps().stream().map(DbMap::getName).toList());
+    return new ExCompletion(game.getMapNames());
   }
 
   public ExCompletion() {

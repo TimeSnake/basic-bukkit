@@ -2105,8 +2105,10 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     PunishType type = punishment.getType();
 
     if (punishment.isExpired()) {
+      if (this.mutedUntil != null) {
+        Loggers.PUNISH.info("Un-muted user '" + this.getName() + "' (invoked by channel/database update)");
+      }
       this.mutedUntil = null;
-      Loggers.PUNISH.info("Un-muted user '" + this.getName() + "' (invoked by channel/database update)");
     } else if (type.equals(PunishType.TEMP_MUTE)) {
       this.mutedUntil = punishment.getDate().plusSeconds(punishment.getDuration().toSeconds());
       Loggers.PUNISH.info("Muted user '" + this.getName() + "' (invoked by channel/database update)");
