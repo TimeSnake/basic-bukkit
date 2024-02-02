@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.game.DbGame;
-import de.timesnake.database.util.game.DbMap;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.commands.simple.Arguments;
 import de.timesnake.library.permissions.PermGroup;
@@ -17,7 +16,8 @@ import de.timesnake.library.permissions.PermGroup;
 import java.util.Collection;
 import java.util.List;
 
-public class Completion extends de.timesnake.library.commands.Completion<Completion, Sender, Argument, Arguments<Argument>> {
+public class Completion extends de.timesnake.library.commands.Completion<Completion, Sender, Argument,
+    Arguments<Argument>> {
 
   public static Completion empty() {
     return new Completion(null, List.of());
@@ -48,7 +48,8 @@ public class Completion extends de.timesnake.library.commands.Completion<Complet
     if (game == null) {
       return new Completion();
     }
-    return new Completion(game.getMaps().stream().map(DbMap::getName).toList());
+
+    return new Completion(game.getMapNames());
   }
 
   public Completion() {
@@ -79,7 +80,8 @@ public class Completion extends de.timesnake.library.commands.Completion<Complet
     super(permission, values);
   }
 
-  public Completion(Code permission, CmdFunction<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
+  public Completion(Code permission,
+                    CmdFunction<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
     super(permission, valuesProvider);
   }
 

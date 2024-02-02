@@ -32,6 +32,15 @@ public class Sender extends de.timesnake.library.commands.Sender {
     return null;
   }
 
+  public String getTDChatName() {
+    if (this.isPlayer(false)) {
+      return this.getUser().getTDChatName();
+    } else if (this.isConsole(false)) {
+      return Plugin.SERVER.getName();
+    }
+    return null;
+  }
+
   public Player getPlayer() {
     return cmdSender.getPlayer();
   }
