@@ -136,7 +136,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     this.packetEntityManager = new PacketEntityManager();
     this.scoreboardManager = this.initScoreboardManager();
 
-    this.getChannel().addListener(this, () -> Collections.singleton(this.getName()));
+    this.getChannel().addListener(this, Collections.singleton(this.getName()));
 
     Server.runTaskLaterSynchrony(this::loaded, 1, BasicBukkit.getPlugin());
   }
@@ -737,7 +737,10 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     location.getWorld().dropItem(location, itemStack);
   }
 
-  @ChannelHandler(type = ListenerType.GROUP)
+  @ChannelHandler(type = {
+      ListenerType.GROUP_ALIAS,
+      ListenerType.GROUP_PERMISSION
+  })
   public final void onGroupMessage(ChannelGroupMessage<?> msg) {
     String groupName = msg.getName();
 

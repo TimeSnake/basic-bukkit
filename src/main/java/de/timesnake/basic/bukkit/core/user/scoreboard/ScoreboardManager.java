@@ -42,8 +42,7 @@ public class ScoreboardManager implements Listener,
       standard.setHeader("§6" + "Network");
     }
 
-    standard.setFooter(
-        de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager.getDefaultFooter());
+    standard.setFooter(de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager.getDefaultFooter());
 
     this.activeTablist = standard;
 
