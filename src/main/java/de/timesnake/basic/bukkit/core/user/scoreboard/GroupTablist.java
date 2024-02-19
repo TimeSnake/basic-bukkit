@@ -71,14 +71,13 @@ public class GroupTablist extends Tablist implements
 
   @Override
   public boolean removeEntry(TablistablePlayer player) {
-    Loggers.SCOREBOARD.info(
-        "tablist '" + this.name + "' try to remove '" + player.getTablistName()
-            + "'");
+    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
 
     boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
     if (removed) {
-      Loggers.SCOREBOARD.info(
-          "tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+      this.packetManager.sendPacket(this.watchingUsers,
+          new ClientboundPlayerInfoRemovePacket(List.of(player.getPlayer().getUniqueId())));
+      Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
     }
     return removed;
   }

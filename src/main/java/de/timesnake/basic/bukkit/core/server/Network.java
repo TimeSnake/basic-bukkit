@@ -35,7 +35,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
     this.playerAmount = playerAmount;
     this.variables = new NetworkVariables();
     this.variables.load();
-    Server.getChannel().addListener(this, () -> Collections.singleton(this.getProxyName()));
+    Server.getChannel().addListener(this, Collections.singleton(this.getProxyName()));
   }
 
   @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
@@ -45,7 +45,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
 
   @Override
   public String getProxyName() {
-    return Server.getChannel().getProxyName();
+    return "proxy";
   }
 
   @Override

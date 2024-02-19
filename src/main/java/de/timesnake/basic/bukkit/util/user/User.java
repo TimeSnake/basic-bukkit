@@ -178,7 +178,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       this.permGroup.addUser(this);
     } else {
       Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
-      this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin (permission group exception)"));
+      this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin (permission group exception)"
+      ));
     }
 
     this.displayGroups = new TreeSet<>(Comparator.comparingInt(DisplayGroup::getRank));
@@ -212,7 +213,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.inventoryLocked = false;
     this.blockBreakPlaceLocked = false;
 
-    Server.getChannel().addListener(this, () -> Collections.singleton(player.getUniqueId()));
+    Server.getChannel().addListener(this, Collections.singleton(player.getUniqueId()));
   }
 
   /**
@@ -567,6 +568,13 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     return true;
   }
 
+  public void mute(Duration duration, String reason) {
+    this.mutedUntil = LocalDateTime.now().plus(duration);
+    Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PUNISH,
+        new Punishment(this.getUniqueId(), PunishType.TEMP_MUTE, LocalDateTime.now(),
+            duration, "AntiCheat", reason)));
+  }
+
   /**
    * Sends a clickable test to the user
    *
@@ -813,7 +821,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       this.permGroup = Server.getGuestPermGroup();
       this.getDatabase().setPermGroup(this.permGroup.getName());
       Server.getChannel().sendMessage(new ChannelUserMessage<>(this.getUniqueId(), MessageType.User.PERM_GROUP,
-              this.permGroup.getName()));
+          this.permGroup.getName()));
     }
 
     this.permissible.updatePermGroup(this.permGroup);
@@ -996,7 +1004,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     }
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetObjectivePacketBuilder.ofChange(this.sideboard.getName(), title, ObjectiveCriteria.RenderType.INTEGER));
+        ClientboundSetObjectivePacketBuilder.ofChange(this.sideboard.getName(), title,
+            ObjectiveCriteria.RenderType.INTEGER));
   }
 
   /**
@@ -1956,7 +1965,19 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     return lockedLocation != null;
   }
 
-  @ChannelHandler(type = ListenerType.USER, filtered = true)
+  @ChannelHandler(type = {
+      ListenerType.USER_STATUS,
+      ListenerType.USER_SERVICE,
+      ListenerType.USER_SOUND,
+      ListenerType.USER_PERMISSION,
+      ListenerType.USER_PUNISH,
+      ListenerType.USER_ALIAS,
+      ListenerType.USER_TASK,
+      ListenerType.USER_COMMAND,
+      ListenerType.USER_PERM_GROUP,
+      ListenerType.USER_DISPLAY_GROUP,
+  },
+      filtered = true)
   public void onUserMessage(ChannelUserMessage<?> msg) {
     MessageType<?> type = msg.getMessageType();
     if (type.equals(MessageType.User.STATUS)) {
