@@ -52,8 +52,8 @@ dependencies {
   compileOnly "de.timesnake:database-bukkit:2.+"
   compileOnly "de.timesnake:database-api:2.+"
 
-  compileOnly "de.timesnake:channel-bukkit:3.+"
-  compileOnly "de.timesnake:channel-api:3.+"
+  compileOnly "de.timesnake:channel-bukkit:4.+"
+  compileOnly "de.timesnake:channel-api:4.+"
 
   compileOnly "org.freemarker:freemarker:2.3.31"
 
