@@ -11,9 +11,10 @@ import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorld.Restriction;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Tuple;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -43,6 +44,8 @@ import org.bukkit.util.Vector;
 import java.util.Set;
 
 public class WorldEventManager implements Listener {
+
+  private final Logger logger = LogManager.getLogger("world.event-manager");
 
   private final WorldManager worldManager;
 
@@ -90,7 +93,7 @@ public class WorldEventManager implements Listener {
           event.setCancelled(true);
           clickedBlock.setType(blockType, true);
           clickedBlock.setBlockData(clickedBlock.getBlockData());
-          Loggers.WORLDS.info("Cancelled interact physical event");
+          this.logger.info("Cancelled interact physical event");
           return;
         }
       }
@@ -110,7 +113,7 @@ public class WorldEventManager implements Listener {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
-            Loggers.WORLDS.info("Cancelled interact cauldron event");
+            this.logger.info("Cancelled interact cauldron event");
             return;
           }
         } else if (item.getType().equals(Material.BUCKET)) {
@@ -122,7 +125,7 @@ public class WorldEventManager implements Listener {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
-            Loggers.WORLDS.info("Cancelled interact cauldron event");
+            this.logger.info("Cancelled interact cauldron event");
             return;
           }
         }
@@ -136,7 +139,7 @@ public class WorldEventManager implements Listener {
           event.setCancelled(true);
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
-          Loggers.WORLDS.info("Cancelled interact cake event");
+          this.logger.info("Cancelled interact cake event");
           return;
         }
       }
@@ -146,7 +149,7 @@ public class WorldEventManager implements Listener {
         event.setCancelled(true);
         event.setUseInteractedBlock(Event.Result.DENY);
         event.setUseItemInHand(Event.Result.DENY);
-        Loggers.WORLDS.info("Cancelled interact block inventory event");
+        this.logger.info("Cancelled interact block inventory event");
         return;
       }
 
@@ -165,7 +168,7 @@ public class WorldEventManager implements Listener {
           event.setCancelled(true);
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
-          Loggers.WORLDS.info("Cancelled interact light-up event");
+          this.logger.info("Cancelled interact light-up event");
         } else if (item.getType().equals(Material.SPLASH_POTION)) {
           if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)) {
             return;
@@ -188,7 +191,7 @@ public class WorldEventManager implements Listener {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
-            Loggers.WORLDS.info("Cancelled interact place enderpearl event");
+            this.logger.info("Cancelled interact place enderpearl event");
             return;
           }
 
@@ -197,7 +200,7 @@ public class WorldEventManager implements Listener {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
-            Loggers.WORLDS.info("Cancelled interact cake candle event");
+            this.logger.info("Cancelled interact cake candle event");
             return;
           }
 
@@ -206,7 +209,7 @@ public class WorldEventManager implements Listener {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
-            Loggers.WORLDS.info("Cancelled interact sea pickle event");
+            this.logger.info("Cancelled interact sea pickle event");
             return;
           }
         }
@@ -218,7 +221,7 @@ public class WorldEventManager implements Listener {
           event.setCancelled(true);
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
-          Loggers.WORLDS.info("Cancelled interact fire event");
+          this.logger.info("Cancelled interact fire event");
         }
       }
     }
@@ -243,7 +246,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled item frame rotate event");
+    this.logger.info("Cancelled item frame rotate event");
   }
 
   @EventHandler
@@ -259,7 +262,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled drop item event");
+    this.logger.info("Cancelled drop item event");
   }
 
   @EventHandler
@@ -276,7 +279,7 @@ public class WorldEventManager implements Listener {
 
     e.setCancelled(true);
     e.setCancelDamage(true);
-    Loggers.WORLDS.info("Cancelled user damage event");
+    this.logger.info("Cancelled user damage event");
   }
 
   @EventHandler
@@ -294,7 +297,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled pickup item event");
+    this.logger.info("Cancelled pickup item event");
   }
 
   @EventHandler
@@ -310,7 +313,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled pickup arrow event");
+    this.logger.info("Cancelled pickup arrow event");
   }
 
   @EventHandler
@@ -333,7 +336,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(CancelPriority.LOW, true);
-    Loggers.WORLDS.info("Cancelled block break event");
+    this.logger.info("Cancelled block break event");
   }
 
   @EventHandler
@@ -350,7 +353,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled armorstand manipulate event");
+    this.logger.info("Cancelled armorstand manipulate event");
   }
 
   @EventHandler
@@ -368,7 +371,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled vehicle destroy event");
+    this.logger.info("Cancelled vehicle destroy event");
   }
 
   @EventHandler
@@ -386,7 +389,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled hanging destroy event");
+    this.logger.info("Cancelled hanging destroy event");
   }
 
   @EventHandler
@@ -407,7 +410,7 @@ public class WorldEventManager implements Listener {
       e.setCancelled(true);
     }
 
-    Loggers.WORLDS.info("Cancelled interact entity event");
+    this.logger.info("Cancelled interact entity event");
   }
 
   @EventHandler
@@ -430,7 +433,7 @@ public class WorldEventManager implements Listener {
 
     e.setCancelDamage(true);
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled user by user damage event");
+    this.logger.info("Cancelled user by user damage event");
   }
 
   @EventHandler
@@ -450,7 +453,7 @@ public class WorldEventManager implements Listener {
       e.getEntity().setFoodLevel(20);
     }
 
-    Loggers.WORLDS.info("Cancelled food change event");
+    this.logger.info("Cancelled food change event");
   }
 
   @EventHandler
@@ -466,7 +469,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled entity explode event");
+    this.logger.info("Cancelled entity explode event");
   }
 
   @EventHandler
@@ -526,7 +529,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    Loggers.WORLDS.info("Cancelled block place event");
+    this.logger.info("Cancelled block place event");
     e.setCancelled(CancelPriority.LOW, true);
   }
 
@@ -539,7 +542,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled block spread event");
+    this.logger.info("Cancelled block spread event");
   }
 
   @EventHandler
@@ -551,7 +554,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled block burn-up event");
+    this.logger.info("Cancelled block burn-up event");
   }
 
   @EventHandler
@@ -579,7 +582,7 @@ public class WorldEventManager implements Listener {
     }
 
     e.setCancelled(true);
-    Loggers.WORLDS.info("Cancelled block ignite event");
+    this.logger.info("Cancelled block ignite event");
   }
 
   @EventHandler
@@ -609,7 +612,7 @@ public class WorldEventManager implements Listener {
 
     if (block.getType() == Material.WATER || block.getType() == Material.LAVA) {
       e.setCancelled(true);
-      Loggers.WORLDS.info("Cancelled block burn-up event");
+      this.logger.info("Cancelled block burn-up event");
     }
   }
 

@@ -9,8 +9,6 @@ import de.timesnake.library.network.NetworkVariables;
 
 public interface Network extends de.timesnake.library.network.Network {
 
-  Integer PROXY_PORT = 25565;
-
   String getProxyName();
 
   NetworkVariables getVariables();

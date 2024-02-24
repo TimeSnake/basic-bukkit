@@ -6,7 +6,6 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
-import de.timesnake.library.basic.util.Loggers;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,7 +73,6 @@ public class ExSideboard extends Sideboard implements de.timesnake.basic.bukkit.
     }
 
     user.setSideboardScore(line, id.parseValue(value));
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set score "
-        + line + " '" + id.parseValue(value) + "' for user '" + user.getName() + "'");
+    this.logger.info("sideboard '{}' set score {}: '{}' for user '{}'", this.name, line, id.parseValue(value), user.getName());
   }
 }

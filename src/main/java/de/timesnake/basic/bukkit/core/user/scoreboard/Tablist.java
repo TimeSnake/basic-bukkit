@@ -19,6 +19,8 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
 import net.minecraft.server.ServerScoreboard;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,6 +30,8 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 public abstract class Tablist extends Scoreboard implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.Tablist {
+
+  protected final Logger logger = LogManager.getLogger("scoreboard.tablist");
 
   protected final ScoreboardPacketManager packetManager;
 

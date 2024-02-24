@@ -11,8 +11,9 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorldLoadEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorldType;
-import de.timesnake.library.basic.util.Loggers;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -30,6 +31,8 @@ import java.util.*;
 public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.world.WorldManager {
 
   private static final int TMP_DESTROY_TICKS = 3 * 60 * 20;
+
+  private final Logger logger = LogManager.getLogger("world.manager");
 
   private final WorldBorderManager worldBorderManager;
   private final WorldEventManager worldEventManager;
@@ -66,7 +69,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
       ExWorld world = this.createWorld(file.getName(), exWorldFile.getWorldType());
       if (world != null) {
-        Loggers.WORLDS.info("Loaded world '" + world.getName() + "'");
+        this.logger.info("Loaded world '{}'", world.getName());
       }
     }
 
@@ -112,7 +115,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       try {
         uuid = UUID.fromString(fileName.replace(".yml", ""));
       } catch (IllegalArgumentException e) {
-        Loggers.WORLDS.warning("Illegal locations file name '" + fileName + "'");
+        this.logger.warn("Illegal locations file name '{}'", fileName);
         continue;
       }
 
@@ -127,7 +130,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       this.locationsPerWorldByUuid.put(uuid, locationByWorld);
     }
 
-    Loggers.WORLDS.info("Loaded user locations");
+    this.logger.info("Loaded user locations");
   }
 
   public void onDisable() {
@@ -174,7 +177,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         file.setUserLocation(location);
       }
     }
-    Loggers.WORLDS.info("Saved user locations");
+    this.logger.info("Saved user locations");
   }
 
   @Override
@@ -231,7 +234,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   public @Nullable ExWorld createWorld(String name, ExWorldType type, boolean temporary) {
 
     if (type == null) {
-      Loggers.WORLDS.warning("Can not load type of world '" + name + "'");
+      this.logger.warn("Can not load type of world '{}'", name);
       return null;
     }
 
@@ -374,7 +377,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     try {
       FileUtils.deleteDirectory(world.getWorldFolder());
     } catch (IOException e) {
-      Loggers.WORLDS.warning("Exception while deleting world '" + world.getName() + "': " + e.getMessage());
+      this.logger.warn("Exception while deleting world '{}': {}", world.getName(), e.getMessage());
       return false;
     }
 
@@ -448,7 +451,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
         }
       }
     } catch (IOException e) {
-      Loggers.WORLDS.warning("Exception while copying world '" + source.getName() + "': " + e.getMessage());
+      this.logger.warn("Exception while copying world '{}': {}", source.getName(), e.getMessage());
     }
   }
 

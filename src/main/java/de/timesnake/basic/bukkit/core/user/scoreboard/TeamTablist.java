@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
 import de.timesnake.library.packets.util.packet.TablistHead;
@@ -218,7 +217,7 @@ public class TeamTablist extends Tablist implements
   }
 
   private void addEntry(TablistablePlayer player, boolean update) {
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' try to add '{}'", this.name, player.getTablistName());
 
     if (!player.showInTablist()) {
       return;
@@ -233,7 +232,7 @@ public class TeamTablist extends Tablist implements
 
     if (update) {
       this.updateChanges();
-      Loggers.SCOREBOARD.info("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+      this.logger.info("tablist '{}' added '{}'", this.name, player.getTablistName());
     }
   }
 
@@ -243,7 +242,7 @@ public class TeamTablist extends Tablist implements
   }
 
   private void addRemainEntry(TablistablePlayer player, boolean update) {
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add remain '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' try to add remain '{}'", this.name, player.getTablistName());
 
     if (!player.showInTablist()) {
       return;
@@ -267,17 +266,16 @@ public class TeamTablist extends Tablist implements
 
     if (update) {
       this.updateChanges();
-      Loggers.SCOREBOARD.info("tablist '" + this.name + "' added remain '" + player.getTablistName() + "'");
+      this.logger.info("tablist '{}' added remain '{}'", this.name, player.getTablistName());
     }
   }
 
   @Override
   public boolean removeEntry(TablistablePlayer player) {
-    Loggers.SCOREBOARD
-        .info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' try to remove '{}'", this.name, player.getTablistName());
     boolean removed = this.removeEntry(player, true);
     if (removed) {
-      Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+      this.logger.info("tablist '{}' removed '{}'", this.name, player.getTablistName());
     }
     return removed;
   }
@@ -291,7 +289,7 @@ public class TeamTablist extends Tablist implements
         if (userRankKey.get(player) != null) {
           String rank = userRankKey.get(player).teamRank();
           if (rank != null) {
-            removed |= this.remainTeam.removeEntry(player);
+            removed = this.remainTeam.removeEntry(player);
           }
         }
 
@@ -323,26 +321,24 @@ public class TeamTablist extends Tablist implements
   }
 
   @Override
-  public void addTeamHeader(String teamRank, String headerRank, String name,
-                            TablistHead head) {
+  public void addTeamHeader(String teamRank, String headerRank, String name, TablistHead head) {
     this.teamsTab.addHeaderToEntry(teamRank, headerRank, name, head);
     this.updateChanges();
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
+    this.logger.info("tablist '{}' added header to team '{}'", this.name, teamRank);
   }
 
   @Override
   public void addTeamHeader(String teamRank, String headerRank, String name) {
-    this.teamsTab.addHeaderToEntry(teamRank, headerRank, name,
-        TablistHead.BLANK);
+    this.teamsTab.addHeaderToEntry(teamRank, headerRank, name, TablistHead.BLANK);
     this.updateChanges();
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added team header to team '" + teamRank + "'");
+    this.logger.info("tablist '{}' added header to team '{}'", this.name, teamRank);
   }
 
   @Override
   public void removeTeamHeader(String teamRank, String headerRank) {
     this.teamsTab.removeHeaderFromEntry(teamRank, headerRank);
     this.updateChanges();
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed team header to team '" + teamRank + "'");
+    this.logger.info("tablist '{}' removed team header from team '{}'", this.name, teamRank);
   }
 
   public TeamTablist setNameTagVisibility(NameTagVisibility visibility) {
@@ -414,8 +410,7 @@ public class TeamTablist extends Tablist implements
           String groupRank = player.getFullRank(team.types);
 
           // build prefix
-          String prefix = player.getFullPrefix(new LinkedList<>(List.of(teamType))) +
-              player.getFullPrefix(team.types);
+          String prefix = player.getFullPrefix(new LinkedList<>(List.of(teamType))) + player.getFullPrefix(team.types);
           if (player.getTablistPrefix() != null) {
             prefix += player.getTablistPrefix();
           }
@@ -425,7 +420,7 @@ public class TeamTablist extends Tablist implements
           switch (colorType) {
             case TEAM -> chatColor = team.getChatColor();
             case LAST_GROUP -> {
-              if (team.types.size() == 0) {
+              if (team.types.isEmpty()) {
                 break;
               }
               TablistableGroup last = player.getTablistGroup(team.types.getLast());
@@ -435,7 +430,7 @@ public class TeamTablist extends Tablist implements
               chatColor = last.getTablistChatColor();
             }
             case FIRST_GROUP -> {
-              if (team.types.size() == 0) {
+              if (team.types.isEmpty()) {
                 break;
               }
               TablistableGroup first = player.getTablistGroup(team.types.getFirst());
@@ -444,12 +439,9 @@ public class TeamTablist extends Tablist implements
               }
               chatColor = first.getTablistChatColor();
             }
-            case WHITE -> chatColor = ChatColor.WHITE;
           }
 
-          team.addEntry(
-              new Entry(team, player.getTablistGroup(teamType), teamRank, groupRank,
-                  prefix, chatColor, player));
+          team.addEntry(new Entry(team, player.getTablistGroup(teamType), teamRank, groupRank, prefix, chatColor, player));
           return;
         }
       }
@@ -480,8 +472,7 @@ public class TeamTablist extends Tablist implements
                                  TablistHead head) {
       for (TeamTab team : this) {
         if (team.getRank().equals(teamRank)) {
-          team.addHeader(new Entry(team, null, teamRank, headerRank, null, null,
-              new FakeTablistPlayer(name, head)));
+          team.addHeader(new Entry(team, null, teamRank, headerRank, null, null, new FakeTablistPlayer(name, head)));
         }
       }
     }
@@ -508,8 +499,7 @@ public class TeamTablist extends Tablist implements
     private final Tab<Entry> headerTab = new Tab<>();
     private ArrayList<String> slots;
 
-    public TeamTab(String rank, ChatColor chatColor, boolean fillFake,
-                   LinkedList<TablistGroupType> types) {
+    public TeamTab(String rank, ChatColor chatColor, boolean fillFake, LinkedList<TablistGroupType> types) {
       super(rank);
       this.chatColor = chatColor;
       this.fillFake = fillFake;
@@ -604,10 +594,8 @@ public class TeamTablist extends Tablist implements
     protected String prefix;
     protected ChatColor chatColor;
 
-    public Entry(TeamTab teamTab, TablistableGroup team, String teamRank, String rank,
-                 String prefix,
-                 ChatColor chatColor,
-                 TablistablePlayer player) {
+    public Entry(TeamTab teamTab, TablistableGroup team, String teamRank, String rank, String prefix,
+                 ChatColor chatColor, TablistablePlayer player) {
       super(rank);
       this.teamTab = teamTab;
       this.team = team;
@@ -710,10 +698,8 @@ public class TeamTablist extends Tablist implements
       switch (TeamTablist.this.teamsTab.size()) {
         case 1 -> calcSingleRemain(it.next(), TeamTablist.this.remainTeam);
         case 2 -> calcDoubleRemain(it.next(), it.next(), TeamTablist.this.remainTeam);
-        case 3 -> calcTripleRemain(it.next(), it.next(), it.next(),
-            TeamTablist.this.remainTeam);
-        case 4 -> calcQuadrupleRemain(it.next(), it.next(), it.next(), it.next(),
-            TeamTablist.this.remainTeam);
+        case 3 -> calcTripleRemain(it.next(), it.next(), it.next(), TeamTablist.this.remainTeam);
+        case 4 -> calcQuadrupleRemain(it.next(), it.next(), it.next(), it.next(), TeamTablist.this.remainTeam);
         default -> {
         }
       }

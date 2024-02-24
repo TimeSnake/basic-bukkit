@@ -87,8 +87,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
     }
     this.userSwitching.add(uuid);
 
-    Server.getChannel()
-        .sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_NAME, server));
+    Server.getChannel().sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_NAME, server));
 
     Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20,
         BasicBukkit.getPlugin());

@@ -43,7 +43,6 @@ import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.database.util.user.DbPunishment;
 import de.timesnake.database.util.user.DbUser;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.PunishType;
 import de.timesnake.library.basic.util.Punishment;
 import de.timesnake.library.basic.util.Status;
@@ -65,6 +64,8 @@ import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.*;
 import org.bukkit.Note.Tone;
 import org.bukkit.attribute.Attribute;
@@ -100,6 +101,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class User extends UserPlayerDelegation implements ChannelListener, TablistablePlayer, ChatMember {
+
+  private final Logger punishLogger = LogManager.getLogger("user.punish");
+  private final Logger groupLogger = LogManager.getLogger("user.group");
 
   private final DbUser dbUser;
 
@@ -177,7 +181,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       this.permGroup = Server.getPermGroup(groupName);
       this.permGroup.addUser(this);
     } else {
-      Loggers.USERS.warning("Error while loading group for " + dbLocalUser.getName());
+      this.groupLogger.warn("Error while loading group for '{}'", dbLocalUser.getName());
       this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin (permission group exception)"
       ));
     }
@@ -2043,8 +2047,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
         this.displayGroups.add(group);
         group.addUser(this);
       } else {
-        Loggers.USERS.warning(
-            "Can not find display group " + groupName + " for user " + this.getName());
+        this.groupLogger.warn("Can not find display group '{}' for user '{}'", groupName, this.getName());
       }
     }
 
@@ -2127,12 +2130,12 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
     if (punishment.isExpired()) {
       if (this.mutedUntil != null) {
-        Loggers.PUNISH.info("Un-muted user '" + this.getName() + "' (invoked by channel/database update)");
+        this.punishLogger.info("Un-muted user '{}' (invoked by channel/database update)", this.getName());
       }
       this.mutedUntil = null;
     } else if (type.equals(PunishType.TEMP_MUTE)) {
       this.mutedUntil = punishment.getDate().plusSeconds(punishment.getDuration().toSeconds());
-      Loggers.PUNISH.info("Muted user '" + this.getName() + "' (invoked by channel/database update)");
+      this.punishLogger.info("Muted user '{}' (invoked by channel/database update)", this.getName());
     }
   }
 

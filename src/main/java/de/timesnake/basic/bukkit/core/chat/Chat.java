@@ -6,19 +6,22 @@ package de.timesnake.basic.bukkit.core.chat;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
+
+  private final Logger logger = LogManager.getLogger("server.chat");
 
   private final String name;
   private final String displayName;
@@ -164,7 +167,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
       for (ChatMember member : this.listeners) {
         member.sendTDMessage(msg);
       }
-      Loggers.CHATS.info(this.name + ": " + msg);
+      this.logger.info("{}: {}", this.name, msg);
     }
   }
 
@@ -174,7 +177,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
       for (ChatMember member : this.listeners) {
         member.sendMessage(msg);
       }
-      Loggers.CHATS.info(this.name + ": " + PlainTextComponentSerializer.plainText().serialize(msg));
+      this.logger.info("{}: {}", this.name, PlainTextComponentSerializer.plainText().serialize(msg));
     }
   }
 

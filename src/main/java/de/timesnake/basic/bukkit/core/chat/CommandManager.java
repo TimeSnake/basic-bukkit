@@ -8,7 +8,6 @@ import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
 import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.commands.CommandHandler;
 import de.timesnake.library.commands.PluginCommand;
@@ -60,7 +59,7 @@ public class CommandManager extends CommandHandler<Sender, Argument, Arguments<A
       PluginCommand pluginCommand = new PluginCommand(cmd, basicPlugin);
       this.addCommand(cmd, aliases, listener, pluginCommand.getPlugin());
     } else {
-      Loggers.COMMAND.warning("Error while adding command " + cmd + ". Not registered in plugin.yml");
+      this.logger.warn("Error while adding command {}. Not registered in plugin.yml", cmd);
     }
   }
 

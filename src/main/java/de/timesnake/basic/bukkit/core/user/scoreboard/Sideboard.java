@@ -7,13 +7,15 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
-import de.timesnake.library.basic.util.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 
-public class Sideboard extends Scoreboard implements
-    de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
+public class Sideboard extends Scoreboard implements de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard {
 
+  protected final Logger logger = LogManager.getLogger("scoreboard.sideboard");
+  
   private final HashMap<Integer, String> scores = new HashMap<>();
   private String title;
 
@@ -35,7 +37,7 @@ public class Sideboard extends Scoreboard implements
     for (User user : super.watchingUsers) {
       user.setSideboardTitle(this.title);
     }
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set title '" + this.title + "'");
+    this.logger.info("sideboard '{}' set title '{}'", this.name, this.title);
   }
 
   @Override
@@ -45,7 +47,7 @@ public class Sideboard extends Scoreboard implements
     for (User user : watchingUsers) {
       user.setSideboardScore(line, text);
     }
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' set score " + line + " '" + text + "'");
+    this.logger.info("sideboard '{}' set score {}: '{}'", this.name, line, text);
   }
 
   @Override
@@ -54,7 +56,7 @@ public class Sideboard extends Scoreboard implements
       user.removeSideboardScore(line);
     }
     this.scores.remove(line);
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' remove score " + line);
+    this.logger.info("sideboard '{} remove score '{}'", this.name, line);
   }
 
   @Override
@@ -67,7 +69,7 @@ public class Sideboard extends Scoreboard implements
     for (Integer line : this.scores.keySet()) {
       this.removeScore(line);
     }
-    Loggers.SCOREBOARD.info("sideboard '" + this.name + "' clear scores");
+    this.logger.info("sideboard '{}' clear scores", this.name);
   }
 
 }

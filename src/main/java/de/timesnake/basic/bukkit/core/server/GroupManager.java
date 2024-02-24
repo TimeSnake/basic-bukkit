@@ -4,14 +4,15 @@
 
 package de.timesnake.basic.bukkit.core.server;
 
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.exception.UnsupportedGroupRankException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
-import de.timesnake.library.basic.util.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
 
   private static final String GUEST_GROUP_NAME = "guest";
   private static final String MEMBER_GROUP_NAME = "member";
+
+  private final Logger logger = LogManager.getLogger("group.manager");
 
   protected Map<String, PermGroup> permGroupByName = new HashMap<>();
   protected Map<String, DisplayGroup> displayGroupByName = new HashMap<>();
@@ -36,7 +39,7 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
       try {
         group = new DisplayGroup(dbDisplayGroup);
       } catch (UnsupportedGroupRankException e) {
-        Loggers.GROUPS.warning(ChatColor.WARNING + e.getMessage());
+        this.logger.warn("Unsupported rank for group '{}': {}", dbDisplayGroup.getName(), e.getMessage());
         continue;
       }
 

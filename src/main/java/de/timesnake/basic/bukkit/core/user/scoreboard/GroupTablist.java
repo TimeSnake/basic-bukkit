@@ -11,7 +11,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
 import net.minecraft.ChatFormatting;
@@ -31,11 +30,9 @@ public class GroupTablist extends Tablist implements
   protected final GroupTab groupTab;
 
   public GroupTablist(TablistBuilder builder, ScoreboardPacketManager packetManager) {
-    super(builder.getName(), builder.getType(), packetManager, builder.getUserJoin(),
-        builder.getUserQuit());
+    super(builder.getName(), builder.getType(), packetManager, builder.getUserJoin(), builder.getUserQuit());
     if (builder.getGroupTypes() == null) {
-      throw new BuilderNotFullyInstantiatedException(
-          "group tablist: 'groupTypes' not instantiated");
+      throw new BuilderNotFullyInstantiatedException("group tablist: 'groupTypes' not instantiated");
     }
     this.groupTab = new GroupTab(builder.getGroupTypes());
     Server.registerListener(this, BasicBukkit.getPlugin());
@@ -43,7 +40,7 @@ public class GroupTablist extends Tablist implements
 
   @Override
   public void addEntry(TablistablePlayer player) {
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to add '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' try add '{}'", this.name, player.getTablistName());
 
     if (!player.showInTablist()) {
       return;
@@ -66,18 +63,18 @@ public class GroupTablist extends Tablist implements
 
     this.packetManager.sendPacket(this.watchingUsers, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(rank, player.getPlayer().getName()));
     this.packetManager.sendPacket(this.watchingUsers, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player.getMinecraftPlayer())));
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' added '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' added '{}'", this.name, player.getTablistName());
   }
 
   @Override
   public boolean removeEntry(TablistablePlayer player) {
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' try to remove '" + player.getTablistName() + "'");
+    this.logger.info("tablist '{}' try to remove '{}'", this.name, player.getTablistName());
 
     boolean removed = this.groupTab.removeEntry(new Entry(null, null, player));
     if (removed) {
       this.packetManager.sendPacket(this.watchingUsers,
           new ClientboundPlayerInfoRemovePacket(List.of(player.getPlayer().getUniqueId())));
-      Loggers.SCOREBOARD.info("tablist '" + this.name + "' removed '" + player.getTablistName() + "'");
+      this.logger.info("tablist '{}' removed '{}'", this.name, player.getTablistName());
     }
     return removed;
   }
@@ -106,7 +103,7 @@ public class GroupTablist extends Tablist implements
       }
     }
 
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' loaded for '" + user.getName() + "'");
+    this.logger.info("tablist '{}' loaded for '{}'", this.name, user.getName());
   }
 
   @Override
@@ -127,7 +124,7 @@ public class GroupTablist extends Tablist implements
       this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacket.createRemovePacket(new PlayerTeam(null, entry.getRank())));
     }
 
-    Loggers.SCOREBOARD.info("tablist '" + this.name + "' unloaded for '" + user.getName() + "'");
+    this.logger.info("tablist '{}' unloaded for '{}'", this.name, user.getName());
   }
 
   protected static class Entry extends TabEntry<Entry> {

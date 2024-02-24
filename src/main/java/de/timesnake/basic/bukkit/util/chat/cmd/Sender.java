@@ -8,7 +8,6 @@ import de.timesnake.basic.bukkit.core.chat.CommandSender;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.database.util.user.DbUser;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -51,7 +50,7 @@ public class Sender extends de.timesnake.library.commands.Sender {
 
   @Override
   public void sendConsoleMessage(String message) {
-    Loggers.COMMAND.info(message);
+    this.logger.info(message);
   }
 
   @Override

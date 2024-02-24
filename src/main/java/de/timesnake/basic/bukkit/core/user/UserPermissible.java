@@ -10,10 +10,11 @@ import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.group.DbPermGroup;
 import de.timesnake.database.util.user.DbUser;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.permissions.ExPermission;
 import net.kyori.adventure.text.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
@@ -28,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserPermissible extends PermissibleBase {
+
+  private final Logger logger = LogManager.getLogger("user.permissible");
 
   private final Player player;
   private final DbUser user;
@@ -53,7 +56,7 @@ public class UserPermissible extends PermissibleBase {
       String groupName = permGroup.getName();
       this.permGroup = Server.getPermGroup(groupName);
     } else {
-      Loggers.USERS.warning("Error while loading group for " + user.getName());
+      this.logger.warn("Error while loading group for {}", user.getName());
       this.player.kick(Component.text("§cA fatal error occurred\nPlease contact an admin (permission group exception)"
       ));
     }
@@ -121,9 +124,9 @@ public class UserPermissible extends PermissibleBase {
     }
 
     if (fromDatabase) {
-      Loggers.PERMISSIONS.info("Updated permissions of user '" + this.player.getName() + "' from database ");
+      this.logger.info("Updated permissions of user '{}' from database", this.player.getName());
     } else {
-      Loggers.PERMISSIONS.info("Updated permissions of user '" + this.player.getName() + "'");
+      this.logger.info("Updated permissions of user '{}'", this.player.getName());
     }
   }
 
@@ -148,7 +151,7 @@ public class UserPermissible extends PermissibleBase {
     try {
       super.removeAttachment(attachment);
     } catch (IllegalArgumentException e) {
-      Loggers.PERMISSIONS.warning("Exception while removing attachment: " + e.getMessage());
+      this.logger.warn("Exception while removing attachment: {}", e.getMessage());
     }
   }
 
@@ -159,7 +162,7 @@ public class UserPermissible extends PermissibleBase {
       List<?> attachments = (List<?>) Field.get(this);
       attachments.clear();
     } catch (NoSuchFieldException | IllegalAccessException e) {
-      Loggers.PERMISSIONS.warning("Failed to clear permission attachments of player '" + this.player.getName() + "'");
+      this.logger.warn("Failed to clear permission attachments of player '{}'", this.player.getName());
     }
   }
 
