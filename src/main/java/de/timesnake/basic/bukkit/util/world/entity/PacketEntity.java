@@ -8,12 +8,15 @@ import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
-import de.timesnake.library.basic.util.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class PacketEntity {
+
+  protected final Logger logger = LogManager.getLogger("packet-entity.entity");
 
   protected final ExLocation location;
   protected final Set<User> watchers = ConcurrentHashMap.newKeySet();
@@ -65,9 +68,10 @@ public abstract class PacketEntity {
     this.userLoadedFor.clear();
     this.watchers.clear();
 
-    Loggers.ENTITY.info("Unloaded entity at '" + this.location.getWorld().getName() + " "
-        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
-        + this.getType() + "' for all users");
+    this.logger.info("Unloaded entity at '{} {} {} {}' of type '{}' for all users",
+        this.location.getWorld().getName(),
+        this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ(),
+        this.getType());
   }
 
   public boolean isLoadedForUser(User user) {
@@ -78,18 +82,18 @@ public abstract class PacketEntity {
     this.userLoadedFor.add(user);
     this.spawnForUser(user);
 
-    Loggers.ENTITY.info("Loaded entity at '" + this.location.getWorld().getName() + " "
-        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
-        + this.getType() + "' for user '" + user.getName() + "'");
+    this.logger.info("Loaded entity at '{} {} {} {}' of type '{}' for user '{}'",
+        this.location.getWorld().getName(), this.location.getBlockX(), this.location.getBlockY(),
+        this.location.getBlockZ(), this.getType(), user.getName());
   }
 
   public void unloadForUser(User user) {
     this.userLoadedFor.remove(user);
     this.despawnForUser(user);
 
-    Loggers.ENTITY.info("Unloaded entity at '" + this.location.getWorld().getName() + " "
-        + this.location.getBlockX() + " " + this.location.getBlockY() + " " + this.location.getBlockZ() + "' of type '"
-        + this.getType() + "' for user '" + user.getName() + "'");
+    this.logger.info("Unloaded entity at '{} {} {} {}' of type '{}' for user '{}'",
+        this.location.getWorld().getName(), this.location.getBlockX(), this.location.getBlockY(),
+        this.location.getBlockZ(), this.getType(), user.getName());
   }
 
   public boolean isUserWatching(User user) {

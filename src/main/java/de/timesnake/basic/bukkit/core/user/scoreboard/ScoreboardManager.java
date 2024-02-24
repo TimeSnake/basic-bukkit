@@ -13,8 +13,9 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.network.NetworkVariables;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -22,6 +23,8 @@ import java.util.HashMap;
 
 public class ScoreboardManager implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager {
+
+  private final Logger logger = LogManager.getLogger("scoreboard.manager");
 
   private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
   private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
@@ -48,14 +51,14 @@ public class ScoreboardManager implements Listener,
 
     Server.registerListener(this, BasicBukkit.getPlugin());
 
-    Loggers.SCOREBOARD.info("Loaded manager");
+    this.logger.info("Loaded manager");
   }
 
   @Override
   public GroupTablist registerGroupTablist(TablistBuilder builder) {
     GroupTablist tablist = new GroupTablist(builder, this.packetManager);
     this.tablists.put(tablist.getName(), tablist);
-    Loggers.SCOREBOARD.info("Created group tablist '" + tablist.getName() + "'");
+    this.logger.info("Created group tablist '{}'", tablist.getName());
     return tablist;
   }
 
@@ -63,7 +66,7 @@ public class ScoreboardManager implements Listener,
   public TeamTablist registerTeamTablist(TeamTablistBuilder builder) {
     TeamTablist tablist = new TeamTablist(builder, this.packetManager);
     this.tablists.put(tablist.getName(), tablist);
-    Loggers.SCOREBOARD.info("Created team tablist '" + tablist.getName() + "'");
+    this.logger.info("Created team tablist '{}'", tablist.getName());
     return tablist;
   }
 
@@ -72,7 +75,7 @@ public class ScoreboardManager implements Listener,
 
     TagTeamTablist tablist = new TagTeamTablist(builder, this.packetManager);
     this.tablists.put(tablist.getName(), tablist);
-    Loggers.SCOREBOARD.info("Created tag-team tablist '" + tablist.getName() + "'");
+    this.logger.info("Created tag-team tablist '{}'", tablist.getName());
     return tablist;
   }
 
@@ -84,14 +87,14 @@ public class ScoreboardManager implements Listener,
   @Override
   public void removeTablist(String name) {
     this.tablists.remove(name);
-    Loggers.SCOREBOARD.info("Removed tablist '" + name + "'");
+    this.logger.info("Removed tablist '{}'", name);
   }
 
   @Override
   public Sideboard registerSideboard(SideboardBuilder builder) {
     Sideboard sideboard = new Sideboard(builder);
     this.sideboards.put(sideboard.getName(), sideboard);
-    Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
+    this.logger.info("Created sideboard '{}'", sideboard.getName());
     return sideboard;
   }
 
@@ -99,7 +102,7 @@ public class ScoreboardManager implements Listener,
   public ExSideboard registerExSideboard(ExSideboardBuilder builder) {
     ExSideboard sideboard = new ExSideboard(builder);
     this.sideboards.put(sideboard.getName(), sideboard);
-    Loggers.SCOREBOARD.info("Created sideboard '" + sideboard.getName() + "'");
+    this.logger.info("Created sideboard '{}'", sideboard.getName());
     return sideboard;
   }
 

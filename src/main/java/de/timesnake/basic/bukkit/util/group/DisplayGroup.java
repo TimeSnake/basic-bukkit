@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.database.util.group.DbDisplayGroup;
-import de.timesnake.library.basic.util.Loggers;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +25,7 @@ public class DisplayGroup extends
   public static final TablistGroupType TABLIST_TYPE_2 = TablistGroupType.DISPLAY_GROUP_2;
 
   public static final LinkedList<TablistGroupType> MAIN_TABLIST_GROUPS = new LinkedList<>(
-      List.of(TABLIST_TYPE_0,
-          TABLIST_TYPE_1, TABLIST_TYPE_2));
+      List.of(TABLIST_TYPE_0, TABLIST_TYPE_1, TABLIST_TYPE_2));
 
   public static final int RANK_LENGTH = 6;
 
@@ -40,10 +38,9 @@ public class DisplayGroup extends
       throw new UnsupportedGroupRankException(this.name, this.rank);
     }
 
-    this.tablistRank = "0".repeat(Math.max(0, RANK_LENGTH - String.valueOf(this.rank).length()))
-        + this.rank;
+    this.tablistRank = "0".repeat(Math.max(0, RANK_LENGTH - String.valueOf(this.rank).length())) + this.rank;
 
-    Loggers.GROUPS.info("Loaded display-group '" + this.name + "'");
+    this.logger.info("Loaded display-group '{}'", this.name);
   }
 
   private void loadPrefix() {
@@ -69,15 +66,13 @@ public class DisplayGroup extends
   @Nullable
   @Override
   public ChatColor getTablistPrefixChatColor() {
-    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
-        this.getPrefixColor());
+    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(this.getPrefixColor());
   }
 
   @Nullable
   @Override
   public ChatColor getTablistChatColor() {
-    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(
-        this.prefixColor);
+    return de.timesnake.basic.bukkit.util.chat.ChatColor.translateFromExTextColor(this.prefixColor);
   }
 
   @NotNull

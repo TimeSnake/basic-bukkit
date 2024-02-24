@@ -8,17 +8,8 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
-import de.timesnake.library.basic.util.Loggers;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -29,7 +20,14 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
 public class MapDisplayBuilder {
+
+  private static final Logger LOGGER = LogManager.getLogger("server.map-displays");
 
   private static final @NotNull Color[] colors = new Color[]{c(0, 0, 0), c(0, 0, 0),
       c(0, 0, 0), c(0, 0, 0), c(89, 125, 39), c(109, 153, 48),
@@ -325,13 +323,12 @@ public class MapDisplayBuilder {
     public static final String MINECRAFT = "Minecraft Regular";
 
     public static void loadFonts() {
-
       for (File fontFile : new File("plugins/basic-bukkit/map-fonts/").listFiles()) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
           Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
           ge.registerFont(font);
-          Loggers.SYSTEM.info("Loaded font " + font.getFontName());
+          LOGGER.info("Loaded font {}", font.getFontName());
         } catch (FontFormatException | IOException e) {
           e.printStackTrace();
         }

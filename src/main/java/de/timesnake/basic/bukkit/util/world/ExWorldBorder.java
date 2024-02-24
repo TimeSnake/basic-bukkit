@@ -10,11 +10,12 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.UserSet;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundInitializeBorderPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.border.ClientboundSetBorderLerpSizePacketBuilder;
 import net.minecraft.network.protocol.Packet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
@@ -25,6 +26,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.Set;
 
 public class ExWorldBorder implements Listener {
+
+  private final Logger logger = LogManager.getLogger("world.border");
 
   private final ExWorld world;
 
@@ -69,7 +72,7 @@ public class ExWorldBorder implements Listener {
     Server.registerListener(this, BasicBukkit.getPlugin());
     this.startDamageTask();
 
-    Loggers.WORLDS.info("Created world border: " + this);
+    this.logger.info("Created world border: {}", this);
   }
 
   public void destroy() {
@@ -86,7 +89,7 @@ public class ExWorldBorder implements Listener {
       this.removeUser(user);
     }
 
-    Loggers.WORLDS.info("Destroyed world border in world '" + this.world.getName() + "'");
+    this.logger.info("Destroyed world border in world '{}'", this.world.getName());
   }
 
   public void addUser(User user) {
@@ -103,7 +106,7 @@ public class ExWorldBorder implements Listener {
       return;
     }
 
-    Loggers.WORLDS.info("Added user '" + user.getName() + "' to world border in world '" + this.world.getName() + "'");
+    this.logger.info("Added user '{}' to world border in world '{}'", user.getName(), this.world.getName());
 
     ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getUserInitPacket(), user);
   }
@@ -120,7 +123,7 @@ public class ExWorldBorder implements Listener {
       return;
     }
 
-    Loggers.WORLDS.info("Added spectator '" + user.getName() + "' to world border in world '" + this.world.getName() + "'");
+    this.logger.info("Added spectator '{}' to world border in world '{}'", user.getName(), this.world.getName());
 
     ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getSpectatorInitPacket(), user);
   }

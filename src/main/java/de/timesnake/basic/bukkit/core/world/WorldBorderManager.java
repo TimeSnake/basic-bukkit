@@ -7,11 +7,12 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,6 +25,8 @@ import java.util.Set;
 
 public class WorldBorderManager implements PacketPlayOutListener, Listener,
     de.timesnake.basic.bukkit.util.world.WorldBorderManager {
+
+  private final Logger logger = LogManager.getLogger("world.border-manager");
 
   private final HashMap<Player, Set<Packet<?>>> packetsByPlayer = new HashMap<>();
 
@@ -62,7 +65,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
     }
     packets.add(packet);
     user.sendPacket(packet);
-    Loggers.WORLDS.info("Sent world border packet '" + packet.getClass().getSimpleName() + "' to user '" + user.getName() + "'");
+    this.logger.info("Sent world border packet '{}' to user '{}'", packet.getClass().getSimpleName(), user.getName());
   }
 
   public void sendPacket(Packet<?> packet, Collection<User> users) {

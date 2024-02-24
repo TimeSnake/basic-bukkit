@@ -12,7 +12,6 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.entity.MapDisplayBuilder;
 import de.timesnake.basic.bukkit.util.world.entity.PacketEntity;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.Tuple;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
@@ -26,6 +25,8 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -81,6 +82,8 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
       return Visibility.NEVER;
     }
   };
+
+  private final Logger logger = LogManager.getLogger("packet-entity.manager");
 
   private final ConcurrentHashMap<Triple<World, Integer, Integer>, Collection<PacketEntity>> entitiesByChunk = new ConcurrentHashMap<>();
 
@@ -177,9 +180,10 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     this.addEntity(entity);
     entity.setPublic(true);
 
-    Loggers.ENTITY.info("Registered public entity at '" + entity.getLocation().getWorld().getName() + " "
-        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
-        + "' of type '" + entity.getType() + "'");
+    this.logger.info("Registered public entity at '{} {} {} {}' of type '{}'",
+        entity.getLocation().getWorld().getName(), entity.getLocation().getBlockX(),
+        entity.getLocation().getBlockY(), entity.getLocation().getBlockZ(),
+        entity.getType());
   }
 
   @Override
@@ -187,10 +191,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     this.addEntity(entity);
     users.forEach(entity::addWatcher);
 
-    Loggers.ENTITY.info("Registered entity at '" + entity.getLocation().getWorld().getName() + " "
-        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
-        + "' of type '" + entity.getType() + "' for users '" +
-        String.join("' , '", users.stream().map(User::getName).toList()) + "' ");
+    this.logger.info("Registered entity at '{} {} {} {}' of type '{}' for users '{}'",
+        entity.getLocation().getWorld().getName(), entity.getLocation().getBlockX(),
+        entity.getLocation().getBlockY(), entity.getLocation().getBlockZ(),
+        entity.getType(),
+        String.join("' , '", users.stream().map(User::getName).toList()));
   }
 
   @Override
@@ -203,9 +208,10 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
     this.removeEntity(entity);
     entity.despawnForUsers();
 
-    Loggers.ENTITY.info("Unregistered entity at '" + entity.getLocation().getWorld().getName() + " "
-        + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() + " " + entity.getLocation().getBlockZ()
-        + "' of type '" + entity.getType() + "'");
+    this.logger.info("Unregistered entity at '{} {} {} {}' of type '{}'",
+        entity.getLocation().getWorld().getName(), entity.getLocation().getBlockX(),
+        entity.getLocation().getBlockY(), entity.getLocation().getBlockZ(),
+        entity.getType());
   }
 
   @Override

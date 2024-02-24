@@ -41,7 +41,6 @@ import de.timesnake.database.util.Database;
 import de.timesnake.database.util.object.DbLocation;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.server.DbServer;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.ServerType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.Plugin;
@@ -50,6 +49,8 @@ import de.timesnake.library.packets.util.PacketManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.minecraft.network.protocol.Packet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -84,6 +85,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   }
 
   private static ServerManager instance;
+
+  protected final Logger logger = LogManager.getLogger("server.manager");
 
   private final Random random = new Random();
   protected ChatManager chatManager;
@@ -217,7 +220,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
   public void setStatus(Status.Server status) {
     this.info.setStatus(status);
-    Loggers.SYSTEM.info("Status: " + this.info.getStatus().getShortName());
+    this.logger.info("Status: {}", this.info.getStatus().getShortName());
   }
 
   public ServerType getType() {

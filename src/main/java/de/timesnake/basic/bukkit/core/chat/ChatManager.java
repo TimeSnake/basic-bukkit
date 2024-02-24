@@ -18,7 +18,6 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.database.util.Database;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
@@ -29,6 +28,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -45,6 +46,8 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 	public static final ExTextColor COLOR = ExTextColor.GRAY;
 
 	public static final String GLOBAL_CHAT_NAME = "global";
+
+  private final Logger logger = LogManager.getLogger("server.chat-manager");
 
 	private final HashMap<String, de.timesnake.basic.bukkit.util.chat.Chat> chats = new HashMap<>();
 
@@ -195,9 +198,7 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 			Server.broadcastMessage(Component.text("<<<", ExTextColor.DARK_RED)
 					.append(user.getChatNameComponent().color(ExTextColor.WHITE)));
 		} else {
-			Loggers.CHATS.info("<<<" +
-					PlainTextComponentSerializer.plainText()
-							.serialize(user.getChatNameComponent()));
+      this.logger.info("<<< {}", PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent()));
 		}
 		// update online players
 		int onlinePlayers = Bukkit.getOnlinePlayers().size() - 1;
@@ -219,16 +220,11 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 		de.timesnake.basic.bukkit.util.user.User user = e.getUser();
 		// catch if user not in database -> error (proxy should add user)
 		if (!Database.getUsers().containsUser(user.getUniqueId())) {
-			user.sendMessage(
-					de.timesnake.library.chat.Chat.getSenderPlugin(Plugin.SERVER)
-							.append(Component.text("§lContact a supporter!!!",
-									ExTextColor.WARNING)));
-			user.getPlayer().kick(Component.text("Contact a supporter!!!\n", ExTextColor.WARNING,
-							TextDecoration.BOLD)
-					.append(de.timesnake.library.chat.Chat.getMessageCode("E", 805,
-              Plugin.SERVER))
-					.append(Component.text("\nDO NOT REJOIN", ExTextColor.WARNING,
-							TextDecoration.BOLD)));
+      user.sendMessage(de.timesnake.library.chat.Chat.getSenderPlugin(Plugin.SERVER)
+          .append(Component.text("§lContact a supporter!!!", ExTextColor.WARNING)));
+      user.getPlayer().kick(Component.text("Contact a supporter!!!\n", ExTextColor.WARNING, TextDecoration.BOLD)
+          .append(de.timesnake.library.chat.Chat.getMessageCode("E", 805, Plugin.SERVER))
+          .append(Component.text("\nDO NOT REJOIN", ExTextColor.WARNING, TextDecoration.BOLD)));
 			return;
 		}
 
@@ -245,7 +241,7 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 					.append(user.getChatNameComponent().color(ExTextColor.WHITE)));
 			Server.broadcastSound(Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 200);
 		} else {
-			Loggers.CHATS.info(">>>" + PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent()));
+      this.logger.info(">>> {}", PlainTextComponentSerializer.plainText().serialize(user.getChatNameComponent()));
 		}
 
 	}
