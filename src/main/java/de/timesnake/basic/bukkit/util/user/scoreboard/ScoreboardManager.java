@@ -10,8 +10,7 @@ import de.timesnake.library.network.NetworkVariables;
 public interface ScoreboardManager {
 
   static String getDefaultFooter() {
-    String supportEmail = Server.getNetwork().getVariables()
-        .getValue(NetworkVariables.SUPPORT_EMAIL);
+    String supportEmail = Server.getNetwork().getVariables().getValue(NetworkVariables.SUPPORT_EMAIL);
     if (supportEmail != null) {
       return "§7Server: " + Server.getName()
           + "\n§cSupport: /ticket or "

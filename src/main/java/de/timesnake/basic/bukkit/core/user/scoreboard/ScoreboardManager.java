@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.core.user.scoreboard;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
+import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
@@ -16,8 +17,13 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
 import de.timesnake.library.network.NetworkVariables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 import java.util.HashMap;
 
@@ -86,6 +92,8 @@ public class ScoreboardManager implements Listener,
 
   @Override
   public void removeTablist(String name) {
+    de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist = this.tablists.get(name);
+
     this.tablists.remove(name);
     this.logger.info("Removed tablist '{}'", name);
   }
@@ -135,8 +143,12 @@ public class ScoreboardManager implements Listener,
         });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.LOWEST)
   public void onUserJoin(UserJoinEvent e) {
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
+      ((Tablist) tablist).onUserJoin(e);
+    }
+
     e.getUser().setTablist(this.activeTablist);
   }
 
@@ -147,6 +159,33 @@ public class ScoreboardManager implements Listener,
     }
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard : this.sideboards.values()) {
       sideboard.removeWatchingUser(e.getUser());
+    }
+
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
+      ((Tablist) tablist).onUserQuit(e);
+    }
+
+  }
+
+  @EventHandler
+  public void onEntityRegainHealth(EntityRegainHealthEvent e) {
+    this.onEntityChangeHealth(e.getEntity());
+  }
+
+  @EventHandler
+  public void onEntityDamage(EntityDamageEvent e) {
+    this.onEntityChangeHealth(e.getEntity());
+  }
+
+  private void onEntityChangeHealth(Entity entity) {
+    if (!(entity instanceof Player)) {
+      return;
+    }
+
+    User user = Server.getUser(((Player) entity));
+
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
+      ((Tablist) tablist).onEntityChangeHealth(user);
     }
   }
 

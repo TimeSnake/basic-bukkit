@@ -19,11 +19,13 @@ import de.timesnake.database.bukkit.main.DatabaseBukkit;
 import de.timesnake.database.util.Database;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.logger.LogConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -38,6 +40,11 @@ public class BasicBukkit extends JavaPlugin {
   }
 
   private static JavaPlugin plugin;
+
+  @Override
+  public void onLoad() {
+    new LogConfig(new File("log.cfg")).apply();
+  }
 
   @Override
   public void onEnable() {

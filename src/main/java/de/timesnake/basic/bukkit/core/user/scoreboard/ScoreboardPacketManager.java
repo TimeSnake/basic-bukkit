@@ -51,8 +51,8 @@ public class ScoreboardPacketManager implements PacketPlayOutListener,
         }
       }
       this.logger.info("Blocked packet '{}' to '{}'", packet.getClass().getSimpleName(), receiver.getName());
+      return null;
     }
-    return null;
   }
 
   @Override
