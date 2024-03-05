@@ -22,11 +22,7 @@ import net.minecraft.server.ServerScoreboard;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 public abstract class Tablist extends Scoreboard implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.Tablist {
@@ -50,7 +46,6 @@ public abstract class Tablist extends Scoreboard implements Listener,
     this.packetManager = packetManager;
     this.userJoin = userJoin;
     this.userQuit = userQuit;
-    Server.registerListener(this, BasicBukkit.getPlugin());
   }
 
   @Override
@@ -96,59 +91,31 @@ public abstract class Tablist extends Scoreboard implements Listener,
         new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
   }
 
-  @EventHandler
   public void onUserJoin(UserJoinEvent e) {
     this.userJoin.onUserJoin(e, this);
 
     User user = e.getUser();
 
     if (this.type.equals(Type.HEALTH)) {
-      if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || user.getPlayer()
-          .getGameMode().equals(GameMode.ADVENTURE)) {
-        this.packetManager.sendPacket(this.watchingUsers,
-            new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
-                user.getName(), ((int) user.getHealth())));
+      if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
+          || user.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
+        this.packetManager.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE,
+            this.name, user.getName(), ((int) user.getHealth())));
       }
-
     }
   }
 
-  @EventHandler
   public void onUserQuit(UserQuitEvent e) {
     this.userQuit.onUserQuit(e, this);
   }
 
-  @EventHandler
-  public void onEntityRegainHealth(EntityRegainHealthEvent e) {
+  public void onEntityChangeHealth(User user) {
     if (!this.type.equals(Type.HEALTH)) {
       return;
     }
 
-    if (!(e.getEntity() instanceof Player)) {
-      return;
-    }
-
-    User user = Server.getUser(((Player) e.getEntity()));
-
-    Server.runTaskLaterSynchrony(() -> this.updateEntryValue(user,
-        (int) Math.ceil(((Player) e.getEntity()).getHealth())), 1, BasicBukkit.getPlugin());
-
-  }
-
-  @EventHandler
-  public void onEntityDamage(EntityDamageEvent e) {
-    if (!this.type.equals(Type.HEALTH)) {
-      return;
-    }
-
-    if (!(e.getEntity() instanceof Player)) {
-      return;
-    }
-
-    User user = Server.getUser(((Player) e.getEntity()));
-
-    Server.runTaskLaterSynchrony(() -> this.updateEntryValue(user,
-        (int) Math.ceil(((Player) e.getEntity()).getHealth())), 1, BasicBukkit.getPlugin());
+    Server.runTaskLaterSynchrony(() -> this.updateEntryValue(user, (int) Math.ceil(user.getHealth())),
+        1, BasicBukkit.getPlugin());
   }
 
   protected void load(User user) {

@@ -99,7 +99,6 @@ public class TeamTablist extends Tablist implements
             Component.literal(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().name()),
             this.nameTagVisibility.getPacketTag()));
         this.packetManager.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(entry.getSlot(), entry.getPlayer().getPlayer().getName()));
-
         this.packetManager.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(entry.getPlayer().getMinecraftPlayer())));
       }
     }
