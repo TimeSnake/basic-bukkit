@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.world.entity;
 
+import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
@@ -39,12 +40,16 @@ public class PacketPlayer extends PacketEntity {
             player.getName().getString()));
 
     Server.getScoreboardManager().getPacketManager().sendPacket(user,
-        ClientboundPlayerInfoUpdatePacket.createSinglePlayerInitializing((ServerPlayer) player, false));
+        ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of((ServerPlayer) player)));
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player)
         .setAllFromEntity()
         .build());
+
+    Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager()
+            .sendPacket(user, new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))),
+        6, BasicBukkit.getPlugin());
   }
 
   @Override

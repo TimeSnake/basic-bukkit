@@ -5,6 +5,10 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
+import de.timesnake.basic.bukkit.core.user.scoreboard.sideboard.ExSideboard;
+import de.timesnake.basic.bukkit.core.user.scoreboard.sideboard.Sideboard;
+import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist;
+import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist2;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.User;
@@ -12,8 +16,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistBuilder;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.network.NetworkVariables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,14 +44,14 @@ public class ScoreboardManager implements Listener,
   public ScoreboardManager() {
     this.packetManager = new ScoreboardPacketManager();
 
-    GroupTablist standard = this.registerGroupTablist(new TablistBuilder(Server.getName())
+    Tablist2 standard = this.registerTablist(new Tablist2.Builder(Server.getName())
         .groupTypes(DisplayGroup.MAIN_TABLIST_GROUPS));
 
     String networkName = Server.getNetwork().getVariables().getValue(NetworkVariables.NETWORK_NAME);
     if (networkName != null) {
       standard.setHeader("§6" + networkName);
     } else {
-      standard.setHeader("§6" + "Network");
+      standard.setHeader("§6Network");
     }
 
     standard.setFooter(de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager.getDefaultFooter());
@@ -61,27 +64,10 @@ public class ScoreboardManager implements Listener,
   }
 
   @Override
-  public GroupTablist registerGroupTablist(TablistBuilder builder) {
-    GroupTablist tablist = new GroupTablist(builder, this.packetManager);
+  public Tablist2 registerTablist(Tablist2.Builder builder) {
+    Tablist2 tablist = new Tablist2(builder, this.packetManager);
     this.tablists.put(tablist.getName(), tablist);
-    this.logger.info("Created group tablist '{}'", tablist.getName());
-    return tablist;
-  }
-
-  @Override
-  public TeamTablist registerTeamTablist(TeamTablistBuilder builder) {
-    TeamTablist tablist = new TeamTablist(builder, this.packetManager);
-    this.tablists.put(tablist.getName(), tablist);
-    this.logger.info("Created team tablist '{}'", tablist.getName());
-    return tablist;
-  }
-
-  @Override
-  public TagTeamTablist registerTagTeamTablist(TeamTablistBuilder builder) {
-
-    TagTeamTablist tablist = new TagTeamTablist(builder, this.packetManager);
-    this.tablists.put(tablist.getName(), tablist);
-    this.logger.info("Created tag-team tablist '{}'", tablist.getName());
+    this.logger.info("Created tablist2 '{}'", tablist.getName());
     return tablist;
   }
 
@@ -135,12 +121,13 @@ public class ScoreboardManager implements Listener,
     this.activeTablist = tablist;
   }
 
-  public void updatePlayerGroup(TablistablePlayer player) {
-    this.tablists.values().stream().filter(tablist -> tablist.getEntries().contains(player))
-        .forEach(tablist -> {
-          tablist.removeEntry(player);
-          tablist.addEntry(player);
-        });
+  public void updatePlayerGroup(TablistPlayer player) {
+    for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
+      // TODO change to reload
+      if (tablist.removeEntry(player)) {
+        tablist.addEntry(player);
+      }
+    }
   }
 
   @EventHandler(priority = EventPriority.LOWEST)

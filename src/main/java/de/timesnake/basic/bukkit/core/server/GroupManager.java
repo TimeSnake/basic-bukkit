@@ -4,7 +4,6 @@
 
 package de.timesnake.basic.bukkit.core.server;
 
-import de.timesnake.basic.bukkit.util.exception.UnsupportedGroupRankException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
 import de.timesnake.database.util.Database;
@@ -35,14 +34,7 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
     }
 
     for (DbDisplayGroup dbDisplayGroup : Database.getGroups().getDisplayGroups()) {
-      DisplayGroup group;
-      try {
-        group = new DisplayGroup(dbDisplayGroup);
-      } catch (UnsupportedGroupRankException e) {
-        this.logger.warn("Unsupported rank for group '{}': {}", dbDisplayGroup.getName(), e.getMessage());
-        continue;
-      }
-
+      DisplayGroup group = new DisplayGroup(dbDisplayGroup);
       this.displayGroupByName.put(group.getName(), group);
     }
   }

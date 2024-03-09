@@ -2,16 +2,18 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.core.user.scoreboard;
+package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
+import de.timesnake.basic.bukkit.core.user.scoreboard.Scoreboard;
+import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardPacketManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import net.minecraft.network.chat.Component;
@@ -23,6 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.event.Listener;
+
+import java.util.Collection;
+import java.util.function.Function;
 
 public abstract class Tablist extends Scoreboard implements Listener,
     de.timesnake.basic.bukkit.util.user.scoreboard.Tablist {
@@ -75,20 +80,30 @@ public abstract class Tablist extends Scoreboard implements Listener,
   }
 
   @Override
-  public void updateEntryValue(TablistablePlayer entry, Integer value) {
-    this.packetManager.sendPacket(this.watchingUsers,
-        new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name, entry.getTablistName(), value));
+  public void updateEntryValue(TablistPlayer entry, Integer value) {
+    this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name, entry.getTablistName(), value));
   }
 
   protected void broadcastPacket(Packet<?> packet) {
+    this.sendPacket(this.watchingUsers, packet);
+  }
+
+  protected void broadcastPacket(Function<User, Packet<?>> packetFunction) {
     for (User user : this.watchingUsers) {
-      this.packetManager.sendPacket(user, packet);
+      this.sendPacket(user, packetFunction.apply(user));
     }
   }
 
+  protected void sendPacket(User user, Packet<?> packet) {
+    this.packetManager.sendPacket(user, packet);
+  }
+
+  protected void sendPacket(Collection<User> users, Packet<?> packet) {
+    this.packetManager.sendPacket(users, packet);
+  }
+
   protected void updateHeaderFooter() {
-    this.packetManager.sendPacket(this.watchingUsers,
-        new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
+    this.sendPacket(this.watchingUsers, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
   }
 
   public void onUserJoin(UserJoinEvent e) {
@@ -99,7 +114,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
     if (this.type.equals(Type.HEALTH)) {
       if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
           || user.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
-        this.packetManager.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE,
+        this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE,
             this.name, user.getName(), ((int) user.getHealth())));
       }
     }
@@ -119,20 +134,18 @@ public abstract class Tablist extends Scoreboard implements Listener,
   }
 
   protected void load(User user) {
-    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
+    this.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
 
-    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name,
+    this.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name, this.type.getPacketType(),
         this.type.getPacketType().getDefaultRenderType()));
 
-    this.packetManager.sendPacket(user,
-        ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_LIST,
-            this.name));
+    this.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_LIST, this.name));
 
-    this.packetManager.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
+    this.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 
     for (User u : Server.getUsers()) {
       if (this.type.equals(Type.HEALTH)) {
-        this.packetManager.sendPacket(user, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
+        this.sendPacket(user, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
             user.getName(), ((int) u.getHealth())));
       }
     }

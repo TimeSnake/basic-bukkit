@@ -10,7 +10,6 @@ import de.timesnake.basic.bukkit.core.user.PvPManager;
 import de.timesnake.basic.bukkit.core.user.UserPermissible;
 import de.timesnake.basic.bukkit.core.user.UserPlayerDelegation;
 import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
-import de.timesnake.basic.bukkit.core.user.scoreboard.TablistablePlayer;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
@@ -26,10 +25,7 @@ import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryClickListener;
 import de.timesnake.basic.bukkit.util.user.inventory.UserInventoryInteractListener;
-import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
-import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.channel.util.listener.ChannelHandler;
@@ -100,7 +96,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * database. It is recommended to extend these class in a new plugin
  */
 
-public class User extends UserPlayerDelegation implements ChannelListener, TablistablePlayer, ChatMember {
+public class User extends UserPlayerDelegation implements ChannelListener, TablistPlayer, ChatMember {
 
   private final Logger punishLogger = LogManager.getLogger("user.punish");
   private final Logger groupLogger = LogManager.getLogger("user.group");
@@ -870,7 +866,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
   @Nullable
   @Override
-  public TablistableGroup getTablistGroup(TablistGroupType type) {
+  public TablistGroup getTablistGroup(TablistGroupType type) {
     if (DisplayGroup.TABLIST_TYPE_0.equals(type)) {
       return this.getMasterDisplayGroup();
     } else if (DisplayGroup.TABLIST_TYPE_1.equals(type)) {
@@ -893,10 +889,10 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Adds a tablist entry to the {@link Scoreboard}
    *
-   * @param player The {@link TablistablePlayer} to add
+   * @param player The {@link TablistPlayer} to add
    */
 
-  public void addTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
+  public void addTablistEntry(TablistPlayer player) {
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player.getMinecraftPlayer())));
   }
@@ -904,11 +900,11 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Adds a tablist entry to the {@link Scoreboard} with team
    *
-   * @param player The {@link TablistablePlayer} to add
+   * @param player The {@link TablistPlayer} to add
    * @param rank   The rank of the group
    */
 
-  public void addTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player, String rank) {
+  public void addTablistEntry(TablistPlayer player, String rank) {
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(rank, player.getTablistName()));
     this.addTablistEntry(player);
@@ -917,9 +913,9 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Removes the user from the scoreboard (tablist) and scoreboard-team
    *
-   * @param player The {@link TablistablePlayer} to remove
+   * @param player The {@link TablistPlayer} to remove
    */
-  public void removeTablistEntry(de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer player) {
+  public void removeTablistEntry(TablistPlayer player) {
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         new ClientboundPlayerInfoRemovePacket(List.of(player.getPlayer().getUniqueId())));
   }
@@ -927,10 +923,10 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Removes the user from the scoreboard (tablist) and scoreboard-team
    *
-   * @param player The {@link TablistablePlayer} to remove
+   * @param player The {@link TablistPlayer} to remove
    * @param rank   The rank of the group
    */
-  public void removeTablistEntry(TablistablePlayer player, String rank) {
+  public void removeTablistEntry(TablistPlayer player, String rank) {
     this.removeTablistEntry(player);
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetPlayerTeamPacketBuilder.ofRemovePlayer(rank, player.getTablistName()));
@@ -947,7 +943,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       if (this.tablist.equals(tablist)) {
         return;
       }
-      ((de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) this.tablist).removeWatchingUser(this);
+      ((de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist) this.tablist).removeWatchingUser(this);
     }
 
     this.tablist = tablist;
@@ -956,7 +952,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       this.setTablist(standard);
       return;
     }
-    ((de.timesnake.basic.bukkit.core.user.scoreboard.Tablist) tablist).addWatchingUser(this);
+    ((de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist) tablist).addWatchingUser(this);
 
   }
 
@@ -990,7 +986,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetObjectivePacketBuilder.ofAdd(this.sideboard.getName(), this.sideboard.getTitle(),
-            ObjectiveCriteria.RenderType.INTEGER));
+            ObjectiveCriteria.DUMMY, ObjectiveCriteria.DUMMY.getDefaultRenderType()));
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
         ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_SIDEBAR,
@@ -1008,8 +1004,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     }
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetObjectivePacketBuilder.ofChange(this.sideboard.getName(), title,
-            ObjectiveCriteria.RenderType.INTEGER));
+        ClientboundSetObjectivePacketBuilder.ofChange(this.sideboard.getName(), title, ObjectiveCriteria.DUMMY,
+            ObjectiveCriteria.DUMMY.getDefaultRenderType()));
   }
 
   /**
@@ -2058,7 +2054,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
     this.updateChatName();
 
-    // update tablist
     ((ScoreboardManager) Server.getScoreboardManager()).updatePlayerGroup(this);
   }
 
