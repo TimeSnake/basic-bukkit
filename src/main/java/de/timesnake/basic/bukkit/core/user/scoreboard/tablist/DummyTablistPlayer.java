@@ -2,19 +2,20 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.core.user.scoreboard;
+package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.packets.util.packet.TablistHead;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.entity.Player;
 
-public class FakeTablistPlayer implements TablistablePlayer {
+public class DummyTablistPlayer implements TablistPlayer {
 
   private final net.minecraft.world.entity.player.Player entityPlayer;
 
-  public FakeTablistPlayer(String name, TablistHead head) {
+  public DummyTablistPlayer(String name, TablistHead head) {
     this.entityPlayer = head.asPlayer(name);
   }
 
@@ -25,7 +26,7 @@ public class FakeTablistPlayer implements TablistablePlayer {
 
   @Deprecated
   @Override
-  public TablistableGroup getTablistGroup(TablistGroupType type) {
+  public TablistGroup getTablistGroup(TablistGroupType type) {
     return null;
   }
 

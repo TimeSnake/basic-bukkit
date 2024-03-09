@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
+import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist2;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.network.NetworkVariables;
 
@@ -23,11 +24,7 @@ public interface ScoreboardManager {
     }
   }
 
-  GroupTablist registerGroupTablist(TablistBuilder builder);
-
-  TeamTablist registerTeamTablist(TeamTablistBuilder builder);
-
-  TeamTablist registerTagTeamTablist(TeamTablistBuilder builder);
+  Tablist2 registerTablist(Tablist2.Builder builder);
 
   Tablist getTablist(String name);
 

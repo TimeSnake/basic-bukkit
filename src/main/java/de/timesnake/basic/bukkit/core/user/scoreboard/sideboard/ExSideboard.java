@@ -2,7 +2,7 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.core.user.scoreboard;
+package de.timesnake.basic.bukkit.core.user.scoreboard.sideboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
