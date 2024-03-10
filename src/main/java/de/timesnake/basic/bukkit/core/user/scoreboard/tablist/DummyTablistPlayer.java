@@ -24,7 +24,6 @@ public class DummyTablistPlayer implements TablistPlayer {
     return this.getPlayer().getName();
   }
 
-  @Deprecated
   @Override
   public TablistGroup getTablistGroup(TablistGroupType type) {
     return null;
