@@ -26,9 +26,10 @@ public class TablistPlayerEntry extends TablistRankedEntry {
 
     ExTextColor color = ExTextColor.WHITE;
     if (entryHelper.getColorGroupType() != null) {
-      TablistGroup group = Objects.requireNonNullElse(this.player.getTablistGroup(entryHelper.getColorGroupType()),
-          entryHelper.getDefaultGroup(entryHelper.getColorGroupType()));
-      color = group.getTablistChatColor();
+      TablistGroup group = this.player.getTablistGroup(entryHelper.getColorGroupType());
+      if (group != null) {
+        color = group.getTablistChatColor();
+      }
     }
 
     this.slot = new TablistSlot(this.player, prefix, color);
