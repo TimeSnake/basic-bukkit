@@ -10,7 +10,7 @@ plugins {
 
 
 group = "de.timesnake"
-version = '3.2.1'
+version = '3.3.0'
 var projectId = 52
 
 repositories {
@@ -35,8 +35,6 @@ repositories {
 dependencies {
   implementation "com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT"
   implementation "xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT"
-
-  implementation "de.timesnake:library-network:1.+"
 
   implementation "de.timesnake:library-entities:2.+"
   implementation "de.timesnake:library-packets:2.+"
