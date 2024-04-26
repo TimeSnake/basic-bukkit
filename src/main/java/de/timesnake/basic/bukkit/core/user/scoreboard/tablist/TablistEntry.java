@@ -12,4 +12,6 @@ public sealed abstract class TablistEntry implements Comparable<TablistEntry> pe
 
   public abstract int size(TablistEntryHelper entryHelper);
 
+  public abstract boolean isEmpty();
+
 }

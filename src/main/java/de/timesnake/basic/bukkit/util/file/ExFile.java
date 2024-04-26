@@ -9,23 +9,8 @@ import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.basic.util.Triple;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -40,30 +25,17 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.*;
+
 /**
  * @deprecated in favour of {@link ExToml}
  */
 @Deprecated
 public class ExFile {
-
-  public static void deleteFile(File file) {
-    if (file.isDirectory()) {
-      if (Objects.requireNonNull(file.list()).length == 0) {
-        file.delete();
-      } else {
-        String[] files = file.list();
-
-        for (String temp : Objects.requireNonNull(files)) {
-          ExFile.deleteFile(new File(file, temp));
-        }
-        if (Objects.requireNonNull(file.list()).length == 0) {
-          file.delete();
-        }
-      }
-    } else {
-      file.delete();
-    }
-  }
 
   public static String toPath(String... sections) {
     return String.join(".", sections);

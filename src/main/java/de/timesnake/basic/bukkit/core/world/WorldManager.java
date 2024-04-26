@@ -352,22 +352,25 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     this.moveUsersFromWorld(world);
-    this.worldsByName.remove(world.getName());
-    return Bukkit.unloadWorld(world.getName(), save);
+    boolean unloaded = Bukkit.unloadWorld(world.getBukkitWorld(), save);
+    if (unloaded) {
+      this.worldsByName.remove(world.getName());
+    }
+    return unloaded;
   }
 
   @Override
-  public boolean deleteWorld(ExWorld exWorld, boolean deleteFiles) {
-    if (exWorld == null) {
+  public boolean deleteWorld(ExWorld world, boolean deleteFiles) {
+    if (world == null) {
       return false;
     }
 
-    this.moveUsersFromWorld(exWorld);
-    boolean unloaded = Bukkit.unloadWorld(exWorld.getBukkitWorld(), false);
-    this.unregisterExWorld(exWorld);
+    this.moveUsersFromWorld(world);
+    boolean unloaded = Bukkit.unloadWorld(world.getBukkitWorld(), false);
+    this.unregisterExWorld(world);
 
     if (deleteFiles) {
-      unloaded &= this.deleteWorldFiles(exWorld);
+      unloaded &= this.deleteWorldFiles(world);
     }
 
     return unloaded;
