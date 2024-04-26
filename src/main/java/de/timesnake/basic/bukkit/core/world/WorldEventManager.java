@@ -59,11 +59,15 @@ public class WorldEventManager implements Listener {
   public void onCraftItem(CraftItemEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getWhoClicked().getWorld());
 
-    if (world.isExceptService() && Server.getUser(((Player) e.getWhoClicked())).isService()) {
+    if (world == null) {
       return;
     }
 
+    if (world.isExceptService() && Server.getUser(((Player) e.getWhoClicked())).isService()) {
+      return;
+    }
     if (!world.isRestricted(Restriction.CRAFTING)) {
+      e.setCurrentItem(null);
       return;
     }
 
@@ -74,6 +78,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onPlayerInteract(PlayerInteractEvent event) {
     ExWorld world = this.worldManager.getWorld(event.getPlayer().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (world.isExceptService() && Server.getUser(event.getPlayer()).isService()) {
       return;
@@ -89,10 +97,7 @@ public class WorldEventManager implements Listener {
           return;
         }
         if (blockType == Material.FARMLAND) {
-          event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
           event.setCancelled(true);
-          clickedBlock.setType(blockType, true);
-          clickedBlock.setBlockData(clickedBlock.getBlockData());
           this.logger.info("Cancelled interact physical event");
           return;
         }
@@ -232,6 +237,10 @@ public class WorldEventManager implements Listener {
   public void onItemFrameChange(PlayerItemFrameChangeEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
       return;
     }
@@ -252,6 +261,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onPlayerDropItem(PlayerDropItemEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
       return;
@@ -286,6 +299,10 @@ public class WorldEventManager implements Listener {
   public void onPlayerPickUpItem(@Deprecated PlayerPickupItemEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
       return;
     }
@@ -303,6 +320,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onPlayerPickUpArrow(PlayerPickupArrowEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
       return;
@@ -343,6 +364,10 @@ public class WorldEventManager implements Listener {
   public void onArmorStand(PlayerArmorStandManipulateEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
         ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
       return;
@@ -359,6 +384,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onBoat(VehicleDestroyEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getVehicle().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
         ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
@@ -378,6 +407,10 @@ public class WorldEventManager implements Listener {
   public void onPainting(HangingBreakByEntityEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getRemover().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
         ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
       return;
@@ -395,6 +428,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void blockItemFrame(PlayerInteractEntityEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getPlayer().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
         ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
@@ -416,6 +453,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onEntityDamage(EntityDamageByUserEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getUser().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
         ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
@@ -439,6 +480,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onFoodLevelChange(FoodLevelChangeEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getEntity().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(ExWorld.Restriction.FOOD_CHANGE)) {
       return;
@@ -537,6 +582,10 @@ public class WorldEventManager implements Listener {
   public void onBlockSpread(BlockSpreadEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(Restriction.BLOCK_SPREAD)) {
       return;
     }
@@ -549,6 +598,10 @@ public class WorldEventManager implements Listener {
   public void onBlockBurn(BlockBurnEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.BLOCK_BURN_UP)) {
       return;
     }
@@ -560,6 +613,10 @@ public class WorldEventManager implements Listener {
   @EventHandler
   public void onBlockIgnite(BlockIgniteEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(Restriction.BLOCK_IGNITE)) {
       this.checkFireSpread(e.getBlock().getLocation(), world);
@@ -589,6 +646,10 @@ public class WorldEventManager implements Listener {
   public void onTNTPrime(TNTPrimeEvent e) {
     ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
 
+    if (world == null) {
+      return;
+    }
+
     if (!world.isRestricted(ExWorld.Restriction.TNT_PRIME)) {
       return;
     }
@@ -605,6 +666,10 @@ public class WorldEventManager implements Listener {
   public void onBlockFromTo(BlockFromToEvent e) {
     Block block = e.getBlock();
     ExWorld world = this.worldManager.getWorld(block.getWorld());
+
+    if (world == null) {
+      return;
+    }
 
     if (!world.isRestricted(Restriction.FLUID_FLOW)) {
       return;

@@ -56,12 +56,12 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
 
   protected void collectAsSlots(List<TablistSlot> slots, TablistEntryHelper entryHelper, int gapSize) {
     if (gapSize > 0) {
-      Iterator<TablistEntry> iterator = this.entries.values().iterator();
-      while (iterator.hasNext()) {
-        TablistEntry entry = iterator.next();
+      Deque<TablistEntry> queue = new ArrayDeque<>(this.entries.values());
+      while (!queue.isEmpty()) {
+        TablistEntry entry = queue.pop();
         entry.collectAsSlots(slots, entryHelper);
 
-        if (iterator.hasNext()) {
+        if (!queue.isEmpty() && !queue.peek().isEmpty()) {
           for (int i = 0; i < gapSize; i++) {
             slots.add(new TablistSlot(new DummyTablistPlayer("§" + (slots.size() / 10) +
                 "§" + (slots.size() % 10) + "§" + i, TablistHead.BLANK), null, ExTextColor.WHITE));
@@ -73,6 +73,15 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
         entry.collectAsSlots(slots, entryHelper);
       }
     }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    if (this.entries.isEmpty()) {
+      return true;
+    }
+
+    return this.entries.values().stream().allMatch(TablistEntry::isEmpty);
   }
 
   @Override
@@ -88,9 +97,5 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
     }
 
     return this.entries.values().stream().mapToInt(e -> e.size(entryHelper)).sum() + gapSize;
-  }
-
-  public boolean isEmpty() {
-    return this.entries.isEmpty();
   }
 }

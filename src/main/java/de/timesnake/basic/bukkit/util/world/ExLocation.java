@@ -248,5 +248,12 @@ public class ExLocation extends Location {
     return ExLocation.fromLocation(super.toBlockLocation());
   }
 
+  public @NotNull ExFacingPosition toFacingPosition() {
+    return new ExFacingPosition(this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
+  }
+
+  public @NotNull ExPosition toPosition() {
+    return new ExPosition(this.getX(), this.getY(), this.getZ());
+  }
 
 }
