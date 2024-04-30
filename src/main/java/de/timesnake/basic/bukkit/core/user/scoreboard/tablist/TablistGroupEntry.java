@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class TablistGroupEntry extends TablistListEntry {
 
@@ -84,5 +85,21 @@ public class TablistGroupEntry extends TablistListEntry {
   @Override
   public int hashCode() {
     return Objects.hash(group);
+  }
+
+  @Override
+  public String toString() {
+    return "TablistGroupEntry{" +
+           "type=" + type +
+           ", group=" + group.getTablistName() +
+           (!headers.isEmpty() ?
+               ", headers=[" + headers.stream().map(TablistTextEntry::toString).collect(Collectors.joining(", ")) +
+               "]" : "") +
+           (!footers.isEmpty() ?
+               ", footers=[" + footers.stream().map(TablistTextEntry::toString).collect(Collectors.joining(", ")) +
+               "]" : "") +
+           ", entries=[" + entries.values().stream().map(TablistEntry::toString).collect(Collectors.joining(", ")) +
+           "]" +
+           '}';
   }
 }

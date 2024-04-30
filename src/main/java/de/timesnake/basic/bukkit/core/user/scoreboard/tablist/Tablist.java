@@ -6,11 +6,11 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.user.scoreboard.Scoreboard;
-import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardPacketManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;

@@ -5,17 +5,19 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import net.minecraft.server.level.ServerPlayer;
-import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface TablistPlayer {
 
+  String getName();
+
   String getTablistName();
 
-  TablistGroup getTablistGroup(TablistGroupType type);
+  UUID getUniqueId();
 
-  Player getPlayer();
+  TablistGroup getTablistGroup(TablistGroupType type);
 
   ServerPlayer getMinecraftPlayer();
 

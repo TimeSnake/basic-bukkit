@@ -917,7 +917,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public void removeTablistEntry(TablistPlayer player) {
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundPlayerInfoRemovePacket(List.of(player.getPlayer().getUniqueId())));
+        new ClientboundPlayerInfoRemovePacket(List.of(player.getUniqueId())));
   }
 
   /**

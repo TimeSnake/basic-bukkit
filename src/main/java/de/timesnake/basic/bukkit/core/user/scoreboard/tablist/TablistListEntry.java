@@ -8,7 +8,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.chat.ExTextColor;
-import de.timesnake.library.packets.util.packet.TablistHead;
 
 import java.util.*;
 
@@ -63,8 +62,9 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
 
         if (!queue.isEmpty() && !queue.peek().isEmpty()) {
           for (int i = 0; i < gapSize; i++) {
-            slots.add(new TablistSlot(new DummyTablistPlayer("§" + (slots.size() / 10) +
-                "§" + (slots.size() % 10) + "§" + i, TablistHead.BLANK), null, ExTextColor.WHITE));
+            slots.add(new TablistSlot(entryHelper.newGapEntry("§" + (slots.size() / 10) +
+                                                              "§" + (slots.size() % 10) + "§" + i), null,
+                ExTextColor.WHITE));
           }
         }
       }

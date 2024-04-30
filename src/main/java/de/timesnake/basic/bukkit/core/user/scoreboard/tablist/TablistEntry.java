@@ -14,4 +14,7 @@ public sealed abstract class TablistEntry implements Comparable<TablistEntry> pe
 
   public abstract boolean isEmpty();
 
+  @Override
+  public abstract String toString();
+
 }

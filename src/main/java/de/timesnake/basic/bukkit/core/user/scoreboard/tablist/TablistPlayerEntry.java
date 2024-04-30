@@ -55,6 +55,11 @@ public class TablistPlayerEntry extends TablistRankedEntry {
   }
 
   @Override
+  public boolean isEmpty() {
+    return false;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
@@ -65,5 +70,12 @@ public class TablistPlayerEntry extends TablistRankedEntry {
   @Override
   public int hashCode() {
     return Objects.hash(player);
+  }
+
+  @Override
+  public String toString() {
+    return "TablistPlayerEntry{" +
+           "player=" + player.getTablistName() +
+           '}';
   }
 }

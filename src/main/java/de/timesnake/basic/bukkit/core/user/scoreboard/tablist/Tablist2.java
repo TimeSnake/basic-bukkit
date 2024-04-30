@@ -4,18 +4,17 @@
 
 package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
-import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardPacketManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
-import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import de.timesnake.library.packets.util.packet.TablistHead;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -30,27 +29,20 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     }
 
     @Override
-    public String getTablistName() {
-      return null;
-    }
-
-    @Override
-    public String getTablistPrefix() {
-      return null;
-    }
-
-    @Override
-    public ExTextColor getTablistPrefixChatColor() {
-      return null;
-    }
-
-    @Override
-    public ExTextColor getTablistChatColor() {
+    public @Nullable String getTablistName() {
       return null;
     }
   };
 
   private final TablistListEntry tablist = new TablistListEntry() {
+    @Override
+    public String toString() {
+      return "Tablist{" +
+             "entries=[" + entries.values().stream().map(TablistEntry::toString).collect(Collectors.joining(", ")) +
+             "]" +
+             '}';
+    }
+
     @Override
     public int compareTo(@NotNull TablistEntry o) {
       return 0;
@@ -85,13 +77,16 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
           Component.nullToEmpty(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().toString()),
           this.getNameTagVisibility(user, entry).getPacketTag()));
       this.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(String.valueOf(slot),
-          entry.getPlayer().getPlayer().getName()));
+          entry.getPlayer().getName()));
 
       slot++;
     }
 
     this.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(
-        this.lastSlots.stream().map(p -> p.getPlayer().getMinecraftPlayer()).toList()));
+        this.lastSlots.stream()
+            .map(p -> p.getPlayer().getMinecraftPlayer())
+            .filter(Objects::nonNull)
+            .toList()));
 
     this.logger.info("Loaded tablist '{}' for user '{}'", this.name, user.getName());
   }
@@ -115,7 +110,6 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       this.update();
       this.logger.info("Updated tablist '{}': added '{}'", this.name, value.getTablistName());
     }
-
     return success;
   }
 
@@ -127,17 +121,14 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       this.update();
       this.logger.info("Updated tablist '{}': removed '{}'", this.name, value.getTablistName());
     }
-
     return success;
   }
 
+  @Override
   public boolean reloadEntry(TablistPlayer value, boolean addIfNotExists) {
-    boolean success = this.tablist.removePlayer(new TablistPlayerEntry(value, this));
-
-    if (success || addIfNotExists) {
+    if (this.tablist.removePlayer(new TablistPlayerEntry(value, this)) || addIfNotExists) {
       return this.addEntry(value);
     }
-
     return false;
   }
 
@@ -154,9 +145,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
   }
 
   private void update() {
-    int size = this.tablist.size(this);
-
-    List<TablistSlot> slots = new ArrayList<>(size);
+    List<TablistSlot> slots = new ArrayList<>();
     this.tablist.collectAsSlots(slots, this);
 
     Iterator<TablistSlot> lastIt = this.lastSlots.iterator();
@@ -172,7 +161,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       TablistSlot newEntry = it.next();
 
       if (!lastEntry.equals(newEntry)) {
-        Player newPlayer = newEntry.getPlayer().getPlayer();
+        TablistPlayer newPlayer = newEntry.getPlayer();
 
         int finalSlot = slot;
         this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofModify(String.valueOf(finalSlot),
@@ -202,25 +191,32 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
           Component.nullToEmpty(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().toString()),
           this.getNameTagVisibility(u, entry).getPacketTag()));
       this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(String.valueOf(slot),
-          entry.getPlayer().getPlayer().getName()));
+          entry.getPlayer().getName()));
 
-      this.logger.debug("Update packet for tablist '{}': {} {}", this.name, slot, entry.getPlayer().getPlayer().getName());
+      this.logger.debug("Update packet for tablist '{}': {} {}", this.name, slot, entry.getPlayer().getName());
       slot++;
     }
 
     List<TablistPlayer> toRemove = new ArrayList<>(lastPlayers);
     toRemove.removeAll(currentPlayers);
-    this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(toRemove.stream().map(p -> p.getPlayer().getUniqueId()).toList()));
+    this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(toRemove.stream().map(TablistPlayer::getUniqueId).toList()));
 
     currentPlayers.removeAll(lastPlayers);
     this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(
-        currentPlayers.stream().map(TablistPlayer::getMinecraftPlayer).toList()));
+        currentPlayers.stream()
+            .map(TablistPlayer::getMinecraftPlayer)
+            .filter(Objects::nonNull)
+            .toList()));
 
     this.lastSlots = slots;
   }
 
   private NameTagVisibility getNameTagVisibility(User user, TablistSlot entry) {
     return Objects.requireNonNullElse(user.canSeeNameTagOf(entry.getPlayer()), NameTagVisibility.NEVER);
+  }
+
+  public TablistListEntry getTablistEntries() {
+    return tablist;
   }
 
   @Override
@@ -250,6 +246,11 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     return this.groupGapsByType.getOrDefault(type, 0);
   }
 
+  @Override
+  public TablistPlayer newGapEntry(String rank) {
+    return new DummyTablistPlayer(rank, TablistHead.BLANK);
+  }
+
   public static class Builder {
 
     private final String name;
@@ -258,7 +259,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     private List<TablistGroupType> groupTypes;
     private TablistGroupType colorGroupType;
 
-    private final HashMap<TablistGroupType, Collection<Consumer<TablistGroupEntry>>> groupDecoratorsByType = new HashMap<>();
+    private final HashMap<TablistGroupType, Collection<Consumer<TablistGroupEntry>>> groupDecoratorsByType =
+        new HashMap<>();
     private final HashMap<TablistGroupType, Integer> groupGapsByType = new HashMap<>();
     protected final HashMap<TablistGroupType, TablistGroup> defaultGroupsByType = new HashMap<>();
 

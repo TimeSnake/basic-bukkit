@@ -13,7 +13,6 @@ import java.util.Objects;
 public class TablistSlot {
 
   private final TablistPlayer player;
-
   private final String prefix;
   private final ExTextColor chatColor;
 
