@@ -56,6 +56,12 @@ dependencies {
   compileOnly "org.freemarker:freemarker:2.3.31"
 
   paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+
+  testImplementation platform('org.junit:junit-bom:5.10.0')
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+
+  testImplementation "de.timesnake:channel-bukkit:4.+"
+  testImplementation "de.timesnake:channel-api:4.+"
 }
 
 configurations.configureEach {
@@ -143,4 +149,8 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
   withSourcesJar()
+}
+
+test {
+  useJUnitPlatform()
 }

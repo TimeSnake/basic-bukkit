@@ -17,6 +17,8 @@ public interface Tablist {
 
   boolean removeEntry(TablistPlayer value);
 
+  boolean reloadEntry(TablistPlayer value, boolean addIfNotExists);
+
   void updateEntryValue(TablistPlayer entry, Integer value);
 
   enum Type {

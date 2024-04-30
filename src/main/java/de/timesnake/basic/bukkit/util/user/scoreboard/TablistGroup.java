@@ -6,16 +6,25 @@ package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import de.timesnake.library.chat.ExTextColor;
 
+import javax.annotation.Nullable;
+
 public interface TablistGroup {
 
   int getTablistRank();
 
+  @Nullable
   String getTablistName();
 
-  String getTablistPrefix();
+  default @Nullable String getTablistPrefix() {
+    return null;
+  }
 
-  ExTextColor getTablistPrefixChatColor();
+  default @Nullable ExTextColor getTablistPrefixChatColor() {
+    return null;
+  }
 
-  ExTextColor getTablistChatColor();
+  default @Nullable ExTextColor getTablistChatColor() {
+    return null;
+  }
 
 }

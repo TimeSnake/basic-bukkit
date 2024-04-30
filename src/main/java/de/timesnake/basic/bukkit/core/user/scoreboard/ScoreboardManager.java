@@ -36,8 +36,7 @@ public class ScoreboardManager implements Listener,
   private final Logger logger = LogManager.getLogger("scoreboard.manager");
 
   private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Tablist> tablists = new HashMap<>();
-  private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards =
-      new HashMap<>();
+  private final HashMap<String, de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard> sideboards = new HashMap<>();
   private final ScoreboardPacketManager packetManager;
   private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist activeTablist;
 
@@ -123,9 +122,8 @@ public class ScoreboardManager implements Listener,
 
   public void updatePlayerGroup(TablistPlayer player) {
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
-      // TODO change to reload
       if (tablist.removeEntry(player)) {
-        tablist.addEntry(player);
+        tablist.reloadEntry(player, false);
       }
     }
   }
@@ -139,7 +137,7 @@ public class ScoreboardManager implements Listener,
     e.getUser().setTablist(this.activeTablist);
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.LOWEST)
   public void onUserQuit(UserQuitEvent e) {
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
       ((Tablist) tablist).removeWatchingUser(e.getUser());

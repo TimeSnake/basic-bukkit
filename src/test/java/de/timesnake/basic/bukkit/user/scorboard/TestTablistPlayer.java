@@ -2,40 +2,39 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
+package de.timesnake.basic.bukkit.user.scorboard;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
-import de.timesnake.library.packets.util.packet.TablistHead;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class DummyTablistPlayer implements TablistPlayer {
+public class TestTablistPlayer implements TablistPlayer {
 
   private final String name;
-  private final net.minecraft.world.entity.player.Player entityPlayer;
+  private final UUID uuid;
 
-  public DummyTablistPlayer(String name, TablistHead head) {
+  public TestTablistPlayer(String name) {
     this.name = name;
-    this.entityPlayer = head.asPlayer(name);
+    this.uuid = UUID.randomUUID();
   }
 
   @Override
   public String getName() {
-    return this.name;
+    return name;
   }
 
   @Override
   public String getTablistName() {
-    return this.name;
+    return name;
   }
 
   @Override
   public UUID getUniqueId() {
-    return this.entityPlayer.getUUID();
+    return null;
   }
 
   @Override
@@ -45,7 +44,7 @@ public class DummyTablistPlayer implements TablistPlayer {
 
   @Override
   public ServerPlayer getMinecraftPlayer() {
-    return (ServerPlayer) this.entityPlayer;
+    return null;
   }
 
   @Override
@@ -55,19 +54,19 @@ public class DummyTablistPlayer implements TablistPlayer {
 
   @Override
   public String getTablistPrefix() {
-    return null;
+    return "";
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    DummyTablistPlayer that = (DummyTablistPlayer) o;
-    return Objects.equals(name, that.name) && Objects.equals(entityPlayer, that.entityPlayer);
+    TestTablistPlayer that = (TestTablistPlayer) o;
+    return Objects.equals(name, that.name) && Objects.equals(uuid, that.uuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, entityPlayer);
+    return Objects.hash(name, uuid);
   }
 }

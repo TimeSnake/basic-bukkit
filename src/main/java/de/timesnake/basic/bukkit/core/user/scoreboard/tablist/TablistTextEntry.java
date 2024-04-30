@@ -40,4 +40,17 @@ public class TablistTextEntry extends TablistRankedEntry {
   public int size(TablistEntryHelper entryHelper) {
     return 1;
   }
+
+  @Override
+  public boolean isEmpty() {
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return "TablistTextEntry{" +
+           "rank='" + rank + '\'' +
+           ", player=" + player.getTablistName() +
+           '}';
+  }
 }
