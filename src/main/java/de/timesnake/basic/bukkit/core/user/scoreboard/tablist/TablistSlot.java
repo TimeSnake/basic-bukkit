@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.chat.ExTextColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -16,21 +17,21 @@ public class TablistSlot {
   private final String prefix;
   private final ExTextColor chatColor;
 
-  public TablistSlot(TablistPlayer player, String prefix, @NotNull ExTextColor chatColor) {
+  public TablistSlot(@NotNull TablistPlayer player, @Nullable String prefix, @NotNull ExTextColor chatColor) {
     this.player = player;
     this.prefix = prefix;
     this.chatColor = chatColor;
   }
 
-  public TablistPlayer getPlayer() {
+  public @NotNull TablistPlayer getPlayer() {
     return player;
   }
 
-  public String getPrefix() {
+  public @Nullable String getPrefix() {
     return prefix;
   }
 
-  public ExTextColor getChatColor() {
+  public @NotNull ExTextColor getChatColor() {
     return chatColor;
   }
 

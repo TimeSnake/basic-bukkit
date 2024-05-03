@@ -11,6 +11,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
+import de.timesnake.library.chat.ExTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,11 @@ public class Tablist1TeamTests {
       @Override
       public @NotNull String getTablistName() {
         return "spec";
+      }
+
+      @Override
+      public @NotNull ExTextColor getTablistColor() {
+        return ExTextColor.GRAY;
       }
     };
 
@@ -88,7 +94,9 @@ public class Tablist1TeamTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=1
+                          player=1,
+                          prefix=null,
+                          color=white
                         }
                       ]
                    }
@@ -103,7 +111,9 @@ public class Tablist1TeamTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=2
+                          player=2,
+                          prefix=null,
+                          color=gray
                         }
                       ]
                    }

@@ -15,6 +15,10 @@ public interface TablistPlayer {
 
   String getTablistName();
 
+  default String getRank() {
+    return this.getTablistName();
+  }
+
   UUID getUniqueId();
 
   TablistGroup getTablistGroup(TablistGroupType type);
@@ -26,16 +30,16 @@ public interface TablistPlayer {
     for (TablistGroupType type : types) {
       TablistGroup group = this.getTablistGroup(type);
 
-      if (group != null && group.getTablistPrefix() != null) {
-        if (group.getTablistPrefixChatColor() != null) {
-          prefixBuilder.append("§").append(group.getTablistPrefixChatColor().getLegacyToken());
+      if (group != null && group.getTablistPrefix() != null && !group.getTablistPrefix().isBlank()) {
+        if (group.getTablistPrefixColor() != null) {
+          prefixBuilder.append("§").append(group.getTablistPrefixColor().getLegacyToken());
         }
 
         prefixBuilder.append(group.getTablistPrefix()).append("§r");
       }
     }
 
-    return prefixBuilder.toString();
+    return !prefixBuilder.isEmpty() ? prefixBuilder.toString() : null;
   }
 
   boolean showInTablist();

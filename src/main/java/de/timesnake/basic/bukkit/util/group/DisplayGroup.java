@@ -51,13 +51,13 @@ public class DisplayGroup extends de.timesnake.library.permissions.DisplayGroup<
 
   @Nullable
   @Override
-  public ExTextColor getTablistPrefixChatColor() {
+  public ExTextColor getTablistPrefixColor() {
     return this.getPrefixColor();
   }
 
   @Nullable
   @Override
-  public ExTextColor getTablistChatColor() {
+  public ExTextColor getTablistColor() {
     return this.getPrefixColor();
   }
 

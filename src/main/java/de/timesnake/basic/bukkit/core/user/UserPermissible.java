@@ -116,11 +116,10 @@ public class UserPermissible extends PermissibleBase {
     }
 
     if (this.permGroup != null) {
-      this.permGroup.getPermissions()
-          .forEach(p -> {
-            this.permissions.add(p);
-            this.addPermission(p, status, isService);
-          });
+      for (ExPermission p : this.permGroup.getPermissions()) {
+        this.permissions.add(p);
+        this.addPermission(p, status, isService);
+      }
     }
 
     if (fromDatabase) {

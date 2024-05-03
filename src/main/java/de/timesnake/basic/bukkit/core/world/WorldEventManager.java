@@ -67,10 +67,10 @@ public class WorldEventManager implements Listener {
       return;
     }
     if (!world.isRestricted(Restriction.CRAFTING)) {
-      e.setCurrentItem(null);
       return;
     }
 
+    this.logger.info("Cancelled craft item event");
     e.setCancelled(true);
     e.setResult(Result.DENY);
   }

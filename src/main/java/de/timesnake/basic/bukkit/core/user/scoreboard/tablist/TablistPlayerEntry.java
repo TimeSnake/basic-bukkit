@@ -20,24 +20,29 @@ public class TablistPlayerEntry extends TablistRankedEntry {
     this.player = player;
 
     String prefix = this.player.getFullPrefix(entryHelper.getGroupTypes());
-    if (player.getTablistPrefix() != null) {
+    if (player.getTablistPrefix() != null && !player.getTablistPrefix().isEmpty()) {
       prefix += "§r" + this.player.getTablistPrefix();
     }
 
     ExTextColor color = ExTextColor.WHITE;
     if (entryHelper.getColorGroupType() != null) {
       TablistGroup group = this.player.getTablistGroup(entryHelper.getColorGroupType());
+
+      if (group == null) {
+        group = entryHelper.getDefaultGroup(entryHelper.getColorGroupType());
+      }
+
       if (group != null) {
-        color = group.getTablistChatColor();
+        color = group.getTablistColor();
       }
     }
 
-    this.slot = new TablistSlot(this.player, prefix, color);
+    this.slot = new TablistSlot(this.player, prefix, color != null ? color : ExTextColor.WHITE);
   }
 
   @Override
   public String getRank() {
-    return player.getTablistName();
+    return player.getRank();
   }
 
   @Override
@@ -76,6 +81,8 @@ public class TablistPlayerEntry extends TablistRankedEntry {
   public String toString() {
     return "TablistPlayerEntry{" +
            "player=" + player.getTablistName() +
+           ", prefix=" + slot.getPrefix() +
+           ", color=" + slot.getChatColor().getName() +
            '}';
   }
 }

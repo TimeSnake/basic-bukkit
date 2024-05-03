@@ -34,7 +34,7 @@ public class TestTablistPlayer implements TablistPlayer {
 
   @Override
   public UUID getUniqueId() {
-    return null;
+    return this.uuid;
   }
 
   @Override
@@ -54,7 +54,7 @@ public class TestTablistPlayer implements TablistPlayer {
 
   @Override
   public String getTablistPrefix() {
-    return "";
+    return null;
   }
 
   @Override

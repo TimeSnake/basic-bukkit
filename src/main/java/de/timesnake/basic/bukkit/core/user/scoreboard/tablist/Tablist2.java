@@ -74,7 +74,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     int slot = 0;
     for (TablistSlot entry : this.lastSlots) {
       this.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofCreate(String.valueOf(slot),
-          Component.nullToEmpty(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().toString()),
+          Component.nullToEmpty(entry.getPrefix()),
+          ChatFormatting.getByName(entry.getChatColor().toString()),
           this.getNameTagVisibility(user, entry).getPacketTag()));
       this.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(String.valueOf(slot),
           entry.getPlayer().getName()));
@@ -103,7 +104,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       return false;
     }
 
-    this.tablist.removePlayer(new TablistPlayerEntry(value, this));
+    this.tablist.removePlayer(value);
     boolean success = this.tablist.addPlayer(value, this, new LinkedList<>(this.groupTypes));
 
     if (success) {
@@ -115,7 +116,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
   @Override
   public boolean removeEntry(TablistPlayer value) {
-    boolean success = this.tablist.removePlayer(new TablistPlayerEntry(value, this));
+    boolean success = this.tablist.removePlayer(value);
 
     if (success) {
       this.update();
@@ -126,22 +127,10 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
   @Override
   public boolean reloadEntry(TablistPlayer value, boolean addIfNotExists) {
-    if (this.tablist.removePlayer(new TablistPlayerEntry(value, this)) || addIfNotExists) {
+    if (this.tablist.removePlayer(value) || addIfNotExists) {
       return this.addEntry(value);
     }
     return false;
-  }
-
-  public void addGroupDecoration(TablistGroupType groupType, Consumer<TablistGroupEntry> entry) {
-    this.groupDecoratorsByType.computeIfAbsent(groupType, k -> new HashSet<>()).add(entry);
-  }
-
-  public void clearGroupDecoration(TablistGroupType groupType) {
-    this.groupDecoratorsByType.remove(groupType);
-  }
-
-  public void setGroupGap(TablistGroupType groupType, int gap) {
-    this.groupGapsByType.put(groupType, gap);
   }
 
   private void update() {
@@ -165,13 +154,14 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
         int finalSlot = slot;
         this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofModify(String.valueOf(finalSlot),
-            Component.nullToEmpty(newEntry.getPrefix()), ChatFormatting.getByName(newEntry.getChatColor().toString()),
+            Component.nullToEmpty(newEntry.getPrefix()),
+            ChatFormatting.getByName(newEntry.getChatColor().toString()),
             this.getNameTagVisibility(u, newEntry).getPacketTag()));
 
         this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(String.valueOf(slot),
             newPlayer.getName()));
 
-        this.logger.debug("Update packet for tablist '{}': {} {}", this.name, slot, newPlayer.getName());
+        this.logger.debug("Entry update packet for tablist '{}': {} {}", this.name, slot, newPlayer.getName());
       }
 
       slot++;
@@ -188,12 +178,13 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
       int finalSlot = slot;
       this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofCreate(String.valueOf(finalSlot),
-          Component.nullToEmpty(entry.getPrefix()), ChatFormatting.getByName(entry.getChatColor().toString()),
+          Component.nullToEmpty(entry.getPrefix()),
+          ChatFormatting.getByName(entry.getChatColor().toString()),
           this.getNameTagVisibility(u, entry).getPacketTag()));
       this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(String.valueOf(slot),
           entry.getPlayer().getName()));
 
-      this.logger.debug("Update packet for tablist '{}': {} {}", this.name, slot, entry.getPlayer().getName());
+      this.logger.debug("Entry creation packet for tablist '{}': {} {}", this.name, slot, entry.getPlayer().getName());
       slot++;
     }
 
@@ -288,11 +279,6 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
     public Builder addGroupDecoration(TablistGroupType groupType, Consumer<TablistGroupEntry> entry) {
       this.groupDecoratorsByType.computeIfAbsent(groupType, k -> new HashSet<>()).add(entry);
-      return this;
-    }
-
-    public Builder clearGroupDecoration(TablistGroupType groupType) {
-      this.groupDecoratorsByType.remove(groupType);
       return this;
     }
 

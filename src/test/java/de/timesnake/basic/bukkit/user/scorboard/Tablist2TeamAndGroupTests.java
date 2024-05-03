@@ -11,6 +11,8 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
+import de.timesnake.library.chat.ExTextColor;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,10 +36,25 @@ public class Tablist2TeamAndGroupTests {
     types.add(TestTablistGroupType.TEST_TEAM);
     types.add(DisplayGroup.TABLIST_TYPE_0);
 
-    TablistGroup spectatorGroup = new TestTablistGroup(80, "spec", "");
+    TablistGroup spectatorGroup = new TestTablistGroup(80, "spec", null) {
+      @Override
+      public @NotNull ExTextColor getTablistColor() {
+        return ExTextColor.GRAY;
+      }
+    };
 
-    this.gameGroup0 = new TestTablistGroup(0, "game0", "");
-    this.gameGroup1 = new TestTablistGroup(1, "game1", "");
+    this.gameGroup0 = new TestTablistGroup(0, "game0", null) {
+      @Override
+      public @NotNull ExTextColor getTablistColor() {
+        return ExTextColor.BLUE;
+      }
+    };
+    this.gameGroup1 = new TestTablistGroup(1, "game1", null) {
+      @Override
+      public @NotNull ExTextColor getTablistColor() {
+        return ExTextColor.RED;
+      }
+    };
 
     this.groupA = new TestTablistGroup(0, "a", "a");
     this.groupB = new TestTablistGroup(1, "b", "b");
@@ -60,7 +77,7 @@ public class Tablist2TeamAndGroupTests {
   @Test
   public void testAdd1_1_1Entry() {
     tablist.addEntry(newGameTeamPlayer(gameGroup0, groupA, "1"));
-    tablist.addEntry(newGameTeamPlayer(gameGroup1, groupA, "2"));
+    tablist.addEntry(newGameTeamPlayer(gameGroup1, groupB, "2"));
     tablist.addEntry(newSpecPlayer(groupA, "3"));
 
     Assertions.assertEquals("""
@@ -75,7 +92,9 @@ public class Tablist2TeamAndGroupTests {
                       group=a,
                       entries=[
                         TablistPlayerEntry{
-                          player=1
+                          player=1,
+                          prefix=a§r,
+                          color=blue
                         }
                       ]
                    }
@@ -87,10 +106,12 @@ public class Tablist2TeamAndGroupTests {
                   entries=[
                     TablistGroupEntry{
                       type=display_group_0,
-                      group=a,
+                      group=b,
                       entries=[
                         TablistPlayerEntry{
-                          player=2
+                          player=2,
+                          prefix=b§r,
+                          color=red
                         }
                       ]
                    }
@@ -105,7 +126,9 @@ public class Tablist2TeamAndGroupTests {
                       group=a,
                       entries=[
                         TablistPlayerEntry{
-                          player=3
+                          player=3,
+                          prefix=a§r,
+                          color=gray
                         }
                       ]
                    }

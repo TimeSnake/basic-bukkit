@@ -29,14 +29,14 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
         rank -> entryHelper.createGroup(type, group))).addPlayer(player, entryHelper, groupTypes);
   }
 
-  public boolean removePlayer(TablistPlayerEntry playerEntry) {
-    if (this.entries.remove(playerEntry.getRank(), playerEntry)) {
+  public boolean removePlayer(TablistPlayer tablistPlayer) {
+    if (this.entries.remove(tablistPlayer.getRank()) != null) {
       return true;
     }
 
     for (Map.Entry<String, TablistEntry> entry : this.entries.entrySet()) {
       if (entry.getValue() instanceof TablistListEntry listEntry) {
-        if (listEntry.removePlayer(playerEntry)) {
+        if (listEntry.removePlayer(tablistPlayer)) {
           if (listEntry.isEmpty()) {
             this.entries.remove(entry.getKey());
           }
