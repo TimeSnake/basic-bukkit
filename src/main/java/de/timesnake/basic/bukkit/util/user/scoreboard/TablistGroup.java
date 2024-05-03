@@ -19,11 +19,11 @@ public interface TablistGroup {
     return null;
   }
 
-  default @Nullable ExTextColor getTablistPrefixChatColor() {
+  default @Nullable ExTextColor getTablistPrefixColor() {
     return null;
   }
 
-  default @Nullable ExTextColor getTablistChatColor() {
+  default @Nullable ExTextColor getTablistColor() {
     return null;
   }
 
