@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.library.basic.util.UserMap;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +28,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
 
   private final Logger logger = LogManager.getLogger("world.border-manager");
 
-  private final HashMap<Player, Set<Packet<?>>> packetsByPlayer = new HashMap<>();
+  private final UserMap<Player, Set<Packet<?>>> packetsByUser = new UserMap<>();
 
   private boolean customBorders = true;
   private boolean allowEnderpearlThroughBorder = false;
@@ -49,7 +49,7 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
   }, modify = true)
   public Packet<?> onPacketPlayOut(Packet<?> packet, Player receiver) {
     if (this.customBorders) {
-      Set<Packet<?>> packets = this.packetsByPlayer.get(receiver);
+      Set<Packet<?>> packets = this.packetsByUser.get(receiver);
       if (packets == null || !packets.contains(packet)) {
         return null;
       }
@@ -58,10 +58,10 @@ public class WorldBorderManager implements PacketPlayOutListener, Listener,
   }
 
   public void sendPacket(Packet<?> packet, User user) {
-    Set<Packet<?>> packets = this.packetsByPlayer.get(user.getPlayer());
+    Set<Packet<?>> packets = this.packetsByUser.get(user.getPlayer());
 
     if (packets == null) {
-      packets = this.packetsByPlayer.computeIfAbsent(user.getPlayer(), p -> new HashSet<>());
+      packets = this.packetsByUser.computeIfAbsent(user.getPlayer(), p -> new HashSet<>());
     }
     packets.add(packet);
     user.sendPacket(packet);

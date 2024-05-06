@@ -32,6 +32,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,7 +101,6 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
       ClientboundForgetLevelChunkPacket.class
   })
   public void onPacket(Packet<?> packet, Player receiver) {
-
     boolean load;
     Chunk chunk;
 
@@ -137,8 +137,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
   private void loadEntitiesInChunk(User user, Chunk chunk) {
     for (PacketEntity entity : this.entitiesByChunk
-        .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()),
-            ConcurrentHashMap.newKeySet(0))
+        .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()), ConcurrentHashMap.newKeySet(0))
         .stream().filter(e -> e.isUserWatching(user)).toList()) {
       entity.loadForUser(user);
     }
@@ -146,16 +145,14 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
   private void unloadEntitiesInChunk(User user, Chunk chunk) {
     for (PacketEntity entity : this.entitiesByChunk
-        .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()),
-            ConcurrentHashMap.newKeySet(0)).stream()
+        .getOrDefault(new Triple<>(chunk.getWorld(), chunk.getX(), chunk.getZ()), ConcurrentHashMap.newKeySet(0)).stream()
         .filter(e -> e.isUserWatching(user)).toList()) {
       entity.unloadForUser(user);
     }
   }
 
-  private Collection<PacketEntity> getAllEntities() {
-    return this.entitiesByChunk.values().stream().flatMap(Collection::stream)
-        .collect(Collectors.toList());
+  private @NotNull Collection<PacketEntity> getAllEntities() {
+    return this.entitiesByChunk.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
   }
 
   public void tryLoadEntityForUser(PacketEntity entity, User user) {
@@ -215,7 +212,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   }
 
   @Override
-  public Set<PacketEntity> getEntitiesByWorld(ExWorld world) {
+  public @NotNull Set<PacketEntity> getEntitiesByWorld(ExWorld world) {
     return new HashSet<>(this.entitiesByChunk.entrySet().stream()
         .filter(entry -> entry.getKey().getA().equals(world.getBukkitWorld()))
         .map(Map.Entry::getValue).flatMap(Collection::stream)
@@ -223,7 +220,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   }
 
   @Override
-  public <EntityType extends PacketEntity> Set<EntityType> getEntitiesByWorld(ExWorld world,
+  public <EntityType extends PacketEntity> @NotNull Set<EntityType> getEntitiesByWorld(ExWorld world,
                                                                               Class<EntityType> entityClass) {
     return ((Set<EntityType>) this.entitiesByChunk.entrySet().stream()
         .filter(entry -> entry.getKey().getA().equals(world.getBukkitWorld()))
@@ -243,13 +240,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
     Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(), packet);
 
-    Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(
-        e.getUser().getUniqueId());
+    Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(e.getUser().getUniqueId());
 
     if (preLoadedChunks != null) {
       for (Chunk chunk : preLoadedChunks) {
-        Server.runTaskLaterAsynchrony(
-            () -> this.loadEntitiesInChunk(e.getUser(), chunk),
+        Server.runTaskLaterAsynchrony(() -> this.loadEntitiesInChunk(e.getUser(), chunk),
             20 * 3, BasicBukkit.getPlugin());
 
       }
@@ -260,7 +255,6 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
   public void onUserQuit(AsyncUserQuitEvent e) {
     User user = e.getUser();
     this.getAllEntities().forEach(entity -> entity.onUserQuit(user));
-
     this.preLoadedChunksByUuid.remove(user.getUniqueId());
   }
 }

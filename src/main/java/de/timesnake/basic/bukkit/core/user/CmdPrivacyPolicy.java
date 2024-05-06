@@ -33,39 +33,36 @@ public class CmdPrivacyPolicy implements CommandListener, Listener {
   public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
     if (sender.isPlayer(true)) {
       User user = sender.getUser();
-      if (args.isLengthHigherEquals(1, true)) {
-        if (args.get(0).equalsIgnoreCase("accept") || args.get(0).equalsIgnoreCase("agree")) {
-
-          if (user.agreedPrivacyPolicy()) {
-            sender.sendPluginMessage(
-                Component.text("You already accepted our privacy policy", ExTextColor.WARNING)
-                    .append(alreadyAccepted.asComponent(ExTextColor.WARNING)));
-            return;
-          }
-
-          user.agreePrivacyPolicy();
-          sender.sendPluginMessage(Component.text("You accepted our privacy policy", ExTextColor.PERSONAL));
-
-          user.getPlayer().kick(Component.text("You accepted our data privacy policy " +
-              "\nPlease rejoin in a few moments", ExTextColor.PUBLIC));
-
-
-        } else if (args.get(0).equalsIgnoreCase("deny") || args.get(0).equalsIgnoreCase("disagree")) {
-
-          if (!this.deniedUsers.contains(user)) {
-            this.deniedUsers.add(user);
-            sender.sendPluginTDMessage("§wIf you continue, ALL your DATA will be DELETED! Retype §v/pp deny §wto confirm");
-            return;
-          }
-
-          user.delete();
-          user.getPlayer().kick(Component.text("You disagreed our privacy policy. You must " +
-              "accept our privacy policy to play on our Network", ExTextColor.RED, TextDecoration.BOLD));
-
-        }
-      } else {
+      if (!args.isLengthHigherEquals(1, true)) {
         sender.sendTDMessageCommandHelp("Agree", "pp agree");
         sender.sendTDMessageCommandHelp("Disagree", "pp deny");
+        return;
+      }
+
+      if (args.get(0).equalsIgnoreCase("accept", "agree")) {
+        if (user.agreedPrivacyPolicy()) {
+          sender.sendPluginTDMessage("§wYou already accepted our privacy policy (" + this.alreadyAccepted.asStringCode() + ")");
+          return;
+        }
+
+        user.agreePrivacyPolicy();
+        sender.sendPluginTDMessage("§sYou accepted our privacy policy");
+
+        user.getPlayer().kick(Component.text("You accepted our data privacy policy " +
+                                             "\nPlease rejoin in a few moments", ExTextColor.PUBLIC));
+      } else if (args.get(0).equalsIgnoreCase("deny", "disagree")) {
+        if (!this.deniedUsers.contains(user)) {
+          this.deniedUsers.add(user);
+          sender.sendPluginTDMessage("§wIf you continue, ALL your DATA will be DELETED! Retype §v/pp deny §wto " +
+                                     "confirm");
+          return;
+        }
+
+        user.delete();
+        user.getPlayer().kick(Component.text("You disagreed our privacy policy. You must " +
+                                             "accept our privacy policy to play on our Network", ExTextColor.RED,
+            TextDecoration.BOLD));
+
       }
     }
   }

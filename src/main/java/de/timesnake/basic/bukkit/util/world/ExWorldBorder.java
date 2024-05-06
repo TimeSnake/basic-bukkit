@@ -19,20 +19,32 @@ import org.apache.logging.log4j.Logger;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
-import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class ExWorldBorder implements Listener {
+public class ExWorldBorder {
 
   private final Logger logger = LogManager.getLogger("world.border");
 
   private final ExWorld world;
 
-  private final UserSet<User> users = new UserSet<>();
-  private final UserSet<User> spectators = new UserSet<>();
+  private final UserSet<User> users = new UserSet<>() {
+    @Override
+    public void onAutoRemove(User user) {
+      ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+          .sendPacket(ClientboundInitializeBorderPacketBuilder.of(ExWorldBorder.this.world.getBukkitWorld()), user);
+    }
+  };
+  private final UserSet<User> spectators = new UserSet<>() {
+    @Override
+    public void onAutoRemove(User user) {
+      ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
+          .sendPacket(ClientboundInitializeBorderPacketBuilder.of(ExWorldBorder.this.world.getBukkitWorld()), user);
+    }
+  };
 
   private double centerX;
   private double centerZ;
@@ -63,13 +75,6 @@ public class ExWorldBorder implements Listener {
     this.damagePerSec = builder.damagePerSec;
     this.sound = builder.sound;
 
-    this.users.onRemove(u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
-
-    this.spectators.onRemove(u -> ((WorldManager) Server.getWorldManager()).getWorldBorderManager()
-        .sendPacket(ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld()), u));
-
-    Server.registerListener(this, BasicBukkit.getPlugin());
     this.startDamageTask();
 
     this.logger.info("Created world border: {}", this);
@@ -92,14 +97,8 @@ public class ExWorldBorder implements Listener {
     this.logger.info("Destroyed world border in world '{}'", this.world.getName());
   }
 
-  public void addUser(User user) {
-
-    if (user == null) {
-      return;
-    }
-
+  public void addUser(@NotNull User user) {
     this.spectators.remove(user);
-
     boolean added = this.users.add(user);
 
     if (!added) {
@@ -111,12 +110,8 @@ public class ExWorldBorder implements Listener {
     ((WorldManager) Server.getWorldManager()).getWorldBorderManager().sendPacket(this.getUserInitPacket(), user);
   }
 
-  public void addSpectator(User user) {
-
-    if (user == null) {
-      return;
-    }
-
+  public void addSpectator(@NotNull User user) {
+    this.users.remove(user);
     boolean added = this.spectators.add(user);
 
     if (!added) {

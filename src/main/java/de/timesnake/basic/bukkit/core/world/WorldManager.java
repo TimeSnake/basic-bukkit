@@ -23,6 +23,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -181,7 +182,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   @Override
-  public ExLocation getUserLocation(User user, ExWorld world) {
+  public @NotNull ExLocation getUserLocation(User user, ExWorld world) {
     ExLocation location = this.locationsPerWorldByUuid.get(user.getUniqueId()).get(world);
     if (location == null) {
       location = new ExLocation(world, world.getSpawnLocation());
@@ -192,7 +193,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
 
   @Override
-  public WorldBorderManager getWorldBorderManager() {
+  public @NotNull WorldBorderManager getWorldBorderManager() {
     return worldBorderManager;
   }
 
@@ -216,7 +217,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   @Override
-  public Collection<ExWorld> getWorlds() {
+  public @NotNull Collection<ExWorld> getWorlds() {
     return this.worldsByName.values();
   }
 

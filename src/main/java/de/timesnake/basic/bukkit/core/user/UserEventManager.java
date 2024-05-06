@@ -95,7 +95,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     }
 
     if (user.isService()) {
-      user.sendTDMessage("§wYOU ARE IN SERVICE MODE");
+      user.sendPluginTDMessage(Plugin.SERVER, "§w§lYOU ARE IN SERVICE MODE");
     }
 
     // async user join event

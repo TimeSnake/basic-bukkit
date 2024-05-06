@@ -65,8 +65,8 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    */
   public final void removeUser(UUID uuid) {
     de.timesnake.basic.bukkit.util.user.User user = this.getUser(uuid);
-    UserSet.LISTS.forEach(l -> l.remove(user));
-    UserMap.MAPS.forEach(l -> l.remove(user));
+    UserSet.SETS.forEach(l -> l.removeAuto(user));
+    UserMap.MAPS.forEach(l -> l.removeAuto(user));
     this.users.remove(uuid);
   }
 

@@ -24,9 +24,6 @@ public interface Chat {
 
   Set<ChatMember> getWriters();
 
-  @Deprecated
-  TextColor getChatColor();
-
   ExTextColor getTextColor();
 
   void addWriter(ChatMember member);

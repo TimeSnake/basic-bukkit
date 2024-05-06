@@ -6,6 +6,8 @@ package de.timesnake.basic.bukkit.util.world.entity;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -47,6 +49,7 @@ public interface EntityManager {
    * @param world The {@link ExWorld}
    * @return the set of {@link PacketEntity}s
    */
+  @NotNull
   Set<PacketEntity> getEntitiesByWorld(ExWorld world);
 
   /**
@@ -57,6 +60,6 @@ public interface EntityManager {
    * @param <EntityType> The type of the entity
    * @return the set of {@link PacketEntity}s
    */
-  <EntityType extends PacketEntity> Set<EntityType> getEntitiesByWorld(ExWorld world,
+  <EntityType extends PacketEntity> @NotNull Set<EntityType> getEntitiesByWorld(ExWorld world,
       Class<EntityType> entityClass);
 }

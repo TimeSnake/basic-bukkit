@@ -35,6 +35,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,12 +68,9 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 	}
 
 	@Override
-	public de.timesnake.basic.bukkit.util.chat.Chat createChat(String name, String displayName,
-																														 ExTextColor chatColor, Set<ChatMember> users) {
-		if (name.equals(GLOBAL_CHAT_NAME)) {
-			return null;
-		}
-		de.timesnake.basic.bukkit.util.chat.Chat chat = new Chat(name, displayName, chatColor, users);
+  public @NotNull de.timesnake.basic.bukkit.util.chat.Chat createChat(String name, String displayName,
+                                                                      ExTextColor chatColor, Set<ChatMember> users) {
+    Chat chat = new Chat(name, displayName, chatColor, users);
 		this.chats.put(name, chat);
 		return chat;
 	}
@@ -85,12 +84,12 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 	}
 
 	@Override
-	public de.timesnake.basic.bukkit.util.chat.Chat getChat(String name) {
+  public @Nullable de.timesnake.basic.bukkit.util.chat.Chat getChat(String name) {
 		return this.chats.get(name);
 	}
 
 	@Override
-	public de.timesnake.basic.bukkit.util.chat.Chat getGlobalChat() {
+  public @NotNull de.timesnake.basic.bukkit.util.chat.Chat getGlobalChat() {
 		return this.chats.get(GLOBAL_CHAT_NAME);
 	}
 
@@ -98,24 +97,20 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 	public void onPlayerChat(AsyncChatEvent e) {
 		User user = Server.getUser(e.getPlayer());
 
+    e.setCancelled(true);
+
 		String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
 
-		// event
 		boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(), msg);
-
-		e.setCancelled(true);
-
 		if (isCanceled) {
 			return;
 		}
 
-		//mute
 		if (user.isMuted()) {
       user.asSender(Plugin.SERVER).sendMessageMuted();
 			return;
 		}
 
-		// air mode
 		if (user.isAirMode()) {
 			return;
 		}
@@ -157,36 +152,34 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
 	}
 
 	@Override
-	public Component getSenderMember(ChatMember member) {
-		return member.getChatNameComponent()
-				.append(de.timesnake.library.chat.Chat.getSplitter());
+  public @NotNull Component getSenderMember(ChatMember member) {
+    return member.getChatNameComponent().append(de.timesnake.library.chat.Chat.getSplitter());
 	}
 
 	@Override
-	public Component getSender(Sender sender) {
-		return sender.getChatName()
-				.append(de.timesnake.library.chat.Chat.getSplitter());
+  public @NotNull Component getSender(Sender sender) {
+    return sender.getChatName().append(de.timesnake.library.chat.Chat.getSplitter());
 	}
 
 	@Override
-	public Component getLocationBlockText(Location loc) {
+  public @NotNull Component getLocationBlockText(Location loc) {
 		return Component.text(loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() +
 						" " + loc.getBlockZ(), ExTextColor.VALUE);
 	}
 
 	@Override
-	public Component getLocationText(Location loc) {
+  public @NotNull Component getLocationText(Location loc) {
 		return Component.text(loc.getWorld().getName() + " " + loc.getX() + " " + loc.getY() + " " +
 				loc.getZ(), ExTextColor.VALUE);
 	}
 
 	@Override
-	public Argument createArgument(Sender sender, Component component) {
+  public @NotNull Argument createArgument(Sender sender, Component component) {
 		return new Argument(sender, PlainTextComponentSerializer.plainText().serialize(component));
 	}
 
 	@Override
-	public Argument createArgument(Sender sender, String s) {
+  public @NotNull Argument createArgument(Sender sender, String s) {
 		return new Argument(sender, s);
 	}
 

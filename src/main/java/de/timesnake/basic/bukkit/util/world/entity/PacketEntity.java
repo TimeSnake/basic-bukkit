@@ -69,9 +69,8 @@ public abstract class PacketEntity {
     this.watchers.clear();
 
     this.logger.info("Unloaded entity at '{} {} {} {}' of type '{}' for all users",
-        this.location.getWorld().getName(),
-        this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ(),
-        this.getType());
+        this.location.getWorld().getName(), this.location.getBlockX(), this.location.getBlockY(),
+        this.location.getBlockZ(), this.getType());
   }
 
   public boolean isLoadedForUser(User user) {
@@ -82,9 +81,9 @@ public abstract class PacketEntity {
     this.userLoadedFor.add(user);
     this.spawnForUser(user);
 
-    this.logger.info("Loaded entity at '{} {} {} {}' of type '{}' for user '{}'",
-        this.location.getWorld().getName(), this.location.getBlockX(), this.location.getBlockY(),
-        this.location.getBlockZ(), this.getType(), user.getName());
+    this.logger.info("Loaded entity at '{} {} {} {}' of type '{}' for user '{}'", this.location.getWorld().getName(),
+        this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ(), this.getType(),
+        user.getName());
   }
 
   public void unloadForUser(User user) {

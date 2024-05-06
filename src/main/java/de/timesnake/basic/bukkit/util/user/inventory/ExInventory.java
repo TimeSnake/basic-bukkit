@@ -6,7 +6,6 @@ package de.timesnake.basic.bukkit.util.user.inventory;
 
 import de.timesnake.basic.bukkit.core.user.inventory.InventoryDelegation;
 import de.timesnake.basic.bukkit.util.Server;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,6 +14,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class ExInventory extends InventoryDelegation {
 
@@ -65,7 +67,7 @@ public class ExInventory extends InventoryDelegation {
    * @param item The {@link ExItemStack} to remove
    * @return if removed the slot, else null
    */
-  public Integer removeItemStack(ExItemStack item) {
+  public @Nullable Integer removeItemStack(ExItemStack item) {
     for (int slot = 0; slot < this.getInventory().getSize(); slot++) {
       ItemStack i = this.getInventory().getItem(slot);
       if (i == null) {
@@ -90,11 +92,11 @@ public class ExInventory extends InventoryDelegation {
     this.inventory.getViewers().forEach((h -> ((Player) h).updateInventory()));
   }
 
-  public Integer getFirstEmptySlot() {
+  public @Nullable Integer getFirstEmptySlot() {
     return this.getFirstEmptySlot(0);
   }
 
-  public Integer getFirstEmptySlot(int begin) {
+  public @Nullable Integer getFirstEmptySlot(int begin) {
     for (int i = begin; i < this.inventory.getSize(); i++) {
       if (this.inventory.getItem(i) == null) {
         return i;

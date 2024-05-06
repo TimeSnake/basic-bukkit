@@ -16,6 +16,7 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.Database;
 import de.timesnake.library.network.NetworkUtils;
 import de.timesnake.library.network.NetworkVariables;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,7 +27,7 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
     ChannelListener {
 
   private final Set<UUID> userSwitching = new HashSet<>();
-  private Integer playerAmount;
+  private int playerAmount;
 
   private final NetworkVariables variables;
 
@@ -40,25 +41,28 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
 
   @ChannelHandler(type = ListenerType.SERVER_ONLINE_PLAYERS, filtered = true)
   public void onServerMessage(ChannelServerMessage<?> msg) {
+    if (msg.getValue() == null) {
+      return;
+    }
     this.setPlayerAmount((Integer) msg.getValue());
   }
 
   @Override
-  public String getProxyName() {
+  public @NotNull String getProxyName() {
     return "proxy";
   }
 
   @Override
-  public NetworkVariables getVariables() {
+  public @NotNull NetworkVariables getVariables() {
     return this.variables;
   }
 
   @Override
-  public Integer getPlayerAmount() {
+  public int getPlayerAmount() {
     return playerAmount;
   }
 
-  public void setPlayerAmount(Integer playerAmount) {
+  public void setPlayerAmount(int playerAmount) {
     this.playerAmount = playerAmount;
   }
 
@@ -97,11 +101,11 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
 
   @Override
   public boolean sendUserToLobbyLast(User user) {
-    return this.sendUserToServer(user, user.getLastLobbyServer().getPort());
+    return this.sendUserToServer(user, user.getLastLobbyServer().getName());
   }
 
   @Override
   public boolean sendUserToServerLast(User user) {
-    return this.sendUserToServer(user, user.getLastServer().getPort());
+    return this.sendUserToServer(user, user.getLastServer().getName());
   }
 }

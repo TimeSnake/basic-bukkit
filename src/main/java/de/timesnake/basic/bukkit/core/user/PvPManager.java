@@ -10,10 +10,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserDamageByUserEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.database.util.server.DbPvPServer;
-import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.chat.Plugin;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -73,16 +70,9 @@ public class PvPManager implements Listener, de.timesnake.basic.bukkit.util.user
   @Override
   public void broadcastPvPTypeMessage() {
     if (this.oldPvP) {
-      Server.broadcastMessage(Plugin.SERVER,
-          Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
-              .append(Component.text(
-                  "Pre1.9 pvp (1.8 pvp) is activated, so you can hit fast.",
-                  ExTextColor.WARNING)));
+      Server.broadcastTDMessage(Plugin.SERVER, "§w§lHint: §wPre1.9 pvp (1.8 pvp) is activated, so you can hit fast.");
     } else {
-      Server.broadcastMessage(Plugin.SERVER,
-          Component.text("§lHint: ", ExTextColor.WARNING, TextDecoration.BOLD)
-              .append(Component.text("1.9+ pvp is activated, so you should hit slow.",
-                  ExTextColor.WARNING)));
+      Server.broadcastTDMessage(Plugin.SERVER, "§w§lHint: §w1.9+ pvp is activated, so you should hit slow.");
     }
   }
 

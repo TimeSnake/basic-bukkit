@@ -17,23 +17,14 @@ import de.timesnake.library.commands.simple.Arguments;
 
 public class PasswordCmd implements CommandListener {
 
-  private final Code perm = Plugin.SYSTEM.createPermssionCode("password");
+  private final Code perm = Plugin.SERVER.createPermssionCode("password");
 
   @Override
   public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
-    if (!sender.hasPermission(this.perm)) {
-      return;
-    }
+    sender.hasPermissionElseExit(this.perm);
+    args.isLengthEqualsElseExit(1, true);
 
-    if (!args.isLengthLowerEquals(1, true)) {
-      return;
-    }
-
-    String password = null;
-
-    if (args.length() == 1) {
-      password = args.getString(0);
-    }
+    String password = args.getString(0);
 
     try {
       Server.setPassword(password);
@@ -48,7 +39,7 @@ public class PasswordCmd implements CommandListener {
   @Override
   public Completion getTabCompletion() {
     return new Completion(this.perm)
-        .addArgument(new Completion("password"));
+        .addArgument(new Completion("<password>"));
   }
 
   @Override

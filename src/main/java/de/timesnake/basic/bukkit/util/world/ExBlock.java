@@ -40,8 +40,7 @@ public class ExBlock {
 
   public ExBlock(Block block) {
     Location loc = block.getLocation();
-    this.location = new ExLocation(Server.getWorld(block.getWorld()), loc.getX(), loc.getY(),
-        loc.getZ());
+    this.location = new ExLocation(Server.getWorld(block.getWorld()), loc.getX(), loc.getY(), loc.getZ());
   }
 
   public ExLocation getLocation() {
@@ -90,8 +89,6 @@ public class ExBlock {
   }
 
   public List<Block> getBesideBlocks() {
-    return NEAR_BLOCKS.stream()
-        .map(v -> this.location.add(v).getBlock())
-        .collect(Collectors.toList());
+    return NEAR_BLOCKS.stream().map(v -> this.location.add(v).getBlock()).collect(Collectors.toList());
   }
 }

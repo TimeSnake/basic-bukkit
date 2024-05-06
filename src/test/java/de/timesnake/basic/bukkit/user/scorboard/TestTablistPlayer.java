@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -23,17 +24,17 @@ public class TestTablistPlayer implements TablistPlayer {
   }
 
   @Override
-  public String getName() {
+  public @NotNull String getName() {
     return name;
   }
 
   @Override
-  public String getTablistName() {
+  public @NotNull String getTablistName() {
     return name;
   }
 
   @Override
-  public UUID getUniqueId() {
+  public @NotNull UUID getUniqueId() {
     return this.uuid;
   }
 

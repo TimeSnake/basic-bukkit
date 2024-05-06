@@ -17,15 +17,13 @@ public interface ExSideboard extends Sideboard {
 
   abstract class LineId<V> {
 
-    public static final LineId<Integer> PLAYERS = new LineId<>("players", "§9§lPlayers",
-        false) {
+    public static final LineId<Integer> PLAYERS = new LineId<>("players", "§9§lPlayers", false) {
       @Override
       public String parseValue(Integer value) {
         return value.toString();
       }
     };
-    public static final LineId<String> PLAYERS_OF = new LineId<>("players_of", "§9§lPlayers",
-        false) {
+    public static final LineId<String> PLAYERS_OF = new LineId<>("players_of", "§9§lPlayers", false) {
       @Override
       public String parseValue(String value) {
         return value;
@@ -37,8 +35,7 @@ public interface ExSideboard extends Sideboard {
         return value;
       }
     };
-    public static final LineId<String> MAP_INLINE = new LineId<>("map_inline", "§3§lMap: ",
-        true) {
+    public static final LineId<String> MAP_INLINE = new LineId<>("map_inline", "§3§lMap: ", true) {
       @Override
       public String parseValue(String value) {
         return value;
@@ -106,8 +103,7 @@ public interface ExSideboard extends Sideboard {
 
     public abstract String parseValue(V value);
 
-    public static <V> LineId<V> of(String id, String displayName, boolean inline,
-        Function<V, String> valueParser) {
+    public static <V> LineId<V> of(String id, String displayName, boolean inline, Function<V, String> valueParser) {
       return new LineId<>(id, displayName, inline) {
 
         @Override

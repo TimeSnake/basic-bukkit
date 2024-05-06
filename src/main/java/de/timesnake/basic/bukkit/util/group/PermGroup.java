@@ -31,8 +31,7 @@ public class PermGroup extends de.timesnake.library.permissions.PermGroup<User> 
     this.users.remove(user);
   }
 
-  @NotNull
-  public Collection<User> getUser() {
+  public @NotNull Collection<User> getUser() {
     return users;
   }
 

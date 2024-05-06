@@ -15,8 +15,7 @@ public class UserDamage {
   private final EntityDamageEvent.DamageCause cause;
   private final DamageType damageType;
 
-  public UserDamage(User user, User damager, EntityDamageEvent.DamageCause cause,
-      DamageType damageType) {
+  public UserDamage(User user, User damager, EntityDamageEvent.DamageCause cause, DamageType damageType) {
     this.damager = damager;
     this.damagerLocation = damager.getLocation();
     this.userLocation = user.getLocation();
@@ -49,8 +48,6 @@ public class UserDamage {
   }
 
   public enum DamageType {
-    PLAYER_BOW,
-    PLAYER,
-    INSTANT
+    PLAYER_BOW, PLAYER, INSTANT
   }
 }

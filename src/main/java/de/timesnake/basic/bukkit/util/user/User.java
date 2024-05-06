@@ -52,7 +52,6 @@ import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPla
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -393,18 +392,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public boolean isAirMode() {
     return airMode;
-  }
-
-  //chat
-
-  /**
-   * Sends a message to the player
-   *
-   * @param textComponents The {@link TextComponent}s to send
-   */
-  @Deprecated
-  public void sendMessage(TextComponent... textComponents) {
-    this.player.spigot().sendMessage(textComponents);
   }
 
   @Override
