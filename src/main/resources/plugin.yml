@@ -1,5 +1,5 @@
 main: de.timesnake.basic.bukkit.core.main.BasicBukkit
-version: 3.3.0
+version: 3.4.0
 name: basic-bukkit
 author: timesnake
 softdepend: [ database-bukkit, channel-bukkit ]

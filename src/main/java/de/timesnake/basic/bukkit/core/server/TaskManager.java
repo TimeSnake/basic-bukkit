@@ -6,13 +6,13 @@ package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public class TaskManager {
 
@@ -64,7 +64,7 @@ public class TaskManager {
     }.runTaskTimer(plugin, delay, period);
   }
 
-  public Future runTaskExpTimerSynchrony(Runnable task, int startPeriod, double increaseMultiplier, int maxSpeed,
+  public Future<?> runTaskExpTimerSynchrony(Runnable task, int startPeriod, double increaseMultiplier, int maxSpeed,
                                          boolean async) {
     ExpBukkitRunnable runnable = new ExpBukkitRunnable(task, startPeriod, increaseMultiplier, maxSpeed, async);
     return this.executorService.submit(runnable);
@@ -102,13 +102,13 @@ public class TaskManager {
         delay, period);
   }
 
-  public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
+  public <Element> void runTaskLoopAsynchrony(Consumer<Element> task, Iterable<Element> iterable,
                                               Plugin plugin) {
     for (Element e : iterable) {
       new BukkitRunnable() {
         @Override
         public void run() {
-          task.run(e);
+          task.accept(e);
         }
       }.runTaskAsynchronously(plugin);
     }

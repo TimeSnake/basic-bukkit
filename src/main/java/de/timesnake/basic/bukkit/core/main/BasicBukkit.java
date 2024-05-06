@@ -7,9 +7,8 @@ package de.timesnake.basic.bukkit.core.main;
 import de.timesnake.basic.bukkit.core.chat.CodeCmd;
 import de.timesnake.basic.bukkit.core.chat.LoggerCmd;
 import de.timesnake.basic.bukkit.core.chat.PasswordCmd;
-import de.timesnake.basic.bukkit.core.server.PidCmd;
+import de.timesnake.basic.bukkit.core.chat.PidCmd;
 import de.timesnake.basic.bukkit.core.user.CmdPrivacyPolicy;
-import de.timesnake.basic.bukkit.core.user.PreCmd;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.Plugin;
@@ -52,7 +51,7 @@ public class BasicBukkit extends JavaPlugin {
 
     PluginManager pm = Bukkit.getPluginManager();
 
-    pm.registerEvents(new PreCmd(), this);
+    //pm.registerEvents(new PreCmd(), this);
     pm.registerEvents(new CmdPrivacyPolicy(), this);
 
     DbServer server = Database.getServers().getServer(Bukkit.getPort());

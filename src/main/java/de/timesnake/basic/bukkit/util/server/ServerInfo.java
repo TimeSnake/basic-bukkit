@@ -7,6 +7,9 @@ package de.timesnake.basic.bukkit.util.server;
 import de.timesnake.database.util.object.TooLongEntryException;
 import de.timesnake.database.util.server.DbServer;
 import de.timesnake.library.basic.util.Status;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 public class ServerInfo {
@@ -33,19 +36,19 @@ public class ServerInfo {
     this.password = server.getPassword();
   }
 
-  public DbServer getDatabase() {
+  public @NotNull DbServer getDatabase() {
     return database;
   }
 
-  public Integer getPort() {
+  public @NotNull Integer getPort() {
     return port;
   }
 
-  public String getName() {
+  public @NotNull String getName() {
     return name;
   }
 
-  public Status.Server getStatus() {
+  public @NotNull Status.Server getStatus() {
     return status;
   }
 
@@ -69,7 +72,7 @@ public class ServerInfo {
     this.maxPlayers = maxPlayers;
   }
 
-  public String getPassword() {
+  public @Nullable String getPassword() {
     return password;
   }
 

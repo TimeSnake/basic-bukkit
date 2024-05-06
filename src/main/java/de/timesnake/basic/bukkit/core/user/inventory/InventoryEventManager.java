@@ -216,7 +216,7 @@ public class InventoryEventManager implements Listener,
   }
 
   private boolean isUserExcluded(User user) {
-    return user.isService() && this.excludeServiceUsers;
+    return user.isAirMode() || (user.isService() && this.excludeServiceUsers);
   }
 
   public void addClickListener(UserInventoryClickListener listener, InventoryHolder holder) {

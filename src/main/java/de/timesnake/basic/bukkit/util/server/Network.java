@@ -13,7 +13,7 @@ public interface Network extends de.timesnake.library.network.Network {
 
   NetworkVariables getVariables();
 
-  Integer getPlayerAmount();
+  int getPlayerAmount();
 
   boolean sendUserToServer(User user, Integer server);
 

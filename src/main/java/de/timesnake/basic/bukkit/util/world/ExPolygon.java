@@ -31,7 +31,7 @@ public class ExPolygon {
     int minHeight = Integer.MAX_VALUE;
     int maxHeight = Integer.MIN_VALUE;
     for (ExLocation location : locations) {
-      this.polygon.addPoint(location.getBlockX(), location.getBlockY());
+      this.polygon.addPoint(location.getBlockX(), location.getBlockZ());
       if (location.getBlockY() < minHeight) {
         minHeight = location.getBlockY();
       } else if (location.getBlockY() > maxHeight) {
@@ -43,7 +43,9 @@ public class ExPolygon {
   }
 
   public boolean contains(ExLocation location) {
-    return this.unbounded || location.getY() >= this.minHeight && location.getY() < this.maxHeight
-        && this.polygon.contains(location.getX(), location.getZ());
+    return this.unbounded || (location.getExWorld().equals(this.world)
+                              && location.getY() >= this.minHeight
+                              && location.getY() < this.maxHeight
+                              && this.polygon.contains(location.getX(), location.getZ()));
   }
 }

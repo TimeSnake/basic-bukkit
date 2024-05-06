@@ -43,21 +43,18 @@ public class PacketPlayer extends PacketEntity {
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of((ServerPlayer) player)));
 
     user.sendPacket(new ClientboundAddPlayerPacket(player));
-    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player)
-        .setAllFromEntity()
-        .build());
+    user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setAllFromEntity().build());
 
-    Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager()
-            .sendPacket(user, new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))),
-        6, BasicBukkit.getPlugin());
+    Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
+        new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))), 6, BasicBukkit.getPlugin());
   }
 
   @Override
   public void despawnForUser(User user) {
     Server.getScoreboardManager().getPacketManager().sendPacket(user,
         new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID())));
-    Server.getScoreboardManager().getPacketManager()
-        .sendPacket(user, new ClientboundRemoveEntitiesPacket(player.getId()));
+    Server.getScoreboardManager().getPacketManager().sendPacket(user,
+        new ClientboundRemoveEntitiesPacket(player.getId()));
   }
 
   @Override

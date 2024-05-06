@@ -4,11 +4,12 @@
 
 package de.timesnake.basic.bukkit.util.user;
 
+import org.bukkit.entity.Player;
+
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
-import org.bukkit.entity.Player;
 
 public interface UserManager {
 
@@ -34,11 +35,11 @@ public interface UserManager {
 
   Collection<User> getGameNotServiceUsers();
 
+  Collection<User> getInOutGameUsers();
+
   User getUser(UUID uuid);
 
   User getUser(Player p);
-
-  Collection<User> getInOutGameUsers();
 
   void storeUser(UUID uniqueId, Future<User> result);
 }

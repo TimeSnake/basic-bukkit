@@ -16,7 +16,6 @@ import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.GroupManager;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
-import de.timesnake.basic.bukkit.util.server.LoopTask;
 import de.timesnake.basic.bukkit.util.server.Network;
 import de.timesnake.basic.bukkit.util.server.TimeTask;
 import de.timesnake.basic.bukkit.util.user.PvPManager;
@@ -58,14 +57,13 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ServerManager implements de.timesnake.library.basic.util.server.Server,
@@ -387,24 +385,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
   }
 
   /**
-   * Gets the users with an open inventory
-   *
-   * @param inventoryTitle The inventory title
-   * @return the users with the open inventory
-   */
-  @Deprecated
-  public final ArrayList<User> getUsersWithOpenInventory(String inventoryTitle) {
-    ArrayList<User> users = new ArrayList<>();
-    for (User user : this.getUsers()) {
-      InventoryView inv = user.getPlayer().getOpenInventory();
-      if (inv.getTitle().equals(inventoryTitle)) {
-        users.add(user);
-      }
-    }
-    return users;
-  }
-
-  /**
    * Gets the {@link Network}
    *
    * @return the {@link Network}
@@ -713,20 +693,6 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     return new ExInventory(size, name, itemStacks);
   }
 
-  /**
-   * @param size
-   * @param name
-   * @param holder
-   * @param itemStacks
-   * @return
-   * @deprecated in favour of {@link ExInventory}
-   */
-  @Deprecated
-  public final ExInventory createExInventory(int size, String name, InventoryHolder holder,
-                                             ExItemStack... itemStacks) {
-    return new ExInventory(size, name, holder, itemStacks);
-  }
-
   public final void registerListener(Listener listener, org.bukkit.plugin.Plugin plugin) {
     Bukkit.getPluginManager().registerEvents(listener, plugin);
   }
@@ -808,7 +774,7 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         plugin);
   }
 
-  public <Element> void runTaskLoopAsynchrony(LoopTask<Element> task, Iterable<Element> iterable,
+  public <Element> void runTaskLoopAsynchrony(Consumer<Element> task, Iterable<Element> iterable,
                                               org.bukkit.plugin.Plugin plugin) {
     this.taskManager.runTaskLoopAsynchrony(task, iterable, plugin);
   }

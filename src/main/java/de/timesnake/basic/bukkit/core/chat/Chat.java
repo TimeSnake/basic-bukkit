@@ -10,7 +10,6 @@ import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,12 +59,6 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
   @Override
   public Set<ChatMember> getWriters() {
     return this.writers;
-  }
-
-  @Override
-  @Deprecated
-  public TextColor getChatColor() {
-    return chatColor;
   }
 
   public ExTextColor getTextColor() {

@@ -11,6 +11,7 @@ import de.timesnake.database.util.group.DbDisplayGroup;
 import de.timesnake.database.util.group.DbPermGroup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,41 +33,27 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
       PermGroup group = new PermGroup(dbPermGroup);
       this.permGroupByName.put(group.getName(), group);
     }
+    this.logger.info("Loaded permission groups");
 
     for (DbDisplayGroup dbDisplayGroup : Database.getGroups().getDisplayGroups()) {
       DisplayGroup group = new DisplayGroup(dbDisplayGroup);
       this.displayGroupByName.put(group.getName(), group);
     }
+    this.logger.info("Loaded display groups");
   }
 
-  /**
-   * Gets the group by name
-   *
-   * @param group The group name from the group to get
-   * @return the group
-   */
   @Override
   public final PermGroup getPermGroup(String group) {
     return this.permGroupByName.get(group);
   }
 
-  /**
-   * Gets the guest group
-   *
-   * @return the guest group
-   */
   @Override
-  public final PermGroup getGuestPermGroup() {
+  public final @NotNull PermGroup getGuestPermGroup() {
     return this.permGroupByName.get(GUEST_GROUP_NAME);
   }
 
-  /**
-   * Gets the member group
-   *
-   * @return the member group
-   */
   @Override
-  public final PermGroup getMemberPermGroup() {
+  public final @NotNull PermGroup getMemberPermGroup() {
     return this.permGroupByName.get(MEMBER_GROUP_NAME);
   }
 
@@ -76,7 +63,7 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
    * @return all groups
    */
   @Override
-  public final Collection<PermGroup> getPermGroups() {
+  public final @NotNull Collection<PermGroup> getPermGroups() {
     return new ArrayList<>(this.permGroupByName.values());
   }
 
@@ -86,17 +73,17 @@ public class GroupManager implements de.timesnake.basic.bukkit.util.group.GroupM
   }
 
   @Override
-  public final Collection<DisplayGroup> getDisplayGroups() {
+  public final @NotNull Collection<DisplayGroup> getDisplayGroups() {
     return new ArrayList<>(this.displayGroupByName.values());
   }
 
   @Override
-  public final DisplayGroup getGuestDisplayGroup() {
+  public final @NotNull DisplayGroup getGuestDisplayGroup() {
     return this.displayGroupByName.get(GUEST_GROUP_NAME);
   }
 
   @Override
-  public final DisplayGroup getMemberDisplayGroup() {
+  public final @NotNull DisplayGroup getMemberDisplayGroup() {
     return this.displayGroupByName.get(MEMBER_GROUP_NAME);
   }
 

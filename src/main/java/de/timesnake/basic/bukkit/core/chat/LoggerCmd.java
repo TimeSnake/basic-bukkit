@@ -9,11 +9,9 @@ import de.timesnake.basic.bukkit.util.chat.cmd.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.cmd.Completion;
 import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.library.basic.util.LogHelper;
-import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
 import de.timesnake.library.permissions.Permission;
-import net.kyori.adventure.text.Component;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,22 +21,14 @@ public class LoggerCmd implements CommandListener {
 
   @Override
   public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
-    if (!sender.isConsole(true)) {
-      return;
-    }
-
-    if (!args.isLengthEquals(2, true)) {
-      return;
-    }
+    sender.isConsoleElseExit(true);
+    args.isLengthEqualsElseExit(2, true);
 
     String loggerName = args.getString(0);
-
     Logger logger = LogHelper.LOGGER_BY_NAME.get(loggerName.toLowerCase());
 
     if (logger == null) {
-      sender.sendPluginMessage(Component.text("Logger ", ExTextColor.WARNING)
-          .append(Component.text(loggerName, ExTextColor.VALUE))
-          .append(Component.text(" not found", ExTextColor.WARNING)));
+      sender.sendPluginTDMessage("§wLogger §v" + loggerName + "§w not found");
       return;
     }
 
@@ -48,17 +38,13 @@ public class LoggerCmd implements CommandListener {
     try {
       level = Level.parse(levelName);
     } catch (IllegalArgumentException e) {
-      sender.sendPluginMessage(
-          Component.text("Unable to parse log-level ", ExTextColor.WARNING)
-              .append(Component.text(loggerName, ExTextColor.VALUE)));
+      sender.sendPluginTDMessage("§wUnable to parse log-level §v" + loggerName);
       return;
     }
 
     logger.setLevel(level);
-    sender.sendPluginMessage(Component.text("Updated log-level of ", ExTextColor.PERSONAL)
-        .append(Component.text(loggerName, ExTextColor.VALUE))
-        .append(Component.text(" to ", ExTextColor.PERSONAL))
-        .append(Component.text(levelName, ExTextColor.VALUE)));
+    logger.setUseParentHandlers(level == Level.INFO);
+    sender.sendPluginTDMessage("Updated log-level of §v" + loggerName + "§s to §v" + levelName);
   }
 
   @Override

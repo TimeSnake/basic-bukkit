@@ -5,27 +5,33 @@
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface TablistPlayer {
 
+  @NotNull
   String getName();
 
+  @NotNull
   String getTablistName();
 
-  default String getRank() {
+  default @NotNull String getRank() {
     return this.getTablistName();
   }
 
+  @NotNull
   UUID getUniqueId();
 
+  @Nullable
   TablistGroup getTablistGroup(TablistGroupType type);
 
   ServerPlayer getMinecraftPlayer();
 
-  default String getFullPrefix(List<TablistGroupType> types) {
+  default @Nullable String getFullPrefix(List<TablistGroupType> types) {
     StringBuilder prefixBuilder = new StringBuilder();
     for (TablistGroupType type : types) {
       TablistGroup group = this.getTablistGroup(type);
@@ -44,9 +50,10 @@ public interface TablistPlayer {
 
   boolean showInTablist();
 
+  @Nullable
   String getTablistPrefix();
 
-  default NameTagVisibility canSeeNameTagOf(TablistPlayer otherPlayer) {
+  default @NotNull NameTagVisibility canSeeNameTagOf(TablistPlayer otherPlayer) {
     return NameTagVisibility.ALWAYS;
   }
 
