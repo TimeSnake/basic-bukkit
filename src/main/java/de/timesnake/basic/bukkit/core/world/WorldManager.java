@@ -426,7 +426,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   @Override
-  public void copyWorldFolderFiles(File source, File target) {
+  public boolean copyWorldFolderFiles(File source, File target) {
     try {
       ArrayList<String> ignore = new ArrayList<>(Arrays.asList("uid.dat", "session.lock"));
       if (!ignore.contains(source.getName())) {
@@ -437,10 +437,18 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
             }
           }
           String[] files = source.list();
+
+          if (files == null) {
+            return false;
+          }
+
           for (String file : files) {
             File srcFile = new File(source, file);
             File destFile = new File(target, file);
-            copyWorldFolderFiles(srcFile, destFile);
+            boolean result = copyWorldFolderFiles(srcFile, destFile);
+            if (!result) {
+              return false;
+            }
           }
         } else {
           InputStream in = new FileInputStream(source);
@@ -454,8 +462,10 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
           out.close();
         }
       }
+      return true;
     } catch (IOException e) {
       this.logger.warn("Exception while copying world '{}': {}", source.getName(), e.getMessage());
+      return false;
     }
   }
 

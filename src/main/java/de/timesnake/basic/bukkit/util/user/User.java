@@ -457,6 +457,11 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     return this.chatNameComponent;
   }
 
+  @Override
+  public boolean hasColoredChatMessagePermission() {
+    return this.hasPermission("chat.color");
+  }
+
   /**
    * Gets the user prefix
    *
@@ -774,6 +779,14 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public void playNote(Instrument instrument, Note note) {
     this.playNote(this.player.getLocation(), instrument, note);
+  }
+
+  public void playNoteBlocked() {
+    this.playNote(Instrument.PIANO, Note.natural(0, Note.Tone.C));
+  }
+
+  public void playNoteSuccess() {
+    this.playNote(Instrument.PIANO, Note.natural(1, Note.Tone.C));
   }
 
   // team, group

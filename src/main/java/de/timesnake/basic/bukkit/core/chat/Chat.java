@@ -35,8 +35,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
     this.displayName = displayName;
     this.chatColor = chatColor;
     if (this.displayName != null) {
-      this.chatPrefix = de.timesnake.basic.bukkit.util.chat.Chat.getChatPrefix(
-          this.displayName,
+      this.chatPrefix = de.timesnake.basic.bukkit.util.chat.Chat.getChatPrefix(this.displayName,
           this.chatColor != null ? this.chatColor : ExTextColor.WHITE);
     } else {
       this.chatPrefix = null;
@@ -104,15 +103,24 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
   public void broadcastMemberTDMessage(ChatMember member, String... msgs) {
     if (this.chatPrefix == null) {
       for (String msg : msgs) {
-        this.broadcastMessage(
-            Server.getChat().getSenderMember(member)
-                .append(Server.getTimeDownParser().parse2Component(msg)));
+        Component component;
+        if (member.hasColoredChatMessagePermission()) {
+          component = Server.getTimeDownParser().parse2Component(msg, '&');
+        } else {
+          component = Component.text(msg);
+        }
+        this.broadcastMessage(Server.getChat().getSenderMember(member).append(component));
       }
     } else {
       for (String msg : msgs) {
+        Component component;
+        if (member.hasColoredChatMessagePermission()) {
+          component = Server.getTimeDownParser().parse2Component(msg, '&');
+        } else {
+          component = Component.text(msg);
+        }
         this.broadcastMessage(this.chatPrefix.append(Component.text(" "))
-            .append(Server.getChat().getSenderMember(member))
-            .append(Server.getTimeDownParser().parse2Component(msg)));
+            .append(Server.getChat().getSenderMember(member)).append(component));
       }
     }
 
@@ -126,31 +134,23 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
       }
     } else {
       for (Component msg : msgs) {
-        this.broadcastMessage(this.chatPrefix.append(Component.text(" "))
-            .append(Server.getChat().getSenderMember(member))
-            .append(msg));
+        this.broadcastMessage(this.chatPrefix.append(Component.text(" ")).append(Server.getChat().getSenderMember(member)).append(msg));
       }
     }
 
   }
 
   @Override
-  public void broadcastPluginTDMessage(Plugin sender,
-                                       String... msgs) {
+  public void broadcastPluginTDMessage(Plugin sender, String... msgs) {
     for (String msg : msgs) {
-      this.broadcastMessage(
-          de.timesnake.library.chat.Chat.getSenderPlugin(sender)
-              .append(Server.getTimeDownParser().parse2Component(msg)));
+      this.broadcastMessage(de.timesnake.library.chat.Chat.getSenderPlugin(sender).append(Server.getTimeDownParser().parse2Component(msg)));
     }
   }
 
   @Override
-  public void broadcastPluginMessage(Plugin sender,
-                                     Component... msgs) {
+  public void broadcastPluginMessage(Plugin sender, Component... msgs) {
     for (Component msg : msgs) {
-      this.broadcastMessage(
-          de.timesnake.library.chat.Chat.getSenderPlugin(sender)
-              .append(msg));
+      this.broadcastMessage(de.timesnake.library.chat.Chat.getSenderPlugin(sender).append(msg));
     }
   }
 
@@ -176,7 +176,7 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
   @Override
   public void broadcastClickableTDMessage(String text, String exec, String info,
-      net.kyori.adventure.text.event.ClickEvent.Action action) {
+                                          net.kyori.adventure.text.event.ClickEvent.Action action) {
     for (ChatMember member : this.listeners) {
       member.sendClickableTDMessage(text, exec, info, action);
     }
@@ -184,28 +184,24 @@ public class Chat implements de.timesnake.basic.bukkit.util.chat.Chat {
 
   @Override
   public void broadcastClickableMessage(Component text, String exec, Component info,
-      net.kyori.adventure.text.event.ClickEvent.Action action) {
+                                        net.kyori.adventure.text.event.ClickEvent.Action action) {
     for (ChatMember member : this.listeners) {
       member.sendClickableMessage(text, exec, info, action);
     }
   }
 
   @Override
-  public void broadcastClickableTDMessage(Plugin plugin,
-                                          String text,
-                                          String exec, String info, ClickEvent.Action action) {
-    this.broadcastClickableMessage(plugin,
-        Server.getTimeDownParser().parse2Component(text), exec,
+  public void broadcastClickableTDMessage(Plugin plugin, String text, String exec, String info,
+                                          ClickEvent.Action action) {
+    this.broadcastClickableMessage(plugin, Server.getTimeDownParser().parse2Component(text), exec,
         Server.getTimeDownParser().parse2Component(info), action);
   }
 
   @Override
-  public void broadcastClickableMessage(Plugin plugin,
-                                        Component text,
-                                        String exec, Component info, ClickEvent.Action action) {
-    this.broadcastClickableMessage(
-        de.timesnake.library.chat.Chat.getSenderPlugin(plugin).append(text),
-        exec, info, action);
+  public void broadcastClickableMessage(Plugin plugin, Component text, String exec, Component info,
+                                        ClickEvent.Action action) {
+    this.broadcastClickableMessage(de.timesnake.library.chat.Chat.getSenderPlugin(plugin).append(text), exec, info,
+        action);
   }
 
 
