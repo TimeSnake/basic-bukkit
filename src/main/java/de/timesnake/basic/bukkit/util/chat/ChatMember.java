@@ -21,4 +21,6 @@ public interface ChatMember {
   String getChatName();
 
   Component getChatNameComponent();
+
+  boolean hasColoredChatMessagePermission();
 }

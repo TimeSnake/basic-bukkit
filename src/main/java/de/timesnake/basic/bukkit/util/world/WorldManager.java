@@ -5,18 +5,19 @@
 package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.util.user.User;
+import org.bukkit.World;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
 
 public interface WorldManager {
 
   List<String> UNSUPPORTED_SYMBOLS = List.of("_backup", ";", ",", ":", "*", "+", "#", "@", "$",
       "&", "/", "\\");
 
-  void copyWorldFolderFiles(File source, File target);
+  boolean copyWorldFolderFiles(File source, File target);
 
   boolean cacheWorldSpawns();
 
