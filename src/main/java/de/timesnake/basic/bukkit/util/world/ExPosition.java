@@ -61,9 +61,9 @@ public class ExPosition {
   }
 
   public ExPosition zeroBlock() {
-    this.x = ((int) this.x);
-    this.y = ((int) this.y);
-    this.z = ((int) this.z);
+    this.x = Math.floor(this.x);
+    this.y = Math.floor(this.y);
+    this.z = Math.floor(this.z);
     return this;
   }
 
