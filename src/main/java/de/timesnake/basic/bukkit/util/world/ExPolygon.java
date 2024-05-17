@@ -46,6 +46,7 @@ public class ExPolygon {
     return this.unbounded || (location.getExWorld().equals(this.world)
                               && location.getY() >= this.minHeight
                               && location.getY() < this.maxHeight
-                              && this.polygon.contains(location.getX(), location.getZ()));
+                              && this.polygon.contains(location.getX(), location.getZ())
+                              && this.polygon.contains(location.getX() - 1, location.getZ() - 1));
   }
 }
