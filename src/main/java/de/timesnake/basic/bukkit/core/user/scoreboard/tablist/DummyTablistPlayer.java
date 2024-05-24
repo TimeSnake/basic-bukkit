@@ -19,9 +19,9 @@ public class DummyTablistPlayer implements TablistPlayer {
   private final String name;
   private final net.minecraft.world.entity.player.Player entityPlayer;
 
-  public DummyTablistPlayer(String name, TablistHead head) {
+  public DummyTablistPlayer(String name, String tablistName, TablistHead head) {
     this.name = name;
-    this.entityPlayer = head.asPlayer(name);
+    this.entityPlayer = head.asPlayer(name, tablistName);
   }
 
   @Override

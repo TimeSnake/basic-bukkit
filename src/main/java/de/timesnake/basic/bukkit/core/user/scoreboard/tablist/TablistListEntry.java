@@ -23,7 +23,13 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
     }
 
     TablistGroupType type = groupTypes.pop();
-    TablistGroup group = Objects.requireNonNullElse(player.getTablistGroup(type), entryHelper.getDefaultGroup(type));
+    TablistGroup group;
+
+    if (player.getTablistGroup(type) != null) {
+      group = player.getTablistGroup(type);
+    } else {
+      group = entryHelper.getDefaultGroup(type);
+    }
 
     return ((TablistListEntry) this.entries.computeIfAbsent(String.valueOf(group.getTablistRank()),
         rank -> entryHelper.createGroup(type, group))).addPlayer(player, entryHelper, groupTypes);
@@ -62,8 +68,9 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
 
         if (!queue.isEmpty() && !queue.peek().isEmpty()) {
           for (int i = 0; i < gapSize; i++) {
-            slots.add(new TablistSlot(entryHelper.newGapEntry("§" + (slots.size() / 10) +
-                                                              "§" + (slots.size() % 10) + "§" + i), null,
+            String name = (slots.size() / 10) + "" + (slots.size() % 10) + i;
+            String tablistName = "§" + (slots.size() / 10) + "§" + (slots.size() % 10) + "§" + i;
+            slots.add(new TablistSlot(entryHelper.newGapEntry(name, tablistName), null,
                 ExTextColor.WHITE));
           }
         }

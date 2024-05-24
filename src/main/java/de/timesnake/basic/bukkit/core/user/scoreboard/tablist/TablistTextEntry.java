@@ -18,7 +18,7 @@ public class TablistTextEntry extends TablistRankedEntry {
 
   public TablistTextEntry(String rank, String text, TablistHead tablistHead) {
     this.rank = rank;
-    this.player = new DummyTablistPlayer(text, tablistHead);
+    this.player = new DummyTablistPlayer(rank, text, tablistHead);
     this.slot = new TablistSlot(this.player, null, ExTextColor.WHITE);
   }
 
