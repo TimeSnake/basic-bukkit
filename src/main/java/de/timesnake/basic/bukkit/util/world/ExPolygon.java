@@ -6,10 +6,11 @@ package de.timesnake.basic.bukkit.util.world;
 
 import java.awt.*;
 import java.util.Collection;
+import java.util.List;
 
 public class ExPolygon {
 
-  private final ExWorld world;
+  private transient ExWorld world;
   private final Polygon polygon;
   private final int minHeight;
   private final int maxHeight;
@@ -40,6 +41,34 @@ public class ExPolygon {
     }
     this.minHeight = minHeight;
     this.maxHeight = maxHeight;
+  }
+
+  public ExPolygon(List<Integer> xPoints, List<Integer> zPoints, int minHeight, int maxHeight) {
+    this.polygon = new Polygon(xPoints.stream().mapToInt(i -> i).toArray(),
+        zPoints.stream().mapToInt(i -> i).toArray(), xPoints.size());
+    this.minHeight = minHeight;
+    this.maxHeight = maxHeight;
+    this.unbounded = false;
+  }
+
+  public ExWorld getWorld() {
+    return world;
+  }
+
+  public void setWorld(ExWorld world) {
+    this.world = world;
+  }
+
+  public Polygon getPolygon() {
+    return polygon;
+  }
+
+  public int getMinHeight() {
+    return minHeight;
+  }
+
+  public int getMaxHeight() {
+    return maxHeight;
   }
 
   public boolean contains(ExLocation location) {

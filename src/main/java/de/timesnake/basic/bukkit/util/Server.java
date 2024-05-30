@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.util;
 
+import com.google.gson.GsonBuilder;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.user.UserPermissionManager;
@@ -429,6 +430,10 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
       new BasicBukkit().onDisable();
     }
     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+  }
+
+  public static GsonBuilder getDefaultGsonBuilder() {
+    return server.getDefaultGsonBuilder();
   }
 
   public static Collection<ExWorld> getWorlds() {

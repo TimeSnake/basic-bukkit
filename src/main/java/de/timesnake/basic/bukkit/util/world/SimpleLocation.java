@@ -4,18 +4,24 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
+import org.bukkit.Location;
+
 import java.util.Objects;
 
-public class ExPosition {
+public class SimpleLocation {
 
   protected double x;
   protected double y;
   protected double z;
 
-  public ExPosition(double x, double y, double z) {
+  public SimpleLocation(double x, double y, double z) {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  public SimpleLocation(Location location) {
+    this(location.getX(), location.getY(), location.getZ());
   }
 
   public double getX() {
@@ -54,13 +60,13 @@ public class ExPosition {
     this.z += z;
   }
 
-  public ExPosition middleHorizontalBlock() {
+  public SimpleLocation middleHorizontalBlock() {
     this.zeroBlock();
     this.add(0.5, 0, 0.5);
     return this;
   }
 
-  public ExPosition zeroBlock() {
+  public SimpleLocation zeroBlock() {
     this.x = Math.floor(this.x);
     this.y = Math.floor(this.y);
     this.z = Math.floor(this.z);
@@ -71,11 +77,15 @@ public class ExPosition {
     return new ExLocation(world, this.x, this.y, this.z);
   }
 
+  public SimpleBlock toBlock() {
+    return new SimpleBlock((int) this.x, (int) this.y, (int) this.z);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    ExPosition that = (ExPosition) o;
+    SimpleLocation that = (SimpleLocation) o;
     return Double.compare(x, that.x) == 0 && Double.compare(y, that.y) == 0 && Double.compare(z, that.z) == 0;
   }
 

@@ -31,7 +31,7 @@ public interface TablistPlayer {
 
   ServerPlayer getMinecraftPlayer();
 
-  default @Nullable String getFullPrefix(List<TablistGroupType> types) {
+  default @Nullable String getGroupPrefixes(List<TablistGroupType> types) {
     StringBuilder prefixBuilder = new StringBuilder();
     for (TablistGroupType type : types) {
       TablistGroup group = this.getTablistGroup(type);

@@ -15,8 +15,7 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
 
   protected final SortedMap<String, TablistEntry> entries = new TreeMap<>();
 
-  public boolean addPlayer(TablistPlayer player, TablistEntryHelper entryHelper,
-                           Deque<TablistGroupType> groupTypes) {
+  public boolean addPlayer(TablistPlayer player, TablistEntryHelper entryHelper, Deque<TablistGroupType> groupTypes) {
     if (groupTypes.isEmpty()) {
       TablistPlayerEntry entry = new TablistPlayerEntry(player, entryHelper);
       return this.entries.put(entry.getRank(), entry) == null;
@@ -70,8 +69,7 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
           for (int i = 0; i < gapSize; i++) {
             String name = (slots.size() / 10) + "" + (slots.size() % 10) + i;
             String tablistName = "§" + (slots.size() / 10) + "§" + (slots.size() % 10) + "§" + i;
-            slots.add(new TablistSlot(entryHelper.newGapEntry(name, tablistName), null,
-                ExTextColor.WHITE));
+            slots.add(new TablistSlot(entryHelper.newGapEntry(name, tablistName), null, ExTextColor.WHITE));
           }
         }
       }

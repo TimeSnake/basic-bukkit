@@ -43,6 +43,10 @@ public class ExBlock {
     this.location = new ExLocation(Server.getWorld(block.getWorld()), loc.getX(), loc.getY(), loc.getZ());
   }
 
+  public ExBlock(ExWorld world, int x, int y, int z) {
+    this.location = new ExLocation(world, x, y, z);
+  }
+
   public ExLocation getLocation() {
     return location;
   }

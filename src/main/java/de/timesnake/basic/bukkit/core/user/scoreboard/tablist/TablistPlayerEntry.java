@@ -19,7 +19,7 @@ public class TablistPlayerEntry extends TablistRankedEntry {
   public TablistPlayerEntry(TablistPlayer player, TablistEntryHelper entryHelper) {
     this.player = player;
 
-    String prefix = this.player.getFullPrefix(entryHelper.getGroupTypes());
+    String prefix = this.player.getGroupPrefixes(entryHelper.getGroupTypes());
     if (player.getTablistPrefix() != null && !player.getTablistPrefix().isEmpty()) {
       prefix += "§r" + this.player.getTablistPrefix();
     }
@@ -32,9 +32,7 @@ public class TablistPlayerEntry extends TablistRankedEntry {
         group = entryHelper.getDefaultGroup(entryHelper.getColorGroupType());
       }
 
-      if (group != null) {
-        color = group.getTablistColor();
-      }
+      color = group.getTablistColor();
     }
 
     this.slot = new TablistSlot(this.player, prefix, color != null ? color : ExTextColor.WHITE);

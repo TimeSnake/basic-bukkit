@@ -110,7 +110,7 @@ public class ExWorld extends DelegatedWorld {
   public void removePlayers() {
     for (User user : Server.getUsers()) {
       if (user.getLocation().getWorld().equals(this.getBukkitWorld())) {
-        user.teleport(Server.getWorldManager().getBasicWorld());
+        user.teleport(Server.getWorldManager().getDefaultWorld());
       }
     }
   }

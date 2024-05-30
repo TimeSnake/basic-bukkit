@@ -7,10 +7,7 @@ package de.timesnake.basic.bukkit.core.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.world.ExLocation;
-import de.timesnake.basic.bukkit.util.world.ExWorld;
-import de.timesnake.basic.bukkit.util.world.ExWorldLoadEvent;
-import de.timesnake.basic.bukkit.util.world.ExWorldType;
+import de.timesnake.basic.bukkit.util.world.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -135,14 +132,14 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   public void onDisable() {
-    for (ExWorld exWorld : this.getWorlds()) {
-      if (!exWorld.isSafe()) {
-        this.moveUsersFromWorld(exWorld);
-        Bukkit.unloadWorld(exWorld.getName(), false);
+    for (ExWorld world : this.getWorlds()) {
+      if (!world.isSafe()) {
+        this.onWorldUnload(world, WorldUnloadActionType.UNLOAD);
+        Bukkit.unloadWorld(world.getName(), false);
       }
 
-      if (exWorld.isTemporary()) {
-        this.deleteWorldFiles(exWorld);
+      if (world.isTemporary()) {
+        this.deleteWorldFiles(world);
       }
     }
 
@@ -198,7 +195,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   @Override
-  public @Nullable ExWorld getBasicWorld() {
+  public @Nullable ExWorld getDefaultWorld() {
     return this.getWorld("world");
   }
 
@@ -273,6 +270,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     ExWorldFile file = new ExWorldFile(world.getWorldFolder(), type);
     ExWorld exWorld = new ExWorld(world, type, file, temporary);
     this.registerExWorld(exWorld);
+    this.onWorldLoad(exWorld, WorldLoadActionType.CREATE);
 
     if (temporary) {
       this.tmpWorldDestroyTasks.add(Server.runTaskLaterSynchrony(() -> this.deleteWorld(exWorld, true),
@@ -280,6 +278,22 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     return exWorld;
+  }
+
+  private @Nullable ExWorld createWorld(World bukkitWorld) {
+    if (bukkitWorld == null) {
+      return null;
+    }
+
+    if (Bukkit.getWorld(bukkitWorld.getName()) == null) {
+      bukkitWorld = Bukkit.createWorld(new WorldCreator(bukkitWorld.getName()).copy(bukkitWorld));
+    }
+
+    ExWorldFile file = new ExWorldFile(bukkitWorld.getWorldFolder(), ExWorldType.fromWorld(bukkitWorld));
+    ExWorld world = new ExWorld(bukkitWorld, ExWorldType.fromWorld(bukkitWorld), file);
+    this.registerExWorld(world);
+    this.onWorldLoad(world, WorldLoadActionType.CREATE);
+    return world;
   }
 
   @Override
@@ -315,24 +329,25 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     ExWorldFile file = new ExWorldFile(world.getWorldFolder(), exWorld.getType());
     ExWorld clonedExWorld = new ExWorld(world, exWorld.getType(), file, exWorld.getRestrictionValues());
     this.registerExWorld(clonedExWorld);
+    this.onWorldLoad(clonedExWorld, WorldLoadActionType.CLONE);
     return clonedExWorld;
   }
 
   @Override
-  public boolean reloadWorld(ExWorld exWorld) {
-    if (exWorld == null) {
+  public boolean reloadWorld(ExWorld world) {
+    if (world == null) {
       return false;
     }
 
-    this.moveUsersFromWorld(exWorld);
-    World world = exWorld.getBukkitWorld();
+    this.onWorldUnload(world, WorldUnloadActionType.RELOAD);
+    World bukkitWorld = world.getBukkitWorld();
 
-    boolean successfully = Bukkit.unloadWorld(world, false);
+    boolean successfully = Bukkit.unloadWorld(bukkitWorld, false);
 
     List<String> deleteFiles = List.of("session.lock", "uid.dat");
 
     for (String fileName : deleteFiles) {
-      File file = new File(exWorld.getWorldFolder().getAbsolutePath() + File.separator + fileName);
+      File file = new File(world.getWorldFolder().getAbsolutePath() + File.separator + fileName);
       if (file.exists()) {
         file.delete();
       } else {
@@ -340,8 +355,9 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       }
     }
 
-    World newWorld = Bukkit.createWorld(new WorldCreator(exWorld.getName()));
-    exWorld.setBukkitWorld(newWorld);
+    World newWorld = Bukkit.createWorld(new WorldCreator(world.getName()));
+    world.setBukkitWorld(newWorld);
+    this.onWorldLoad(world, WorldLoadActionType.RELOAD);
 
     return successfully;
   }
@@ -352,7 +368,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       return false;
     }
 
-    this.moveUsersFromWorld(world);
+    this.onWorldUnload(world, WorldUnloadActionType.UNLOAD);
     boolean unloaded = Bukkit.unloadWorld(world.getBukkitWorld(), save);
     if (unloaded) {
       this.worldsByName.remove(world.getName());
@@ -366,7 +382,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
       return false;
     }
 
-    this.moveUsersFromWorld(world);
+    this.onWorldUnload(world, WorldUnloadActionType.DELETE);
     boolean unloaded = Bukkit.unloadWorld(world.getBukkitWorld(), false);
     this.unregisterExWorld(world);
 
@@ -377,44 +393,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     return unloaded;
   }
 
-  private boolean deleteWorldFiles(ExWorld world) {
-    try {
-      FileUtils.deleteDirectory(world.getWorldFolder());
-    } catch (IOException e) {
-      this.logger.warn("Exception while deleting world '{}': {}", world.getName(), e.getMessage());
-      return false;
-    }
-
-    return true;
-  }
-
-
-  private void moveUsersFromWorld(ExWorld world) {
-    for (User user : Server.getUsers()) {
-      if (user.getExWorld().equals(world)) {
-        user.teleport(this.getBasicWorld());
-      }
-    }
-  }
-
-  private @Nullable ExWorld createWorld(World world) {
-    if (world == null) {
-      return null;
-    }
-
-    if (Bukkit.getWorld(world.getName()) == null) {
-      world = Bukkit.createWorld(new WorldCreator(world.getName()).copy(world));
-    }
-
-    ExWorldFile file = new ExWorldFile(world.getWorldFolder(), ExWorldType.fromWorld(world));
-    ExWorld exWorld = new ExWorld(world, ExWorldType.fromWorld(world), file);
-    this.registerExWorld(exWorld);
-    return exWorld;
-  }
-
   private void registerExWorld(ExWorld world) {
     this.worldsByName.put(world.getName(), world);
-    Bukkit.getPluginManager().callEvent(new ExWorldLoadEvent(world));
   }
 
   private void unregisterExWorld(ExWorld world) {
@@ -422,6 +402,33 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     ExWorldFile exWorldFile = world.getExFile();
     if (exWorldFile.exists()) {
       exWorldFile.delete();
+    }
+  }
+
+  private void onWorldLoad(ExWorld world, WorldLoadActionType actionType) {
+    Bukkit.getPluginManager().callEvent(new ExWorldLoadEvent(world, actionType));
+  }
+
+  private void onWorldUnload(ExWorld world, WorldUnloadActionType actionType) {
+    Bukkit.getPluginManager().callEvent(new ExWorldUnloadEvent(world, actionType));
+    this.moveUsersFromWorld(world);
+  }
+
+  private boolean deleteWorldFiles(ExWorld world) {
+    try {
+      FileUtils.deleteDirectory(world.getWorldFolder());
+    } catch (IOException e) {
+      this.logger.warn("Exception while deleting world '{}': {}", world.getName(), e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  private void moveUsersFromWorld(ExWorld world) {
+    for (User user : Server.getUsers()) {
+      if (user.getExWorld().equals(world)) {
+        user.teleport(this.getDefaultWorld());
+      }
     }
   }
 
@@ -473,11 +480,13 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   public void onPlayerTeleport(PlayerTeleportEvent e) {
     User user = Server.getUser(e.getPlayer());
 
+    if (user == null) {
+      return;
+    }
+
     Location fromLoc = e.getFrom();
 
-    if (user != null) {
-      user.setLastLocation(fromLoc);
-    }
+    user.setLastLocation(fromLoc);
 
     if (!fromLoc.getWorld().equals(e.getTo().getWorld())) {
       ExWorld fromWorld = this.getWorld(fromLoc.getWorld());

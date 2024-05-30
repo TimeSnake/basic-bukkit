@@ -180,7 +180,7 @@ public class MapDisplayBuilder {
         MapMeta meta = ((MapMeta) item.getItemMeta());
 
         MapView view = Bukkit.createMap(
-            Server.getWorldManager().getBasicWorld().getBukkitWorld());
+            Server.getWorldManager().getDefaultWorld().getBukkitWorld());
         view.getRenderers().clear();
 
         int finalX = x;

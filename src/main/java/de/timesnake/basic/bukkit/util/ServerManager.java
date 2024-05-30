@@ -4,6 +4,7 @@
 
 package de.timesnake.basic.bukkit.util;
 
+import com.google.gson.GsonBuilder;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.server.FullServerInfo;
 import de.timesnake.basic.bukkit.core.server.TaskManager;
@@ -13,6 +14,10 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatManager;
 import de.timesnake.basic.bukkit.util.chat.cmd.CommandManager;
 import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
+import de.timesnake.basic.bukkit.util.file.ExPolygonJsonDeserializer;
+import de.timesnake.basic.bukkit.util.file.ExPolygonJsonSerializer;
+import de.timesnake.basic.bukkit.util.file.MaterialJsonDeserializer;
+import de.timesnake.basic.bukkit.util.file.MaterialJsonSerializer;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.GroupManager;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
@@ -27,6 +32,7 @@ import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.basic.bukkit.util.world.ExPolygon;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.channel.util.Channel;
@@ -235,6 +241,16 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
   public void setPassword(String password) throws TooLongEntryException {
     this.info.setPassword(password);
+  }
+
+  public GsonBuilder getDefaultGsonBuilder() {
+    return new GsonBuilder()
+        .serializeNulls()
+        .setPrettyPrinting()
+        .registerTypeAdapter(Material.class, new MaterialJsonSerializer())
+        .registerTypeAdapter(Material.class, new MaterialJsonDeserializer())
+        .registerTypeAdapter(ExPolygon.class, new ExPolygonJsonSerializer())
+        .registerTypeAdapter(ExPolygon.class, new ExPolygonJsonDeserializer());
   }
 
   public final void createUser(Player player) {
