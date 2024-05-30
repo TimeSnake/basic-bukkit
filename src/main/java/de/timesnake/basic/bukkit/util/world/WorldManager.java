@@ -33,7 +33,8 @@ public interface WorldManager {
 
   WorldBorderManager getWorldBorderManager();
 
-  @Nullable ExWorld getBasicWorld();
+  @Nullable
+  ExWorld getDefaultWorld();
 
   /**
    * Deletes a world
@@ -72,5 +73,11 @@ public interface WorldManager {
 
   boolean unloadWorld(ExWorld world, boolean save);
 
+  enum WorldLoadActionType {
+    CREATE, RELOAD, CLONE
+  }
 
+  enum WorldUnloadActionType {
+    RELOAD, UNLOAD, DELETE
+  }
 }

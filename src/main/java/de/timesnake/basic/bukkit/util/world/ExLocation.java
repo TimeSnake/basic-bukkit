@@ -47,7 +47,7 @@ public class ExLocation extends Location {
 
   public ExLocation(ExWorld world, double x, double y, double z) {
     super(world != null ? world.getBukkitWorld()
-            : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+            : Server.getWorldManager().getDefaultWorld().getBukkitWorld(), x,
         y, z);
     this.world = world;
   }
@@ -58,14 +58,14 @@ public class ExLocation extends Location {
 
   public ExLocation(ExWorld world, double x, double y, double z, float yaw, float pitch) {
     super(world != null ? world.getBukkitWorld()
-            : Server.getWorldManager().getBasicWorld().getBukkitWorld(), x,
+            : Server.getWorldManager().getDefaultWorld().getBukkitWorld(), x,
         y, z, yaw, pitch);
     this.world = world;
   }
 
   public ExLocation(ExWorld world, Location location) {
     super(world != null ? world.getBukkitWorld()
-            : Server.getWorldManager().getBasicWorld().getBukkitWorld(),
+            : Server.getWorldManager().getDefaultWorld().getBukkitWorld(),
         location.getX(), location.getY(), location.getZ(), location.getYaw(),
         location.getPitch());
     this.world = world;
@@ -89,6 +89,16 @@ public class ExLocation extends Location {
   public void setWorld(World world) {
     this.world = Server.getWorld(world);
     super.setWorld(world);
+  }
+
+  public double distanceHorizontalSquared(Location location) {
+    location = location.clone();
+    location.setY(this.getY());
+    return this.distanceSquared(location);
+  }
+
+  public double distanceHorizontal(Location location) {
+    return Math.sqrt(this.distanceSquared(location));
   }
 
   @Override
@@ -248,12 +258,12 @@ public class ExLocation extends Location {
     return ExLocation.fromLocation(super.toBlockLocation());
   }
 
-  public @NotNull ExFacingPosition toFacingPosition() {
-    return new ExFacingPosition(this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
+  public @NotNull SimpleFacingLocation toFacingPosition() {
+    return new SimpleFacingLocation(this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
   }
 
-  public @NotNull ExPosition toPosition() {
-    return new ExPosition(this.getX(), this.getY(), this.getZ());
+  public @NotNull SimpleLocation toPosition() {
+    return new SimpleLocation(this.getX(), this.getY(), this.getZ());
   }
 
 }

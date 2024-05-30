@@ -4,17 +4,25 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
+import org.bukkit.Location;
+
 import java.util.Objects;
 
-public class ExFacingPosition extends ExPosition {
+public class SimpleFacingLocation extends SimpleLocation {
 
   private float yaw;
   private float pitch;
 
-  public ExFacingPosition(double x, double y, double z, float yaw, float pitch) {
+  public SimpleFacingLocation(double x, double y, double z, float yaw, float pitch) {
     super(x, y, z);
     this.yaw = yaw;
     this.pitch = pitch;
+  }
+
+  public SimpleFacingLocation(Location location) {
+    super(location);
+    this.yaw = location.getYaw();
+    this.pitch = location.getPitch();
   }
 
   public float getYaw() {
@@ -34,22 +42,22 @@ public class ExFacingPosition extends ExPosition {
   }
 
   @Override
-  public ExFacingPosition middleHorizontalBlock() {
-    return (ExFacingPosition) super.middleHorizontalBlock();
+  public SimpleFacingLocation middleHorizontalBlock() {
+    return (SimpleFacingLocation) super.middleHorizontalBlock();
   }
 
   @Override
-  public ExFacingPosition zeroBlock() {
-    return (ExFacingPosition) super.zeroBlock();
+  public SimpleFacingLocation zeroBlock() {
+    return (SimpleFacingLocation) super.zeroBlock();
   }
 
-  public ExFacingPosition zeroFacing() {
+  public SimpleFacingLocation zeroFacing() {
     this.setYaw(0);
     this.setPitch(0);
     return this;
   }
 
-  public ExFacingPosition roundFacing() {
+  public SimpleFacingLocation roundFacing() {
     this.setYaw(this.roundAngle(this.getYaw()));
     this.setPitch(this.roundAngle(this.getPitch()));
     return this;
@@ -65,7 +73,7 @@ public class ExFacingPosition extends ExPosition {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     if (!super.equals(o)) return false;
-    ExFacingPosition that = (ExFacingPosition) o;
+    SimpleFacingLocation that = (SimpleFacingLocation) o;
     return Float.compare(yaw, that.yaw) == 0 && Float.compare(pitch, that.pitch) == 0;
   }
 
