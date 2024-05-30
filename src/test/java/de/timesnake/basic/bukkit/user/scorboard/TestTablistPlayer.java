@@ -16,10 +16,16 @@ import java.util.UUID;
 public class TestTablistPlayer implements TablistPlayer {
 
   private final String name;
+  private final String tablistName;
   private final UUID uuid;
 
   public TestTablistPlayer(String name) {
+    this(name, name);
+  }
+
+  public TestTablistPlayer(String name, String tablistName) {
     this.name = name;
+    this.tablistName = tablistName;
     this.uuid = UUID.randomUUID();
   }
 
@@ -30,7 +36,7 @@ public class TestTablistPlayer implements TablistPlayer {
 
   @Override
   public @NotNull String getTablistName() {
-    return name;
+    return tablistName;
   }
 
   @Override

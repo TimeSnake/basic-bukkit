@@ -51,8 +51,8 @@ public class Tablist0TeamsTests {
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
       @Override
-      public TablistPlayer newGapEntry(String rank) {
-        return new TestTablistPlayer(rank);
+      public TablistPlayer newGapEntry(String name, String tablistName) {
+        return new TestTablistPlayer(name, tablistName);
       }
     };
   }
@@ -73,7 +73,9 @@ public class Tablist0TeamsTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=1
+                          player=1,
+                          prefix=null,
+                          color=white
                         }
                       ]
                    }
@@ -102,34 +104,54 @@ public class Tablist0TeamsTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=0
+                          player=0,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=1
+                          player=1,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=2
+                          player=2,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=3
+                          player=3,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=4
+                          player=4,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=5
+                          player=5,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=6
+                          player=6,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=7
+                          player=7,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=8
+                          player=8,
+                          prefix=null,
+                          color=white
                         },
                         TablistPlayerEntry{
-                          player=9
+                          player=9,
+                          prefix=null,
+                          color=white
                         }
                       ]
                     }
@@ -166,19 +188,29 @@ public class Tablist0TeamsTests {
                           group=null,
                           entries=[
                             TablistPlayerEntry{
-                              player=5
+                              player=5,
+                              prefix=null,
+                              color=white
                             },
                             TablistPlayerEntry{
-                              player=6
+                              player=6,
+                              prefix=null,
+                              color=white
                             },
                             TablistPlayerEntry{
-                              player=7
+                              player=7,
+                              prefix=null,
+                              color=white
                             },
                             TablistPlayerEntry{
-                              player=8
+                              player=8,
+                              prefix=null,
+                              color=white
                             },
                             TablistPlayerEntry{
-                              player=9
+                              player=9,
+                              prefix=null,
+                              color=white
                             }
                           ]
                         }
