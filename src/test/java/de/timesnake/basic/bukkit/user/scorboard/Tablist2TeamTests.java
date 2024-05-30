@@ -78,8 +78,8 @@ public class Tablist2TeamTests {
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
       @Override
-      public TablistPlayer newGapEntry(String rank) {
-        return new TestTablistPlayer(rank);
+      public TablistPlayer newGapEntry(String name, String tablistName) {
+        return new TestTablistPlayer(name, tablistName);
       }
     };
   }
@@ -102,7 +102,9 @@ public class Tablist2TeamTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=1
+                          player=1,
+                          prefix=null,
+                          color=white
                         }
                       ]
                    }
@@ -117,7 +119,9 @@ public class Tablist2TeamTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=2
+                          player=2,
+                          prefix=null,
+                          color=white
                         }
                       ]
                    }
@@ -132,7 +136,9 @@ public class Tablist2TeamTests {
                       group=null,
                       entries=[
                         TablistPlayerEntry{
-                          player=3
+                          player=3,
+                          prefix=null,
+                          color=white
                         }
                       ]
                    }

@@ -13,6 +13,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.chat.ExTextColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,8 +45,9 @@ public class Tablist1TeamTests {
         return "spec";
       }
 
+      @Nullable
       @Override
-      public @NotNull ExTextColor getTablistColor() {
+      public ExTextColor getTablistColor() {
         return ExTextColor.GRAY;
       }
     };
@@ -71,8 +73,8 @@ public class Tablist1TeamTests {
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
       @Override
-      public TablistPlayer newGapEntry(String rank) {
-        return new TestTablistPlayer(rank);
+      public TablistPlayer newGapEntry(String name, String tablistName) {
+        return new TestTablistPlayer(name, tablistName);
       }
     };
   }

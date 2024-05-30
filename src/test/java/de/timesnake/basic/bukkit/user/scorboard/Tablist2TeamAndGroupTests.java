@@ -68,8 +68,8 @@ public class Tablist2TeamAndGroupTests {
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
       @Override
-      public TablistPlayer newGapEntry(String rank) {
-        return new TestTablistPlayer(rank);
+      public TablistPlayer newGapEntry(String name, String tablistName) {
+        return new TestTablistPlayer(name, tablistName);
       }
     };
   }
