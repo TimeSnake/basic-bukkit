@@ -16,17 +16,20 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
+import io.papermc.paper.adventure.AdventureComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.numbers.BlankFormat;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
-import net.minecraft.server.ServerScoreboard;
+import net.minecraft.world.scores.DisplaySlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.event.Listener;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class Tablist extends Scoreboard implements Listener,
@@ -81,7 +84,9 @@ public abstract class Tablist extends Scoreboard implements Listener,
 
   @Override
   public void updateEntryValue(TablistPlayer entry, Integer value) {
-    this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name, entry.getTablistName(), value));
+    this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(entry.getName(), this.name, value,
+        Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(entry.getTablistName()))),
+        Optional.of(BlankFormat.INSTANCE)));
   }
 
   protected void broadcastPacket(Packet<?> packet) {
@@ -103,7 +108,8 @@ public abstract class Tablist extends Scoreboard implements Listener,
   }
 
   protected void updateHeaderFooter() {
-    this.sendPacket(this.watchingUsers, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
+    this.sendPacket(this.watchingUsers, new ClientboundTabListPacket(Component.nullToEmpty(this.header),
+        Component.nullToEmpty(this.footer)));
   }
 
   public void onUserJoin(UserJoinEvent e) {
@@ -114,8 +120,10 @@ public abstract class Tablist extends Scoreboard implements Listener,
     if (this.type.equals(Type.HEALTH)) {
       if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
           || user.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
-        this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE,
-            this.name, user.getName(), ((int) user.getHealth())));
+        this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(user.getName(), this.name,
+            ((int) user.getHealth()),
+            Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
+            Optional.of(BlankFormat.INSTANCE)));
       }
     }
   }
@@ -139,14 +147,16 @@ public abstract class Tablist extends Scoreboard implements Listener,
     this.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name, this.type.getPacketType(),
         this.type.getPacketType().getDefaultRenderType()));
 
-    this.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_LIST, this.name));
+    this.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(DisplaySlot.LIST, this.name));
 
     this.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
 
     for (User u : Server.getUsers()) {
       if (this.type.equals(Type.HEALTH)) {
-        this.sendPacket(user, new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.name,
-            user.getName(), ((int) u.getHealth())));
+        this.sendPacket(user, new ClientboundSetScorePacket(user.getName(), this.name,
+            ((int) user.getHealth()),
+            Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
+            Optional.of(BlankFormat.INSTANCE)));
       }
     }
   }

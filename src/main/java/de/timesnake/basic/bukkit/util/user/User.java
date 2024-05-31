@@ -52,11 +52,12 @@ import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPla
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
+import net.minecraft.network.chat.numbers.BlankFormat;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
-import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.apache.logging.log4j.LogManager;
@@ -67,7 +68,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -989,7 +990,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
             ObjectiveCriteria.DUMMY, ObjectiveCriteria.DUMMY.getDefaultRenderType()));
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_SIDEBAR,
+        ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.DisplaySlot.SIDEBAR,
             this.sideboard.getName()));
 
     for (Map.Entry<Integer, String> entry : sideboard.getScores().entrySet()) {
@@ -1027,7 +1028,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.sideboardScores.put(line, text);
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundSetScorePacket(ServerScoreboard.Method.CHANGE, this.sideboard.getName(), text, line));
+        new ClientboundSetScorePacket(this.getName(), this.sideboard.getName(), line,
+            Optional.of(net.minecraft.network.chat.Component.literal(text)), Optional.of(BlankFormat.INSTANCE)));
   }
 
   /**
@@ -1046,7 +1048,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     }
     this.sideboardScores.remove(line);
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundSetScorePacket(ServerScoreboard.Method.REMOVE, this.sideboard.getName(), text, line));
+        new ClientboundResetScorePacket(text, this.sideboard.getName()));
   }
 
   /**
@@ -2115,7 +2117,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   @NotNull
   public List<DisplayGroup> getMainDisplayGroups() {
     return this.displayGroups.stream().filter(displayGroup -> displayGroup.isShowAlways()
-            || displayGroup.equals(this.getMasterDisplayGroup())).sorted()
+                                                              || displayGroup.equals(this.getMasterDisplayGroup())).sorted()
         .limit(DisplayGroup.MAX_PREFIX_LENGTH).toList();
   }
 

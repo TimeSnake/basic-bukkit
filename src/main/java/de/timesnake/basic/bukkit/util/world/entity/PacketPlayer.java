@@ -11,7 +11,6 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -42,7 +41,7 @@ public class PacketPlayer extends PacketEntity {
     Server.getScoreboardManager().getPacketManager().sendPacket(user,
         ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of((ServerPlayer) player)));
 
-    user.sendPacket(new ClientboundAddPlayerPacket(player));
+    user.sendPacket(ClientboundPlayerInfoUpdatePacket.createSinglePlayerInitializing(((ServerPlayer) player), false));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setAllFromEntity().build());
 
     Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,

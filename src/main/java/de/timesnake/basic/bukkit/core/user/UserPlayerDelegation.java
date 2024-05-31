@@ -9,12 +9,12 @@ import com.destroystokyo.paper.ClientOption;
 import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.block.TargetBlockInfo;
 import com.destroystokyo.paper.entity.TargetEntityInfo;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.entity.LookAnchor;
 import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.math.Position;
 import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.chat.ChatType;
@@ -24,11 +24,15 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.pointer.Pointer;
 import net.kyori.adventure.pointer.Pointers;
+import net.kyori.adventure.resource.ResourcePackInfoLike;
+import net.kyori.adventure.resource.ResourcePackRequest;
+import net.kyori.adventure.resource.ResourcePackRequestLike;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.TitlePart;
 import net.kyori.adventure.util.TriState;
 import net.md_5.bungee.api.ChatMessageType;
@@ -43,6 +47,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.sign.Side;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.*;
 import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -61,21 +66,22 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.*;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collector;
 
 public class UserPlayerDelegation {
 
@@ -86,2977 +92,560 @@ public class UserPlayerDelegation {
   }
 
 
-  public @NotNull Identity identity() {
+  @NotNull
+  public Identity identity() {
     return player.identity();
   }
 
-
-  @UnmodifiableView
-  @NotNull
-  public Iterable<? extends BossBar> activeBossBars() {
-    return player.activeBossBars();
-  }
-
-
-  public @NotNull Component displayName() {
-    return player.displayName();
-  }
-
-
-  public void displayName(@Nullable Component displayName) {
-    player.displayName(displayName);
-  }
-
-
-  @NotNull
-  public String getName() {
-    return player.getName();
-  }
-
-
-  @Deprecated
-  @NotNull
-  public String getDisplayName() {
-    return player.getDisplayName();
-  }
-
-
-  @Deprecated
-  public void setDisplayName(@Nullable String name) {
-    player.setDisplayName(name);
-  }
-
-
-  public void playerListName(@Nullable Component name) {
-    player.playerListName(name);
-  }
-
-
-  public @NotNull Component playerListName() {
-    return player.playerListName();
-  }
-
-
-  public @Nullable Component playerListHeader() {
-    return player.playerListHeader();
-  }
-
-
-  public @Nullable Component playerListFooter() {
-    return player.playerListFooter();
-  }
-
-
-  @Deprecated
-  @NotNull
-  public String getPlayerListName() {
-    return player.getPlayerListName();
-  }
-
-
-  @Deprecated
-  public void setPlayerListName(@Nullable String name) {
-    player.setPlayerListName(name);
-  }
-
-
-  @Deprecated
-  @Nullable
-  public String getPlayerListHeader() {
-    return player.getPlayerListHeader();
-  }
-
-
-  @Deprecated
-  @Nullable
-  public String getPlayerListFooter() {
-    return player.getPlayerListFooter();
-  }
-
-
-  @Deprecated
-  public void setPlayerListHeader(@Nullable String header) {
-    player.setPlayerListHeader(header);
-  }
-
-
-  @Deprecated
-  public void setPlayerListFooter(@Nullable String footer) {
-    player.setPlayerListFooter(footer);
-  }
-
-
-  @Deprecated
-  public void setPlayerListHeaderFooter(@Nullable String header, @Nullable String footer) {
-    player.setPlayerListHeaderFooter(header, footer);
-  }
-
-
-  public void setCompassTarget(@NotNull Location loc) {
-    player.setCompassTarget(loc);
-  }
-
-
-  public @NotNull Location getCompassTarget() {
-    return player.getCompassTarget();
-  }
-
-
-  public @Nullable InetSocketAddress getAddress() {
-    return player.getAddress();
-  }
-
-
-  public void sendRawMessage(@NotNull String message) {
-    player.sendRawMessage(message);
-  }
-
-
-  @Deprecated
-  public void kickPlayer(@Nullable String message) {
-    player.kickPlayer(message);
-  }
-
-
-  public void kick() {
-    player.kick();
-  }
-
-
-  public void kick(@Nullable Component message) {
-    player.kick(message);
-  }
-
-
-  public void kick(@Nullable Component message, PlayerKickEvent.@NotNull Cause cause) {
-    player.kick(message, cause);
-  }
-
-
-  public @Nullable BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
-    return player.ban(reason, expires, source, kickPlayer);
-  }
-
-
-  public void chat(@NotNull String msg) {
-    player.chat(msg);
-  }
-
-
-  public boolean performCommand(@NotNull String command) {
-    return player.performCommand(command);
-  }
-
-
-  @Deprecated
-  public boolean isOnGround() {
-    return player.isOnGround();
-  }
-
-
-  public boolean isSneaking() {
-    return player.isSneaking();
-  }
-
-
-  public void setSneaking(boolean sneak) {
-    player.setSneaking(sneak);
-  }
-
-
-  public boolean isSprinting() {
-    return player.isSprinting();
-  }
-
-
-  public void setSprinting(boolean sprinting) {
-    player.setSprinting(sprinting);
-  }
-
-
-  public void saveData() {
-    player.saveData();
-  }
-
-
-  public void loadData() {
-    player.loadData();
-  }
-
-
-  public void setSleepingIgnored(boolean isSleeping) {
-    player.setSleepingIgnored(isSleeping);
-  }
-
-
-  public boolean isSleepingIgnored() {
-    return player.isSleepingIgnored();
-  }
-
-
-  public @Nullable Location getBedSpawnLocation() {
-    return player.getBedSpawnLocation();
-  }
-
-
-  public void setBedSpawnLocation(@Nullable Location location) {
-    player.setBedSpawnLocation(location);
-  }
-
-
-  public void setBedSpawnLocation(@Nullable Location location, boolean force) {
-    player.setBedSpawnLocation(location, force);
-  }
-
-
-  @Deprecated
-  public void playNote(@NotNull Location loc, byte instrument, byte note) {
-    player.playNote(loc, instrument, note);
-  }
-
-
-  public void playNote(@NotNull Location loc, @NotNull Instrument instrument, @NotNull Note note) {
-    player.playNote(loc, instrument, note);
-  }
-
-
-  public void playSound(@NotNull Location location, @NotNull Sound sound, float volume, float pitch) {
-    player.playSound(location, sound, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Location location, @NotNull String sound, float volume, float pitch) {
-    player.playSound(location, sound, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Location location, @NotNull Sound sound, @NotNull SoundCategory category, float volume, float pitch) {
-    player.playSound(location, sound, category, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Location location, @NotNull String sound, @NotNull SoundCategory category, float volume, float pitch) {
-    player.playSound(location, sound, category, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Entity entity, @NotNull Sound sound, float volume, float pitch) {
-    player.playSound(entity, sound, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Entity entity, @NotNull String sound, float volume, float pitch) {
-    player.playSound(entity, sound, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Entity entity, @NotNull Sound sound, @NotNull SoundCategory category, float volume, float pitch) {
-    player.playSound(entity, sound, category, volume, pitch);
-  }
-
-
-  public void playSound(@NotNull Entity entity, @NotNull String sound, @NotNull SoundCategory category, float volume, float pitch) {
-    player.playSound(entity, sound, category, volume, pitch);
-  }
-
-
-  public void stopSound(@NotNull Sound sound) {
-    player.stopSound(sound);
-  }
-
-
-  public void stopSound(@NotNull String sound) {
-    player.stopSound(sound);
-  }
-
-
-  public void stopSound(@NotNull Sound sound, @Nullable SoundCategory category) {
-    player.stopSound(sound, category);
-  }
-
-
-  public void stopSound(@NotNull String sound, @Nullable SoundCategory category) {
-    player.stopSound(sound, category);
-  }
-
-
-  public void stopSound(@NotNull SoundCategory category) {
-    player.stopSound(category);
-  }
-
-
-  public void stopAllSounds() {
-    player.stopAllSounds();
-  }
-
-
-  @Deprecated
-  public void playEffect(@NotNull Location loc, @NotNull Effect effect, int data) {
-    player.playEffect(loc, effect, data);
-  }
-
-
-  public <T> void playEffect(@NotNull Location loc, @NotNull Effect effect, @Nullable T data) {
-    player.playEffect(loc, effect, data);
-  }
-
-
-  public boolean breakBlock(@NotNull Block block) {
-    return player.breakBlock(block);
-  }
-
-
-  @Deprecated
-  public void sendBlockChange(@NotNull Location loc, @NotNull Material material, byte data) {
-    player.sendBlockChange(loc, material, data);
-  }
-
-
-  public void sendBlockChange(@NotNull Location loc, @NotNull BlockData block) {
-    player.sendBlockChange(loc, block);
-  }
-
-
-  public void sendBlockChanges(@NotNull Collection<BlockState> blocks) {
-    player.sendBlockChanges(blocks);
-  }
-
-
-  @Deprecated
-  public void sendBlockChanges(@NotNull Collection<BlockState> blocks, boolean suppressLightUpdates) {
-    player.sendBlockChanges(blocks, suppressLightUpdates);
-  }
-
-
-  public void sendBlockDamage(@NotNull Location loc, float progress) {
-    player.sendBlockDamage(loc, progress);
-  }
-
-
-  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> blockChanges) {
-    player.sendMultiBlockChange(blockChanges);
-  }
-
-
-  @Deprecated
-  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> blockChanges, boolean suppressLightUpdates) {
-    player.sendMultiBlockChange(blockChanges, suppressLightUpdates);
-  }
-
-
-  public void sendBlockDamage(@NotNull Location loc, float progress, @NotNull Entity source) {
-    player.sendBlockDamage(loc, progress, source);
-  }
-
-
-  public void sendBlockDamage(@NotNull Location loc, float progress, int sourceId) {
-    player.sendBlockDamage(loc, progress, sourceId);
-  }
-
-
-  public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull EquipmentSlot slot, @Nullable ItemStack item) {
-    player.sendEquipmentChange(entity, slot, item);
-  }
-
-
-  public void sendEquipmentChange(@NotNull LivingEntity entity, @NotNull Map<EquipmentSlot, ItemStack> items) {
-    player.sendEquipmentChange(entity, items);
-  }
-
-
-  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines);
-  }
-
-
-  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines, dyeColor);
-  }
-
-
-  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, boolean hasGlowingText) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines, hasGlowingText);
-  }
-
-
-  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines, @NotNull DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines, dyeColor, hasGlowingText);
-  }
-
-
-  @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines);
-  }
-
-
-  @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines, dyeColor);
-  }
-
-
-  @Deprecated
-  public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException {
-    player.sendSignChange(loc, lines, dyeColor, hasGlowingText);
-  }
-
-
-  @ApiStatus.Experimental
-  public void sendBlockUpdate(@NotNull Location loc, @NotNull TileState tileState) throws IllegalArgumentException {
-    player.sendBlockUpdate(loc, tileState);
-  }
-
-
-  public void sendMap(@NotNull MapView map) {
-    player.sendMap(map);
-  }
-
-
-  public void showWinScreen() {
-    player.showWinScreen();
-  }
-
-
-  public boolean hasSeenWinScreen() {
-    return player.hasSeenWinScreen();
-  }
-
-
-  public void setHasSeenWinScreen(boolean hasSeenWinScreen) {
-    player.setHasSeenWinScreen(hasSeenWinScreen);
-  }
-
-
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason) {
-    return player.banPlayerFull(reason);
-  }
-
-
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
-    return player.banPlayerFull(reason, source);
-  }
-
-
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
-    return player.banPlayerFull(reason, expires);
-  }
-
-
-  public @Nullable BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-    return player.banPlayerFull(reason, expires, source);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
-    return player.banPlayerIP(reason, kickPlayer);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
-    return player.banPlayerIP(reason, source, kickPlayer);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
-    return player.banPlayerIP(reason, expires, kickPlayer);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason) {
-    return player.banPlayerIP(reason);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
-    return player.banPlayerIP(reason, source);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
-    return player.banPlayerIP(reason, expires);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-    return player.banPlayerIP(reason, expires, source);
-  }
-
-
-  public @Nullable BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer) {
-    return player.banPlayerIP(reason, expires, source, kickPlayer);
-  }
-
-
-  @Deprecated
-  public void sendActionBar(@NotNull String message) {
-    player.sendActionBar(message);
-  }
-
-
-  @Deprecated
-  public void sendActionBar(char alternateChar, @NotNull String message) {
-    player.sendActionBar(alternateChar, message);
-  }
-
-
-  @Deprecated
-  public void sendActionBar(@NotNull BaseComponent... message) {
-    player.sendActionBar(message);
-  }
-
-
-  @Deprecated
-  public void sendMessage(@NotNull BaseComponent component) {
-    player.sendMessage(component);
-  }
-
-
-  @Deprecated
-  public void sendMessage(@NotNull BaseComponent... components) {
-    player.sendMessage(components);
-  }
-
-
-  @Deprecated
-  public void sendMessage(ChatMessageType position, BaseComponent... components) {
-    player.sendMessage(position, components);
-  }
-
-
-  @Deprecated
-  public void setPlayerListHeaderFooter(@Nullable BaseComponent[] header, @Nullable BaseComponent[] footer) {
-    player.setPlayerListHeaderFooter(header, footer);
-  }
-
-
-  @Deprecated
-  public void setPlayerListHeaderFooter(@Nullable BaseComponent header, @Nullable BaseComponent footer) {
-    player.setPlayerListHeaderFooter(header, footer);
-  }
-
-
-  @Deprecated
-  public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks) {
-    player.setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
-  }
-
-
-  @Deprecated
-  public void setSubtitle(BaseComponent[] subtitle) {
-    player.setSubtitle(subtitle);
-  }
-
-
-  @Deprecated
-  public void setSubtitle(BaseComponent subtitle) {
-    player.setSubtitle(subtitle);
-  }
-
-
-  @Deprecated
-  public void showTitle(@Nullable BaseComponent[] title) {
-    player.showTitle(title);
-  }
-
-
-  @Deprecated
-  public void showTitle(@Nullable BaseComponent title) {
-    player.showTitle(title);
-  }
-
-
-  @Deprecated
-  public void showTitle(@Nullable BaseComponent[] title, @Nullable BaseComponent[] subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
-    player.showTitle(title, subtitle, fadeInTicks, stayTicks, fadeOutTicks);
-  }
-
-
-  @Deprecated
-  public void showTitle(@Nullable BaseComponent title, @Nullable BaseComponent subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
-    player.showTitle(title, subtitle, fadeInTicks, stayTicks, fadeOutTicks);
-  }
-
-
-  @Deprecated
-  public void sendTitle(@NotNull Title title) {
-    player.sendTitle(title);
-  }
-
-
-  @Deprecated
-  public void updateTitle(@NotNull Title title) {
-    player.updateTitle(title);
-  }
-
-
-  @Deprecated
-  public void hideTitle() {
-    player.hideTitle();
-  }
-
-
-  public void sendHurtAnimation(float yaw) {
-    player.sendHurtAnimation(yaw);
-  }
-
-
-  public void addCustomChatCompletions(@NotNull Collection<String> completions) {
-    player.addCustomChatCompletions(completions);
-  }
-
-
-  public void removeCustomChatCompletions(@NotNull Collection<String> completions) {
-    player.removeCustomChatCompletions(completions);
-  }
-
-
-  public void setCustomChatCompletions(@NotNull Collection<String> completions) {
-    player.setCustomChatCompletions(completions);
-  }
-
-
-  @ApiStatus.Internal
-  public void updateInventory() {
-    player.updateInventory();
-  }
-
-
-  public @Nullable GameMode getPreviousGameMode() {
-    return player.getPreviousGameMode();
-  }
-
-
-  public void setPlayerTime(long time, boolean relative) {
-    player.setPlayerTime(time, relative);
-  }
-
-
-  public long getPlayerTime() {
-    return player.getPlayerTime();
-  }
-
-
-  public long getPlayerTimeOffset() {
-    return player.getPlayerTimeOffset();
-  }
-
-
-  public boolean isPlayerTimeRelative() {
-    return player.isPlayerTimeRelative();
-  }
-
-
-  public void resetPlayerTime() {
-    player.resetPlayerTime();
-  }
-
-
-  public void setPlayerWeather(@NotNull WeatherType type) {
-    player.setPlayerWeather(type);
-  }
-
-
-  public @Nullable WeatherType getPlayerWeather() {
-    return player.getPlayerWeather();
-  }
-
-
-  public void resetPlayerWeather() {
-    player.resetPlayerWeather();
-  }
-
-
-  public void giveExp(int amount) {
-    player.giveExp(amount);
-  }
-
-
-  public int getExpCooldown() {
-    return player.getExpCooldown();
-  }
-
-
-  public void setExpCooldown(int ticks) {
-    player.setExpCooldown(ticks);
-  }
-
-
-  public void giveExp(int amount, boolean applyMending) {
-    player.giveExp(amount, applyMending);
-  }
-
-
-  public int applyMending(int amount) {
-    return player.applyMending(amount);
-  }
-
-
-  public void giveExpLevels(int amount) {
-    player.giveExpLevels(amount);
-  }
-
-
-  public float getExp() {
-    return player.getExp();
-  }
-
-
-  public void setExp(float exp) {
-    player.setExp(exp);
-  }
-
-
-  public int getLevel() {
-    return player.getLevel();
-  }
-
-
-  public void setLevel(int level) {
-    player.setLevel(level);
-  }
-
-
-  public int getTotalExperience() {
-    return player.getTotalExperience();
-  }
-
-
-  public void setTotalExperience(int exp) {
-    player.setTotalExperience(exp);
-  }
-
-
-  public void sendExperienceChange(float progress) {
-    player.sendExperienceChange(progress);
-  }
-
-
-  public void sendExperienceChange(float progress, int level) {
-    player.sendExperienceChange(progress, level);
-  }
-
-
-  public boolean getAllowFlight() {
-    return player.getAllowFlight();
-  }
-
-
-  public void setAllowFlight(boolean flight) {
-    player.setAllowFlight(flight);
-  }
-
-
-  public void setFlyingFallDamage(@NotNull TriState flyingFallDamage) {
-    player.setFlyingFallDamage(flyingFallDamage);
-  }
-
-
-  public @NotNull TriState hasFlyingFallDamage() {
-    return player.hasFlyingFallDamage();
-  }
-
-
-  @Deprecated
-  public void hidePlayer(@NotNull Player player) {
-    this.player.hidePlayer(player);
-  }
-
-
-  public void hidePlayer(@NotNull Plugin plugin, @NotNull Player player) {
-    this.player.hidePlayer(plugin, player);
-  }
-
-
-  @Deprecated
-  public void showPlayer(@NotNull Player player) {
-    this.player.showPlayer(player);
-  }
-
-
-  public void showPlayer(@NotNull Plugin plugin, @NotNull Player player) {
-    this.player.showPlayer(plugin, player);
-  }
-
-
-  public boolean canSee(@NotNull Player player) {
-    return this.player.canSee(player);
-  }
-
-
-  @ApiStatus.Experimental
-  public void hideEntity(@NotNull Plugin plugin, @NotNull Entity entity) {
-    player.hideEntity(plugin, entity);
-  }
-
-
-  @ApiStatus.Experimental
-  public void showEntity(@NotNull Plugin plugin, @NotNull Entity entity) {
-    player.showEntity(plugin, entity);
-  }
-
-
-  @ApiStatus.Experimental
-  public boolean canSee(@NotNull Entity entity) {
-    return player.canSee(entity);
-  }
-
-
-  public boolean isFlying() {
-    return player.isFlying();
-  }
-
-
-  public void setFlying(boolean value) {
-    player.setFlying(value);
-  }
-
-
-  public void setFlySpeed(float value) throws IllegalArgumentException {
-    player.setFlySpeed(value);
-  }
-
-
-  public void setWalkSpeed(float value) throws IllegalArgumentException {
-    player.setWalkSpeed(value);
-  }
-
-
-  public float getFlySpeed() {
-    return player.getFlySpeed();
-  }
-
-
-  public float getWalkSpeed() {
-    return player.getWalkSpeed();
-  }
-
-
-  @Deprecated
-  public void setTexturePack(@NotNull String url) {
-    player.setTexturePack(url);
+  public boolean hasMetadata(@NotNull String s) {
+    return player.hasMetadata(s);
   }
-
-
-  @Deprecated
-  public void setResourcePack(@NotNull String url) {
-    player.setResourcePack(url);
-  }
-
 
-  public void setResourcePack(@NotNull String url, @Nullable byte[] hash) {
+  public void setResourcePack(@NotNull String url, @NotNull String hash) {
     player.setResourcePack(url, hash);
   }
 
+  public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3,
+                                double v4, double v5, double v6, @Nullable T t) {
+    player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6, t);
+  }
+
+  public boolean hasPermission(@NotNull String s) {
+    return player.hasPermission(s);
+  }
+
+  @NotNull
+  public PersistentDataContainer getPersistentDataContainer() {
+    return player.getPersistentDataContainer();
+  }
 
   @Deprecated
-  public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt) {
-    player.setResourcePack(url, hash, prompt);
+  public void setResourcePack(@NotNull String s) {
+    player.setResourcePack(s);
   }
 
-
-  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt) {
-    player.setResourcePack(url, hash, prompt);
+  public boolean isGlowing() {
+    return player.isGlowing();
   }
 
-
-  public void setResourcePack(@NotNull String url, @Nullable byte[] hash, boolean force) {
-    player.setResourcePack(url, hash, force);
+  public boolean spawnAt(@NotNull Location location) {
+    return player.spawnAt(location);
   }
 
+  @NotNull
+  public EntityScheduler getScheduler() {
+    return player.getScheduler();
+  }
 
+  public double getEyeHeight(boolean b) {
+    return player.getEyeHeight(b);
+  }
+
+  public boolean setWindowProperty(@NotNull InventoryView.Property property, int i) {
+    return player.setWindowProperty(property, i);
+  }
+
+  @NotNull
+  public GameMode getGameMode() {
+    return player.getGameMode();
+  }
+
+  public void playPickupItemAnimation(@NotNull Item item, int i) {
+    player.playPickupItemAnimation(item, i);
+  }
+
+  @NotNull
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String s, boolean b) {
+    return player.addAttachment(plugin, s, b);
+  }
+
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   @Deprecated
-  public void setResourcePack(@NotNull String url, @Nullable byte[] hash, @Nullable String prompt, boolean force) {
-    player.setResourcePack(url, hash, prompt, force);
+  public void sendMessage(@NotNull Component message, @NotNull MessageType type) {
+    player.sendMessage(message, type);
   }
-
-
-  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt, boolean force) {
-    player.setResourcePack(url, hash, prompt, force);
-  }
-
-
-  public @NotNull Scoreboard getScoreboard() {
-    return player.getScoreboard();
-  }
-
-
-  public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {
-    player.setScoreboard(scoreboard);
-  }
-
-
-  public @Nullable WorldBorder getWorldBorder() {
-    return player.getWorldBorder();
-  }
-
-
-  public void setWorldBorder(@Nullable WorldBorder border) {
-    player.setWorldBorder(border);
-  }
-
-
-  public void sendHealthUpdate(double health, int foodLevel, float saturation) {
-    player.sendHealthUpdate(health, foodLevel, saturation);
-  }
-
 
   public void sendHealthUpdate() {
     player.sendHealthUpdate();
   }
 
-
-  public boolean isHealthScaled() {
-    return player.isHealthScaled();
-  }
-
-
-  public void setHealthScaled(boolean scale) {
-    player.setHealthScaled(scale);
-  }
-
-
-  public void setHealthScale(double scale) throws IllegalArgumentException {
-    player.setHealthScale(scale);
-  }
-
-
-  public double getHealthScale() {
-    return player.getHealthScale();
-  }
-
-
-  public @Nullable Entity getSpectatorTarget() {
-    return player.getSpectatorTarget();
-  }
-
-
-  public void setSpectatorTarget(@Nullable Entity entity) {
-    player.setSpectatorTarget(entity);
-  }
-
-
   @Deprecated
-  public void sendTitle(@Nullable String title, @Nullable String subtitle) {
-    player.sendTitle(title, subtitle);
+  public long getLastPlayed() {
+    return player.getLastPlayed();
   }
-
-
-  @Deprecated
-  public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
-    player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
-  }
-
-
-  public void resetTitle() {
-    player.resetTitle();
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count) {
-    player.spawnParticle(particle, location, count);
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count) {
-    player.spawnParticle(particle, x, y, z, count);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, @Nullable T data) {
-    player.spawnParticle(particle, location, count, data);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, @Nullable T data) {
-    player.spawnParticle(particle, x, y, z, count, data);
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ) {
-    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ);
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ) {
-    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, @Nullable T data) {
-    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, data);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, @Nullable T data) {
-    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, data);
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, double extra) {
-    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra);
-  }
-
-
-  public void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra) {
-    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int count, double offsetX, double offsetY, double offsetZ, double extra, @Nullable T data) {
-    player.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra, data);
-  }
-
-
-  public <T> void spawnParticle(@NotNull Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, @Nullable T data) {
-    player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra, data);
-  }
-
-
-  public @NotNull AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
-    return player.getAdvancementProgress(advancement);
-  }
-
-
-  public int getClientViewDistance() {
-    return player.getClientViewDistance();
-  }
-
-
-  public @NotNull Locale locale() {
-    return player.locale();
-  }
-
 
   public int getPing() {
     return player.getPing();
   }
 
-
   @Deprecated
+  public void setPlayerListHeaderFooter(@Nullable BaseComponent[] baseComponents,
+                                        @Nullable BaseComponent[] baseComponents1) {
+    player.setPlayerListHeaderFooter(baseComponents, baseComponents1);
+  }
+
+  public void sendHurtAnimation(float v) {
+    player.sendHurtAnimation(v);
+  }
+
   @NotNull
-  public String getLocale() {
-    return player.getLocale();
+  public BlockFace getFacing() {
+    return player.getFacing();
   }
 
-
-  public boolean getAffectsSpawning() {
-    return player.getAffectsSpawning();
+  @ApiStatus.Experimental
+  @Nullable
+  public EntitySnapshot createSnapshot() {
+    return player.createSnapshot();
   }
 
-
-  public void setAffectsSpawning(boolean affects) {
-    player.setAffectsSpawning(affects);
+  public void broadcastSlotBreak(@NotNull EquipmentSlot equipmentSlot, @NotNull Collection<Player> collection) {
+    player.broadcastSlotBreak(equipmentSlot, collection);
   }
 
-
-  public int getViewDistance() {
-    return player.getViewDistance();
+  public boolean hasNoPhysics() {
+    return player.hasNoPhysics();
   }
 
-
-  public void setViewDistance(int viewDistance) {
-    player.setViewDistance(viewDistance);
+  @ApiStatus.Experimental
+  public void storeCookie(@NotNull NamespacedKey namespacedKey, @NotNull byte[] bytes) {
+    player.storeCookie(namespacedKey, bytes);
   }
 
-
-  public int getSimulationDistance() {
-    return player.getSimulationDistance();
+  public void sendPlainMessage(@NotNull String message) {
+    player.sendPlainMessage(message);
   }
 
-
-  public void setSimulationDistance(int simulationDistance) {
-    player.setSimulationDistance(simulationDistance);
+  @Nullable
+  public Location getRespawnLocation() {
+    return player.getRespawnLocation();
   }
 
+  public void sendActionBar(@NotNull ComponentLike message) {
+    player.sendActionBar(message);
+  }
+
+  public void setFoodLevel(int i) {
+    player.setFoodLevel(i);
+  }
+
+  public int getMaxFireTicks() {
+    return player.getMaxFireTicks();
+  }
+
+  @NotNull
+  public <T> Optional<T> get(@NotNull Pointer<T> pointer) {
+    return player.get(pointer);
+  }
+
+  public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
+    player.setStatistic(statistic, material, i);
+  }
 
   @Deprecated
   public int getNoTickViewDistance() {
     return player.getNoTickViewDistance();
   }
 
-
-  @Deprecated
-  public void setNoTickViewDistance(int viewDistance) {
-    player.setNoTickViewDistance(viewDistance);
-  }
-
-
-  public int getSendViewDistance() {
-    return player.getSendViewDistance();
-  }
-
-
-  public void setSendViewDistance(int viewDistance) {
-    player.setSendViewDistance(viewDistance);
-  }
-
-
-  public void updateCommands() {
-    player.updateCommands();
-  }
-
-
-  public void openBook(@NotNull ItemStack book) {
-    player.openBook(book);
-  }
-
-
-  @Deprecated
-  public void openSign(@NotNull Sign sign) {
-    player.openSign(sign);
-  }
-
-
-  public void openSign(@NotNull Sign sign, @NotNull Side side) {
-    player.openSign(sign, side);
-  }
-
-
-  public void showDemoScreen() {
-    player.showDemoScreen();
-  }
-
-
-  public boolean isAllowingServerListings() {
-    return player.isAllowingServerListings();
-  }
-
-
-  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
-    return player.asHoverEvent(op);
-  }
-
-
-  public void setResourcePack(@NotNull String url, @NotNull String hash) {
-    player.setResourcePack(url, hash);
-  }
-
-
-  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required) {
-    player.setResourcePack(url, hash, required);
-  }
-
-
-  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required, @Nullable Component resourcePackPrompt) {
-    player.setResourcePack(url, hash, required, resourcePackPrompt);
-  }
-
-
-  public PlayerResourcePackStatusEvent.@Nullable Status getResourcePackStatus() {
-    return player.getResourcePackStatus();
-  }
-
-
-  @Deprecated
-  @Nullable
-  public String getResourcePackHash() {
-    return player.getResourcePackHash();
-  }
-
-
-  public boolean hasResourcePack() {
-    return player.hasResourcePack();
-  }
-
-
-  public com.destroystokyo.paper.profile.@NotNull PlayerProfile getPlayerProfile() {
-    return player.getPlayerProfile();
-  }
-
-
-  public void setPlayerProfile(com.destroystokyo.paper.profile.@NotNull PlayerProfile profile) {
-    player.setPlayerProfile(profile);
-  }
-
-
-  public float getCooldownPeriod() {
-    return player.getCooldownPeriod();
-  }
-
-
-  public float getCooledAttackStrength(float adjustTicks) {
-    return player.getCooledAttackStrength(adjustTicks);
-  }
-
-
-  public void resetCooldown() {
-    player.resetCooldown();
-  }
-
-
-  public <T> @NotNull T getClientOption(@NotNull ClientOption<T> option) {
-    return player.getClientOption(option);
-  }
-
-
-  public @Nullable Firework boostElytra(@NotNull ItemStack firework) {
-    return player.boostElytra(firework);
-  }
-
-
-  public void sendOpLevel(byte level) {
-    player.sendOpLevel(level);
-  }
-
-
-  @Deprecated(since = "1.20.1")
-  public void addAdditionalChatCompletions(@NotNull Collection<String> completions) {
-    player.addAdditionalChatCompletions(completions);
-  }
-
-
-  @Deprecated(since = "1.20.1")
-  public void removeAdditionalChatCompletions(@NotNull Collection<String> completions) {
-    player.removeAdditionalChatCompletions(completions);
-  }
-
-
-  @Nullable
-  public String getClientBrandName() {
-    return player.getClientBrandName();
-  }
-
-
   @ApiStatus.Experimental
-  public void setRotation(float yaw, float pitch) {
-    player.setRotation(yaw, pitch);
+  public void startUsingItem(@NotNull EquipmentSlot equipmentSlot) {
+    player.startUsingItem(equipmentSlot);
   }
-
-
-  @ApiStatus.Experimental
-  public void lookAt(double x, double y, double z, @NotNull LookAnchor playerAnchor) {
-    player.lookAt(x, y, z, playerAnchor);
-  }
-
-
-  @ApiStatus.Experimental
-  public void lookAt(@NotNull Position position, @NotNull LookAnchor playerAnchor) {
-    player.lookAt(position, playerAnchor);
-  }
-
-
-  @ApiStatus.Experimental
-  public void lookAt(@NotNull Entity entity, @NotNull LookAnchor playerAnchor, @NotNull LookAnchor entityAnchor) {
-    player.lookAt(entity, playerAnchor, entityAnchor);
-  }
-
-
-  public void showElderGuardian() {
-    player.showElderGuardian();
-  }
-
-
-  public void showElderGuardian(boolean silent) {
-    player.showElderGuardian(silent);
-  }
-
-
-  public int getWardenWarningCooldown() {
-    return player.getWardenWarningCooldown();
-  }
-
-
-  public void setWardenWarningCooldown(int cooldown) {
-    player.setWardenWarningCooldown(cooldown);
-  }
-
-
-  public int getWardenTimeSinceLastWarning() {
-    return player.getWardenTimeSinceLastWarning();
-  }
-
-
-  public void setWardenTimeSinceLastWarning(int time) {
-    player.setWardenTimeSinceLastWarning(time);
-  }
-
-
-  public int getWardenWarningLevel() {
-    return player.getWardenWarningLevel();
-  }
-
-
-  public void setWardenWarningLevel(int warningLevel) {
-    player.setWardenWarningLevel(warningLevel);
-  }
-
-
-  public void increaseWardenWarningLevel() {
-    player.increaseWardenWarningLevel();
-  }
-
-
-  @NotNull
-  public Player.Spigot spigot() {
-    return player.spigot();
-  }
-
-
-  public @NotNull EntityEquipment getEquipment() {
-    return player.getEquipment();
-  }
-
-
-  public @NotNull PlayerInventory getInventory() {
-    return player.getInventory();
-  }
-
-
-  public @NotNull Inventory getEnderChest() {
-    return player.getEnderChest();
-  }
-
-
-  public @NotNull MainHand getMainHand() {
-    return player.getMainHand();
-  }
-
-
-  public boolean setWindowProperty(InventoryView.@NotNull Property prop, int value) {
-    return player.setWindowProperty(prop, value);
-  }
-
-
-  public int getEnchantmentSeed() {
-    return player.getEnchantmentSeed();
-  }
-
-
-  public void setEnchantmentSeed(int seed) {
-    player.setEnchantmentSeed(seed);
-  }
-
-
-  public @NotNull InventoryView getOpenInventory() {
-    return player.getOpenInventory();
-  }
-
-
-  public @Nullable InventoryView openInventory(@NotNull Inventory inventory) {
-    return player.openInventory(inventory);
-  }
-
-
-  public @Nullable InventoryView openWorkbench(@Nullable Location location, boolean force) {
-    return player.openWorkbench(location, force);
-  }
-
-
-  public @Nullable InventoryView openEnchanting(@Nullable Location location, boolean force) {
-    return player.openEnchanting(location, force);
-  }
-
-
-  public void openInventory(@NotNull InventoryView inventory) {
-    player.openInventory(inventory);
-  }
-
-
-  public @Nullable InventoryView openMerchant(@NotNull Villager trader, boolean force) {
-    return player.openMerchant(trader, force);
-  }
-
-
-  public @Nullable InventoryView openMerchant(@NotNull Merchant merchant, boolean force) {
-    return player.openMerchant(merchant, force);
-  }
-
-
-  public @Nullable InventoryView openAnvil(@Nullable Location location, boolean force) {
-    return player.openAnvil(location, force);
-  }
-
-
-  public @Nullable InventoryView openCartographyTable(@Nullable Location location, boolean force) {
-    return player.openCartographyTable(location, force);
-  }
-
-
-  public @Nullable InventoryView openGrindstone(@Nullable Location location, boolean force) {
-    return player.openGrindstone(location, force);
-  }
-
-
-  public @Nullable InventoryView openLoom(@Nullable Location location, boolean force) {
-    return player.openLoom(location, force);
-  }
-
-
-  public @Nullable InventoryView openSmithingTable(@Nullable Location location, boolean force) {
-    return player.openSmithingTable(location, force);
-  }
-
-
-  public @Nullable InventoryView openStonecutter(@Nullable Location location, boolean force) {
-    return player.openStonecutter(location, force);
-  }
-
-
-  public void closeInventory() {
-    player.closeInventory();
-  }
-
-
-  public void closeInventory(InventoryCloseEvent.@NotNull Reason reason) {
-    player.closeInventory(reason);
-  }
-
-
-  @Deprecated
-  public @NotNull ItemStack getItemInHand() {
-    return player.getItemInHand();
-  }
-
-
-  @Deprecated
-  public void setItemInHand(@Nullable ItemStack item) {
-    player.setItemInHand(item);
-  }
-
-
-  public @NotNull ItemStack getItemOnCursor() {
-    return player.getItemOnCursor();
-  }
-
-
-  public void setItemOnCursor(@Nullable ItemStack item) {
-    player.setItemOnCursor(item);
-  }
-
-
-  public boolean hasCooldown(@NotNull Material material) {
-    return player.hasCooldown(material);
-  }
-
-
-  public int getCooldown(@NotNull Material material) {
-    return player.getCooldown(material);
-  }
-
-
-  public void setCooldown(@NotNull Material material, int ticks) {
-    player.setCooldown(material, ticks);
-  }
-
-
-  public void setHurtDirection(float hurtDirection) {
-    player.setHurtDirection(hurtDirection);
-  }
-
-
-  public boolean isDeeplySleeping() {
-    return player.isDeeplySleeping();
-  }
-
-
-  public int getSleepTicks() {
-    return player.getSleepTicks();
-  }
-
-
-  public @Nullable Location getPotentialBedLocation() {
-    return player.getPotentialBedLocation();
-  }
-
-
-  public @Nullable FishHook getFishHook() {
-    return player.getFishHook();
-  }
-
-
-  public boolean sleep(@NotNull Location location, boolean force) {
-    return player.sleep(location, force);
-  }
-
-
-  public void wakeup(boolean setSpawnLocation) {
-    player.wakeup(setSpawnLocation);
-  }
-
-
-  public @NotNull Location getBedLocation() {
-    return player.getBedLocation();
-  }
-
-
-  public @NotNull GameMode getGameMode() {
-    return player.getGameMode();
-  }
-
-
-  public void setGameMode(@NotNull GameMode mode) {
-    player.setGameMode(mode);
-  }
-
-
-  public boolean isBlocking() {
-    return player.isBlocking();
-  }
-
-
-  public boolean isHandRaised() {
-    return player.isHandRaised();
-  }
-
-
-  @Deprecated
-  public @Nullable ItemStack getItemInUse() {
-    return player.getItemInUse();
-  }
-
-
-  public int getExpToLevel() {
-    return player.getExpToLevel();
-  }
-
-
-  public @Nullable Entity releaseLeftShoulderEntity() {
-    return player.releaseLeftShoulderEntity();
-  }
-
-
-  public @Nullable Entity releaseRightShoulderEntity() {
-    return player.releaseRightShoulderEntity();
-  }
-
-
-  public float getAttackCooldown() {
-    return player.getAttackCooldown();
-  }
-
-
-  public boolean discoverRecipe(@NotNull NamespacedKey recipe) {
-    return player.discoverRecipe(recipe);
-  }
-
-
-  public int discoverRecipes(@NotNull Collection<NamespacedKey> recipes) {
-    return player.discoverRecipes(recipes);
-  }
-
-
-  public boolean undiscoverRecipe(@NotNull NamespacedKey recipe) {
-    return player.undiscoverRecipe(recipe);
-  }
-
-
-  public int undiscoverRecipes(@NotNull Collection<NamespacedKey> recipes) {
-    return player.undiscoverRecipes(recipes);
-  }
-
-
-  public boolean hasDiscoveredRecipe(@NotNull NamespacedKey recipe) {
-    return player.hasDiscoveredRecipe(recipe);
-  }
-
-
-  public @NotNull Set<NamespacedKey> getDiscoveredRecipes() {
-    return player.getDiscoveredRecipes();
-  }
-
-
-  @Deprecated
-  public @Nullable Entity getShoulderEntityLeft() {
-    return player.getShoulderEntityLeft();
-  }
-
-
-  @Deprecated
-  public void setShoulderEntityLeft(@Nullable Entity entity) {
-    player.setShoulderEntityLeft(entity);
-  }
-
-
-  @Deprecated
-  public @Nullable Entity getShoulderEntityRight() {
-    return player.getShoulderEntityRight();
-  }
-
-
-  @Deprecated
-  public void setShoulderEntityRight(@Nullable Entity entity) {
-    player.setShoulderEntityRight(entity);
-  }
-
-
-  public boolean dropItem(boolean dropAll) {
-    return player.dropItem(dropAll);
-  }
-
-
-  public float getExhaustion() {
-    return player.getExhaustion();
-  }
-
-
-  public void setExhaustion(float value) {
-    player.setExhaustion(value);
-  }
-
-
-  public float getSaturation() {
-    return player.getSaturation();
-  }
-
-
-  public void setSaturation(float value) {
-    player.setSaturation(value);
-  }
-
-
-  public int getFoodLevel() {
-    return player.getFoodLevel();
-  }
-
-
-  public void setFoodLevel(int value) {
-    player.setFoodLevel(value);
-  }
-
-
-  public int getSaturatedRegenRate() {
-    return player.getSaturatedRegenRate();
-  }
-
-
-  public void setSaturatedRegenRate(int ticks) {
-    player.setSaturatedRegenRate(ticks);
-  }
-
-
-  public int getUnsaturatedRegenRate() {
-    return player.getUnsaturatedRegenRate();
-  }
-
-
-  public void setUnsaturatedRegenRate(int ticks) {
-    player.setUnsaturatedRegenRate(ticks);
-  }
-
-
-  public int getStarvationRate() {
-    return player.getStarvationRate();
-  }
-
-
-  public void setStarvationRate(int ticks) {
-    player.setStarvationRate(ticks);
-  }
-
-
-  public @Nullable Location getLastDeathLocation() {
-    return player.getLastDeathLocation();
-  }
-
 
   public void setLastDeathLocation(@Nullable Location location) {
     player.setLastDeathLocation(location);
   }
 
-
-  public @Nullable Firework fireworkBoost(@NotNull ItemStack fireworkItemStack) {
-    return player.fireworkBoost(fireworkItemStack);
+  public void setFlySpeed(float v) throws IllegalArgumentException {
+    player.setFlySpeed(v);
   }
 
-
-  public double getEyeHeight() {
-    return player.getEyeHeight();
+  public void setScoreboard(@NotNull Scoreboard scoreboard) throws IllegalArgumentException, IllegalStateException {
+    player.setScoreboard(scoreboard);
   }
 
-
-  public double getEyeHeight(boolean ignorePose) {
-    return player.getEyeHeight(ignorePose);
+  public void setAI(boolean b) {
+    player.setAI(b);
   }
 
-
-  public @NotNull Location getEyeLocation() {
-    return player.getEyeLocation();
+  public void setOp(boolean b) {
+    player.setOp(b);
   }
 
-
-  public @NotNull List<Block> getLineOfSight(@Nullable Set<Material> transparent, int maxDistance) {
-    return player.getLineOfSight(transparent, maxDistance);
+  public void deleteMessage(@NotNull SignedMessage signedMessage) {
+    player.deleteMessage(signedMessage);
   }
 
-
-  public @NotNull Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance) {
-    return player.getTargetBlock(transparent, maxDistance);
+  public void setHasSeenWinScreen(boolean b) {
+    player.setHasSeenWinScreen(b);
   }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable Block getTargetBlock(int maxDistance) {
-    return player.getTargetBlock(maxDistance);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable Block getTargetBlock(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-    return player.getTargetBlock(maxDistance, fluidMode);
-  }
-
-
-  public @Nullable BlockFace getTargetBlockFace(int maxDistance) {
-    return player.getTargetBlockFace(maxDistance);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable BlockFace getTargetBlockFace(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-    return player.getTargetBlockFace(maxDistance, fluidMode);
-  }
-
-
-  public @Nullable BlockFace getTargetBlockFace(int maxDistance, @NotNull FluidCollisionMode fluidMode) {
-    return player.getTargetBlockFace(maxDistance, fluidMode);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance) {
-    return player.getTargetBlockInfo(maxDistance);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable TargetBlockInfo getTargetBlockInfo(int maxDistance, TargetBlockInfo.@NotNull FluidMode fluidMode) {
-    return player.getTargetBlockInfo(maxDistance, fluidMode);
-  }
-
-
-  public @Nullable Entity getTargetEntity(int maxDistance) {
-    return player.getTargetEntity(maxDistance);
-  }
-
-
-  public @Nullable Entity getTargetEntity(int maxDistance, boolean ignoreBlocks) {
-    return player.getTargetEntity(maxDistance, ignoreBlocks);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance) {
-    return player.getTargetEntityInfo(maxDistance);
-  }
-
-
-  public @Nullable RayTraceResult rayTraceEntities(int maxDistance) {
-    return player.rayTraceEntities(maxDistance);
-  }
-
-
-  @Deprecated(forRemoval = true)
-  public @Nullable TargetEntityInfo getTargetEntityInfo(int maxDistance, boolean ignoreBlocks) {
-    return player.getTargetEntityInfo(maxDistance, ignoreBlocks);
-  }
-
-
-  public @Nullable RayTraceResult rayTraceEntities(int maxDistance, boolean ignoreBlocks) {
-    return player.rayTraceEntities(maxDistance, ignoreBlocks);
-  }
-
-
-  public @NotNull List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> transparent, int maxDistance) {
-    return player.getLastTwoTargetBlocks(transparent, maxDistance);
-  }
-
-
-  public @Nullable Block getTargetBlockExact(int maxDistance) {
-    return player.getTargetBlockExact(maxDistance);
-  }
-
-
-  public @Nullable Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
-    return player.getTargetBlockExact(maxDistance, fluidCollisionMode);
-  }
-
-
-  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance) {
-    return player.rayTraceBlocks(maxDistance);
-  }
-
-
-  public @Nullable RayTraceResult rayTraceBlocks(double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
-    return player.rayTraceBlocks(maxDistance, fluidCollisionMode);
-  }
-
-
-  public int getRemainingAir() {
-    return player.getRemainingAir();
-  }
-
-
-  public void setRemainingAir(int ticks) {
-    player.setRemainingAir(ticks);
-  }
-
-
-  public int getMaximumAir() {
-    return player.getMaximumAir();
-  }
-
-
-  public void setMaximumAir(int ticks) {
-    player.setMaximumAir(ticks);
-  }
-
-
-  public int getArrowCooldown() {
-    return player.getArrowCooldown();
-  }
-
-
-  public void setArrowCooldown(int ticks) {
-    player.setArrowCooldown(ticks);
-  }
-
-
-  public int getArrowsInBody() {
-    return player.getArrowsInBody();
-  }
-
-
-  public void setArrowsInBody(int count) {
-    player.setArrowsInBody(count);
-  }
-
-
-  public void setArrowsInBody(int count, boolean fireEvent) {
-    player.setArrowsInBody(count, fireEvent);
-  }
-
-
-  public int getBeeStingerCooldown() {
-    return player.getBeeStingerCooldown();
-  }
-
-
-  public void setBeeStingerCooldown(int ticks) {
-    player.setBeeStingerCooldown(ticks);
-  }
-
-
-  public int getBeeStingersInBody() {
-    return player.getBeeStingersInBody();
-  }
-
-
-  public void setBeeStingersInBody(int count) {
-    player.setBeeStingersInBody(count);
-  }
-
-
-  public int getMaximumNoDamageTicks() {
-    return player.getMaximumNoDamageTicks();
-  }
-
-
-  public void setMaximumNoDamageTicks(int ticks) {
-    player.setMaximumNoDamageTicks(ticks);
-  }
-
-
-  public double getLastDamage() {
-    return player.getLastDamage();
-  }
-
-
-  public void setLastDamage(double damage) {
-    player.setLastDamage(damage);
-  }
-
-
-  public int getNoDamageTicks() {
-    return player.getNoDamageTicks();
-  }
-
-
-  public void setNoDamageTicks(int ticks) {
-    player.setNoDamageTicks(ticks);
-  }
-
-
-  public int getNoActionTicks() {
-    return player.getNoActionTicks();
-  }
-
-
-  public void setNoActionTicks(int ticks) {
-    player.setNoActionTicks(ticks);
-  }
-
-
-  @Nullable
-  public Player getKiller() {
-    return player.getKiller();
-  }
-
-
-  public void setKiller(@Nullable Player killer) {
-    player.setKiller(killer);
-  }
-
-
-  public boolean addPotionEffect(@NotNull PotionEffect effect) {
-    return player.addPotionEffect(effect);
-  }
-
 
   @Deprecated
-  public boolean addPotionEffect(@NotNull PotionEffect effect, boolean force) {
-    return player.addPotionEffect(effect, force);
+  public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, boolean b) {
+    player.setResourcePack(s, bytes, b);
   }
 
-
-  public boolean addPotionEffects(@NotNull Collection<PotionEffect> effects) {
-    return player.addPotionEffects(effects);
+  public void setResourcePack(@NotNull UUID uuid, @NotNull String s, byte @Nullable [] bytes,
+                              @Nullable Component component, boolean b) {
+    player.setResourcePack(uuid, s, bytes, component, b);
   }
 
-
-  public boolean hasPotionEffect(@NotNull PotionEffectType type) {
-    return player.hasPotionEffect(type);
+  @NotNull
+  public Set<UUID> getCollidableExemptions() {
+    return player.getCollidableExemptions();
   }
 
-
-  public @Nullable PotionEffect getPotionEffect(@NotNull PotionEffectType type) {
-    return player.getPotionEffect(type);
+  public boolean isInLava() {
+    return player.isInLava();
   }
 
-
-  public void removePotionEffect(@NotNull PotionEffectType type) {
-    player.removePotionEffect(type);
+  @Deprecated(forRemoval = true, since = "1.20.4")
+  public int getItemInUseTicks() {
+    return player.getItemInUseTicks();
   }
 
-
-  public @NotNull Collection<PotionEffect> getActivePotionEffects() {
-    return player.getActivePotionEffects();
+  @NotNull
+  public Server getServer() {
+    return player.getServer();
   }
 
-
-  public boolean clearActivePotionEffects() {
-    return player.clearActivePotionEffects();
+  public int getExpCooldown() {
+    return player.getExpCooldown();
   }
 
-
-  public boolean hasLineOfSight(@NotNull Entity other) {
-    return player.hasLineOfSight(other);
+  public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3,
+                                double v4, double v5, @Nullable T t) {
+    player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, t);
   }
 
+  public void setPose(@NotNull Pose pose, boolean b) {
+    player.setPose(pose, b);
+  }
+
+  @NotNull
+  public Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
+    return player.filterAudience(filter);
+  }
+
+  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
+                            double v2) {
+    player.spawnParticle(particle, location, i, v, v1, v2);
+  }
+
+  @Deprecated
+  public void hidePlayer(@NotNull Player player) {
+    this.player.hidePlayer(player);
+  }
+
+  public void stopSound(@NotNull SoundStop stop) {
+    player.stopSound(stop);
+  }
 
   public boolean hasLineOfSight(@NotNull Location location) {
     return player.hasLineOfSight(location);
   }
 
-
-  public boolean getRemoveWhenFarAway() {
-    return player.getRemoveWhenFarAway();
+  public void setSneaking(boolean b) {
+    player.setSneaking(b);
   }
 
-
-  public void setRemoveWhenFarAway(boolean remove) {
-    player.setRemoveWhenFarAway(remove);
+  public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3, double v4,
+                            double v5, double v6) {
+    player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6);
   }
-
-
-  public void setCanPickupItems(boolean pickup) {
-    player.setCanPickupItems(pickup);
-  }
-
-
-  public boolean getCanPickupItems() {
-    return player.getCanPickupItems();
-  }
-
-
-  public boolean isLeashed() {
-    return player.isLeashed();
-  }
-
-
-  public @NotNull Entity getLeashHolder() throws IllegalStateException {
-    return player.getLeashHolder();
-  }
-
-
-  public boolean setLeashHolder(@Nullable Entity holder) {
-    return player.setLeashHolder(holder);
-  }
-
-
-  public boolean isGliding() {
-    return player.isGliding();
-  }
-
-
-  public void setGliding(boolean gliding) {
-    player.setGliding(gliding);
-  }
-
-
-  public boolean isSwimming() {
-    return player.isSwimming();
-  }
-
 
   @Deprecated
-  public void setSwimming(boolean swimming) {
-    player.setSwimming(swimming);
+  @Nullable
+  public Entity getPassenger() {
+    return player.getPassenger();
   }
 
-
-  public boolean isRiptiding() {
-    return player.isRiptiding();
+  public boolean fromMobSpawner() {
+    return player.fromMobSpawner();
   }
 
-
-  public boolean isSleeping() {
-    return player.isSleeping();
+  public boolean isTransferred() {
+    return player.isTransferred();
   }
 
-
-  public boolean isClimbing() {
-    return player.isClimbing();
+  public void hideBossBar(@NotNull BossBar bar) {
+    player.hideBossBar(bar);
   }
-
-
-  public void setAI(boolean ai) {
-    player.setAI(ai);
-  }
-
-
-  public boolean hasAI() {
-    return player.hasAI();
-  }
-
-
-  public void attack(@NotNull Entity target) {
-    player.attack(target);
-  }
-
-
-  public void swingMainHand() {
-    player.swingMainHand();
-  }
-
-
-  public void swingOffHand() {
-    player.swingOffHand();
-  }
-
-
-  public void playHurtAnimation(float yaw) {
-    player.playHurtAnimation(yaw);
-  }
-
-
-  public void setCollidable(boolean collidable) {
-    player.setCollidable(collidable);
-  }
-
-
-  public boolean isCollidable() {
-    return player.isCollidable();
-  }
-
-
-  public @NotNull Set<UUID> getCollidableExemptions() {
-    return player.getCollidableExemptions();
-  }
-
-
-  public <T> @Nullable T getMemory(@NotNull MemoryKey<T> memoryKey) {
-    return player.getMemory(memoryKey);
-  }
-
-
-  public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T memoryValue) {
-    player.setMemory(memoryKey, memoryValue);
-  }
-
-
-  public @Nullable Sound getHurtSound() {
-    return player.getHurtSound();
-  }
-
-
-  public @Nullable Sound getDeathSound() {
-    return player.getDeathSound();
-  }
-
-
-  public @NotNull Sound getFallDamageSound(int fallHeight) {
-    return player.getFallDamageSound(fallHeight);
-  }
-
-
-  public @NotNull Sound getFallDamageSoundSmall() {
-    return player.getFallDamageSoundSmall();
-  }
-
-
-  public @NotNull Sound getFallDamageSoundBig() {
-    return player.getFallDamageSoundBig();
-  }
-
-
-  public @NotNull Sound getDrinkingSound(@NotNull ItemStack itemStack) {
-    return player.getDrinkingSound(itemStack);
-  }
-
-
-  public @NotNull Sound getEatingSound(@NotNull ItemStack itemStack) {
-    return player.getEatingSound(itemStack);
-  }
-
-
-  public boolean canBreatheUnderwater() {
-    return player.canBreatheUnderwater();
-  }
-
-
-  public @NotNull EntityCategory getCategory() {
-    return player.getCategory();
-  }
-
-
-  public void setInvisible(boolean invisible) {
-    player.setInvisible(invisible);
-  }
-
-
-  public boolean isInvisible() {
-    return player.isInvisible();
-  }
-
-
-  @Deprecated
-  public int getArrowsStuck() {
-    return player.getArrowsStuck();
-  }
-
-
-  @Deprecated
-  public void setArrowsStuck(int arrows) {
-    player.setArrowsStuck(arrows);
-  }
-
-
-  public int getShieldBlockingDelay() {
-    return player.getShieldBlockingDelay();
-  }
-
-
-  public void setShieldBlockingDelay(int delay) {
-    player.setShieldBlockingDelay(delay);
-  }
-
-
-  public @NotNull ItemStack getActiveItem() {
-    return player.getActiveItem();
-  }
-
-
-  public void clearActiveItem() {
-    player.clearActiveItem();
-  }
-
-
-  public int getItemUseRemainingTime() {
-    return player.getItemUseRemainingTime();
-  }
-
-
-  public int getHandRaisedTime() {
-    return player.getHandRaisedTime();
-  }
-
-
-  public @NotNull EquipmentSlot getHandRaised() {
-    return player.getHandRaised();
-  }
-
-
-  public boolean isJumping() {
-    return player.isJumping();
-  }
-
-
-  public void setJumping(boolean jumping) {
-    player.setJumping(jumping);
-  }
-
-
-  public void playPickupItemAnimation(@NotNull Item item) {
-    player.playPickupItemAnimation(item);
-  }
-
-
-  public void playPickupItemAnimation(@NotNull Item item, int quantity) {
-    player.playPickupItemAnimation(item, quantity);
-  }
-
-
-  public float getHurtDirection() {
-    return player.getHurtDirection();
-  }
-
-
-  public void swingHand(@NotNull EquipmentSlot hand) {
-    player.swingHand(hand);
-  }
-
-
-  public void knockback(double strength, double directionX, double directionZ) {
-    player.knockback(strength, directionX, directionZ);
-  }
-
-
-  public void broadcastSlotBreak(@NotNull EquipmentSlot slot) {
-    player.broadcastSlotBreak(slot);
-  }
-
-
-  public void broadcastSlotBreak(@NotNull EquipmentSlot slot, @NotNull Collection<Player> players) {
-    player.broadcastSlotBreak(slot, players);
-  }
-
-
-  public @NotNull ItemStack damageItemStack(@NotNull ItemStack stack, int amount) {
-    return player.damageItemStack(stack, amount);
-  }
-
-
-  public void damageItemStack(@NotNull EquipmentSlot slot, int amount) {
-    player.damageItemStack(slot, amount);
-  }
-
-
-  public float getBodyYaw() {
-    return player.getBodyYaw();
-  }
-
-
-  public void setBodyYaw(float bodyYaw) {
-    player.setBodyYaw(bodyYaw);
-  }
-
-
-  public @Nullable AttributeInstance getAttribute(@NotNull Attribute attribute) {
-    return player.getAttribute(attribute);
-  }
-
 
   public void registerAttribute(@NotNull Attribute attribute) {
     player.registerAttribute(attribute);
   }
 
-
-  public void damage(double amount) {
-    player.damage(amount);
+  public boolean leaveVehicle() {
+    return player.leaveVehicle();
   }
 
-
-  public void damage(double amount, @Nullable Entity source) {
-    player.damage(amount, source);
+  public void openBook(@NotNull Book book) {
+    player.openBook(book);
   }
 
-
-  public double getHealth() {
-    return player.getHealth();
+  public boolean setLeashHolder(@Nullable Entity entity) {
+    return player.setLeashHolder(entity);
   }
 
-
-  public void setHealth(double health) {
-    player.setHealth(health);
+  public void setJumping(boolean b) {
+    player.setJumping(b);
   }
 
-
-  public double getAbsorptionAmount() {
-    return player.getAbsorptionAmount();
+  @NotNull
+  public List<Entity> getPassengers() {
+    return player.getPassengers();
   }
 
-
-  public void setAbsorptionAmount(double amount) {
-    player.setAbsorptionAmount(amount);
+  public void setEnchantmentSeed(int i) {
+    player.setEnchantmentSeed(i);
   }
 
+  public int getTicksLived() {
+    return player.getTicksLived();
+  }
+
+  public boolean isSilent() {
+    return player.isSilent();
+  }
+
+  @Deprecated
+  public void sendMessage(@Nullable UUID uuid, @NotNull String... strings) {
+    player.sendMessage(uuid, strings);
+  }
+
+  public void removeAttachment(@NotNull PermissionAttachment permissionAttachment) {
+    player.removeAttachment(permissionAttachment);
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Duration duration,
+                                                                     @Nullable String s1, boolean b) {
+    return player.ban(s, duration, s1, b);
+  }
+
+  public void stopSound(@NotNull String s, @Nullable SoundCategory soundCategory) {
+    player.stopSound(s, soundCategory);
+  }
+
+  public boolean isAllowingServerListings() {
+    return player.isAllowingServerListings();
+  }
+
+  public void playSound(@NotNull Sound sound, double x, double y, double z) {
+    player.playSound(sound, x, y, z);
+  }
+
+  public void removeCustomChatCompletions(@NotNull Collection<String> collection) {
+    player.removeCustomChatCompletions(collection);
+  }
+
+  @NotNull
+  public List<Block> getLastTwoTargetBlocks(@Nullable Set<Material> set, int i) {
+    return player.getLastTwoTargetBlocks(set, i);
+  }
+
+  public boolean getCanPickupItems() {
+    return player.getCanPickupItems();
+  }
+
+  public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T t) {
+    player.setMemory(memoryKey, t);
+  }
+
+  public void remove() {
+    player.remove();
+  }
+
+  @NotNull
+  public String getName() {
+    return player.getName();
+  }
+
+  public void hideEntity(@NotNull Plugin plugin, @NotNull Entity entity) {
+    player.hideEntity(plugin, entity);
+  }
 
   @Deprecated
   public double getMaxHealth() {
     return player.getMaxHealth();
   }
 
-
-  @Deprecated
-  public void setMaxHealth(double health) {
-    player.setMaxHealth(health);
+  public float getSaturation() {
+    return player.getSaturation();
   }
-
-
-  @Deprecated
-  public void resetMaxHealth() {
-    player.resetMaxHealth();
-  }
-
-
-  public @NotNull Location getLocation() {
-    return player.getLocation();
-  }
-
-
-  @Contract("null -> null; !null -> !null")
-  public @Nullable Location getLocation(@Nullable Location loc) {
-    return player.getLocation(loc);
-  }
-
-
-  public void setVelocity(@NotNull Vector velocity) {
-    player.setVelocity(velocity);
-  }
-
-
-  public @NotNull Vector getVelocity() {
-    return player.getVelocity();
-  }
-
-
-  public double getHeight() {
-    return player.getHeight();
-  }
-
-
-  public double getWidth() {
-    return player.getWidth();
-  }
-
-
-  public @NotNull BoundingBox getBoundingBox() {
-    return player.getBoundingBox();
-  }
-
-
-  public boolean isInWater() {
-    return player.isInWater();
-  }
-
-
-  public @NotNull World getWorld() {
-    return player.getWorld();
-  }
-
-
-  @ApiStatus.Experimental
-  public boolean teleport(@NotNull Location location, @NotNull TeleportFlag @NotNull ... teleportFlags) {
-    return player.teleport(location, teleportFlags);
-  }
-
-
-  @ApiStatus.Experimental
-  public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause, @NotNull TeleportFlag @NotNull ... teleportFlags) {
-    return player.teleport(location, cause, teleportFlags);
-  }
-
-
-  public boolean teleport(@NotNull Location location) {
-    return player.teleport(location);
-  }
-
-
-  public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
-    return player.teleport(location, cause);
-  }
-
-
-  public boolean teleport(@NotNull Entity destination) {
-    return player.teleport(destination);
-  }
-
-
-  public boolean teleport(@NotNull Entity destination, PlayerTeleportEvent.@NotNull TeleportCause cause) {
-    return player.teleport(destination, cause);
-  }
-
-
-  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
-    return player.teleportAsync(loc);
-  }
-
-
-  public @NotNull CompletableFuture<Boolean> teleportAsync(@NotNull Location loc, PlayerTeleportEvent.@NotNull TeleportCause cause) {
-    return player.teleportAsync(loc, cause);
-  }
-
-
-  public @NotNull List<Entity> getNearbyEntities(double x, double y, double z) {
-    return player.getNearbyEntities(x, y, z);
-  }
-
-
-  public int getEntityId() {
-    return player.getEntityId();
-  }
-
-
-  public int getFireTicks() {
-    return player.getFireTicks();
-  }
-
-
-  public int getMaxFireTicks() {
-    return player.getMaxFireTicks();
-  }
-
-
-  public void setFireTicks(int ticks) {
-    player.setFireTicks(ticks);
-  }
-
-
-  public void setVisualFire(boolean fire) {
-    player.setVisualFire(fire);
-  }
-
-
-  public boolean isVisualFire() {
-    return player.isVisualFire();
-  }
-
-
-  public int getFreezeTicks() {
-    return player.getFreezeTicks();
-  }
-
-
-  public int getMaxFreezeTicks() {
-    return player.getMaxFreezeTicks();
-  }
-
-
-  public void setFreezeTicks(int ticks) {
-    player.setFreezeTicks(ticks);
-  }
-
-
-  public boolean isFrozen() {
-    return player.isFrozen();
-  }
-
-
-  public boolean isFreezeTickingLocked() {
-    return player.isFreezeTickingLocked();
-  }
-
-
-  public void lockFreezeTicks(boolean locked) {
-    player.lockFreezeTicks(locked);
-  }
-
-
-  public void remove() {
-    player.remove();
-  }
-
-
-  public boolean isDead() {
-    return player.isDead();
-  }
-
-
-  public boolean isValid() {
-    return player.isValid();
-  }
-
-
-  public @NotNull Server getServer() {
-    return player.getServer();
-  }
-
-
-  public boolean isPersistent() {
-    return player.isPersistent();
-  }
-
-
-  public void setPersistent(boolean persistent) {
-    player.setPersistent(persistent);
-  }
-
-
-  @Deprecated
-  public @Nullable Entity getPassenger() {
-    return player.getPassenger();
-  }
-
-
-  @Deprecated
-  public boolean setPassenger(@NotNull Entity passenger) {
-    return player.setPassenger(passenger);
-  }
-
-
-  public @NotNull List<Entity> getPassengers() {
-    return player.getPassengers();
-  }
-
-
-  public boolean addPassenger(@NotNull Entity passenger) {
-    return player.addPassenger(passenger);
-  }
-
-
-  public boolean removePassenger(@NotNull Entity passenger) {
-    return player.removePassenger(passenger);
-  }
-
-
-  public boolean isEmpty() {
-    return player.isEmpty();
-  }
-
-
-  public boolean eject() {
-    return player.eject();
-  }
-
-
-  public float getFallDistance() {
-    return player.getFallDistance();
-  }
-
-
-  public void setFallDistance(float distance) {
-    player.setFallDistance(distance);
-  }
-
-
-  public void setLastDamageCause(@Nullable EntityDamageEvent event) {
-    player.setLastDamageCause(event);
-  }
-
-
-  public @Nullable EntityDamageEvent getLastDamageCause() {
-    return player.getLastDamageCause();
-  }
-
-
-  public @NotNull UUID getUniqueId() {
-    return player.getUniqueId();
-  }
-
-
-  public int getTicksLived() {
-    return player.getTicksLived();
-  }
-
-
-  public void setTicksLived(int value) {
-    player.setTicksLived(value);
-  }
-
-
-  public void playEffect(@NotNull EntityEffect type) {
-    player.playEffect(type);
-  }
-
-
-  public @NotNull EntityType getType() {
-    return player.getType();
-  }
-
-
-  public @NotNull Sound getSwimSound() {
-    return player.getSwimSound();
-  }
-
-
-  public @NotNull Sound getSwimSplashSound() {
-    return player.getSwimSplashSound();
-  }
-
-
-  public @NotNull Sound getSwimHighSpeedSplashSound() {
-    return player.getSwimHighSpeedSplashSound();
-  }
-
-
-  public boolean isInsideVehicle() {
-    return player.isInsideVehicle();
-  }
-
-
-  public boolean leaveVehicle() {
-    return player.leaveVehicle();
-  }
-
-
-  public @Nullable Entity getVehicle() {
-    return player.getVehicle();
-  }
-
-
-  public void setCustomNameVisible(boolean flag) {
-    player.setCustomNameVisible(flag);
-  }
-
-
-  public boolean isCustomNameVisible() {
-    return player.isCustomNameVisible();
-  }
-
-
-  @ApiStatus.Experimental
-  public void setVisibleByDefault(boolean visible) {
-    player.setVisibleByDefault(visible);
-  }
-
-
-  @ApiStatus.Experimental
-  public boolean isVisibleByDefault() {
-    return player.isVisibleByDefault();
-  }
-
-
-  public void setGlowing(boolean flag) {
-    player.setGlowing(flag);
-  }
-
-
-  public boolean isGlowing() {
-    return player.isGlowing();
-  }
-
-
-  public void setInvulnerable(boolean flag) {
-    player.setInvulnerable(flag);
-  }
-
-
-  public boolean isInvulnerable() {
-    return player.isInvulnerable();
-  }
-
-
-  public boolean isSilent() {
-    return player.isSilent();
-  }
-
-
-  public void setSilent(boolean flag) {
-    player.setSilent(flag);
-  }
-
-
-  public boolean hasGravity() {
-    return player.hasGravity();
-  }
-
-
-  public void setGravity(boolean gravity) {
-    player.setGravity(gravity);
-  }
-
-
-  public int getPortalCooldown() {
-    return player.getPortalCooldown();
-  }
-
-
-  public void setPortalCooldown(int cooldown) {
-    player.setPortalCooldown(cooldown);
-  }
-
-
-  public @NotNull Set<String> getScoreboardTags() {
-    return player.getScoreboardTags();
-  }
-
-
-  public boolean addScoreboardTag(@NotNull String tag) {
-    return player.addScoreboardTag(tag);
-  }
-
-
-  public boolean removeScoreboardTag(@NotNull String tag) {
-    return player.removeScoreboardTag(tag);
-  }
-
-
-  public @NotNull PistonMoveReaction getPistonMoveReaction() {
-    return player.getPistonMoveReaction();
-  }
-
-
-  public @NotNull BlockFace getFacing() {
-    return player.getFacing();
-  }
-
-
-  public @NotNull Pose getPose() {
-    return player.getPose();
-  }
-
-
-  public @NotNull SpawnCategory getSpawnCategory() {
-    return player.getSpawnCategory();
-  }
-
-
-  public @NotNull Component teamDisplayName() {
-    return player.teamDisplayName();
-  }
-
-
-  public @Nullable Location getOrigin() {
-    return player.getOrigin();
-  }
-
-
-  public boolean fromMobSpawner() {
-    return player.fromMobSpawner();
-  }
-
-
-  public @NotNull Chunk getChunk() {
-    return player.getChunk();
-  }
-
-
-  public CreatureSpawnEvent.@NotNull SpawnReason getEntitySpawnReason() {
-    return player.getEntitySpawnReason();
-  }
-
-
-  public boolean isUnderWater() {
-    return player.isUnderWater();
-  }
-
-
-  public boolean isInRain() {
-    return player.isInRain();
-  }
-
-
-  public boolean isInBubbleColumn() {
-    return player.isInBubbleColumn();
-  }
-
 
   public boolean isInWaterOrRain() {
     return player.isInWaterOrRain();
   }
 
-
-  public boolean isInWaterOrBubbleColumn() {
-    return player.isInWaterOrBubbleColumn();
+  public boolean isPermissionSet(@NotNull String s) {
+    return player.isPermissionSet(s);
   }
 
-
-  public boolean isInWaterOrRainOrBubbleColumn() {
-    return player.isInWaterOrRainOrBubbleColumn();
+  public void openSign(@NotNull Sign sign, @NotNull Side side) {
+    player.openSign(sign, side);
   }
 
-
-  public boolean isInLava() {
-    return player.isInLava();
+  public void updateInventory() {
+    player.updateInventory();
   }
 
-
-  public boolean isTicking() {
-    return player.isTicking();
+  public int getNoActionTicks() {
+    return player.getNoActionTicks();
   }
 
-
-  public @NotNull Set<Player> getTrackedPlayers() {
-    return player.getTrackedPlayers();
+  public boolean isRiptiding() {
+    return player.isRiptiding();
   }
 
-
-  public boolean spawnAt(@NotNull Location location) {
-    return player.spawnAt(location);
+  public float getFallDistance() {
+    return player.getFallDistance();
   }
 
-
-  public boolean spawnAt(@NotNull Location location, CreatureSpawnEvent.@NotNull SpawnReason reason) {
-    return player.spawnAt(location, reason);
+  @NotNull
+  public org.bukkit.Sound getSwimSplashSound() {
+    return player.getSwimSplashSound();
   }
 
-
-  public boolean isInPowderedSnow() {
-    return player.isInPowderedSnow();
+  public float getSidewaysMovement() {
+    return player.getSidewaysMovement();
   }
-
 
   public boolean collidesAt(@NotNull Location location) {
     return player.collidesAt(location);
   }
 
-
-  public boolean wouldCollideUsing(@NotNull BoundingBox boundingBox) {
-    return player.wouldCollideUsing(boundingBox);
+  public void setTotalExperience(int i) {
+    player.setTotalExperience(i);
   }
 
-
-  public @NotNull EntityScheduler getScheduler() {
-    return player.getScheduler();
+  @Nullable
+  public InventoryView openEnchanting(@Nullable Location location, boolean b) {
+    return player.openEnchanting(location, b);
   }
 
-
-  public void setMetadata(@NotNull String metadataKey, @NotNull MetadataValue newMetadataValue) {
-    player.setMetadata(metadataKey, newMetadataValue);
+  public void setRespawnLocation(@Nullable Location location, boolean b) {
+    player.setRespawnLocation(location, b);
   }
-
-
-  public @NotNull List<MetadataValue> getMetadata(@NotNull String metadataKey) {
-    return player.getMetadata(metadataKey);
-  }
-
-
-  public boolean hasMetadata(@NotNull String metadataKey) {
-    return player.hasMetadata(metadataKey);
-  }
-
-
-  public void removeMetadata(@NotNull String metadataKey, @NotNull Plugin owningPlugin) {
-    player.removeMetadata(metadataKey, owningPlugin);
-  }
-
-
-  @ApiStatus.Obsolete
-  public void sendMessage(@NotNull String message) {
-    player.sendMessage(message);
-  }
-
-
-  @ApiStatus.Obsolete
-  public void sendMessage(@NotNull String... messages) {
-    player.sendMessage(messages);
-  }
-
 
   @Deprecated
-  public void sendMessage(@Nullable UUID sender, @NotNull String message) {
-    player.sendMessage(sender, message);
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason) {
+    return player.banPlayer(reason);
   }
 
+  @Nullable
+  public InventoryView openMerchant(@NotNull Villager villager, boolean b) {
+    return player.openMerchant(villager, b);
+  }
+
+  public void playHurtAnimation(float v) {
+    player.playHurtAnimation(v);
+  }
+
+  public void setGliding(boolean b) {
+    player.setGliding(b);
+  }
+
+  @NotNull
+  public Component playerListName() {
+    return player.playerListName();
+  }
+
+  public <T> void sendTitlePart(@NotNull TitlePart<T> part, @NotNull T value) {
+    player.sendTitlePart(part, value);
+  }
+
+  @NotNull
+  public SpawnCategory getSpawnCategory() {
+    return player.getSpawnCategory();
+  }
+
+  public void sendMessage(@NotNull Component message, ChatType.Bound boundChatType) {
+    player.sendMessage(message, boundChatType);
+  }
+
+  public long getPlayerTime() {
+    return player.getPlayerTime();
+  }
 
   @Deprecated
-  public void sendMessage(@Nullable UUID sender, @NotNull String... messages) {
-    player.sendMessage(sender, messages);
+  public void setArrowsStuck(int i) {
+    player.setArrowsStuck(i);
   }
 
-
-  public @NotNull Component name() {
-    return player.name();
+  public int getArrowCooldown() {
+    return player.getArrowCooldown();
   }
 
-
-  public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {
-    player.sendMessage(identity, message, type);
+  public void setActiveItemRemainingTime(@Range(from = 0L, to = 2147483647L) int i) {
+    player.setActiveItemRemainingTime(i);
   }
 
-
-  public void sendRichMessage(@NotNull String message) {
-    player.sendRichMessage(message);
+  public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, double v3, double v4,
+                            double v5) {
+    player.spawnParticle(particle, v, v1, v2, i, v3, v4, v5);
   }
 
-
-  public void sendPlainMessage(@NotNull String message) {
-    player.sendPlainMessage(message);
+  public void setSendViewDistance(int i) {
+    player.setSendViewDistance(i);
   }
 
-  public static @NotNull Audience empty() {
-    return Audience.empty();
+  public void customName(@Nullable Component component) {
+    player.customName(component);
   }
 
-  public static @NotNull Audience audience(@NotNull Audience @NotNull ... audiences) {
-    return Audience.audience(audiences);
+  @NotNull
+  public Collection<PotionEffect> getActivePotionEffects() {
+    return player.getActivePotionEffects();
   }
 
-  public static @NotNull ForwardingAudience audience(@NotNull Iterable<? extends Audience> audiences) {
-    return Audience.audience(audiences);
+  public boolean performCommand(@NotNull String s) {
+    return player.performCommand(s);
   }
 
-  public static @NotNull Collector<? super Audience, ?, ForwardingAudience> toAudience() {
-    return Audience.toAudience();
+  @Deprecated
+  public void setDisplayName(@Nullable String s) {
+    player.setDisplayName(s);
   }
-
-
-  public @NotNull Audience filterAudience(@NotNull Predicate<? super Audience> filter) {
-    return player.filterAudience(filter);
-  }
-
-
-  public void forEachAudience(@NotNull Consumer<? super Audience> action) {
-    player.forEachAudience(action);
-  }
-
-
-  public void sendMessage(@NotNull ComponentLike message) {
-    player.sendMessage(message);
-  }
-
-
-  public void sendMessage(@NotNull Component message) {
-    player.sendMessage(message);
-  }
-
 
   @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
-
   @Deprecated
   public void sendMessage(@NotNull ComponentLike message, @NotNull MessageType type) {
     player.sendMessage(message, type);
   }
 
-
-  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
-
-  @Deprecated
-  public void sendMessage(@NotNull Component message, @NotNull MessageType type) {
-    player.sendMessage(message, type);
+  @Nullable
+  public org.bukkit.Sound getHurtSound() {
+    return player.getHurtSound();
   }
 
-
   @Deprecated
-  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
-    player.sendMessage(source, message);
+  public void setShoulderEntityRight(@Nullable Entity entity) {
+    player.setShoulderEntityRight(entity);
   }
 
-
-  @Deprecated
-  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
-    player.sendMessage(source, message);
+  public int getMaximumNoDamageTicks() {
+    return player.getMaximumNoDamageTicks();
   }
 
-
-  @Deprecated
-  public void sendMessage(@NotNull Identified source, @NotNull Component message) {
-    player.sendMessage(source, message);
+  public float getExp() {
+    return player.getExp();
   }
 
-
-  @Deprecated
-  public void sendMessage(@NotNull Identity source, @NotNull Component message) {
-    player.sendMessage(source, message);
+  @Nullable
+  public InventoryView openCartographyTable(@Nullable Location location, boolean b) {
+    return player.openCartographyTable(location, b);
   }
 
-
-  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
-
-  @Deprecated
-  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {
-    player.sendMessage(source, message, type);
+  public void setPortalCooldown(int i) {
+    player.setPortalCooldown(i);
   }
 
-
-  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
-
   @Deprecated
-  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {
-    player.sendMessage(source, message, type);
+  public void sendBlockChange(@NotNull Location location, @NotNull Material material, byte b) {
+    player.sendBlockChange(location, material, b);
   }
-
 
   @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   @Deprecated
@@ -3064,237 +653,1575 @@ public class UserPlayerDelegation {
     player.sendMessage(source, message, type);
   }
 
-
-  public void sendMessage(@NotNull Component message, ChatType.@NotNull Bound boundChatType) {
-    player.sendMessage(message, boundChatType);
+  public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header, @NotNull ComponentLike footer) {
+    player.sendPlayerListHeaderAndFooter(header, footer);
   }
 
-
-  public void sendMessage(@NotNull ComponentLike message, ChatType.@NotNull Bound boundChatType) {
-    player.sendMessage(message, boundChatType);
+  public int getProtocolVersion() {
+    return player.getProtocolVersion();
   }
 
-
-  public void sendMessage(@NotNull SignedMessage signedMessage, ChatType.@NotNull Bound boundChatType) {
-    player.sendMessage(signedMessage, boundChatType);
+  public void knockback(double v, double v1, double v2) {
+    player.knockback(v, v1, v2);
   }
 
-
-  public void deleteMessage(@NotNull SignedMessage signedMessage) {
-    player.deleteMessage(signedMessage);
+  @ApiStatus.Experimental
+  @NotNull
+  public Entity copy(@NotNull Location location) {
+    return player.copy(location);
   }
 
-
-  public void deleteMessage(SignedMessage.@NotNull Signature signature) {
-    player.deleteMessage(signature);
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetBlockInfo getTargetBlockInfo(int i, @NotNull TargetBlockInfo.FluidMode fluidMode) {
+    return player.getTargetBlockInfo(i, fluidMode);
   }
 
-
-  public void sendActionBar(@NotNull ComponentLike message) {
-    player.sendActionBar(message);
+  public void setLastDamage(double v) {
+    player.setLastDamage(v);
   }
 
-
-  public void sendActionBar(@NotNull Component message) {
-    player.sendActionBar(message);
+  @Deprecated
+  public void setShoulderEntityLeft(@Nullable Entity entity) {
+    player.setShoulderEntityLeft(entity);
   }
 
+  public void setFlyingFallDamage(@NotNull TriState triState) {
+    player.setFlyingFallDamage(triState);
+  }
+
+  public void setNextArrowRemoval(@Range(from = 0L, to = 2147483647L) int i) {
+    player.setNextArrowRemoval(i);
+  }
+
+  public void playSound(@NotNull Entity entity, @NotNull org.bukkit.Sound sound, float v, float v1) {
+    player.playSound(entity, sound, v, v1);
+  }
+
+  public void setWardenWarningLevel(int i) {
+    player.setWardenWarningLevel(i);
+  }
+
+  public int getUnsaturatedRegenRate() {
+    return player.getUnsaturatedRegenRate();
+  }
+
+  @NotNull
+  public Vector getVelocity() {
+    return player.getVelocity();
+  }
+
+  @NotNull
+  public Component teamDisplayName() {
+    return player.teamDisplayName();
+  }
+
+  @Deprecated
+  public void kickPlayer(@Nullable String s) {
+    player.kickPlayer(s);
+  }
+
+  public void stopSound(@NotNull String s) {
+    player.stopSound(s);
+  }
+
+  @ApiStatus.Obsolete(since = "1.20.4")
+  public boolean isHandRaised() {
+    return player.isHandRaised();
+  }
+
+  @NotNull
+  public EquipmentSlot getActiveItemHand() {
+    return player.getActiveItemHand();
+  }
+
+  @Deprecated
+  public void updateTitle(@NotNull Title title) {
+    player.updateTitle(title);
+  }
+
+  public void setAffectsSpawning(boolean b) {
+    player.setAffectsSpawning(b);
+  }
+
+  @Deprecated
+  public void sendBlockChanges(@NotNull Collection<BlockState> collection, boolean b) {
+    player.sendBlockChanges(collection, b);
+  }
+
+  public void sendEquipmentChange(@NotNull LivingEntity livingEntity, @NotNull EquipmentSlot equipmentSlot,
+                                  @Nullable ItemStack itemStack) {
+    player.sendEquipmentChange(livingEntity, equipmentSlot, itemStack);
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant,
+                                                                     @Nullable String s1, boolean b) {
+    return player.ban(s, instant, s1, b);
+  }
+
+  public void setRespawnLocation(@Nullable Location location) {
+    player.setRespawnLocation(location);
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public BlockFace getTargetBlockFace(int i, @NotNull TargetBlockInfo.FluidMode fluidMode) {
+    return player.getTargetBlockFace(i, fluidMode);
+  }
 
   public void sendPlayerListHeader(@NotNull ComponentLike header) {
     player.sendPlayerListHeader(header);
   }
 
-
-  public void sendPlayerListHeader(@NotNull Component header) {
-    player.sendPlayerListHeader(header);
+  @Deprecated
+  public void sendSignChange(@NotNull Location location, @Nullable String[] strings) throws IllegalArgumentException {
+    player.sendSignChange(location, strings);
   }
 
+  public int getExperiencePointsNeededForNextLevel() {
+    return player.getExperiencePointsNeededForNextLevel();
+  }
+
+  public int getWardenTimeSinceLastWarning() {
+    return player.getWardenTimeSinceLastWarning();
+  }
+
+  @Nullable
+  public RayTraceResult rayTraceBlocks(double v) {
+    return player.rayTraceBlocks(v);
+  }
+
+  public void incrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
+    player.incrementStatistic(statistic);
+  }
+
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message, @NotNull MessageType type) {
+    player.sendMessage(source, message, type);
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    player.decrementStatistic(statistic, material);
+  }
+
+  public boolean teleport(@NotNull Entity entity, @NotNull PlayerTeleportEvent.TeleportCause teleportCause) {
+    return player.teleport(entity, teleportCause);
+  }
+
+  public void removeResourcePacks(@NotNull Iterable<UUID> ids) {
+    player.removeResourcePacks(ids);
+  }
+
+  public void resetPlayerTime() {
+    player.resetPlayerTime();
+  }
+
+  public void setPlayerProfile(@NotNull PlayerProfile playerProfile) {
+    player.setPlayerProfile(playerProfile);
+  }
+
+  public void setArrowsInBody(int count) {
+    player.setArrowsInBody(count);
+  }
+
+  @NotNull
+  public ItemStack getActiveItem() {
+    return player.getActiveItem();
+  }
+
+  public void incrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
+    player.incrementStatistic(statistic, i);
+  }
+
+  @ApiStatus.Obsolete
+  public void sendMessage(@NotNull String s) {
+    player.sendMessage(s);
+  }
+
+  public void sendMessage(@NotNull Identity identity, @NotNull Component message, @NotNull MessageType type) {
+    player.sendMessage(identity, message, type);
+  }
+
+  public boolean isOnline() {
+    return player.isOnline();
+  }
+
+  @Deprecated
+  public void sendActionBar(char c, @NotNull String s) {
+    player.sendActionBar(c, s);
+  }
+
+  public boolean isVisibleByDefault() {
+    return player.isVisibleByDefault();
+  }
+
+  public void sendPluginMessage(@NotNull Plugin plugin, @NotNull String s, @NotNull byte[] bytes) {
+    player.sendPluginMessage(plugin, s, bytes);
+  }
+
+  public void playSound(@NotNull Entity entity, @NotNull org.bukkit.Sound sound, @NotNull SoundCategory soundCategory
+      , float v,
+                        float v1, long l) {
+    player.playSound(entity, sound, soundCategory, v, v1, l);
+  }
+
+  public boolean removePassenger(@NotNull Entity entity) {
+    return player.removePassenger(entity);
+  }
+
+  public void sendMessage(@NotNull ComponentLike message) {
+    player.sendMessage(message);
+  }
+
+  public boolean canBreatheUnderwater() {
+    return player.canBreatheUnderwater();
+  }
+
+  @NotNull
+  public Location getCompassTarget() {
+    return player.getCompassTarget();
+  }
+
+  public void setBeeStingerCooldown(int i) {
+    player.setBeeStingerCooldown(i);
+  }
 
   public void sendPlayerListFooter(@NotNull ComponentLike footer) {
     player.sendPlayerListFooter(footer);
   }
 
-
-  public void sendPlayerListFooter(@NotNull Component footer) {
-    player.sendPlayerListFooter(footer);
+  @Deprecated
+  public void sendSignChange(@NotNull Location location, @Nullable List<? extends Component> list,
+                             @NotNull DyeColor dyeColor, boolean b) throws IllegalArgumentException {
+    player.sendSignChange(location, list, dyeColor, b);
   }
 
-
-  public void sendPlayerListHeaderAndFooter(@NotNull ComponentLike header, @NotNull ComponentLike footer) {
-    player.sendPlayerListHeaderAndFooter(header, footer);
+  public void setHealthScale(double v) throws IllegalArgumentException {
+    player.setHealthScale(v);
   }
 
-
-  public void sendPlayerListHeaderAndFooter(@NotNull Component header, @NotNull Component footer) {
-    player.sendPlayerListHeaderAndFooter(header, footer);
+  @UnmodifiableView
+  @NotNull
+  public Iterable<? extends BossBar> activeBossBars() {
+    return player.activeBossBars();
   }
 
-
-  public void showTitle(net.kyori.adventure.title.@NotNull Title title) {
-    player.showTitle(title);
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message, @NotNull MessageType type) {
+    player.sendMessage(source, message, type);
   }
 
-
-  public <T> void sendTitlePart(@NotNull TitlePart<T> part, @NotNull T value) {
-    player.sendTitlePart(part, value);
+  public long getLastLogin() {
+    return player.getLastLogin();
   }
 
-
-  public void clearTitle() {
-    player.clearTitle();
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable String source) {
+    return player.banPlayerFull(reason, source);
   }
 
-
-  public void showBossBar(@NotNull BossBar bar) {
-    player.showBossBar(bar);
+  public void lookAt(@NotNull Position position, @NotNull LookAnchor playerAnchor) {
+    player.lookAt(position, playerAnchor);
   }
 
-
-  public void hideBossBar(@NotNull BossBar bar) {
-    player.hideBossBar(bar);
+  public void resetCooldown() {
+    player.resetCooldown();
   }
 
-
-  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound) {
-    player.playSound(sound);
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, boolean kickPlayer) {
+    return player.banPlayerIP(reason, expires, kickPlayer);
   }
 
-
-  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, double x, double y, double z) {
-    player.playSound(sound, x, y, z);
+  public int applyMending(int i) {
+    return player.applyMending(i);
   }
 
-
-  public void playSound(net.kyori.adventure.sound.@NotNull Sound sound, net.kyori.adventure.sound.Sound.@NotNull Emitter emitter) {
-    player.playSound(sound, emitter);
+  @NotNull
+  public Map<String, Object> serialize() {
+    return player.serialize();
   }
 
-
-  public void stopSound(net.kyori.adventure.sound.@NotNull Sound sound) {
-    player.stopSound(sound);
+  public boolean unlistPlayer(@NotNull Player player) {
+    return this.player.unlistPlayer(player);
   }
 
-
-  public void stopSound(@NotNull SoundStop stop) {
-    player.stopSound(stop);
+  public void setSaturatedRegenRate(int i) {
+    player.setSaturatedRegenRate(i);
   }
 
-
-  public void openBook(Book.@NotNull Builder book) {
-    player.openBook(book);
+  public boolean isInWorld() {
+    return player.isInWorld();
   }
 
-
-  public void openBook(@NotNull Book book) {
-    player.openBook(book);
+  @Nullable
+  public String getClientBrandName() {
+    return player.getClientBrandName();
   }
 
-
-  public @NotNull <T> Optional<T> get(@NotNull Pointer<T> pointer) {
-    return player.get(pointer);
+  public boolean isChunkSent(@NotNull Chunk chunk) {
+    return player.isChunkSent(chunk);
   }
 
-
-  @Contract("_, null -> _; _, !null -> !null")
-  public <T> @Nullable T getOrDefault(@NotNull Pointer<T> pointer, @Nullable T defaultValue) {
-    return player.getOrDefault(pointer, defaultValue);
+  public void stopAllSounds() {
+    player.stopAllSounds();
   }
 
-
-  public <T> @UnknownNullability T getOrDefaultFrom(@NotNull Pointer<T> pointer, @NotNull Supplier<? extends T> defaultValue) {
-    return player.getOrDefaultFrom(pointer, defaultValue);
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass) {
+    return player.launchProjectile(aClass);
   }
 
+  @Nullable
+  public BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Date date, @Nullable String s1, boolean b) {
+    return player.banIp(s, date, s1, b);
+  }
 
-  public @NotNull Pointers pointers() {
+  public void setInvisible(boolean b) {
+    player.setInvisible(b);
+  }
+
+  @Deprecated
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
+    return player.banPlayer(reason, source);
+  }
+
+  public boolean isFlying() {
+    return player.isFlying();
+  }
+
+  public void attack(@NotNull Entity entity) {
+    player.attack(entity);
+  }
+
+  public void abandonConversation(@NotNull Conversation conversation) {
+    player.abandonConversation(conversation);
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull Component message) {
+    player.sendMessage(source, message);
+  }
+
+  public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    return player.getStatistic(statistic, material);
+  }
+
+  @Deprecated
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines,
+                             @NotNull DyeColor dyeColor) throws IllegalArgumentException {
+    player.sendSignChange(loc, lines, dyeColor);
+  }
+
+  public boolean isJumping() {
+    return player.isJumping();
+  }
+
+  public void resetIdleDuration() {
+    player.resetIdleDuration();
+  }
+
+  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt) {
+    player.setResourcePack(url, hash, prompt);
+  }
+
+  @Nullable
+  public Block getTargetBlockExact(int i) {
+    return player.getTargetBlockExact(i);
+  }
+
+  public void acceptConversationInput(@NotNull String s) {
+    player.acceptConversationInput(s);
+  }
+
+  public void setHurtDirection(float v) {
+    player.setHurtDirection(v);
+  }
+
+  public boolean isSleepingIgnored() {
+    return player.isSleepingIgnored();
+  }
+
+  public void resetPlayerWeather() {
+    player.resetPlayerWeather();
+  }
+
+  @NotNull
+  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent(@NotNull UnaryOperator<HoverEvent.ShowEntity> op) {
+    return player.asHoverEvent(op);
+  }
+
+  public int getSimulationDistance() {
+    return player.getSimulationDistance();
+  }
+
+  @NotNull
+  public TriState permissionValue(@NotNull Permission permission) {
+    return player.permissionValue(permission);
+  }
+
+  @Deprecated
+  public void setSubtitle(BaseComponent[] baseComponents) {
+    player.setSubtitle(baseComponents);
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetEntityInfo getTargetEntityInfo(int maxDistance) {
+    return player.getTargetEntityInfo(maxDistance);
+  }
+
+  @Deprecated
+  public void setItemInHand(@Nullable ItemStack itemStack) {
+    player.setItemInHand(itemStack);
+  }
+
+  public boolean dropItem(boolean b) {
+    return player.dropItem(b);
+  }
+
+  @NotNull
+  public Set<Player> getTrackedBy() {
+    return player.getTrackedBy();
+  }
+
+  public double getHeight() {
+    return player.getHeight();
+  }
+
+  @Nullable
+  public GameMode getPreviousGameMode() {
+    return player.getPreviousGameMode();
+  }
+
+  @Nullable
+  public BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Instant instant, @Nullable String s1, boolean b) {
+    return player.banIp(s, instant, s1, b);
+  }
+
+  public void lookAt(double v, double v1, double v2, @NotNull LookAnchor lookAnchor) {
+    player.lookAt(v, v1, v2, lookAnchor);
+  }
+
+  @NotNull
+  public Player.Spigot spigot() {
+    return player.spigot();
+  }
+
+  @Deprecated
+  public void showTitle(@Nullable BaseComponent[] baseComponents) {
+    player.showTitle(baseComponents);
+  }
+
+  @Deprecated
+  public void showPlayer(@NotNull Player player) {
+    this.player.showPlayer(player);
+  }
+
+  public void playSound(@NotNull Location location, @NotNull String s, float v, float v1) {
+    player.playSound(location, s, v, v1);
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetEntityInfo getTargetEntityInfo(int i, boolean b) {
+    return player.getTargetEntityInfo(i, b);
+  }
+
+  public void setFallDistance(float v) {
+    player.setFallDistance(v);
+  }
+
+  @NotNull
+  public List<Block> getLineOfSight(@Nullable Set<Material> set, int i) {
+    return player.getLineOfSight(set, i);
+  }
+
+  public boolean isPersistent() {
+    return player.isPersistent();
+  }
+
+  public void setItemOnCursor(@Nullable ItemStack itemStack) {
+    player.setItemOnCursor(itemStack);
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
+    player.decrementStatistic(statistic, i);
+  }
+
+  @Nullable
+  public Player getKiller() {
+    return player.getKiller();
+  }
+
+  public void setInvulnerable(boolean b) {
+    player.setInvulnerable(b);
+  }
+
+  public void sendPotionEffectChangeRemove(@NotNull LivingEntity livingEntity,
+                                           @NotNull PotionEffectType potionEffectType) {
+    player.sendPotionEffectChangeRemove(livingEntity, potionEffectType);
+  }
+
+  @Deprecated
+  public void sendMessage(@Nullable UUID uuid, @NotNull String s) {
+    player.sendMessage(uuid, s);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason) {
+    return player.banPlayerIP(reason);
+  }
+
+  @Deprecated
+  @Nullable
+  public Entity getShoulderEntityRight() {
+    return player.getShoulderEntityRight();
+  }
+
+  @Nullable
+  public EntityDamageEvent getLastDamageCause() {
+    return player.getLastDamageCause();
+  }
+
+  public long getFirstPlayed() {
+    return player.getFirstPlayed();
+  }
+
+  public int getCooldown(@NotNull Material material) {
+    return player.getCooldown(material);
+  }
+
+  public int getFoodLevel() {
+    return player.getFoodLevel();
+  }
+
+  @NotNull
+  public Component displayName() {
+    return player.displayName();
+  }
+
+  @Nullable
+  public InetSocketAddress getAddress() {
+    return player.getAddress();
+  }
+
+  public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                        float v1) {
+    player.playSound(location, s, soundCategory, v, v1);
+  }
+
+  @Nullable
+  public PotionEffect getPotionEffect(@NotNull PotionEffectType potionEffectType) {
+    return player.getPotionEffect(potionEffectType);
+  }
+
+  public void setFireTicks(int i) {
+    player.setFireTicks(i);
+  }
+
+  public boolean isFreezeTickingLocked() {
+    return player.isFreezeTickingLocked();
+  }
+
+  @Deprecated
+  @Nullable
+  public Entity getShoulderEntityLeft() {
+    return player.getShoulderEntityLeft();
+  }
+
+  public void sendResourcePacks(@NotNull ResourcePackRequestLike request) {
+    player.sendResourcePacks(request);
+  }
+
+  public int getMaximumAir() {
+    return player.getMaximumAir();
+  }
+
+  @Deprecated
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines,
+                             boolean hasGlowingText) throws IllegalArgumentException {
+    player.sendSignChange(loc, lines, hasGlowingText);
+  }
+
+  public void setLevel(int i) {
+    player.setLevel(i);
+  }
+
+  public void setSpectatorTarget(@Nullable Entity entity) {
+    player.setSpectatorTarget(entity);
+  }
+
+  @Deprecated(since = "1.20.1")
+  public void addAdditionalChatCompletions(@NotNull Collection<String> collection) {
+    player.addAdditionalChatCompletions(collection);
+  }
+
+  @Nullable
+  public InventoryView openInventory(@NotNull Inventory inventory) {
+    return player.openInventory(inventory);
+  }
+
+  @Nullable
+  public BanEntry<InetAddress> banIp(@Nullable String s, @Nullable Duration duration, @Nullable String s1, boolean b) {
+    return player.banIp(s, duration, s1, b);
+  }
+
+  public boolean addPotionEffects(@NotNull Collection<PotionEffect> collection) {
+    return player.addPotionEffects(collection);
+  }
+
+  public void setRemoveWhenFarAway(boolean b) {
+    player.setRemoveWhenFarAway(b);
+  }
+
+  @NotNull
+  public EntityType getType() {
+    return player.getType();
+  }
+
+  public boolean isTicking() {
+    return player.isTicking();
+  }
+
+  public float getWalkSpeed() {
+    return player.getWalkSpeed();
+  }
+
+  @NotNull
+  public org.bukkit.Sound getDrinkingSound(@NotNull ItemStack itemStack) {
+    return player.getDrinkingSound(itemStack);
+  }
+
+  public float getBodyYaw() {
+    return player.getBodyYaw();
+  }
+
+  public boolean teleport(@NotNull Location location) {
+    return player.teleport(location);
+  }
+
+  @NotNull
+  public Set<String> getScoreboardTags() {
+    return player.getScoreboardTags();
+  }
+
+  @Nullable
+  public Firework boostElytra(@NotNull ItemStack firework) {
+    return player.boostElytra(firework);
+  }
+
+  @ApiStatus.Experimental
+  public void damage(double v, @NotNull DamageSource damageSource) {
+    player.damage(v, damageSource);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source,
+                              boolean kickPlayer) {
+    return player.banPlayerIP(reason, expires, source, kickPlayer);
+  }
+
+  public void sendExperienceChange(float v) {
+    player.sendExperienceChange(v);
+  }
+
+  @Deprecated
+  public void sendTitle(@Nullable String s, @Nullable String s1, int i, int i1, int i2) {
+    player.sendTitle(s, s1, i, i1, i2);
+  }
+
+  @Deprecated
+  public void sendMessage(ChatMessageType position, BaseComponent... components) {
+    player.sendMessage(position, components);
+  }
+
+  public int getArrowsInBody() {
+    return player.getArrowsInBody();
+  }
+
+  public void setWhitelisted(boolean b) {
+    player.setWhitelisted(b);
+  }
+
+  public void setWardenTimeSinceLastWarning(int i) {
+    player.setWardenTimeSinceLastWarning(i);
+  }
+
+  @NotNull
+  public org.bukkit.Sound getFallDamageSound(int i) {
+    return player.getFallDamageSound(i);
+  }
+
+  public boolean undiscoverRecipe(@NotNull NamespacedKey namespacedKey) {
+    return player.undiscoverRecipe(namespacedKey);
+  }
+
+  @NotNull
+  public Pointers pointers() {
     return player.pointers();
   }
 
-
-  public boolean isPermissionSet(@NotNull String name) {
-    return player.isPermissionSet(name);
+  public boolean removeScoreboardTag(@NotNull String s) {
+    return player.removeScoreboardTag(s);
   }
 
-
-  public boolean isPermissionSet(@NotNull Permission perm) {
-    return player.isPermissionSet(perm);
+  @Deprecated
+  public void openSign(@NotNull Sign sign) {
+    player.openSign(sign);
   }
 
-
-  public boolean hasPermission(@NotNull String name) {
-    return player.hasPermission(name);
+  @NotNull
+  public ItemStack damageItemStack(@NotNull ItemStack itemStack, int i) {
+    return player.damageItemStack(itemStack, i);
   }
 
-
-  public boolean hasPermission(@NotNull Permission perm) {
-    return player.hasPermission(perm);
+  public double getLastDamage() {
+    return player.getLastDamage();
   }
 
-
-  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
-    return player.addAttachment(plugin, name, value);
+  public void sendRichMessage(@NotNull String message, @NotNull TagResolver... resolvers) {
+    player.sendRichMessage(message, resolvers);
   }
 
-
-  public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
-    return player.addAttachment(plugin);
+  public void setPlayerWeather(@NotNull WeatherType weatherType) {
+    player.setPlayerWeather(weatherType);
   }
 
-
-  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
-    return player.addAttachment(plugin, name, value, ticks);
+  public boolean getAllowFlight() {
+    return player.getAllowFlight();
   }
 
-
-  public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
-    return player.addAttachment(plugin, ticks);
+  public void setHealth(double v) {
+    player.setHealth(v);
   }
 
-
-  public void removeAttachment(@NotNull PermissionAttachment attachment) {
-    player.removeAttachment(attachment);
+  @Nullable
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, int i) {
+    return player.addAttachment(plugin, i);
   }
 
+  @Nullable
+  public InventoryView openStonecutter(@Nullable Location location, boolean b) {
+    return player.openStonecutter(location, b);
+  }
+
+  public boolean discoverRecipe(@NotNull NamespacedKey namespacedKey) {
+    return player.discoverRecipe(namespacedKey);
+  }
+
+  public boolean isUnderWater() {
+    return player.isUnderWater();
+  }
+
+  public void showWinScreen() {
+    player.showWinScreen();
+  }
+
+  public int getClientViewDistance() {
+    return player.getClientViewDistance();
+  }
+
+  public int getBeeStingerCooldown() {
+    return player.getBeeStingerCooldown();
+  }
+
+  public void setCanPickupItems(boolean b) {
+    player.setCanPickupItems(b);
+  }
+
+  @Nullable
+  public Entity getTargetEntity(int maxDistance) {
+    return player.getTargetEntity(maxDistance);
+  }
+
+  public void setGravity(boolean b) {
+    player.setGravity(b);
+  }
+
+  public double getZ() {
+    return player.getZ();
+  }
+
+  public void clearResourcePacks() {
+    player.clearResourcePacks();
+  }
+
+  @Deprecated
+  public void setNoTickViewDistance(int viewDistance) {
+    player.setNoTickViewDistance(viewDistance);
+  }
+
+  @NotNull
+  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc,
+                                                  @NotNull PlayerTeleportEvent.TeleportCause cause) {
+    return player.teleportAsync(loc, cause);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source, boolean kickPlayer) {
+    return player.banPlayerIP(reason, source, kickPlayer);
+  }
+
+  public void setShieldBlockingDelay(int i) {
+    player.setShieldBlockingDelay(i);
+  }
+
+  @Nullable
+  public Component playerListHeader() {
+    return player.playerListHeader();
+  }
+
+  @Range(from = 0L, to = 2147483647L)
+  public int calculateTotalExperiencePoints() {
+    return player.calculateTotalExperiencePoints();
+  }
+
+  public void damage(double v) {
+    player.damage(v);
+  }
+
+  public void sendMessage(@NotNull SignedMessage signedMessage, ChatType.Bound boundChatType) {
+    player.sendMessage(signedMessage, boundChatType);
+  }
+
+  @NotNull
+  public PlayerInventory getInventory() {
+    return player.getInventory();
+  }
+
+  public void setFreezeTicks(int i) {
+    player.setFreezeTicks(i);
+  }
+
+  public void removeResourcePacks(@NotNull ResourcePackRequestLike request) {
+    player.removeResourcePacks(request);
+  }
+
+  public int getStarvationRate() {
+    return player.getStarvationRate();
+  }
+
+  public void setNoDamageTicks(int i) {
+    player.setNoDamageTicks(i);
+  }
+
+  public int getStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
+    return player.getStatistic(statistic);
+  }
+
+  public void sendHealthUpdate(double v, int i, float v1) {
+    player.sendHealthUpdate(v, i, v1);
+  }
+
+  @Deprecated
+  public void setPlayerListFooter(@Nullable String s) {
+    player.setPlayerListFooter(s);
+  }
+
+  @Nullable
+  public BlockFace getTargetBlockFace(int i, @NotNull FluidCollisionMode fluidCollisionMode) {
+    return player.getTargetBlockFace(i, fluidCollisionMode);
+  }
+
+  public boolean isBanned() {
+    return player.isBanned();
+  }
+
+  public void setBeeStingersInBody(int i) {
+    player.setBeeStingersInBody(i);
+  }
+
+  public void removeResourcePacks(@NotNull ResourcePackInfoLike request,
+                                  @NotNull ResourcePackInfoLike @NotNull ... others) {
+    player.removeResourcePacks(request, others);
+  }
+
+  @Deprecated
+  public void showTitle(@Nullable BaseComponent[] baseComponents, @Nullable BaseComponent[] baseComponents1, int i,
+                        int i1, int i2) {
+    player.showTitle(baseComponents, baseComponents1, i, i1, i2);
+  }
+
+  @Deprecated
+  public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, @Nullable String s1) {
+    player.setResourcePack(s, bytes, s1);
+  }
+
+  @Deprecated
+  @NotNull
+  public String getLocale() {
+    return player.getLocale();
+  }
+
+  public int getWardenWarningCooldown() {
+    return player.getWardenWarningCooldown();
+  }
+
+  public void sendBlockDamage(@NotNull Location location, float v, int i) {
+    player.sendBlockDamage(location, v, i);
+  }
+
+  @NotNull
+  public Entity getLeashHolder() throws IllegalStateException {
+    return player.getLeashHolder();
+  }
+
+  @Deprecated
+  @Nullable
+  public String getPlayerListFooter() {
+    return player.getPlayerListFooter();
+  }
+
+  public void kick(@Nullable Component component, PlayerKickEvent.Cause cause) {
+    player.kick(component, cause);
+  }
+
+  public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                        float v1, long l) {
+    player.playSound(entity, s, soundCategory, v, v1, l);
+  }
+
+  @Nullable
+  public InventoryView openMerchant(@NotNull Merchant merchant, boolean b) {
+    return player.openMerchant(merchant, b);
+  }
+
+  public boolean isInPowderedSnow() {
+    return player.isInPowderedSnow();
+  }
+
+  public boolean addPotionEffect(@NotNull PotionEffect potionEffect) {
+    return player.addPotionEffect(potionEffect);
+  }
+
+  public boolean hasResourcePack() {
+    return player.hasResourcePack();
+  }
+
+  public void removeResourcePacks() {
+    player.removeResourcePacks();
+  }
+
+  @Deprecated
+  public void setPlayerListName(@Nullable String s) {
+    player.setPlayerListName(s);
+  }
+
+  public float getForwardsMovement() {
+    return player.getForwardsMovement();
+  }
+
+  @Nullable
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String s, boolean b, int i) {
+    return player.addAttachment(plugin, s, b, i);
+  }
+
+  public boolean isCustomNameVisible() {
+    return player.isCustomNameVisible();
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public Block getTargetBlock(int i, @NotNull TargetBlockInfo.FluidMode fluidMode) {
+    return player.getTargetBlock(i, fluidMode);
+  }
+
+  public boolean isClimbing() {
+    return player.isClimbing();
+  }
+
+  @Nullable
+  public Location getPotentialBedLocation() {
+    return player.getPotentialBedLocation();
+  }
+
+  public void closeInventory(@NotNull InventoryCloseEvent.Reason reason) {
+    player.closeInventory(reason);
+  }
+
+  @Nullable
+  public Entity releaseLeftShoulderEntity() {
+    return player.releaseLeftShoulderEntity();
+  }
+
+  public boolean isVisualFire() {
+    return player.isVisualFire();
+  }
+
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+    player.incrementStatistic(statistic, entityType);
+  }
+
+  public boolean canSee(@NotNull Entity entity) {
+    return player.canSee(entity);
+  }
+
+  public boolean isHealthScaled() {
+    return player.isHealthScaled();
+  }
+
+  @Deprecated
+  public void resetMaxHealth() {
+    player.resetMaxHealth();
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull BaseComponent component) {
+    player.sendMessage(component);
+  }
+
+  public void setExpCooldown(int i) {
+    player.setExpCooldown(i);
+  }
+
+  public void playSound(@NotNull Location location, @NotNull org.bukkit.Sound sound,
+                        @NotNull SoundCategory soundCategory,
+                        float v, float v1) {
+    player.playSound(location, sound, soundCategory, v, v1);
+  }
+
+  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> map) {
+    player.sendMultiBlockChange(map);
+  }
+
+  public double getEyeHeight() {
+    return player.getEyeHeight();
+  }
+
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) throws IllegalArgumentException {
+    player.incrementStatistic(statistic, entityType, i);
+  }
+
+  public boolean isCollidable() {
+    return player.isCollidable();
+  }
+
+  public boolean isBlocking() {
+    return player.isBlocking();
+  }
+
+  public boolean hasDiscoveredRecipe(@NotNull NamespacedKey namespacedKey) {
+    return player.hasDiscoveredRecipe(namespacedKey);
+  }
+
+  @Nullable
+  public InventoryView openGrindstone(@Nullable Location location, boolean b) {
+    return player.openGrindstone(location, b);
+  }
+
+  public void saveData() {
+    player.saveData();
+  }
+
+  public double getWidth() {
+    return player.getWidth();
+  }
+
+  public boolean isFrozen() {
+    return player.isFrozen();
+  }
+
+  public boolean spawnAt(@NotNull Location location, @NotNull CreatureSpawnEvent.SpawnReason spawnReason) {
+    return player.spawnAt(location, spawnReason);
+  }
+
+  public boolean isSprinting() {
+    return player.isSprinting();
+  }
+
+  public void playPickupItemAnimation(@NotNull Item item) {
+    player.playPickupItemAnimation(item);
+  }
+
+  public boolean hasPermission(@NotNull Permission permission) {
+    return player.hasPermission(permission);
+  }
+
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
+                                double v2, @Nullable T t) {
+    player.spawnParticle(particle, location, i, v, v1, v2, t);
+  }
+
+  public void sendPotionEffectChange(@NotNull LivingEntity livingEntity, @NotNull PotionEffect potionEffect) {
+    player.sendPotionEffectChange(livingEntity, potionEffect);
+  }
+
+  @Deprecated
+  public int getArrowsStuck() {
+    return player.getArrowsStuck();
+  }
+
+  public PlayerResourcePackStatusEvent.Status getResourcePackStatus() {
+    return player.getResourcePackStatus();
+  }
+
+  public int getViewDistance() {
+    return player.getViewDistance();
+  }
+
+  public boolean isPermissionSet(@NotNull Permission permission) {
+    return player.isPermissionSet(permission);
+  }
+
+  @Nullable
+  public InventoryView openLoom(@Nullable Location location, boolean b) {
+    return player.openLoom(location, b);
+  }
+
+  @Deprecated
+  public boolean setPassenger(@NotNull Entity entity) {
+    return player.setPassenger(entity);
+  }
+
+  public double getX() {
+    return player.getX();
+  }
+
+  @Deprecated
+  public void sendSignChange(@NotNull Location loc, @Nullable List<? extends Component> lines) throws IllegalArgumentException {
+    player.sendSignChange(loc, lines);
+  }
+
+  @Nullable
+  public InventoryView openAnvil(@Nullable Location location, boolean b) {
+    return player.openAnvil(location, b);
+  }
+
+  @Nullable
+  public Firework fireworkBoost(@NotNull ItemStack itemStack) {
+    return player.fireworkBoost(itemStack);
+  }
+
+  @NotNull
+  public Block getTargetBlock(@Nullable Set<Material> set, int i) {
+    return player.getTargetBlock(set, i);
+  }
+
+  @Deprecated
+  public void sendActionBar(@NotNull String s) {
+    player.sendActionBar(s);
+  }
+
+  public boolean isInWater() {
+    return player.isInWater();
+  }
+
+  public float getCooldownPeriod() {
+    return player.getCooldownPeriod();
+  }
+
+  @Nullable
+  public RayTraceResult rayTraceEntities(int i, boolean b) {
+    return player.rayTraceEntities(i, b);
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+    player.decrementStatistic(statistic, entityType);
+  }
+
+  public void setPose(@NotNull Pose pose) {
+    player.setPose(pose);
+  }
+
+  public int getSleepTicks() {
+    return player.getSleepTicks();
+  }
+
+  public int getExpToLevel() {
+    return player.getExpToLevel();
+  }
+
+  public void playNote(@NotNull Location location, @NotNull Instrument instrument, @NotNull Note note) {
+    player.playNote(location, instrument, note);
+  }
+
+  public double getHealthScale() {
+    return player.getHealthScale();
+  }
+
+  public void setExhaustion(float v) {
+    player.setExhaustion(v);
+  }
+
+  @Deprecated
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
+    return player.banPlayer(reason, expires);
+  }
+
+  @Deprecated
+  public void setTitleTimes(int i, int i1, int i2) {
+    player.setTitleTimes(i, i1, i2);
+  }
+
+  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required,
+                              @Nullable Component resourcePackPrompt) {
+    player.setResourcePack(url, hash, required, resourcePackPrompt);
+  }
+
+  public void closeInventory() {
+    player.closeInventory();
+  }
+
+  public void setVisibleByDefault(boolean b) {
+    player.setVisibleByDefault(b);
+  }
+
+  public boolean getRemoveWhenFarAway() {
+    return player.getRemoveWhenFarAway();
+  }
+
+  public void loadData() {
+    player.loadData();
+  }
+
+  @Deprecated
+  public void setTexturePack(@NotNull String s) {
+    player.setTexturePack(s);
+  }
+
+  public void resetTitle() {
+    player.resetTitle();
+  }
+
+  public int getFreezeTicks() {
+    return player.getFreezeTicks();
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Duration duration,
+                                                                     @Nullable String s1) {
+    return player.ban(s, duration, s1);
+  }
+
+  public int getNextBeeStingerRemoval() {
+    return player.getNextBeeStingerRemoval();
+  }
+
+  public boolean hasLineOfSight(@NotNull Entity entity) {
+    return player.hasLineOfSight(entity);
+  }
+
+  public boolean isGliding() {
+    return player.isGliding();
+  }
+
+  public void swingOffHand() {
+    player.swingOffHand();
+  }
+
+  public int getActiveItemRemainingTime() {
+    return player.getActiveItemRemainingTime();
+  }
+
+  @ApiStatus.Experimental
+  @Nullable
+  public String getAsString() {
+    return player.getAsString();
+  }
+
+  public long getPlayerTimeOffset() {
+    return player.getPlayerTimeOffset();
+  }
 
   public void recalculatePermissions() {
     player.recalculatePermissions();
   }
 
-
-  public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
-    return player.getEffectivePermissions();
+  public int getSaturatedRegenRate() {
+    return player.getSaturatedRegenRate();
   }
 
-
-  public @NotNull TriState permissionValue(@NotNull Permission permission) {
-    return player.permissionValue(permission);
+  @NotNull
+  public List<MetadataValue> getMetadata(@NotNull String s) {
+    return player.getMetadata(s);
   }
 
-
-  public @NotNull TriState permissionValue(@NotNull String permission) {
-    return player.permissionValue(permission);
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
+    player.incrementStatistic(statistic, material, i);
   }
 
-
-  public boolean isOp() {
-    return player.isOp();
+  @Deprecated
+  public void playEffect(@NotNull Location location, @NotNull Effect effect, int i) {
+    player.playEffect(location, effect, i);
   }
 
-
-  public void setOp(boolean value) {
-    player.setOp(value);
+  public void showBossBar(@NotNull BossBar bar) {
+    player.showBossBar(bar);
   }
 
-
-  public @Nullable Component customName() {
-    return player.customName();
+  public void openBook(Book.Builder book) {
+    player.openBook(book);
   }
 
-
-  public void customName(@Nullable Component customName) {
-    player.customName(customName);
+  @ApiStatus.Experimental
+  public void completeUsingActiveItem() {
+    player.completeUsingActiveItem();
   }
 
+  public void broadcastSlotBreak(@NotNull EquipmentSlot equipmentSlot) {
+    player.broadcastSlotBreak(equipmentSlot);
+  }
+
+  public void setNoPhysics(boolean b) {
+    player.setNoPhysics(b);
+  }
+
+  public void setExp(float v) {
+    player.setExp(v);
+  }
+
+  @Nullable
+  public WorldBorder getWorldBorder() {
+    return player.getWorldBorder();
+  }
+
+  public boolean canSee(@NotNull Player player) {
+    return this.player.canSee(player);
+  }
+
+  public double getHealth() {
+    return player.getHealth();
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date,
+                                                                     @Nullable String s1) {
+    return player.ban(s, date, s1);
+  }
+
+  public void playSound(@NotNull Sound sound) {
+    player.playSound(sound);
+  }
+
+  public void addCustomChatCompletions(@NotNull Collection<String> collection) {
+    player.addCustomChatCompletions(collection);
+  }
+
+  public void sendResourcePacks(@NotNull ResourcePackInfoLike first, @NotNull ResourcePackInfoLike... others) {
+    player.sendResourcePacks(first, others);
+  }
+
+  @Deprecated(forRemoval = true, since = "1.20.4")
+  @Nullable
+  public ItemStack getItemInUse() {
+    return player.getItemInUse();
+  }
+
+  public int getPortalCooldown() {
+    return player.getPortalCooldown();
+  }
+
+  public boolean isConversing() {
+    return player.isConversing();
+  }
+
+  public void setWalkSpeed(float v) throws IllegalArgumentException {
+    player.setWalkSpeed(v);
+  }
+
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
+                                double v2, double v3, @Nullable T t) {
+    player.spawnParticle(particle, location, i, v, v1, v2, v3, t);
+  }
+
+  @ApiStatus.Obsolete(since = "1.20.4")
+  public int getHandRaisedTime() {
+    return player.getHandRaisedTime();
+  }
+
+  @Deprecated
+  @Nullable
+  public Location getBedSpawnLocation() {
+    return player.getBedSpawnLocation();
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull Component message) {
+    player.sendMessage(source, message);
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Instant instant,
+                                                                     @Nullable String s1) {
+    return player.ban(s, instant, s1);
+  }
+
+  public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) {
+    player.setStatistic(statistic, entityType, i);
+  }
+
+  @Deprecated
+  public void showTitle(@Nullable BaseComponent baseComponent, @Nullable BaseComponent baseComponent1, int i, int i1,
+                        int i2) {
+    player.showTitle(baseComponent, baseComponent1, i, i1, i2);
+  }
+
+  public void setCustomChatCompletions(@NotNull Collection<String> collection) {
+    player.setCustomChatCompletions(collection);
+  }
+
+  @Nullable
+  public AttributeInstance getAttribute(@NotNull Attribute attribute) {
+    return player.getAttribute(attribute);
+  }
+
+  public boolean wouldCollideUsing(@NotNull BoundingBox boundingBox) {
+    return player.wouldCollideUsing(boundingBox);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason) {
+    return player.banPlayerFull(reason);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    return player.banPlayerIP(reason, expires, source);
+  }
+
+  public float getHurtDirection() {
+    return player.getHurtDirection();
+  }
+
+  @Deprecated
+  public void setSwimming(boolean b) {
+    player.setSwimming(b);
+  }
+
+  public int getActiveItemUsedTime() {
+    return player.getActiveItemUsedTime();
+  }
+
+  @Deprecated
+  public void sendRawMessage(@Nullable UUID uuid, @NotNull String s) {
+    player.sendRawMessage(uuid, s);
+  }
+
+  public void setUnsaturatedRegenRate(int i) {
+    player.setUnsaturatedRegenRate(i);
+  }
+
+  public void removeMetadata(@NotNull String s, @NotNull Plugin plugin) {
+    player.removeMetadata(s, plugin);
+  }
+
+  public void sendBlockDamage(@NotNull Location location, float v) {
+    player.sendBlockDamage(location, v);
+  }
+
+  public void stopSound(@NotNull Sound sound) {
+    player.stopSound(sound);
+  }
+
+  public <T> void playEffect(@NotNull Location location, @NotNull Effect effect, @Nullable T t) {
+    player.playEffect(location, effect, t);
+  }
+
+  @Deprecated
+  public void setBedSpawnLocation(@Nullable Location location, boolean b) {
+    player.setBedSpawnLocation(location, b);
+  }
+
+  public <T> @NotNull T getClientOption(@NotNull ClientOption<T> clientOption) {
+    return player.getClientOption(clientOption);
+  }
+
+  public <T> @UnknownNullability T getOrDefaultFrom(@NotNull Pointer<T> pointer,
+                                                    @NotNull Supplier<? extends T> defaultValue) {
+    return player.getOrDefaultFrom(pointer, defaultValue);
+  }
+
+  @Nullable
+  public RayTraceResult rayTraceBlocks(double v, @NotNull FluidCollisionMode fluidCollisionMode) {
+    return player.rayTraceBlocks(v, fluidCollisionMode);
+  }
+
+  public boolean isWhitelisted() {
+    return player.isWhitelisted();
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
+    player.decrementStatistic(statistic);
+  }
+
+  public void playerListName(@Nullable Component component) {
+    player.playerListName(component);
+  }
+
+  @NotNull
+  public Location getEyeLocation() {
+    return player.getEyeLocation();
+  }
+
+  public void sendBlockChanges(@NotNull Collection<BlockState> collection) {
+    player.sendBlockChanges(collection);
+  }
+
+  public boolean isInRain() {
+    return player.isInRain();
+  }
+
+  public boolean hasAI() {
+    return player.hasAI();
+  }
+
+  public void sendActionBar(@NotNull Component message) {
+    player.sendActionBar(message);
+  }
+
+  public void showTitle(net.kyori.adventure.title.@NotNull Title title) {
+    player.showTitle(title);
+  }
+
+  public boolean sleep(@NotNull Location location, boolean b) {
+    return player.sleep(location, b);
+  }
+
+  public boolean teleport(@NotNull Entity entity) {
+    return player.teleport(entity);
+  }
+
+  @ApiStatus.Experimental
+  @NotNull
+  public Entity copy() {
+    return player.copy();
+  }
+
+  public <T> void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, @Nullable T t) {
+    player.spawnParticle(particle, location, i, t);
+  }
+
+  public float getAttackCooldown() {
+    return player.getAttackCooldown();
+  }
+
+  public void playSound(@NotNull Location location, @NotNull org.bukkit.Sound sound,
+                        @NotNull SoundCategory soundCategory,
+                        float v, float v1, long l) {
+    player.playSound(location, sound, soundCategory, v, v1, l);
+  }
+
+  @Deprecated
+  @NotNull
+  public String getDisplayName() {
+    return player.getDisplayName();
+  }
+
+  public void setRemainingAir(int i) {
+    player.setRemainingAir(i);
+  }
+
+  public void updateCommands() {
+    player.updateCommands();
+  }
 
   @Deprecated
   @Nullable
@@ -3302,280 +2229,1260 @@ public class UserPlayerDelegation {
     return player.getCustomName();
   }
 
+  @Deprecated
+  public void setResourcePack(@NotNull String s, @Nullable byte[] bytes) {
+    player.setResourcePack(s, bytes);
+  }
+
+  public void kick() {
+    player.kick();
+  }
+
+  public boolean addPassenger(@NotNull Entity entity) {
+    return player.addPassenger(entity);
+  }
+
+  public void deleteMessage(SignedMessage.Signature signature) {
+    player.deleteMessage(signature);
+  }
+
+  public void removeResourcePacks(@NotNull UUID id, @NotNull UUID @NotNull ... others) {
+    player.removeResourcePacks(id, others);
+  }
+
+  public void giveExp(int amount) {
+    player.giveExp(amount);
+  }
+
+  @ApiStatus.Experimental
+  @NotNull
+  @Unmodifiable
+  public Set<Long> getSentChunkKeys() {
+    return player.getSentChunkKeys();
+  }
+
+  public float getPitch() {
+    return player.getPitch();
+  }
+
+  public void setFlying(boolean b) {
+    player.setFlying(b);
+  }
+
+  public boolean isOp() {
+    return player.isOp();
+  }
+
+  @NotNull
+  public org.bukkit.Sound getFallDamageSoundBig() {
+    return player.getFallDamageSoundBig();
+  }
+
+  public void setCompassTarget(@NotNull Location location) {
+    player.setCompassTarget(location);
+  }
+
+  @Nullable
+  public BlockFace getTargetBlockFace(int maxDistance) {
+    return player.getTargetBlockFace(maxDistance);
+  }
+
+  public boolean teleport(@NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause teleportCause,
+                          @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    return player.teleport(location, teleportCause, teleportFlags);
+  }
+
+  public boolean isEmpty() {
+    return player.isEmpty();
+  }
+
+  public void forEachAudience(@NotNull Consumer<? super Audience> action) {
+    player.forEachAudience(action);
+  }
+
+  public void hidePlayer(@NotNull Plugin plugin, @NotNull Player player) {
+    this.player.hidePlayer(plugin, player);
+  }
+
+  public void increaseWardenWarningLevel() {
+    player.increaseWardenWarningLevel();
+  }
+
+  @Nullable
+  public Component playerListFooter() {
+    return player.playerListFooter();
+  }
 
   @Deprecated
-  public void setCustomName(@Nullable String name) {
-    player.setCustomName(name);
+  public void sendTitle(@NotNull Title title) {
+    player.sendTitle(title);
   }
 
-
-  public @NotNull PersistentDataContainer getPersistentDataContainer() {
-    return player.getPersistentDataContainer();
+  public void setSimulationDistance(int i) {
+    player.setSimulationDistance(i);
   }
 
-  public static @Nullable <V> HoverEvent<V> unbox(@Nullable HoverEventSource<V> source) {
-    return HoverEventSource.unbox(source);
+  public void sendMessage(@NotNull ComponentLike message, ChatType.Bound boundChatType) {
+    player.sendMessage(message, boundChatType);
   }
 
+  public void setFrictionState(@NotNull TriState triState) {
+    player.setFrictionState(triState);
+  }
 
-  public @NotNull HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
+  @NotNull
+  public HoverEvent<HoverEvent.ShowEntity> asHoverEvent() {
     return player.asHoverEvent();
   }
 
-  public static net.kyori.adventure.sound.Sound.@NotNull Emitter self() {
-    return net.kyori.adventure.sound.Sound.Emitter.self();
+  public boolean teleport(@NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause teleportCause) {
+    return player.teleport(location, teleportCause);
   }
 
-
-  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile) {
-    return player.launchProjectile(projectile);
+  public boolean isInvulnerable() {
+    return player.isInvulnerable();
   }
 
-
-  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile, @Nullable Vector velocity) {
-    return player.launchProjectile(projectile, velocity);
+  @NotNull
+  public CreatureSpawnEvent.SpawnReason getEntitySpawnReason() {
+    return player.getEntitySpawnReason();
   }
 
-
-  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> projectile, @Nullable Vector velocity, org.bukkit.util.@Nullable Consumer<T> function) {
-    return player.launchProjectile(projectile, velocity, function);
+  public void clearActiveItem() {
+    player.clearActiveItem();
   }
 
-
-  public @NotNull TriState getFrictionState() {
-    return player.getFrictionState();
+  public boolean isPlayerTimeRelative() {
+    return player.isPlayerTimeRelative();
   }
 
-
-  public void setFrictionState(@NotNull TriState state) {
-    player.setFrictionState(state);
+  public boolean isListed(@NotNull Player player) {
+    return this.player.isListed(player);
   }
 
-
-  public boolean isConversing() {
-    return player.isConversing();
+  public boolean isChunkSent(long l) {
+    return player.isChunkSent(l);
   }
 
-
-  public void acceptConversationInput(@NotNull String input) {
-    player.acceptConversationInput(input);
+  public void playSound(@NotNull Entity entity, @NotNull org.bukkit.Sound sound, @NotNull SoundCategory soundCategory
+      , float v,
+                        float v1) {
+    player.playSound(entity, sound, soundCategory, v, v1);
   }
 
+  @Deprecated
+  public void showTitle(@Nullable BaseComponent baseComponent) {
+    player.showTitle(baseComponent);
+  }
+
+  @Deprecated(forRemoval = true)
+  public void setLastDamageCause(@Nullable EntityDamageEvent entityDamageEvent) {
+    player.setLastDamageCause(entityDamageEvent);
+  }
+
+  public boolean isInsideVehicle() {
+    return player.isInsideVehicle();
+  }
+
+  @Deprecated
+  public void setPlayerListHeaderFooter(@Nullable String s, @Nullable String s1) {
+    player.setPlayerListHeaderFooter(s, s1);
+  }
+
+  @ApiStatus.Experimental
+  public void transfer(@NotNull String s, int i) {
+    player.transfer(s, i);
+  }
+
+  public void abandonConversation(@NotNull Conversation conversation,
+                                  @NotNull ConversationAbandonedEvent conversationAbandonedEvent) {
+    player.abandonConversation(conversation, conversationAbandonedEvent);
+  }
+
+  public void setSaturation(float v) {
+    player.setSaturation(v);
+  }
+
+  public boolean isInBubbleColumn() {
+    return player.isInBubbleColumn();
+  }
+
+  public void setMetadata(@NotNull String s, @NotNull MetadataValue metadataValue) {
+    player.setMetadata(s, metadataValue);
+  }
+
+  public boolean getAffectsSpawning() {
+    return player.getAffectsSpawning();
+  }
+
+  public @NotNull PlayerProfile getPlayerProfile() {
+    return player.getPlayerProfile();
+  }
+
+  public boolean isSneaking() {
+    return player.isSneaking();
+  }
+
+  public void stopSound(@NotNull SoundCategory soundCategory) {
+    player.stopSound(soundCategory);
+  }
+
+  @Deprecated
+  public void setPlayerListHeaderFooter(@Nullable BaseComponent baseComponent, @Nullable BaseComponent baseComponent1) {
+    player.setPlayerListHeaderFooter(baseComponent, baseComponent1);
+  }
+
+  public void showPlayer(@NotNull Plugin plugin, @NotNull Player player) {
+    this.player.showPlayer(plugin, player);
+  }
+
+  public <E extends BanEntry<? super PlayerProfile>> @Nullable E ban(@Nullable String s, @Nullable Date date,
+                                                                     @Nullable String s1, boolean b) {
+    return player.ban(s, date, s1, b);
+  }
+
+  public void sendBlockChange(@NotNull Location location, @NotNull BlockData blockData) {
+    player.sendBlockChange(location, blockData);
+  }
+
+  public boolean clearActivePotionEffects() {
+    return player.clearActivePotionEffects();
+  }
+
+  public void setCustomNameVisible(boolean b) {
+    player.setCustomNameVisible(b);
+  }
+
+  @Nullable
+  public org.bukkit.Sound getDeathSound() {
+    return player.getDeathSound();
+  }
+
+  public boolean listPlayer(@NotNull Player player) {
+    return this.player.listPlayer(player);
+  }
+
+  public void swingMainHand() {
+    player.swingMainHand();
+  }
 
   public boolean beginConversation(@NotNull Conversation conversation) {
     return player.beginConversation(conversation);
   }
 
-
-  public void abandonConversation(@NotNull Conversation conversation) {
-    player.abandonConversation(conversation);
+  public void setVisualFire(boolean b) {
+    player.setVisualFire(b);
   }
 
-
-  public void abandonConversation(@NotNull Conversation conversation, @NotNull ConversationAbandonedEvent details) {
-    player.abandonConversation(conversation, details);
+  @Contract("null -> null; !null -> !null")
+  @Nullable
+  public Location getLocation(@Nullable Location location) {
+    return player.getLocation(location);
   }
-
 
   @Deprecated
-  public void sendRawMessage(@Nullable UUID sender, @NotNull String message) {
-    player.sendRawMessage(sender, message);
+  public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor,
+                             boolean b) throws IllegalArgumentException {
+    player.sendSignChange(location, strings, dyeColor, b);
   }
 
-
-  public boolean isOnline() {
-    return player.isOnline();
+  @Nullable
+  public InventoryView openWorkbench(@Nullable Location location, boolean b) {
+    return player.openWorkbench(location, b);
   }
 
-
-  public boolean isBanned() {
-    return player.isBanned();
+  public boolean teleport(@NotNull Location location, @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    return player.teleport(location, teleportFlags);
   }
 
-
-  public @NotNull BanEntry banPlayer(@Nullable String reason) {
-    return player.banPlayer(reason);
+  public void sendOpLevel(byte b) {
+    player.sendOpLevel(b);
   }
 
-
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable String source) {
-    return player.banPlayer(reason, source);
+  public void lookAt(@NotNull Entity entity, @NotNull LookAnchor lookAnchor, @NotNull LookAnchor lookAnchor1) {
+    player.lookAt(entity, lookAnchor, lookAnchor1);
   }
 
-
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires) {
-    return player.banPlayer(reason, expires);
+  @Deprecated
+  @Nullable
+  public String getPlayerListHeader() {
+    return player.getPlayerListHeader();
   }
 
-
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-    return player.banPlayer(reason, expires, source);
+  public void kick(@Nullable Component component) {
+    player.kick(component);
   }
 
+  @ApiStatus.Obsolete
+  public void sendMessage(@NotNull String... strings) {
+    player.sendMessage(strings);
+  }
 
-  public @NotNull BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickIfOnline) {
+  @Deprecated
+  public void setResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1,
+                              boolean b) {
+    player.setResourcePack(uuid, s, bytes, s1, b);
+  }
+
+  @Contract("-> fail")
+  @Deprecated(forRemoval = true, since = "1.20.5")
+  @NotNull
+  public EntityCategory getCategory() {
+    return player.getCategory();
+  }
+
+  @Deprecated
+  public void sendActionBar(@NotNull BaseComponent... baseComponents) {
+    player.sendActionBar(baseComponents);
+  }
+
+  public boolean hasActiveItem() {
+    return player.hasActiveItem();
+  }
+
+  public void damageItemStack(@NotNull EquipmentSlot equipmentSlot, int i) {
+    player.damageItemStack(equipmentSlot, i);
+  }
+
+  @Nullable
+  public Location getOrigin() {
+    return player.getOrigin();
+  }
+
+  public void setStatistic(@NotNull Statistic statistic, int i) throws IllegalArgumentException {
+    player.setStatistic(statistic, i);
+  }
+
+  public void giveExp(int i, boolean b) {
+    player.giveExp(i, b);
+  }
+
+  @NotNull
+  public Inventory getEnderChest() {
+    return player.getEnderChest();
+  }
+
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass,
+                                                            @Nullable Vector vector,
+                                                            @Nullable Consumer<? super T> consumer) {
+    return player.launchProjectile(aClass, vector, consumer);
+  }
+
+  public void sendEquipmentChange(@NotNull LivingEntity livingEntity, @NotNull Map<EquipmentSlot, ItemStack> map) {
+    player.sendEquipmentChange(livingEntity, map);
+  }
+
+  @Deprecated
+  @NotNull
+  public String getPlayerListName() {
+    return player.getPlayerListName();
+  }
+
+  @NotNull
+  public TriState permissionValue(@NotNull String permission) {
+    return player.permissionValue(permission);
+  }
+
+  @Deprecated
+  public void setSubtitle(BaseComponent baseComponent) {
+    player.setSubtitle(baseComponent);
+  }
+
+  @Nullable
+  public Block getTargetBlockExact(int i, @NotNull FluidCollisionMode fluidCollisionMode) {
+    return player.getTargetBlockExact(i, fluidCollisionMode);
+  }
+
+  public float getYaw() {
+    return player.getYaw();
+  }
+
+  public boolean eject() {
+    return player.eject();
+  }
+
+  public boolean hasCooldown(@NotNull Material material) {
+    return player.hasCooldown(material);
+  }
+
+  public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+    return player.getStatistic(statistic, entityType);
+  }
+
+  @Nullable
+  public InventoryView openSmithingTable(@Nullable Location location, boolean b) {
+    return player.openSmithingTable(location, b);
+  }
+
+  public void giveExpLevels(int i) {
+    player.giveExpLevels(i);
+  }
+
+  public void setSprinting(boolean b) {
+    player.setSprinting(b);
+  }
+
+  @NotNull
+  public BoundingBox getBoundingBox() {
+    return player.getBoundingBox();
+  }
+
+  public <T> void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i, @Nullable T t) {
+    player.spawnParticle(particle, v, v1, v2, i, t);
+  }
+
+  @Nullable
+  public RayTraceResult rayTraceEntities(int maxDistance) {
+    return player.rayTraceEntities(maxDistance);
+  }
+
+  public boolean isSwimming() {
+    return player.isSwimming();
+  }
+
+  public void setCollidable(boolean b) {
+    player.setCollidable(b);
+  }
+
+  public void setCooldown(@NotNull Material material, int i) {
+    player.setCooldown(material, i);
+  }
+
+  @ApiStatus.Obsolete(since = "1.20.4")
+  @NotNull
+  public EquipmentSlot getHandRaised() {
+    return player.getHandRaised();
+  }
+
+  @NotNull
+  public World getWorld() {
+    return player.getWorld();
+  }
+
+  public boolean hasGravity() {
+    return player.hasGravity();
+  }
+
+  public void playSound(@NotNull Entity entity, @NotNull String s, float v, float v1) {
+    player.playSound(entity, s, v, v1);
+  }
+
+  @Deprecated(since = "1.20.1")
+  public void removeAdditionalChatCompletions(@NotNull Collection<String> collection) {
+    player.removeAdditionalChatCompletions(collection);
+  }
+
+  public void setResourcePack(@NotNull String url, @NotNull String hash, boolean required) {
+    player.setResourcePack(url, hash, required);
+  }
+
+  public double getAbsorptionAmount() {
+    return player.getAbsorptionAmount();
+  }
+
+  public void wakeup(boolean b) {
+    player.wakeup(b);
+  }
+
+  public float getExhaustion() {
+    return player.getExhaustion();
+  }
+
+  public void setStarvationRate(int i) {
+    player.setStarvationRate(i);
+  }
+
+  @Deprecated
+  public void setCustomName(@Nullable String s) {
+    player.setCustomName(s);
+  }
+
+  public int getNextArrowRemoval() {
+    return player.getNextArrowRemoval();
+  }
+
+  public int getNoDamageTicks() {
+    return player.getNoDamageTicks();
+  }
+
+  public boolean hasSeenWinScreen() {
+    return player.hasSeenWinScreen();
+  }
+
+  @NotNull
+  public EntityEquipment getEquipment() {
+    return player.getEquipment();
+  }
+
+  public void setSleepingIgnored(boolean b) {
+    player.setSleepingIgnored(b);
+  }
+
+  public void setAllowFlight(boolean b) {
+    player.setAllowFlight(b);
+  }
+
+  @NotNull
+  public Locale locale() {
+    return player.locale();
+  }
+
+  public void playEffect(@NotNull EntityEffect entityEffect) {
+    player.playEffect(entityEffect);
+  }
+
+  @Nullable
+  public FishHook getFishHook() {
+    return player.getFishHook();
+  }
+
+  public double getY() {
+    return player.getY();
+  }
+
+  @Nullable
+  public Entity releaseRightShoulderEntity() {
+    return player.releaseRightShoulderEntity();
+  }
+
+  @NotNull
+  public CompletableFuture<Boolean> teleportAsync(@NotNull Location location,
+                                                  @NotNull PlayerTeleportEvent.TeleportCause teleportCause,
+                                                  @NotNull TeleportFlag @NotNull ... teleportFlags) {
+    return player.teleportAsync(location, teleportCause, teleportFlags);
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int i) throws IllegalArgumentException {
+    player.decrementStatistic(statistic, material, i);
+  }
+
+  public void setExperienceLevelAndProgress(@Range(from = 0L, to = 2147483647L) int i) {
+    player.setExperienceLevelAndProgress(i);
+  }
+
+  public int getShieldBlockingDelay() {
+    return player.getShieldBlockingDelay();
+  }
+
+  public void playSound(@NotNull Entity entity, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                        float v1) {
+    player.playSound(entity, s, soundCategory, v, v1);
+  }
+
+  public void damage(double v, @Nullable Entity entity) {
+    player.damage(v, entity);
+  }
+
+  public boolean hasPotionEffect(@NotNull PotionEffectType potionEffectType) {
+    return player.hasPotionEffect(potionEffectType);
+  }
+
+  public int getMaxFreezeTicks() {
+    return player.getMaxFreezeTicks();
+  }
+
+  public boolean isDeeplySleeping() {
+    return player.isDeeplySleeping();
+  }
+
+  public int discoverRecipes(@NotNull Collection<NamespacedKey> collection) {
+    return player.discoverRecipes(collection);
+  }
+
+  public void setPersistent(boolean b) {
+    player.setPersistent(b);
+  }
+
+  @NotNull
+  public PistonMoveReaction getPistonMoveReaction() {
+    return player.getPistonMoveReaction();
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull Identified source, @NotNull ComponentLike message) {
+    player.sendMessage(source, message);
+  }
+
+  public void openBook(@NotNull ItemStack itemStack) {
+    player.openBook(itemStack);
+  }
+
+  @NotNull
+  public List<Entity> getNearbyEntities(double v, double v1, double v2) {
+    return player.getNearbyEntities(v, v1, v2);
+  }
+
+  public void removeResourcePacks(@NotNull ResourcePackRequest request) {
+    player.removeResourcePacks(request);
+  }
+
+  public void setNextBeeStingerRemoval(@Range(from = 0L, to = 2147483647L) int i) {
+    player.setNextBeeStingerRemoval(i);
+  }
+
+  @NotNull
+  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+    return player.getEffectivePermissions();
+  }
+
+  @NotNull
+  public org.bukkit.Sound getFallDamageSoundSmall() {
+    return player.getFallDamageSoundSmall();
+  }
+
+  @NotNull
+  public InventoryView getOpenInventory() {
+    return player.getOpenInventory();
+  }
+
+  @Nullable
+  public InetSocketAddress getVirtualHost() {
+    return player.getVirtualHost();
+  }
+
+  @NotNull
+  public Set<String> getListeningPluginChannels() {
+    return player.getListeningPluginChannels();
+  }
+
+  public void sendMap(@NotNull MapView mapView) {
+    player.sendMap(mapView);
+  }
+
+  public int getRemainingAir() {
+    return player.getRemainingAir();
+  }
+
+  public void setResourcePack(@NotNull String url, byte @Nullable [] hash, @Nullable Component prompt, boolean force) {
+    player.setResourcePack(url, hash, prompt, force);
+  }
+
+  @Deprecated
+  public void setPlayerListHeader(@Nullable String s) {
+    player.setPlayerListHeader(s);
+  }
+
+  public void sendPlayerListHeaderAndFooter(@NotNull Component header, @NotNull Component footer) {
+    player.sendPlayerListHeaderAndFooter(header, footer);
+  }
+
+  public void showElderGuardian(boolean b) {
+    player.showElderGuardian(b);
+  }
+
+  @ApiStatus.Experimental
+  @NotNull
+  @Unmodifiable
+  public Set<Chunk> getSentChunks() {
+    return player.getSentChunks();
+  }
+
+  public void lockFreezeTicks(boolean b) {
+    player.lockFreezeTicks(b);
+  }
+
+  public void displayName(@Nullable Component component) {
+    player.displayName(component);
+  }
+
+  public void setBodyYaw(float v) {
+    player.setBodyYaw(v);
+  }
+
+  @NotNull
+  public CompletableFuture<Boolean> teleportAsync(@NotNull Location loc) {
+    return player.teleportAsync(loc);
+  }
+
+  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    player.incrementStatistic(statistic, material);
+  }
+
+  public void sendRichMessage(@NotNull String message) {
+    player.sendRichMessage(message);
+  }
+
+  @Nullable
+  public WeatherType getPlayerWeather() {
+    return player.getPlayerWeather();
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public Block getTargetBlock(int maxDistance) {
+    return player.getTargetBlock(maxDistance);
+  }
+
+  public int getLevel() {
+    return player.getLevel();
+  }
+
+  public void setMaximumAir(int i) {
+    player.setMaximumAir(i);
+  }
+
+  public @NotNull Duration getIdleDuration() {
+    return player.getIdleDuration();
+  }
+
+  public void setGlowing(boolean b) {
+    player.setGlowing(b);
+  }
+
+  public boolean hasFixedPose() {
+    return player.hasFixedPose();
+  }
+
+  @Deprecated
+  @NotNull
+  public Set<Player> getTrackedPlayers() {
+    return player.getTrackedPlayers();
+  }
+
+  public void sendResourcePacks(@NotNull ResourcePackRequest request) {
+    player.sendResourcePacks(request);
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull BaseComponent... components) {
+    player.sendMessage(components);
+  }
+
+  public float getFlySpeed() {
+    return player.getFlySpeed();
+  }
+
+  @NotNull
+  public PermissionAttachment addAttachment(@NotNull Plugin plugin) {
+    return player.addAttachment(plugin);
+  }
+
+  public long getLastSeen() {
+    return player.getLastSeen();
+  }
+
+  public void playSound(@NotNull Location location, @NotNull String s, @NotNull SoundCategory soundCategory, float v,
+                        float v1, long l) {
+    player.playSound(location, s, soundCategory, v, v1, l);
+  }
+
+  @Nullable
+  public Entity getTargetEntity(int i, boolean b) {
+    return player.getTargetEntity(i, b);
+  }
+
+  @NotNull
+  public Component name() {
+    return player.name();
+  }
+
+  public boolean isConnected() {
+    return player.isConnected();
+  }
+
+  public void clearTitle() {
+    player.clearTitle();
+  }
+
+  public <T extends Projectile> @NotNull T launchProjectile(@NotNull Class<? extends T> aClass,
+                                                            @Nullable Vector vector) {
+    return player.launchProjectile(aClass, vector);
+  }
+
+  public void setKiller(@Nullable Player player) {
+    this.player.setKiller(player);
+  }
+
+  @Contract("-> null")
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public String getResourcePackHash() {
+    return player.getResourcePackHash();
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires) {
+    return player.banPlayerFull(reason, expires);
+  }
+
+  public void setViewDistance(int i) {
+    player.setViewDistance(i);
+  }
+
+  public float getCooledAttackStrength(float v) {
+    return player.getCooledAttackStrength(v);
+  }
+
+  public void setArrowCooldown(int i) {
+    player.setArrowCooldown(i);
+  }
+
+  @Deprecated
+  public void setResourcePack(@NotNull String s, @Nullable byte[] bytes, @Nullable String s1, boolean b) {
+    player.setResourcePack(s, bytes, s1, b);
+  }
+
+  @Deprecated
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source,
+                            boolean kickIfOnline) {
     return player.banPlayer(reason, expires, source, kickIfOnline);
   }
 
-
-  public @Nullable BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
-    return player.ban(reason, expires, source);
+  @Nullable
+  public Component customName() {
+    return player.customName();
   }
 
-
-  public boolean isWhitelisted() {
-    return player.isWhitelisted();
+  public int getFireTicks() {
+    return player.getFireTicks();
   }
 
-
-  public void setWhitelisted(boolean value) {
-    player.setWhitelisted(value);
+  public void setMaximumNoDamageTicks(int i) {
+    player.setMaximumNoDamageTicks(i);
   }
 
+  @Deprecated
+  public boolean addPotionEffect(@NotNull PotionEffect potionEffect, boolean b) {
+    return player.addPotionEffect(potionEffect, b);
+  }
+
+  public int getSendViewDistance() {
+    return player.getSendViewDistance();
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable String source) {
+    return player.banPlayerIP(reason, source);
+  }
+
+  public void sendExperienceChange(float v, int i) {
+    player.sendExperienceChange(v, i);
+  }
+
+  @Deprecated
+  public void sendSignChange(@NotNull Location location, @Nullable String[] strings, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
+    player.sendSignChange(location, strings, dyeColor);
+  }
+
+  public void setWorldBorder(@Nullable WorldBorder worldBorder) {
+    player.setWorldBorder(worldBorder);
+  }
+
+  public boolean isInvisible() {
+    return player.isInvisible();
+  }
 
   @Nullable
   public Player getPlayer() {
     return player.getPlayer();
   }
 
-
-  public long getFirstPlayed() {
-    return player.getFirstPlayed();
+  @NotNull
+  public UUID getUniqueId() {
+    return player.getUniqueId();
   }
 
+  @NotNull
+  public Set<NamespacedKey> getDiscoveredRecipes() {
+    return player.getDiscoveredRecipes();
+  }
 
   @Deprecated
-  public long getLastPlayed() {
-    return player.getLastPlayed();
+  @NotNull
+  public ItemStack getItemInHand() {
+    return player.getItemInHand();
   }
 
+  @ApiStatus.Obsolete(since = "1.20.4")
+  public int getItemUseRemainingTime() {
+    return player.getItemUseRemainingTime();
+  }
+
+  public boolean isInWaterOrRainOrBubbleColumn() {
+    return player.isInWaterOrRainOrBubbleColumn();
+  }
+
+  @Nullable
+  public Entity getSpectatorTarget() {
+    return player.getSpectatorTarget();
+  }
+
+  @Deprecated
+  public void setMaxHealth(double v) {
+    player.setMaxHealth(v);
+  }
+
+  @Deprecated
+  public void sendMultiBlockChange(@NotNull Map<? extends Position, BlockData> blockChanges,
+                                   boolean suppressLightUpdates) {
+    player.sendMultiBlockChange(blockChanges, suppressLightUpdates);
+  }
 
   public boolean hasPlayedBefore() {
     return player.hasPlayedBefore();
   }
 
-
-  public long getLastLogin() {
-    return player.getLastLogin();
+  @Nullable
+  public InetSocketAddress getHAProxyAddress() {
+    return player.getHAProxyAddress();
   }
 
-
-  public long getLastSeen() {
-    return player.getLastSeen();
+  public void setGameMode(@NotNull GameMode gameMode) {
+    player.setGameMode(gameMode);
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-    player.incrementStatistic(statistic);
+  public int undiscoverRecipes(@NotNull Collection<NamespacedKey> collection) {
+    return player.undiscoverRecipes(collection);
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-    player.decrementStatistic(statistic);
+  @NotNull
+  public ItemStack getItemOnCursor() {
+    return player.getItemOnCursor();
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {
-    player.incrementStatistic(statistic, amount);
+  public boolean isValid() {
+    return player.isValid();
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic, int amount) throws IllegalArgumentException {
-    player.decrementStatistic(statistic, amount);
+  public boolean addScoreboardTag(@NotNull String s) {
+    return player.addScoreboardTag(s);
   }
 
-
-  public void setStatistic(@NotNull Statistic statistic, int newValue) throws IllegalArgumentException {
-    player.setStatistic(statistic, newValue);
+  public void playSound(@NotNull Sound sound, Sound.Emitter emitter) {
+    player.playSound(sound, emitter);
   }
 
-
-  public int getStatistic(@NotNull Statistic statistic) throws IllegalArgumentException {
-    return player.getStatistic(statistic);
+  @Deprecated
+  public void playNote(@NotNull Location location, byte b, byte b1) {
+    player.playNote(location, b, b1);
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-    player.incrementStatistic(statistic, material);
+  public void removeResourcePack(@NotNull UUID uuid) {
+    player.removeResourcePack(uuid);
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-    player.decrementStatistic(statistic, material);
+  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i) {
+    player.spawnParticle(particle, location, i);
   }
 
-
-  public int getStatistic(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-    return player.getStatistic(statistic, material);
+  @NotNull
+  public AdvancementProgress getAdvancementProgress(@NotNull Advancement advancement) {
+    return player.getAdvancementProgress(advancement);
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {
-    player.incrementStatistic(statistic, material, amount);
+  @ApiStatus.Experimental
+  public void sendBlockUpdate(@NotNull Location location, @NotNull TileState tileState) throws IllegalArgumentException {
+    player.sendBlockUpdate(location, tileState);
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull Material material, int amount) throws IllegalArgumentException {
-    player.decrementStatistic(statistic, material, amount);
+  public int getWardenWarningLevel() {
+    return player.getWardenWarningLevel();
   }
 
-
-  public void setStatistic(@NotNull Statistic statistic, @NotNull Material material, int newValue) throws IllegalArgumentException {
-    player.setStatistic(statistic, material, newValue);
+  @NotNull
+  public org.bukkit.Sound getSwimSound() {
+    return player.getSwimSound();
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-    player.incrementStatistic(statistic, entityType);
+  @Deprecated
+  @NotNull
+  public BanEntry banPlayer(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    return player.banPlayer(reason, expires, source);
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-    player.decrementStatistic(statistic, entityType);
+  public void setResourcePack(@NotNull UUID uuid, @NotNull String url, @NotNull String hash,
+                              @Nullable Component resourcePackPrompt, boolean required) {
+    player.setResourcePack(uuid, url, hash, resourcePackPrompt, required);
   }
 
-
-  public int getStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-    return player.getStatistic(statistic, entityType);
+  @NotNull
+  public org.bukkit.Sound getSwimHighSpeedSplashSound() {
+    return player.getSwimHighSpeedSplashSound();
   }
 
-
-  public void incrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) throws IllegalArgumentException {
-    player.incrementStatistic(statistic, entityType, amount);
+  @NotNull
+  public Chunk getChunk() {
+    return player.getChunk();
   }
 
-
-  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int amount) {
-    player.decrementStatistic(statistic, entityType, amount);
+  public void sendPlayerListHeader(@NotNull Component header) {
+    player.sendPlayerListHeader(header);
   }
 
-
-  public void setStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int newValue) {
-    player.setStatistic(statistic, entityType, newValue);
+  @NotNull
+  public Location getBedLocation() {
+    return player.getBedLocation();
   }
 
-
-  public @NotNull Map<String, Object> serialize() {
-    return player.serialize();
+  @NotNull
+  public TriState getFrictionState() {
+    return player.getFrictionState();
   }
 
-
-  public void sendPluginMessage(@NotNull Plugin source, @NotNull String channel, @NotNull byte[] message) {
-    player.sendPluginMessage(source, channel, message);
+  public void addResourcePack(@NotNull UUID uuid, @NotNull String s, @Nullable byte[] bytes, @Nullable String s1,
+                              boolean b) {
+    player.addResourcePack(uuid, s, bytes, s1, b);
   }
 
-
-  public @NotNull Set<String> getListeningPluginChannels() {
-    return player.getListeningPluginChannels();
+  @NotNull
+  public String getScoreboardEntryName() {
+    return player.getScoreboardEntryName();
   }
 
-
-  public int getProtocolVersion() {
-    return player.getProtocolVersion();
+  public void setWardenWarningCooldown(int i) {
+    player.setWardenWarningCooldown(i);
   }
 
+  @Deprecated
+  public void hideTitle() {
+    player.hideTitle();
+  }
 
-  public @Nullable InetSocketAddress getVirtualHost() {
-    return player.getVirtualHost();
+  @NotNull
+  public MainHand getMainHand() {
+    return player.getMainHand();
+  }
+
+  public void openInventory(@NotNull InventoryView inventoryView) {
+    player.openInventory(inventoryView);
+  }
+
+  @ApiStatus.Experimental
+  @NotNull
+  public CompletableFuture<byte[]> retrieveCookie(@NotNull NamespacedKey namespacedKey) {
+    return player.retrieveCookie(namespacedKey);
+  }
+
+  @Deprecated
+  public void setBedSpawnLocation(@Nullable Location location) {
+    player.setBedSpawnLocation(location);
+  }
+
+  public int getEntityId() {
+    return player.getEntityId();
+  }
+
+  @Nullable
+  public Entity getVehicle() {
+    return player.getVehicle();
+  }
+
+  public void playSound(@NotNull Location location, @NotNull org.bukkit.Sound sound, float v, float v1) {
+    player.playSound(location, sound, v, v1);
+  }
+
+  public void setArrowsInBody(int i, boolean b) {
+    player.setArrowsInBody(i, b);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerFull(@Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    return player.banPlayerFull(reason, expires, source);
+  }
+
+  @Contract("_, null -> _; _, !null -> !null")
+  public <T> @Nullable T getOrDefault(@NotNull Pointer<T> pointer, @Nullable T defaultValue) {
+    return player.getOrDefault(pointer, defaultValue);
+  }
+
+  @Deprecated
+  public void sendTitle(@Nullable String s, @Nullable String s1) {
+    player.sendTitle(s, s1);
+  }
+
+  public void setRotation(float v, float v1) {
+    player.setRotation(v, v1);
+  }
+
+  public int getEnchantmentSeed() {
+    return player.getEnchantmentSeed();
+  }
+
+  @Deprecated(forRemoval = true)
+  @Nullable
+  public TargetBlockInfo getTargetBlockInfo(int maxDistance) {
+    return player.getTargetBlockInfo(maxDistance);
+  }
+
+  public void spawnParticle(@NotNull Particle particle, @NotNull Location location, int i, double v, double v1,
+                            double v2, double v3) {
+    player.spawnParticle(particle, location, i, v, v1, v2, v3);
+  }
+
+  public void setSilent(boolean b) {
+    player.setSilent(b);
+  }
+
+  @NotNull
+  public Pose getPose() {
+    return player.getPose();
+  }
+
+  @Deprecated
+  public boolean isOnGround() {
+    return player.isOnGround();
+  }
+
+  public void sendBlockDamage(@NotNull Location location, float v, @NotNull Entity entity) {
+    player.sendBlockDamage(location, v, entity);
+  }
+
+  @NotNull
+  public Location getLocation() {
+    return player.getLocation();
+  }
+
+  public void sendMessage(@NotNull Component message) {
+    player.sendMessage(message);
+  }
+
+  public void swingHand(@NotNull EquipmentSlot hand) {
+    player.swingHand(hand);
+  }
+
+  public boolean isInWaterOrBubbleColumn() {
+    return player.isInWaterOrBubbleColumn();
+  }
+
+  public <T> @Nullable T getMemory(@NotNull MemoryKey<T> memoryKey) {
+    return player.getMemory(memoryKey);
+  }
+
+  public void setTicksLived(int i) {
+    player.setTicksLived(i);
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, boolean kickPlayer) {
+    return player.banPlayerIP(reason, kickPlayer);
+  }
+
+  @NotNull
+  public TriState hasFlyingFallDamage() {
+    return player.hasFlyingFallDamage();
+  }
+
+  @NotNull
+  public Scoreboard getScoreboard() {
+    return player.getScoreboard();
+  }
+
+  public void spawnParticle(@NotNull Particle particle, double v, double v1, double v2, int i) {
+    player.spawnParticle(particle, v, v1, v2, i);
+  }
+
+  public void showElderGuardian() {
+    player.showElderGuardian();
+  }
+
+  @NotNull
+  public org.bukkit.Sound getEatingSound(@NotNull ItemStack itemStack) {
+    return player.getEatingSound(itemStack);
+  }
+
+  public void setAbsorptionAmount(double v) {
+    player.setAbsorptionAmount(v);
+  }
+
+  public float getUpwardsMovement() {
+    return player.getUpwardsMovement();
+  }
+
+  public int getTotalExperience() {
+    return player.getTotalExperience();
+  }
+
+  @Nullable
+  public Location getLastDeathLocation() {
+    return player.getLastDeathLocation();
+  }
+
+  @Deprecated
+  @Nullable
+  public BanEntry banPlayerIP(@Nullable String reason, @Nullable Date expires) {
+    return player.banPlayerIP(reason, expires);
+  }
+
+  public void removePotionEffect(@NotNull PotionEffectType potionEffectType) {
+    player.removePotionEffect(potionEffectType);
+  }
+
+  public void chat(@NotNull String s) {
+    player.chat(s);
+  }
+
+  public boolean isLeashed() {
+    return player.isLeashed();
+  }
+
+  public void setVelocity(@NotNull Vector vector) {
+    player.setVelocity(vector);
+  }
+
+  public boolean breakBlock(@NotNull Block block) {
+    return player.breakBlock(block);
+  }
+
+  public void sendPlayerListFooter(@NotNull Component footer) {
+    player.sendPlayerListFooter(footer);
+  }
+
+  public void sendRawMessage(@NotNull String s) {
+    player.sendRawMessage(s);
+  }
+
+  public void stopSound(@NotNull org.bukkit.Sound sound, @Nullable SoundCategory soundCategory) {
+    player.stopSound(sound, soundCategory);
+  }
+
+  public void setNoActionTicks(int i) {
+    player.setNoActionTicks(i);
+  }
+
+  public void setPlayerTime(long l, boolean b) {
+    player.setPlayerTime(l, b);
+  }
+
+  public int getBeeStingersInBody() {
+    return player.getBeeStingersInBody();
+  }
+
+  public void setHealthScaled(boolean b) {
+    player.setHealthScaled(b);
+  }
+
+  @Deprecated(forRemoval = true, since = "1.20.4")
+  public void setItemInUseTicks(int i) {
+    player.setItemInUseTicks(i);
+  }
+
+  public boolean isDead() {
+    return player.isDead();
+  }
+
+  @Deprecated
+  public void sendMessage(@NotNull Identity source, @NotNull ComponentLike message) {
+    player.sendMessage(source, message);
+  }
+
+  public void showDemoScreen() {
+    player.showDemoScreen();
+  }
+
+  public void showEntity(@NotNull Plugin plugin, @NotNull Entity entity) {
+    player.showEntity(plugin, entity);
+  }
+
+  public boolean isSleeping() {
+    return player.isSleeping();
+  }
+
+  public void decrementStatistic(@NotNull Statistic statistic, @NotNull EntityType entityType, int i) {
+    player.decrementStatistic(statistic, entityType, i);
   }
 }

@@ -9,7 +9,7 @@ import de.timesnake.library.basic.util.Tuple;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -251,8 +251,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
                                     Boolean moveable) {
     if (id != null && dropable != null && item.getItemMeta() != null) {
       ItemMeta meta = item.getItemMeta();
-      meta.setLocalizedName(
-          id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
+      meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
       item.setItemMeta(meta);
     }
   }
@@ -635,7 +634,13 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
-  public ExItemStack removeEnchantments() {
+  @Override
+  public void removeEnchantments() {
+    this.checkImmutable();
+    this._removeEnchantments();
+  }
+
+  public ExItemStack removeExEnchantment() {
     this.checkImmutable();
     return this._removeEnchantments();
   }
@@ -750,7 +755,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   protected ExItemStack _enchant() {
-    this._addUnsafeEnchantment(Enchantment.LUCK, 1);
+    this._addUnsafeEnchantment(Enchantment.AQUA_AFFINITY, 1);
     this._addItemFlags(ItemFlag.HIDE_ENCHANTS);
     return this;
   }
