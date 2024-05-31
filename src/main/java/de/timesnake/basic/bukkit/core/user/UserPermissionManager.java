@@ -4,7 +4,6 @@
 
 package de.timesnake.basic.bukkit.core.user;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -19,8 +18,7 @@ public class UserPermissionManager implements Listener {
   static {
     try {
       PERMISSION_FIELD =
-          Class.forName("org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().replace(".",
-              ",").split(",")[3] + ".entity.CraftHumanEntity").getDeclaredField("perm");
+          Class.forName("org.bukkit.craftbukkit.entity.CraftHumanEntity").getDeclaredField("perm");
       PERMISSION_FIELD.setAccessible(true);
     } catch (NoSuchFieldException | ClassNotFoundException e) {
       throw new RuntimeException(e);

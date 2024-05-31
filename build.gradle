@@ -55,7 +55,7 @@ dependencies {
 
   compileOnly "org.freemarker:freemarker:2.3.31"
 
-  paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+  paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
 
   testImplementation platform('org.junit:junit-bom:5.10.0')
   testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -85,32 +85,8 @@ configurations.configureEach {
   }
 }
 
-tasks {
-  jar {
-    dependsOn(reobfJar)
-  }
-
-  compileJava {
-    options.encoding = "UTF-8"
-    options.release.set(17)
-  }
-
-  javadoc {
-    options.encoding = "UTF-8"
-  }
-
-  processResources {
-    filteringCharset = "UTF-8"
-    var props = [
-        "name"      : project.name,
-        "version"   : project.version,
-        "apiVersion": "1.20.1"
-    ]
-    inputs.properties(props)
-    filesMatching("plugin.yml") {
-      expand(props)
-    }
-  }
+tasks.assemble {
+  dependsOn(reobfJar)
 }
 
 tasks.register('exportAsPlugin', Copy) {

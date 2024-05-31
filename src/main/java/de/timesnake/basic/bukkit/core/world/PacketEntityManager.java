@@ -113,7 +113,7 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
       coords = new Tuple<>(p.getX(), p.getZ());
     } else if (packet instanceof ClientboundForgetLevelChunkPacket p) {
       load = false;
-      coords = new Tuple<>(p.getX(), p.getZ());
+      coords = new Tuple<>(p.pos().x, p.pos().z);
     } else {
       return;
     }

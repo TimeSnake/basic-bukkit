@@ -17,4 +17,5 @@ public interface Scoreboard {
   void removeWatchingUser(User user);
 
   Set<User> getWatchingUsers();
+
 }

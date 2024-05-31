@@ -1255,11 +1255,6 @@ public class DelegatedWorld {
     world.setSendViewDistance(viewDistance);
   }
 
-  @NotNull
-  public World.Spigot spigot() {
-    return world.spigot();
-  }
-
   @Nullable
   public Raid locateNearestRaid(@NotNull Location location, int radius) {
     return world.locateNearestRaid(location, radius);
