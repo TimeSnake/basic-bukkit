@@ -48,7 +48,8 @@ public interface WorldManager {
    */
   boolean deleteWorld(ExWorld world, boolean deleteFiles);
 
-  @Nullable ExWorld cloneWorld(String name, ExWorld world);
+  @Nullable
+  ExWorld cloneWorld(String cloneName, ExWorld originalWorld);
 
   @Nullable ExWorld createWorldFromFile(String name);
 

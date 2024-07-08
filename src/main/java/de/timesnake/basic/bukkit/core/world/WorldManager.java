@@ -297,37 +297,38 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
   }
 
   @Override
-  public @Nullable ExWorld cloneWorld(String name, ExWorld exWorld) {
-    if (exWorld == null) {
+  public @Nullable ExWorld cloneWorld(String cloneName, ExWorld originalWorld) {
+    if (originalWorld == null) {
       return null;
     }
 
     for (String s : UNSUPPORTED_SYMBOLS) {
-      name = name.replace(s, "");
+      cloneName = cloneName.replace(s, "");
     }
 
     // world exits already
-    if (this.worldsByName.containsKey(name)) {
+    if (this.worldsByName.containsKey(cloneName)) {
       return null;
     }
 
     // world exists in Bukkit
-    if (Bukkit.getWorld(name) != null) {
+    if (Bukkit.getWorld(cloneName) != null) {
       return null;
     }
 
-    exWorld.save();
+    originalWorld.save();
 
-    this.copyWorldFolderFiles(exWorld.getWorldFolder(), new File(Bukkit.getWorldContainer() + File.separator + name));
+    this.copyWorldFolderFiles(originalWorld.getWorldFolder(),
+        new File(Bukkit.getWorldContainer() + File.separator + cloneName));
 
-    World world = Bukkit.createWorld(new WorldCreator(name).copy(exWorld.getBukkitWorld()));
+    World world = Bukkit.createWorld(new WorldCreator(cloneName).copy(originalWorld.getBukkitWorld()));
 
     if (world == null) {
       return null;
     }
 
-    ExWorldFile file = new ExWorldFile(world.getWorldFolder(), exWorld.getType());
-    ExWorld clonedExWorld = new ExWorld(world, exWorld.getType(), file, exWorld.getRestrictionValues());
+    ExWorldFile file = new ExWorldFile(world.getWorldFolder(), originalWorld.getType());
+    ExWorld clonedExWorld = new ExWorld(world, originalWorld.getType(), file, originalWorld.getRestrictionValues());
     this.registerExWorld(clonedExWorld);
     this.onWorldLoad(clonedExWorld, WorldLoadActionType.CLONE);
     return clonedExWorld;
