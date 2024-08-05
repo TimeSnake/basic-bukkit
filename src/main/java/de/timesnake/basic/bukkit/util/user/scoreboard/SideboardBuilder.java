@@ -24,6 +24,9 @@ public class SideboardBuilder {
   }
 
   public SideboardBuilder setScore(int line, String text) {
+    while (this.scores.containsValue(text)) {
+      text = "§f" + text;
+    }
     this.scores.put(line, text);
     return this;
   }
