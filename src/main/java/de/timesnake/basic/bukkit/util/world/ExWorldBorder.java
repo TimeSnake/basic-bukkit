@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.util.world;
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.server.ExTime;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.library.basic.util.BuilderBasis;
 import de.timesnake.library.basic.util.BuilderNotFullyInstantiatedException;
@@ -60,7 +61,7 @@ public class ExWorldBorder {
 
   private BukkitTask shrinkingTask;
   private double shrinkSize;
-  private int shrinkTime;
+  private int shrinkTimeTicks;
   private double shrinkPerTick;
 
   private boolean sound;
@@ -138,7 +139,7 @@ public class ExWorldBorder {
     this.broadcastSpectatorPacket(this.getSpectatorInitPacket());
   }
 
-  public void setSize(double size, int time, boolean forceStop) {
+  public void setSize(double size, ExTime time, boolean forceStop) {
     if (this.shrinking) {
       if (forceStop) {
         this.stopShrink();
@@ -148,7 +149,7 @@ public class ExWorldBorder {
     }
 
     this.shrinkSize = size < 0 ? 0 : size;
-    this.shrinkTime = time;
+    this.shrinkTimeTicks = time.toTicks();
     this.shrinking();
   }
 
@@ -157,7 +158,7 @@ public class ExWorldBorder {
       this.shrinkingTask.cancel();
     }
 
-    this.shrinkTime = 0;
+    this.shrinkTimeTicks = 0;
     this.shrinkSize = this.size;
     this.shrinkPerTick = 0;
   }
@@ -166,26 +167,27 @@ public class ExWorldBorder {
     this.shrinking = true;
 
 
-    Packet<?> packet = ClientboundSetBorderLerpSizePacketBuilder.of(this.size, this.shrinkSize, this.shrinkTime * 50L);
+    Packet<?> packet = ClientboundSetBorderLerpSizePacketBuilder.of(this.size, this.shrinkSize,
+        this.shrinkTimeTicks * 50L);
 
     this.broadcastUserPacket(packet);
     this.broadcastSpectatorPacket(packet);
 
-    this.shrinkPerTick = (this.size - this.shrinkSize) / this.shrinkTime;
+    this.shrinkPerTick = (this.size - this.shrinkSize) / this.shrinkTimeTicks;
 
     this.shrinkingTask = new BukkitRunnable() {
       @Override
       public void run() {
         ExWorldBorder.this.size -= shrinkPerTick;
 
-        if (shrinkTime == 0) {
+        if (shrinkTimeTicks == 0) {
           ExWorldBorder.this.size = shrinkSize;
           shrinkPerTick = 0;
           shrinking = false;
           this.cancel();
           return;
         }
-        shrinkTime--;
+        shrinkTimeTicks--;
       }
     }.runTaskTimer(BasicBukkit.getPlugin(), 0, 1);
   }
@@ -256,7 +258,7 @@ public class ExWorldBorder {
           this.size, this.size, 0, this.warningDistance, this.warningTime);
     } else {
       return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-          this.size, this.shrinkSize, this.shrinkTime * 50L, this.warningDistance, this.warningTime);
+          this.size, this.shrinkSize, this.shrinkTimeTicks * 50L, this.warningDistance, this.warningTime);
     }
   }
 
@@ -266,7 +268,7 @@ public class ExWorldBorder {
           this.size, this.size, 0, 0, 0);
     } else {
       return ClientboundInitializeBorderPacketBuilder.of(this.world.getBukkitWorld(), this.centerX, this.centerZ,
-          this.size, this.shrinkSize, this.shrinkTime * 50L, 0, 0);
+          this.size, this.shrinkSize, this.shrinkTimeTicks * 50L, 0, 0);
     }
   }
 
@@ -307,7 +309,7 @@ public class ExWorldBorder {
         ", damagePerSec=" + damagePerSec +
         ", shrinking=" + shrinking +
         ", shrinkSize=" + shrinkSize +
-        ", shrinkTime=" + shrinkTime +
+           ", shrinkTime=" + shrinkTimeTicks +
         ", shrinkPerTick=" + shrinkPerTick +
         ", sound=" + sound +
         '}';

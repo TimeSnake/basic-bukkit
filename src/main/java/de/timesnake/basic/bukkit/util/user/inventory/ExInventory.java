@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +23,13 @@ public class ExInventory extends InventoryDelegation {
 
   public ExInventory(@NotNull Inventory inventory) {
     super(inventory);
+  }
+
+  public ExInventory(InventoryType type, Component title, InventoryHolder holder, ExItemStack... itemStacks) {
+    this.inventory = Bukkit.createInventory(holder, type, title);
+    for (ExItemStack itemStack : itemStacks) {
+      this.setItemStack(itemStack);
+    }
   }
 
   public ExInventory(int size, Component title, InventoryHolder holder, ExItemStack... itemStacks) {
@@ -44,8 +52,12 @@ public class ExInventory extends InventoryDelegation {
     this(size, Server.getTimeDownParser().parse2Component(title), holder, itemStacks);
   }
 
+  public ExInventory(InventoryType type, String title, InventoryHolder holder, ExItemStack... itemStacks) {
+    this(type, Server.getTimeDownParser().parse2Component(title), holder, itemStacks);
+  }
+
   public void setItemStack(int index, Material material, int amount, String name,
-      List<String> lore) {
+                           List<String> lore) {
     this.inventory.setItem(index, new ExItemStack(material, amount, name, lore));
   }
 

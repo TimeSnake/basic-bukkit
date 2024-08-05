@@ -44,6 +44,11 @@ public class Sideboard extends Scoreboard implements de.timesnake.basic.bukkit.u
   @Override
   public void setScore(Integer line, String text) {
     text = Server.getTimeDownParser().parse2Legacy(text);
+
+    while (this.scores.containsValue(text)) {
+      text = "§f" + text;
+    }
+
     this.scores.put(line, text);
     for (User user : watchingUsers) {
       user.setSideboardScore(line, text);
