@@ -14,6 +14,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ExLocation extends Location {
 
@@ -266,4 +267,17 @@ public class ExLocation extends Location {
     return new SimpleLocation(this.getX(), this.getY(), this.getZ());
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    ExLocation location = (ExLocation) o;
+    return Objects.equals(world, location.world);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), world);
+  }
 }

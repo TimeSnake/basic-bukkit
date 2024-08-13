@@ -7,11 +7,13 @@ package de.timesnake.basic.bukkit.util.world;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ExBlock {
@@ -55,6 +57,22 @@ public class ExBlock {
     return this.location.getBlock();
   }
 
+  public Material getType() {
+    return this.location.getBlock().getType();
+  }
+
+  public int getX() {
+    return this.location.getBlockX();
+  }
+
+  public int getY() {
+    return this.location.getBlockY();
+  }
+
+  public int getZ() {
+    return this.location.getBlockZ();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -63,7 +81,15 @@ public class ExBlock {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    return this.location.equals(((ExBlock) o).getLocation());
+    return this.location.getExWorld().equals(((ExBlock) o).location.getExWorld())
+           && this.getX() == ((ExBlock) o).getX()
+           && this.getY() == ((ExBlock) o).getY()
+           && this.getZ() == ((ExBlock) o).getZ();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(location.getExWorld(), this.getX(), this.getY(), this.getZ());
   }
 
   public ExBlock getRelative(BlockFace face) {
@@ -76,6 +102,14 @@ public class ExBlock {
 
   public ExBlock getRelative(int x, int y, int z) {
     return new ExBlock(this.location.getBlock().getRelative(x, y, z));
+  }
+
+  public ExBlock up() {
+    return this.getRelative(0, 1, 0);
+  }
+
+  public ExBlock down() {
+    return this.getRelative(0, -1, 0);
   }
 
   public boolean isBeside(Block location) {
