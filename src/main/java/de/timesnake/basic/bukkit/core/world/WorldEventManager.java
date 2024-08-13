@@ -201,7 +201,7 @@ public class WorldEventManager implements Listener {
           }
 
           if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE)
-              || Tag.CANDLES.isTagged(blockType))) {
+                                                       || Tag.CANDLES.isTagged(blockType))) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -350,7 +350,7 @@ public class WorldEventManager implements Listener {
     }
 
     if ((e.getBlock().getType().equals(Material.FIRE)
-        || (Tag.CANDLES.isTagged(e.getBlock().getType())) && ((Candle) e.getBlock()
+         || (Tag.CANDLES.isTagged(e.getBlock().getType())) && ((Candle) e.getBlock()
         .getState()).isLit())
         && !world.isRestricted(ExWorld.Restriction.FIRE_PUNCH_OUT)) {
       return;
@@ -536,7 +536,7 @@ public class WorldEventManager implements Listener {
     }
 
     if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE)
-        || Tag.CANDLES.isTagged(blockType))) {
+                                                 || Tag.CANDLES.isTagged(blockType))) {
       e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
       return;
     }
@@ -630,7 +630,7 @@ public class WorldEventManager implements Listener {
 
     if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
         && (Tag.CAMPFIRES.isTagged(e.getBlock().getType())
-        || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
+            || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
       return;
     }
 
