@@ -15,6 +15,7 @@ import de.timesnake.library.permissions.PermGroup;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Completion extends de.timesnake.library.commands.Completion<Completion, Sender, Argument,
     Arguments<Argument>> {
@@ -62,6 +63,10 @@ public class Completion extends de.timesnake.library.commands.Completion<Complet
 
   public Completion(Collection<String> values) {
     super(values);
+  }
+
+  public Completion(Stream<String> values) {
+    super(values.toList());
   }
 
   public Completion(CmdFunction<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
