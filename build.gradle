@@ -34,7 +34,7 @@ repositories {
 
 dependencies {
   implementation "com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT"
-  implementation "xyz.jpenilla:reflection-remapper:0.1.0-SNAPSHOT"
+  implementation "xyz.jpenilla:reflection-remapper:0.1.0"
 
   implementation "de.timesnake:library-entities:2.+"
   implementation "de.timesnake:library-packets:2.+"
