@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEquipmentPacketBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -44,7 +45,8 @@ public class ItemEntity extends PacketEntity {
 
   @Override
   public void spawnForUser(User user) {
-    user.sendPacket(new ClientboundAddEntityPacket(this.stand));
+    user.sendPacket(new ClientboundAddEntityPacket(this.stand, 0,
+        new BlockPos(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ())));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(this.stand).setAllFromEntity().build());
     user.sendPacket(new ClientboundSetEquipmentPacketBuilder(this.stand).addItem(EquipmentSlot.MAINHAND, this.item).build());
   }

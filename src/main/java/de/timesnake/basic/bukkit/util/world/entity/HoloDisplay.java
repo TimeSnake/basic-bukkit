@@ -7,6 +7,7 @@ package de.timesnake.basic.bukkit.util.world.entity;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -46,7 +47,8 @@ public class HoloDisplay extends PacketEntity {
   @Override
   public void spawnForUser(User user) {
     for (ArmorStand stand : this.stands) {
-      user.sendPacket(new ClientboundAddEntityPacket(stand));
+      user.sendPacket(new ClientboundAddEntityPacket(stand, 0,
+          new BlockPos(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ())));
       user.sendPacket(new ClientboundSetEntityDataPacketBuilder(stand).setAllFromEntity().build());
     }
   }

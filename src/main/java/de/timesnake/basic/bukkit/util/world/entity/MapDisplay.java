@@ -11,6 +11,7 @@ import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.library.packets.core.packet.out.ClientboundMapItemDataPacketBuilder;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -184,7 +185,9 @@ public class MapDisplay extends PacketEntity {
           frame.setRotation(rotationToInteger(this.rotation.rotateClockwise()));
           frame.setRotation(rotationToInteger(this.rotation));
 
-          user.sendPacket(new ClientboundAddEntityPacket(frame, ItemFrameRotation.blockFaceToRotation(blockFace).getNms()));
+          user.sendPacket(new ClientboundAddEntityPacket(frame,
+              ItemFrameRotation.blockFaceToRotation(blockFace).getNms(),
+              new BlockPos(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ())));
           user.sendPacket(new ClientboundSetEntityDataPacketBuilder(frame).setAllFromEntity().build());
 
           user.sendPacket(ClientboundMapItemDataPacketBuilder.of(view, user.getCraftPlayer()));
