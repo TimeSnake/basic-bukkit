@@ -1,3 +1,5 @@
+import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
+
 plugins {
   id 'java'
   id 'java-base'
@@ -10,7 +12,7 @@ plugins {
 
 
 group = "de.timesnake"
-version = '3.6.0'
+version = '4.0.0'
 var projectId = 52
 
 repositories {
@@ -34,24 +36,23 @@ repositories {
 
 dependencies {
   implementation "com.moandjiezana.toml:toml4j:0.7.3-SNAPSHOT"
-  implementation "xyz.jpenilla:reflection-remapper:0.1.0"
 
-  implementation "de.timesnake:library-entities:2.+"
-  implementation "de.timesnake:library-packets:2.+"
+  implementation "de.timesnake:library-entities:3.+"
+  implementation "de.timesnake:library-packets:3.+"
 
-  implementation "de.timesnake:library-network:1.+"
-  implementation "de.timesnake:library-commands:1.+"
-  implementation "de.timesnake:library-permissions:1.+"
-  implementation "de.timesnake:library-basic:1.+"
-  implementation "de.timesnake:library-chat:1.+"
+  implementation "de.timesnake:library-network:2.+"
+  implementation "de.timesnake:library-commands:2.+"
+  implementation "de.timesnake:library-permissions:2.+"
+  implementation "de.timesnake:library-basic:2.+"
+  implementation "de.timesnake:library-chat:2.+"
 
   implementation "com.google.code.gson:gson:2.10.1"
 
-  compileOnly "de.timesnake:database-bukkit:2.+"
-  compileOnly "de.timesnake:database-api:2.+"
+  compileOnly "de.timesnake:database-bukkit:3.+"
+  compileOnly "de.timesnake:database-api:3.+"
 
-  compileOnly "de.timesnake:channel-bukkit:4.+"
-  compileOnly "de.timesnake:channel-api:4.+"
+  compileOnly "de.timesnake:channel-bukkit:5.+"
+  compileOnly "de.timesnake:channel-api:5.+"
 
   compileOnly "org.freemarker:freemarker:2.3.31"
 
@@ -60,8 +61,8 @@ dependencies {
   testImplementation platform('org.junit:junit-bom:5.10.0')
   testImplementation 'org.junit.jupiter:junit-jupiter'
 
-  testImplementation "de.timesnake:channel-bukkit:4.+"
-  testImplementation "de.timesnake:channel-api:4.+"
+  testImplementation "de.timesnake:channel-bukkit:5.+"
+  testImplementation "de.timesnake:channel-api:5.+"
 }
 
 configurations.configureEach {
@@ -111,21 +112,25 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
-
-      artifact "$buildDir/libs/${archivesBaseName}-${project.version}.jar"
     }
   }
 }
 
-tasks.withType(JavaCompile).configureEach {
-  options.encoding = 'UTF-8'
+tasks {
+  compileJava {
+    options.encoding = "UTF-8"
+    options.release = 21
+  }
 }
 
 java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
   withSourcesJar()
 }
 
-paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.getMOJANG_PRODUCTION()
+paperweight.reobfArtifactConfiguration = ReobfArtifactConfiguration.getMOJANG_PRODUCTION()
 
 test {
   useJUnitPlatform()

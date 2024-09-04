@@ -1,4 +1,4 @@
-image: gradle:8-jdk17-alpine
+image: gradle:8-jdk21-alpine
 
 before_script:
   - export GRADLE_USER_HOME="$(pwd)/.gradle"
@@ -9,10 +9,6 @@ before_script:
   - echo "timesnakeUser=gitlab-ci-token" >> $GRADLE_USER_HOME/gradle.properties
   - echo "timesnakePassword=$CI_JOB_TOKEN" >> $GRADLE_USER_HOME/gradle.properties
 
-
-variables:
-  GIT_STRATEGY: fetch
-  GIT_FETCH_EXTRA_FLAGS: --tags
 
 cache:
   paths:
@@ -35,6 +31,8 @@ build:
       - .gradle
   tags:
     - gradle
+  only:
+    - tags
 
 
 publish:
