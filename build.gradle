@@ -68,20 +68,20 @@ dependencies {
 configurations.configureEach {
   resolutionStrategy.dependencySubstitution {
     if (project.parent != null) {
-      substitute module("de.timesnake:database-bukkit") using project(":database-bukkit")
-      substitute module("de.timesnake:database-api") using project(":database-api")
+      substitute module("de.timesnake:database-bukkit") using project(":database:database-bukkit")
+      substitute module("de.timesnake:database-api") using project(":database:database-api")
 
-      substitute module("de.timesnake:channel-bukkit") using project(":channel-bukkit")
-      substitute module("de.timesnake:channel-api") using project(":channel-api")
+      substitute module("de.timesnake:channel-bukkit") using project(":channel:channel-bukkit")
+      substitute module("de.timesnake:channel-api") using project(":channel:channel-api")
 
-      substitute module("de.timesnake:library-packets") using project(":library-packets")
-      substitute module("de.timesnake:library-entities") using project(":library-entities")
+      substitute module("de.timesnake:library-packets") using project(":libraries-mc:library-packets")
+      substitute module("de.timesnake:library-entities") using project(":libraries-mc:library-entities")
 
-      substitute module("de.timesnake:library-network") using project(":library-network")
-      substitute module("de.timesnake:library-commands") using project(":library-commands")
-      substitute module("de.timesnake:library-permissions") using project(":library-permissions")
-      substitute module("de.timesnake:library-basic") using project(":library-basic")
-      substitute module("de.timesnake:library-chat") using project(":library-chat")
+      substitute module("de.timesnake:library-network") using project(":libraries:library-network")
+      substitute module("de.timesnake:library-commands") using project(":libraries:library-commands")
+      substitute module("de.timesnake:library-permissions") using project(":libraries:library-permissions")
+      substitute module("de.timesnake:library-basic") using project(":libraries:library-basic")
+      substitute module("de.timesnake:library-chat") using project(":libraries:library-chat")
     }
   }
 }
