@@ -71,6 +71,11 @@ public class Tablist2TeamAndGroupTests {
       public TablistPlayer newGapEntry(String name, String tablistName) {
         return new TestTablistPlayer(name, tablistName);
       }
+
+      @Override
+      protected void update() {
+
+      }
     };
   }
 
