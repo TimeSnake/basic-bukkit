@@ -82,11 +82,21 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       slot++;
     }
 
-    this.sendPacket(user, ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(
+    this.sendPacket(user, new ClientboundPlayerInfoUpdatePacket(
+        EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
+            ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
         this.lastSlots.stream()
-            .map(p -> p.getPlayer().getMinecraftPlayer())
+            .map(s -> s.getPlayer().getMinecraftPlayer())
             .filter(Objects::nonNull)
+            .map(p -> new ClientboundPlayerInfoUpdatePacket.Entry(p.getUUID(), p.gameProfile,
+                true, p.connection != null ? p.connection.latency() : 0, p.gameMode.getGameModeForPlayer(),
+                p.getTabListDisplayName(), p.getChatSession() != null ? p.getChatSession().asData() : null))
             .toList()));
+
 
     this.logger.info("Loaded tablist '{}' for user '{}'", this.name, user.getName());
   }
@@ -132,7 +142,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     return false;
   }
 
-  private void update() {
+  protected void update() {
     List<TablistSlot> slots = new ArrayList<>();
     this.tablist.collectAsSlots(slots, this);
 
@@ -147,10 +157,19 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(toRemove.stream().map(TablistPlayer::getUniqueId).toList()));
 
     currentPlayers.removeAll(lastPlayers);
-    this.broadcastPacket(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(
+    this.broadcastPacket(new ClientboundPlayerInfoUpdatePacket(
+        EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
+            ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
         currentPlayers.stream()
             .map(TablistPlayer::getMinecraftPlayer)
             .filter(Objects::nonNull)
+            .map(p -> new ClientboundPlayerInfoUpdatePacket.Entry(p.getUUID(), p.gameProfile,
+                true, p.connection != null ? p.connection.latency() : 0, p.gameMode.getGameModeForPlayer(),
+                p.getTabListDisplayName(), p.getChatSession() != null ? p.getChatSession().asData() : null))
             .toList()));
 
     int slot = 10;
