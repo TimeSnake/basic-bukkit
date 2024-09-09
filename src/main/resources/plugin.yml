@@ -3,7 +3,7 @@ version: 3.5.0
 name: basic-bukkit
 author: timesnake
 softdepend: [ database-bukkit, channel-bukkit ]
-api-version: 1.13
+api-version: 1.21
 
 commands:
 
