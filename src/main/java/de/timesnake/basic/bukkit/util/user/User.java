@@ -1028,7 +1028,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.sideboardScores.put(line, text);
 
     Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundSetScorePacket(this.getName(), this.sideboard.getName(), line,
+        new ClientboundSetScorePacket(text, this.sideboard.getName(), line,
             Optional.of(net.minecraft.network.chat.Component.literal(text)), Optional.of(BlankFormat.INSTANCE)));
   }
 
