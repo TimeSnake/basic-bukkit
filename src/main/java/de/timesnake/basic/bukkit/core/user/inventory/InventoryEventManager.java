@@ -44,57 +44,53 @@ public class InventoryEventManager implements Listener,
         return;
       }
 
+      if (e.getCurrentItem() == null || e.getCurrentItem().getType().equals(Material.AIR)) {
+        return;
+      }
+
       User user = Server.getUser((Player) e.getWhoClicked());
 
       if (!this.isUserExcluded(user) && (user.isInventoryLocked() || user.isInventoryItemMoveLocked())) {
         e.setCancelled(true);
       }
 
-      ExItemStack item = null;
+      ExItemStack item = ExItemStack.getItem(e.getCurrentItem(), false);
+      if (item != null && !item.isImmutable()) {
+        item.setSlot(e.getSlot());
+      }
 
-      if (e.getCurrentItem() != null && !e.getCurrentItem().getType().equals(Material.AIR)) {
-        item = ExItemStack.getItem(e.getCurrentItem(), true);
-        if (item != null && !item.isImmutable()) {
-          item.setSlot(e.getSlot());
+      if (item != null) {
+        if (!item.isMoveable()) {
+          e.setCancelled(true);
         }
 
-      }
+        Collection<UserInventoryClickListener> listeners = clickListenerByItemId.get(item.getId());
+        if (listeners != null) {
+          UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(),
+              e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
 
-      if (item == null) {
-        return;
-      }
+          for (UserInventoryClickListener listener : listeners) {
+            listener.onUserInventoryClick(event);
+          }
 
-      if (!item.isMoveable()) {
-        e.setCancelled(true);
+          e.setCancelled(event.isCancelled());
+        }
       }
-
-      UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(),
-          e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
 
       InventoryHolder holder = e.getClickedInventory().getHolder();
       if (holder != null) {
         UserInventoryClickListener listener = this.clickListenerByHolder.get(holder);
         if (listener != null) {
+          item = ExItemStack.getItem(e.getCurrentItem(), true);
+          UserInventoryClickEvent event = new UserInventoryClickEvent(user, e.isCancelled(), e.getView(),
+              e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
+
           listener.onUserInventoryClick(event);
+
+          if (event.isCancelled()) {
+            e.setCancelled(true);
+          }
         }
-      }
-
-      if (item.getId() != null) {
-        Collection<UserInventoryClickListener> listeners = clickListenerByItemId.get(item.getId());
-        this.handleInventoryClickListener(listeners, event);
-      }
-
-      if (event.isCancelled()) {
-        e.setCancelled(true);
-      }
-    }
-  }
-
-  private void handleInventoryClickListener(Collection<UserInventoryClickListener> listeners,
-                                            UserInventoryClickEvent event) {
-    if (listeners != null) {
-      for (UserInventoryClickListener listener : listeners) {
-        listener.onUserInventoryClick(event);
       }
     }
   }
@@ -126,7 +122,6 @@ public class InventoryEventManager implements Listener,
       Collection<InteractListenerInfo> listenerInfos = interactListenerByItemId.get(item.getId());
 
       if (listenerInfos != null && !listenerInfos.isEmpty()) {
-
         for (InteractListenerInfo listenerInfo : listenerInfos) {
           if (listenerInfo.isPreventDoubleClick()) {
             UUID uuid = user.getUniqueId();

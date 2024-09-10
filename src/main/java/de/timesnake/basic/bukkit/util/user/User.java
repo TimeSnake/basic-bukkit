@@ -1422,7 +1422,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param inv The {@link ExInventory} to open
    */
   public void openInventory(ExInventory inv) {
-    this.player.closeInventory();
     this.player.openInventory(inv.getInventory());
   }
 
@@ -1539,7 +1538,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
         continue;
       }
 
-      ExItemStack exItem = new ExItemStack(i, slot);
+      ExItemStack exItem = new ExItemStack(i).setSlot(slot);
 
       if (exItem.equals(item)) {
         int delta = exItem.getAmount() - remain;
@@ -1578,7 +1577,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
         continue;
       }
 
-      ExItemStack exItem = new ExItemStack(i, slot);
+      ExItemStack exItem = new ExItemStack(i).setSlot(slot);
 
       if (exItem.equals(item)) {
         this.setItem(slot, null);
@@ -1617,7 +1616,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
         continue;
       }
 
-      ExItemStack exItem = new ExItemStack(i, slot);
+      ExItemStack exItem = new ExItemStack(i).setSlot(slot);
 
       if (exItem.equals(item)) {
         this.setItem(slot, replace);

@@ -8,7 +8,6 @@ import de.timesnake.basic.bukkit.core.user.inventory.InventoryDelegation;
 import de.timesnake.basic.bukkit.util.Server;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -16,8 +15,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class ExInventory extends InventoryDelegation {
 
@@ -54,11 +51,6 @@ public class ExInventory extends InventoryDelegation {
 
   public ExInventory(InventoryType type, String title, InventoryHolder holder, ExItemStack... itemStacks) {
     this(type, Server.getTimeDownParser().parse2Component(title), holder, itemStacks);
-  }
-
-  public void setItemStack(int index, Material material, int amount, String name,
-                           List<String> lore) {
-    this.inventory.setItem(index, new ExItemStack(material, amount, name, lore));
   }
 
   public void setItemStack(int index, org.bukkit.inventory.ItemStack item) {

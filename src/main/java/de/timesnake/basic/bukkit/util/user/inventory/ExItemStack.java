@@ -4,11 +4,13 @@
 
 package de.timesnake.basic.bukkit.util.user.inventory;
 
+import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -16,7 +18,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
-import org.bukkit.potion.PotionData;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
@@ -30,15 +33,17 @@ import java.util.stream.Collectors;
 
 public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
-  private static Integer newItemId() {
-    int id = 1;
+  public static final NamespacedKey ID = new NamespacedKey(BasicBukkit.getPlugin(), "ex_item_id");
+  public static final NamespacedKey DROPABLE = new NamespacedKey(BasicBukkit.getPlugin(), "ex_item_dropable");
+  public static final NamespacedKey MOVEABLE = new NamespacedKey(BasicBukkit.getPlugin(), "ex_item_moveable");
 
-    if (!ITEMS_BY_ID.isEmpty()) {
-      id = Collections.max(ITEMS_BY_ID.keySet());
-    }
-    while (ITEMS_BY_ID.containsKey(id)) {
-      id++;
-    }
+  private static final Random RANDOM = new Random();
+
+  private static int newItemId() {
+    int id;
+    do {
+      id = RANDOM.nextInt();
+    } while (ITEMS_BY_ID.containsKey(id));
     return id;
   }
 
@@ -49,19 +54,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return ITEMS_BY_ID.get(id);
   }
 
-  private static Integer getIdFromString(String name) {
-    if (name == null) {
-      return null;
-    }
-
-    try {
-      return Integer.parseInt(name.split(ATTRIBUTE_SPLITTER)[0]);
-    } catch (NumberFormatException e) {
-      return null;
-    }
+  public static boolean hasId(ItemStack item) {
+    return ExItemStack.getIdFromItem(item) != null;
   }
 
-  private static Integer getIdFromItem(ItemStack item) {
+  public static Integer getIdFromItem(ItemStack item) {
     if (item == null) {
       return null;
     }
@@ -70,11 +67,40 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
       return ((ExItemStack) item).getId();
     }
 
-    if (item.getItemMeta() == null) {
+    if (!item.hasItemMeta()) {
+      return null;
+    }
+    return item.getItemMeta().getPersistentDataContainer().get(ID, PersistentDataType.INTEGER);
+  }
+
+  private static boolean setAttributes(ItemStack item, Integer id, Boolean dropable, Boolean moveable) {
+    return item.editMeta(meta -> {
+      PersistentDataContainer container = meta.getPersistentDataContainer();
+      container.set(ID, PersistentDataType.INTEGER, id);
+      container.set(DROPABLE, PersistentDataType.BOOLEAN, dropable);
+      container.set(MOVEABLE, PersistentDataType.BOOLEAN, moveable);
+      item.setItemMeta(meta);
+    });
+  }
+
+  private static final Map<Integer, ExItemStack> ITEMS_BY_ID = new HashMap<>();
+
+  static {
+    ITEMS_BY_ID.put(0, null);
+  }
+
+  public static ExItemStack getItem(ItemStack item, boolean createIfNotExists) {
+    if (item == null) {
       return null;
     }
 
-    return ExItemStack.getIdFromString(item.getItemMeta().getLocalizedName());
+    if (ExItemStack.hasId(item)) {
+      return ExItemStack.getItemById(ExItemStack.getIdFromItem(item));
+    } else if (createIfNotExists) {
+      return new ExItemStack(item, false);
+    }
+
+    return null;
   }
 
   /**
@@ -92,48 +118,29 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   public static ExItemStack getHashedIdItem(Material material, String name) {
     int hash = name.hashCode();
     if (ITEMS_BY_ID.containsKey(hash)) {
-      throw new DuplicateItemIdException(
-          "NameHash: Item name " + name + " is already used, name can not be hashed");
+      throw new DuplicateItemIdException("NameHash: Item name " + name + " is already used, name can not be hashed");
     }
     return new ExItemStack(hash, new ItemStack(material));
   }
 
-  public static ExItemStack getPotion(Material material, PotionType type, boolean extended,
-                                      boolean upgraded) {
+  public static ExItemStack getPotion(Material material, PotionType type) {
     ExItemStack item = new ExItemStack(material);
 
     if (!(item.getItemMeta() instanceof PotionMeta meta)) {
       throw new InvalidItemTypeException("PotionMeta");
     }
-
-    meta.setBasePotionData(new PotionData(type, extended, upgraded));
+    meta.setBasePotionType(type);
     item.setItemMeta(meta);
 
     return item;
   }
 
-  public static ExItemStack getPotion(Material material, PotionType type, Color color,
-                                      boolean extended, boolean upgraded) {
-    ExItemStack item = ExItemStack.getPotion(material, type, extended, upgraded);
-
-    if (!(item.getItemMeta() instanceof PotionMeta meta)) {
-      throw new InvalidItemTypeException("PotionMeta");
-    }
-
-    meta.setColor(color);
-    item.setItemMeta(meta);
-
-    return item;
+  public static ExItemStack getPotion(Material material, int amount, PotionType type) {
+    return ExItemStack.getPotion(material, type).asQuantity(amount);
   }
 
-  public static ExItemStack getPotion(Material material, int amount, PotionType type,
-                                      boolean extended, boolean upgraded) {
-    return ExItemStack.getPotion(material, type, extended, upgraded).asQuantity(amount);
-  }
-
-  public static ExItemStack getPotion(Material material, int amount, String displayName,
-                                      PotionType type, boolean extended, boolean upgraded) {
-    return ExItemStack.getPotion(material, amount, type, extended, upgraded)
+  public static ExItemStack getPotion(Material material, int amount, String displayName, PotionType type) {
+    return ExItemStack.getPotion(material, amount, type)
         .setDisplayName(displayName);
   }
 
@@ -148,7 +155,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     }
 
     meta.setColor(effectType.getColor());
-    meta.setDisplayName(displayName);
+    meta.displayName(Server.getTimeDownParser().parse2Component(displayName));
     meta.addCustomEffect(effectType.createEffect(duration, level), true);
     item.setItemMeta(meta);
 
@@ -174,8 +181,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return item;
   }
 
-  // id management, converter
-
   public static ExItemStack getLeatherArmor(Material material, String displayName, Color color) {
     return ExItemStack.getLeatherArmor(material, color).setDisplayName(displayName);
   }
@@ -193,92 +198,22 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return item;
   }
 
-  public static ExItemStack getHead(Player owner, String displayName, List<String> lore) {
-    return ExItemStack.getHead(owner, displayName).setExLore(lore);
-  }
-
-  public static ExItemStack getItem(ItemStack item, boolean createIfNotExists) {
-    if (item == null) {
-      return null;
-    }
-
-    if (ExItemStack.hasId(item)) {
-      return ExItemStack.getItemById(ExItemStack.getIdFromItem(item));
-    } else if (createIfNotExists) {
-      return new ExItemStack(item, false);
-    }
-
-    return null;
-  }
-
-  public static ExItemStack getItemByMeta(ItemMeta meta) {
-    return ExItemStack.getItemById(getIdFromString(meta.getLocalizedName()));
-  }
-
-  public static boolean hasId(ItemStack item) {
-    return ExItemStack.getIdFromItem(item) != null;
-  }
-
-  private static Boolean getDropableFromString(String name) {
-    if (name == null) {
-      return null;
-    }
-
-    String[] attributes = name.split(ATTRIBUTE_SPLITTER);
-
-    if (attributes.length < 2) {
-      return null;
-    }
-
-    return Boolean.parseBoolean(attributes[1]);
-  }
-
-  private static Boolean getMoveableFromString(String name) {
-    if (name == null) {
-      return null;
-    }
-
-    String[] attributes = name.split(ATTRIBUTE_SPLITTER);
-
-    if (attributes.length < 3) {
-      return null;
-    }
-
-    return Boolean.parseBoolean(attributes[2]);
-  }
-
-  private static void setAttributes(ItemStack item, Integer id, Boolean dropable,
-                                    Boolean moveable) {
-    if (id != null && dropable != null && item.getItemMeta() != null) {
-      ItemMeta meta = item.getItemMeta();
-      meta.setLocalizedName(id + ATTRIBUTE_SPLITTER + dropable + ATTRIBUTE_SPLITTER + moveable);
-      item.setItemMeta(meta);
-    }
-  }
-
-
-  // tag helper methods
-  private static final String ATTRIBUTE_SPLITTER = ";";
-  private static final Map<Integer, ExItemStack> ITEMS_BY_ID = new HashMap<>();
-
-  static {
-    ITEMS_BY_ID.put(0, null);
-  }
-
   protected final Integer id;
   protected Integer slot;
   private boolean dropable = true;
   private boolean moveable = true;
   private boolean immutable = false;
 
-  private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable,
-                      boolean clone) {
+  private ExItemStack(Integer id, ItemStack item, boolean dropable, boolean moveable, boolean clone) {
     super(clone ? item.clone() : item);
     this.id = id;
     this.dropable = dropable;
     this.moveable = moveable;
+
     ITEMS_BY_ID.put(id, this);
-    ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
+    if (!ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable)) {
+      throw new InvalidItemTypeException("Can not set id");
+    }
   }
 
   /**
@@ -296,12 +231,14 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
       this.moveable = ((ExItemStack) item).isMoveable();
       ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
     } else if (item.getItemMeta() != null) {
-      Integer id = getIdFromString(item.getItemMeta().getLocalizedName());
+      Integer id = getIdFromItem(item);
 
       if (id != null) {
         this.id = id;
-        this.dropable = getDropableFromString(item.getItemMeta().getLocalizedName());
-        this.moveable = getMoveableFromString(item.getItemMeta().getLocalizedName());
+        this.dropable = Boolean.TRUE.equals(item.getItemMeta().getPersistentDataContainer().get(DROPABLE,
+            PersistentDataType.BOOLEAN));
+        this.moveable = Boolean.TRUE.equals(item.getItemMeta().getPersistentDataContainer().get(MOVEABLE,
+            PersistentDataType.BOOLEAN));
       } else {
         this.id = newItemId();
         ITEMS_BY_ID.put(this.id, this);
@@ -311,41 +248,22 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     } else {
       throw new InvalidItemTypeException("No ItemMeta");
     }
-
   }
 
-  public ExItemStack(Integer id, ItemStack item) {
+  private ExItemStack(Integer id, ItemStack item) {
     this(id, item, true, true, true);
   }
 
-  private ExItemStack(Integer id, ItemStack item, Integer slot, boolean clone) {
+  private ExItemStack(Integer id, ItemStack item, boolean clone) {
     this(id, item, true, true, clone);
-    this.slot = slot;
-  }
-
-  private ExItemStack(Integer id, ItemStack item, Integer slot, boolean dropable,
-                      boolean moveable, boolean clone) {
-    this(id, item, slot, clone);
-    this.dropable = dropable;
-    this.moveable = moveable;
   }
 
   public ExItemStack(ItemStack item) {
     this(item, true);
   }
 
-  public ExItemStack(Integer id, ItemStack item, Integer slot) {
-    this(id, item);
-    this.slot = slot;
-  }
-
-  public ExItemStack(ItemStack item, Integer slot) {
-    this(item, true);
-    this.slot = slot;
-  }
-
   public ExItemStack(Material material) {
-    this(newItemId(), new ItemStack(material));
+    this(newItemId(), ItemStack.of(material), false);
   }
 
   public ExItemStack(Material material, int amount) {
@@ -358,21 +276,25 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     this._setDisplayName(displayName);
   }
 
+  @Deprecated
   public ExItemStack(Material material, int amount, String displayName) {
     this(material, displayName);
     this._setAmount(amount);
   }
 
+  @Deprecated
   public ExItemStack(Material material, int amount, String displayName, List<String> lore) {
     this(material, displayName, lore);
     this._setAmount(amount);
   }
 
+  @Deprecated
   public ExItemStack(Material material, String displayName, List<String> lore) {
     this(material, displayName);
     this.setLore(lore);
   }
 
+  @Deprecated
   public ExItemStack(Material material, String displayName, String... lines) {
     this(material, displayName, Arrays.asList(lines));
   }
@@ -382,11 +304,13 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     this.slot = slot;
   }
 
+  @Deprecated
   public ExItemStack(Integer slot, Material material, String displayName) {
     this(material, displayName);
     this.slot = slot;
   }
 
+  @Deprecated
   public ExItemStack(Integer slot, Material material, String displayName, List<String> lore) {
     this(material, displayName, lore);
     this.slot = slot;
@@ -473,23 +397,22 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
-  public ExItemStack setExType(@NotNull Material type) {
+  /**
+   * Changes type of ItemStack
+   * <p>
+   * IMPORTANT: returns NEW {@link ExItemStack} with same id
+   *
+   * @param type The Material type of the new ItemStack.
+   * @return new {@link ExItemStack} with same id
+   */
+  @Override
+  public @NotNull ExItemStack withType(@NotNull Material type) {
     this.checkImmutable();
-    return this._setExType(type);
+    return this._withType(type);
   }
 
-  protected ExItemStack _setExType(@NotNull Material type) {
-    this._setType(type);
-    return this;
-  }
-
-  public void setType(@NotNull Material type) {
-    this.checkImmutable();
-    this._setType(type);
-  }
-
-  protected void _setType(@NotNull Material type) {
-    super.setType(type);
+  protected ExItemStack _withType(@NotNull Material type) {
+    return new ExItemStack(this.id, super.withType(type), this.dropable, this.moveable, false);
   }
 
   public ExItemStack setDisplayName(String displayName) {
@@ -579,7 +502,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   @Override
-  public ExItemStack asQuantity(int quantity) {
+  public @NotNull ExItemStack asQuantity(int quantity) {
     this.checkImmutable();
     return this._asQuantity(quantity);
   }
@@ -600,7 +523,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   @Override
-  public ExItemStack asOne() {
+  public @NotNull ExItemStack asOne() {
     this.checkImmutable();
     return this._asOne();
   }
@@ -806,7 +729,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   @Override
-  public ExItemStack add(int qty) {
+  public @NotNull ExItemStack add(int qty) {
     this.checkImmutable();
     return this._add(qty);
   }
@@ -816,7 +739,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   @Override
-  public ExItemStack subtract(int qty) {
+  public @NotNull ExItemStack subtract(int qty) {
     this.checkImmutable();
     return this._subtract(qty);
   }
@@ -988,9 +911,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
    * @return the cloned {@link ExItemStack}
    */
   public ExItemStack cloneWithNewId() {
-    ItemStack item = this.clone();
-    return new ExItemStack(ExItemStack.newItemId(), item, this.slot, this.dropable,
-        this.moveable, false);
+    return new ExItemStack(ExItemStack.newItemId(), this, this.dropable, this.moveable, true).setSlot(this.slot);
   }
 
   /**
@@ -1007,8 +928,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
    * @return the cloned {@link ExItemStack}
    */
   public ExItemStack cloneWithId() {
-    ItemStack item = super.clone();
-    return new ExItemStack(this.id, item, this.slot, this.dropable, this.moveable, false);
+    return new ExItemStack(this.id, this, this.dropable, this.moveable, true).setSlot(this.slot);
   }
 
   /**
@@ -1018,17 +938,18 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
    */
   public ItemStack cloneWithoutId() {
     ItemStack item = this.cloneWithNewId();
-    if (item.getItemMeta() != null) {
-      ItemMeta meta = item.getItemMeta();
-      meta.setLocalizedName(null);
-      item.setItemMeta(meta);
+    if (item.hasItemMeta()) {
+      item.editMeta(meta -> {
+        meta.getPersistentDataContainer().remove(ID);
+        meta.getPersistentDataContainer().remove(DROPABLE);
+        meta.getPersistentDataContainer().remove(MOVEABLE);
+      });
     }
     return item;
   }
 
   public enum PotionMaterial {
-    DRINK(Material.POTION), SPLASH(Material.SPLASH_POTION), LINGERING(
-        Material.LINGERING_POTION);
+    DRINK(Material.POTION), SPLASH(Material.SPLASH_POTION), LINGERING(Material.LINGERING_POTION);
 
     private final Material material;
 
