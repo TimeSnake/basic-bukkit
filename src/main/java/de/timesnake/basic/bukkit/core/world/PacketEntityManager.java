@@ -14,17 +14,11 @@ import de.timesnake.basic.bukkit.util.world.entity.MapDisplayBuilder;
 import de.timesnake.basic.bukkit.util.world.entity.PacketEntity;
 import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.Tuple;
-import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Team;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Chunk;
@@ -40,49 +34,6 @@ import java.util.stream.Collectors;
 
 public class PacketEntityManager implements Listener, PacketPlayOutListener,
     de.timesnake.basic.bukkit.util.world.entity.EntityManager {
-
-  public static final String FAKE_PLAYER_TEAM_NAME = "fake_players";
-  public static final PlayerTeam FAKE_PLAYER_TEAM = new PlayerTeam(null, FAKE_PLAYER_TEAM_NAME) {
-    @Override
-    public Component getPlayerPrefix() {
-      return Component.empty();
-    }
-
-    @Override
-    public Component getPlayerSuffix() {
-      return Component.empty();
-    }
-
-    @Override
-    public ChatFormatting getColor() {
-      return ChatFormatting.WHITE;
-    }
-
-    @Override
-    public CollisionRule getCollisionRule() {
-      return CollisionRule.NEVER;
-    }
-
-    @Override
-    public Component getDisplayName() {
-      return Component.empty();
-    }
-
-    @Override
-    public String getName() {
-      return FAKE_PLAYER_TEAM_NAME;
-    }
-
-    @Override
-    public Visibility getDeathMessageVisibility() {
-      return Visibility.NEVER;
-    }
-
-    @Override
-    public Visibility getNameTagVisibility() {
-      return Visibility.NEVER;
-    }
-  };
 
   private final Logger logger = LogManager.getLogger("packet-entity.manager");
 
@@ -231,22 +182,11 @@ public class PacketEntityManager implements Listener, PacketPlayOutListener,
 
   @EventHandler
   public void onUserJoin(AsyncUserJoinEvent e) {
-    PlayerTeam team = new PlayerTeam(ClientboundSetPlayerTeamPacketBuilder.DUMMY, FAKE_PLAYER_TEAM_NAME);
-    team.setNameTagVisibility(Team.Visibility.NEVER);
-    team.setColor(ChatFormatting.WHITE);
-    team.setCollisionRule(Team.CollisionRule.NEVER);
-    team.setDeathMessageVisibility(Team.Visibility.NEVER);
-    Packet<?> packet = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true);
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(e.getUser(), packet);
-
     Collection<Chunk> preLoadedChunks = this.preLoadedChunksByUuid.remove(e.getUser().getUniqueId());
-
     if (preLoadedChunks != null) {
       for (Chunk chunk : preLoadedChunks) {
         Server.runTaskLaterAsynchrony(() -> this.loadEntitiesInChunk(e.getUser(), chunk),
             20 * 3, BasicBukkit.getPlugin());
-
       }
     }
   }
