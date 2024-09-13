@@ -4,26 +4,25 @@
 
 package de.timesnake.basic.bukkit.util.world.entity;
 
-import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.world.PacketEntityManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.library.packets.core.packet.out.entity.ClientboundSetEntityDataPacketBuilder;
-import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.EnumSet;
 import java.util.List;
 
 public class PacketPlayer extends PacketEntity {
 
-  protected final Player player;
+  protected final ServerPlayer player;
 
-  public PacketPlayer(Player player, ExLocation location) {
+  public PacketPlayer(ServerPlayer player, ExLocation location) {
     super(location);
     this.player = player;
   }
@@ -34,18 +33,18 @@ public class PacketPlayer extends PacketEntity {
       return;
     }
 
-    Server.getScoreboardManager().getPacketManager().sendPacket(user,
-        ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(PacketEntityManager.FAKE_PLAYER_TEAM.getName(),
-            player.getName().getString()));
+    Server.getScoreboardManager().getPacketManager().sendPacket(user, new ClientboundPlayerInfoUpdatePacket(
+        EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
+            ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
+        new ClientboundPlayerInfoUpdatePacket.Entry(player.getUUID(), player.gameProfile, false, 0,
+            player.gameMode.getGameModeForPlayer(), player.getTabListDisplayName(), null)));
 
-    Server.getScoreboardManager().getPacketManager().sendPacket(user,
-        ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of((ServerPlayer) player)));
-
-    user.sendPacket(ClientboundPlayerInfoUpdatePacket.createSinglePlayerInitializing(((ServerPlayer) player), false));
+    user.sendPacket(new ClientboundAddEntityPacket(this.player, 0, this.player.getOnPos()));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setAllFromEntity().build());
-
-    Server.runTaskLaterSynchrony(() -> Server.getScoreboardManager().getPacketManager().sendPacket(user,
-        new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID()))), 6, BasicBukkit.getPlugin());
   }
 
   @Override
