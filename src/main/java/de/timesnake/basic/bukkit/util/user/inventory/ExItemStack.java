@@ -210,7 +210,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     this.dropable = dropable;
     this.moveable = moveable;
 
-    ITEMS_BY_ID.put(id, this);
+    ITEMS_BY_ID.putIfAbsent(id, this);
     if (!ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable)) {
       throw new InvalidItemTypeException("Can not set id");
     }
@@ -337,11 +337,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public ExItemStack unbreakable() {
+    this.checkImmutable();
     return this._unbreakable();
   }
 
   protected ExItemStack _unbreakable() {
-    this.checkImmutable();
     return this._setUnbreakable(true);
   }
 
@@ -358,12 +358,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this._setSlot(slot);
   }
 
-  /**
-   * Sets the item slot
-   *
-   * @param slot The slot to set
-   * @return the item itself
-   */
   public ExItemStack setSlot(EquipmentSlot slot) {
     this.checkImmutable();
     return this._setSlot(slot);
@@ -672,13 +666,18 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return super.setItemMeta(itemMeta);
   }
 
+  public ExItemStack enchant(boolean enchant) {
+    this.checkImmutable();
+    return enchant ? this._enchant() : this._disenchant();
+  }
+
   public ExItemStack enchant() {
     this.checkImmutable();
     return this._enchant();
   }
 
   protected ExItemStack _enchant() {
-    this._addUnsafeEnchantment(Enchantment.AQUA_AFFINITY, 1);
+    this._addUnsafeEnchantment(Enchantment.LURE, 1);
     this._addItemFlags(ItemFlag.HIDE_ENCHANTS);
     return this;
   }
@@ -833,6 +832,15 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
+  public ExItemStack onClick(UserInventoryClickListener listener, boolean cancel, boolean update) {
+    Server.getInventoryEventManager().addClickListener(event -> {
+      listener.onUserInventoryClick(event);
+      event.setCancelled(cancel);
+      event.setUpdateItem(update);
+    }, this);
+    return this;
+  }
+
   public ExItemStack onInteract(UserInventoryInteractListener listener) {
     Server.getInventoryEventManager().addInteractListener(listener, this);
     return this;
@@ -907,6 +915,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
 
   /**
    * Clones the item with new id
+   * <p>
+   * The returned cloned item is not equal to the original item.
+   * Hence, {@code original.equals(cloned)} returns false.
    *
    * @return the cloned {@link ExItemStack}
    */
@@ -923,7 +934,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
    * <p>
    * So, the {@link UserInventoryClickEvent} will find the original item, but an equality check with
    * the cloned one returns true.
-   * </p>
    *
    * @return the cloned {@link ExItemStack}
    */

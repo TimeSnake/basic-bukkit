@@ -73,6 +73,10 @@ public class InventoryEventManager implements Listener,
             listener.onUserInventoryClick(event);
           }
 
+          if (event.isUpdateItem()) {
+            e.getClickedInventory().setItem(e.getSlot(), item);
+          }
+
           e.setCancelled(event.isCancelled());
         }
       }
@@ -86,6 +90,10 @@ public class InventoryEventManager implements Listener,
               e.getClickedInventory(), item, e.getSlot(), e.getClick(), e.getAction());
 
           listener.onUserInventoryClick(event);
+
+          if (event.isUpdateItem()) {
+            e.getClickedInventory().setItem(e.getSlot(), item);
+          }
 
           if (event.isCancelled()) {
             e.setCancelled(true);
