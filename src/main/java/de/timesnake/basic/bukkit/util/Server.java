@@ -671,6 +671,9 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     return server.getUserPermissionManager();
   }
 
-  private static final ServerManager server = ServerManager.getInstance();
+  public static String getCoinsName() {
+    return server.getCoinsName();
+  }
 
+  private static final ServerManager server = ServerManager.getInstance();
 }

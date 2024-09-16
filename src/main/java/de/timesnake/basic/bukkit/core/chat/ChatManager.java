@@ -99,11 +99,12 @@ public class ChatManager implements de.timesnake.library.chat.Chat, Listener,
     String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
 
     boolean isCanceled = ((UserEventManager) Server.getUserEventManager()).onUserChat(user, e.isCancelled(), msg);
+
+    e.setCancelled(true);
+
     if (isCanceled) {
       return;
     }
-
-    e.setCancelled(true);
 
     boolean global = false;
 

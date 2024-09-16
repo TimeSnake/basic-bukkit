@@ -5,8 +5,9 @@
 package de.timesnake.basic.bukkit.util.user.event;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import javax.annotation.Nonnull;
 import org.bukkit.event.HandlerList;
+
+import javax.annotation.Nonnull;
 
 public class UserChatCommandEvent extends CancelableUserEvent {
 
@@ -16,7 +17,7 @@ public class UserChatCommandEvent extends CancelableUserEvent {
 
   private static final HandlerList HANDLERS = new HandlerList();
   private final String message;
-  private boolean removeLisener = true;
+  private boolean removeListener = true;
 
   public UserChatCommandEvent(User user, boolean isCanceled, String message) {
     super(user, isCanceled);
@@ -33,11 +34,11 @@ public class UserChatCommandEvent extends CancelableUserEvent {
     return message;
   }
 
-  public boolean isRemoveLisener() {
-    return removeLisener;
+  public boolean isRemoveListener() {
+    return removeListener;
   }
 
-  public void removeLisener(boolean removeLisener) {
-    this.removeLisener = removeLisener;
+  public void removeListener(boolean removeListener) {
+    this.removeListener = removeListener;
   }
 }

@@ -50,6 +50,7 @@ import de.timesnake.library.basic.util.ServerType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.chat.TimeDownParser;
+import de.timesnake.library.network.NetworkVariables;
 import de.timesnake.library.packets.util.PacketManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -893,5 +894,9 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
 
   public UserPermissionManager getUserPermissionManager() {
     return userPermissionManager;
+  }
+
+  public String getCoinsName() {
+    return this.network.getVariables().getValue(NetworkVariables.COINS_NAME);
   }
 }

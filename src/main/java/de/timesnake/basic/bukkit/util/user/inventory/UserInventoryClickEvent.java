@@ -17,6 +17,7 @@ public class UserInventoryClickEvent extends UserInventoryEvent {
   private final Integer slot;
   private final ClickType clickType;
   private final InventoryAction action;
+  private boolean updateItem;
 
   public UserInventoryClickEvent(User user, boolean isCanceled, InventoryView view, Inventory inventory,
                                  ExItemStack clickedItem, Integer slot, ClickType clickType, InventoryAction action) {
@@ -26,6 +27,7 @@ public class UserInventoryClickEvent extends UserInventoryEvent {
     this.slot = slot;
     this.clickType = clickType;
     this.action = action;
+    this.updateItem = false;
   }
 
   public InventoryView getView() {
@@ -46,5 +48,13 @@ public class UserInventoryClickEvent extends UserInventoryEvent {
 
   public InventoryAction getAction() {
     return action;
+  }
+
+  public boolean isUpdateItem() {
+    return updateItem;
+  }
+
+  public void setUpdateItem(boolean updateItem) {
+    this.updateItem = updateItem;
   }
 }
