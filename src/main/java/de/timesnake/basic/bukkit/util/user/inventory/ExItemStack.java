@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,20 +39,18 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   public static final NamespacedKey MOVEABLE = new NamespacedKey(BasicBukkit.getPlugin(), "ex_item_moveable");
 
   private static final Random RANDOM = new Random();
+  private static final Set<Integer> ITEM_IDS = ConcurrentHashMap.newKeySet();
+
+  static {
+    ITEM_IDS.add(0);
+  }
 
   private static int newItemId() {
     int id;
     do {
       id = RANDOM.nextInt();
-    } while (ITEMS_BY_ID.containsKey(id));
+    } while (ITEM_IDS.contains(id));
     return id;
-  }
-
-  public static ExItemStack getItemById(Integer id) {
-    if (id == null) {
-      return null;
-    }
-    return ITEMS_BY_ID.get(id);
   }
 
   public static boolean hasId(ItemStack item) {
@@ -79,14 +78,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
       container.set(ID, PersistentDataType.INTEGER, id);
       container.set(DROPABLE, PersistentDataType.BOOLEAN, dropable);
       container.set(MOVEABLE, PersistentDataType.BOOLEAN, moveable);
-      item.setItemMeta(meta);
     });
-  }
-
-  private static final Map<Integer, ExItemStack> ITEMS_BY_ID = new HashMap<>();
-
-  static {
-    ITEMS_BY_ID.put(0, null);
   }
 
   public static ExItemStack getItem(ItemStack item, boolean createIfNotExists) {
@@ -94,12 +86,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
       return null;
     }
 
-    if (ExItemStack.hasId(item)) {
-      return ExItemStack.getItemById(ExItemStack.getIdFromItem(item));
-    } else if (createIfNotExists) {
+    if (createIfNotExists || ExItemStack.hasId(item)) {
       return new ExItemStack(item, false);
     }
-
     return null;
   }
 
@@ -117,7 +106,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
    */
   public static ExItemStack getHashedIdItem(Material material, String name) {
     int hash = name.hashCode();
-    if (ITEMS_BY_ID.containsKey(hash)) {
+    if (ITEM_IDS.contains(hash)) {
       throw new DuplicateItemIdException("NameHash: Item name " + name + " is already used, name can not be hashed");
     }
     return new ExItemStack(hash, new ItemStack(material));
@@ -210,9 +199,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     this.dropable = dropable;
     this.moveable = moveable;
 
-    ITEMS_BY_ID.putIfAbsent(id, this);
+    ITEM_IDS.add(id);
     if (!ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable)) {
-      throw new InvalidItemTypeException("Can not set id");
+      throw new InvalidItemTypeException("Can not set custom attributes");
     }
   }
 
@@ -241,7 +230,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
             PersistentDataType.BOOLEAN));
       } else {
         this.id = newItemId();
-        ITEMS_BY_ID.put(this.id, this);
+        ITEM_IDS.add(this.id);
       }
 
       ExItemStack.setAttributes(this, this.id, this.dropable, this.moveable);
@@ -271,6 +260,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     this._setAmount(amount);
   }
 
+  @Deprecated
   public ExItemStack(Material material, String displayName) {
     this(material);
     this._setDisplayName(displayName);
@@ -477,17 +467,17 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   protected ExItemStack _replaceLoreLine(int line, String text) {
-    ItemMeta meta = this.getItemMeta();
-    @Nullable List<Component> lore = meta.lore();
-    if (lore == null) {
-      lore = new LinkedList<>();
-    }
-    while (lore.size() <= line) {
-      lore.add(lore.size(), Component.text(""));
-    }
-    lore.set(line, Component.text(text));
-    meta.lore(lore);
-    this.setItemMeta(meta);
+    this.editMeta(m -> {
+      @Nullable List<Component> lore = m.lore();
+      if (lore == null) {
+        lore = new LinkedList<>();
+      }
+      while (lore.size() <= line) {
+        lore.add(lore.size(), Component.text(""));
+      }
+      lore.set(line, Component.text(text));
+      m.lore(lore);
+    });
     return this;
   }
 
