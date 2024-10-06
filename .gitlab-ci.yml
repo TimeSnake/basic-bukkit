@@ -18,7 +18,6 @@ cache:
 stages:
   - build
   - deploy
-  - trigger-root
 
 build:
   stage: build
@@ -50,8 +49,4 @@ publish:
   tags:
     - gradle
 
-plugin-project:
-  stage: trigger-root
-  trigger:
-    project: timesnake/minecraft/plugin-project
 
