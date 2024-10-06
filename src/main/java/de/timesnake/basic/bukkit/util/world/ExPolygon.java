@@ -4,7 +4,11 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
+import de.timesnake.library.basic.util.Tuple;
+import org.apache.commons.lang3.stream.IntStreams;
+
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,6 +19,7 @@ public class ExPolygon {
   private final int minHeight;
   private final int maxHeight;
   private final boolean unbounded;
+  private Collection<Tuple<Integer, Integer>> containedPoints;
 
   public ExPolygon(ExWorld world, Polygon polygon, int minHeight, int maxHeight) {
     this.world = world;
@@ -77,5 +82,39 @@ public class ExPolygon {
                               && location.getY() < this.maxHeight
                               && this.polygon.contains(location.getX(), location.getZ())
                               && this.polygon.contains(location.getX() - 1, location.getZ() - 1));
+  }
+
+  public Collection<Tuple<Integer, Integer>> getPointsInside() {
+    if (this.containedPoints != null) {
+      return this.containedPoints;
+    }
+
+    this.containedPoints = new ArrayList<>();
+
+    Rectangle rectangle = this.polygon.getBounds();
+    for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
+      for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
+        if (this.polygon.contains(x, y)) {
+          this.containedPoints.add(new Tuple<>(x, y));
+        }
+      }
+    }
+    return this.containedPoints;
+  }
+
+  private Collection<ExBlock> getBlocksInside() {
+    return this.getPointsInside().stream()
+        .map(p -> this.world.getExBlockAt(p.getA(), this.minHeight, p.getB()))
+        .flatMap(b -> IntStreams.range(this.maxHeight).mapToObj(i -> b.getRelative(0, i, 0)))
+        .toList();
+  }
+
+  public Collection<ExBlock> getSolidBlocksInside() {
+    return this.getBlocksInside().stream().filter(b -> b.getBlock().isSolid()).toList();
+  }
+
+  public int getMaxDiameter() {
+    Rectangle rectangle = this.polygon.getBounds();
+    return Math.max(rectangle.height, rectangle.width);
   }
 }
