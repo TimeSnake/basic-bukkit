@@ -6,7 +6,8 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.sideboard;
 
 import de.timesnake.basic.bukkit.core.user.scoreboard.Scoreboard;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager;
+import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardViewer;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,8 +21,8 @@ public class Sideboard extends Scoreboard implements de.timesnake.basic.bukkit.u
   private final HashMap<Integer, String> scores = new HashMap<>();
   private String title;
 
-  public Sideboard(SideboardBuilder builder) {
-    super(builder.getName());
+  public Sideboard(SideboardBuilder builder, ScoreboardPacketManager packetManager) {
+    super(builder.getName(), packetManager);
     this.title = builder.getTitle();
 
     scores.putAll(builder.getScores());
@@ -35,8 +36,8 @@ public class Sideboard extends Scoreboard implements de.timesnake.basic.bukkit.u
   @Override
   public void setTitle(String title) {
     this.title = Server.getTimeDownParser().parse2Legacy(title);
-    for (User user : super.watchingUsers) {
-      user.setSideboardTitle(this.title);
+    for (ScoreboardViewer viewer : super.viewers) {
+      viewer.setSideboardTitle(this.title);
     }
     this.logger.info("sideboard '{}' set title '{}'", this.name, this.title);
   }
@@ -50,16 +51,16 @@ public class Sideboard extends Scoreboard implements de.timesnake.basic.bukkit.u
     }
 
     this.scores.put(line, text);
-    for (User user : watchingUsers) {
-      user.setSideboardScore(line, text);
+    for (ScoreboardViewer viewer : viewers) {
+      viewer.setSideboardScore(line, text);
     }
     this.logger.info("sideboard '{}' set score {}: '{}'", this.name, line, text);
   }
 
   @Override
   public void removeScore(int line) {
-    for (User user : watchingUsers) {
-      user.removeSideboardScore(line);
+    for (ScoreboardViewer viewer : viewers) {
+      viewer.removeSideboardScore(line);
     }
     this.scores.remove(line);
     this.logger.info("sideboard '{} remove score '{}'", this.name, line);

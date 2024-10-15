@@ -53,8 +53,4 @@ public interface TablistPlayer {
   @Nullable
   String getTablistPrefix();
 
-  default @NotNull NameTagVisibility canSeeNameTagOf(TablistPlayer otherPlayer) {
-    return NameTagVisibility.ALWAYS;
-  }
-
 }

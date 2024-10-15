@@ -46,20 +46,11 @@ import de.timesnake.library.chat.Chat;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.entities.entity.PlayerBuilder;
-import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
-import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
-import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
-import net.minecraft.network.chat.numbers.BlankFormat;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
-import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.*;
@@ -74,12 +65,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -96,7 +84,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * database. It is recommended to extend these class in a new plugin
  */
 
-public class User extends UserPlayerDelegation implements ChannelListener, TablistPlayer, ChatMember {
+public class User extends UserPlayerDelegation implements ChannelListener, TablistPlayer, ChatMember, ScoreboardViewer {
 
   private final Logger punishLogger = LogManager.getLogger("user.punish");
   private final Logger groupLogger = LogManager.getLogger("user.group");
@@ -108,10 +96,9 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   private final boolean airMode;
   private String task;
 
-  private final HashMap<Integer, String> sideboardScores = new HashMap<>();
   private final Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
-  private Tablist tablist;
-  private Sideboard sideboard;
+
+  private final ScoreboardUser scoreboardUser;
 
   private final ServerInfo lastServer;
   private final ServerInfo lastLobbyServer;
@@ -212,6 +199,28 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
     this.inventoryLocked = false;
     this.blockBreakPlaceLocked = false;
+
+    this.scoreboardUser = new ScoreboardUser() {
+      @Override
+      public String getName() {
+        return User.this.getName();
+      }
+
+      @Override
+      public UUID getUniqueId() {
+        return User.this.getUniqueId();
+      }
+
+      @Override
+      public NameTagVisibility canSeeNameTagOf(TablistPlayer player) {
+        return User.this.canSeeNameTagOf(player);
+      }
+
+      @Override
+      public void sendPacket(Packet<?> packet) {
+        User.this.sendPacket(packet);
+      }
+    };
 
     Server.getChannel().addListener(this, Collections.singleton(player.getUniqueId()));
   }
@@ -885,198 +894,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       return list.get(2);
     }
     return null;
-  }
-
-  /**
-   * Adds a tablist entry to the {@link Scoreboard}
-   *
-   * @param player The {@link TablistPlayer} to add
-   */
-
-  public void addTablistEntry(TablistPlayer player) {
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player.getMinecraftPlayer())));
-  }
-
-  /**
-   * Adds a tablist entry to the {@link Scoreboard} with team
-   *
-   * @param player The {@link TablistPlayer} to add
-   * @param rank   The rank of the group
-   */
-
-  public void addTablistEntry(TablistPlayer player, String rank) {
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer(rank, player.getTablistName()));
-    this.addTablistEntry(player);
-  }
-
-  /**
-   * Removes the user from the scoreboard (tablist) and scoreboard-team
-   *
-   * @param player The {@link TablistPlayer} to remove
-   */
-  public void removeTablistEntry(TablistPlayer player) {
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundPlayerInfoRemovePacket(List.of(player.getUniqueId())));
-  }
-
-  /**
-   * Removes the user from the scoreboard (tablist) and scoreboard-team
-   *
-   * @param player The {@link TablistPlayer} to remove
-   * @param rank   The rank of the group
-   */
-  public void removeTablistEntry(TablistPlayer player, String rank) {
-    this.removeTablistEntry(player);
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetPlayerTeamPacketBuilder.ofRemovePlayer(rank, player.getTablistName()));
-  }
-
-  /**
-   * Sets the {@link Scoreboard} {@link DisplaySlot} player-list
-   *
-   * @param tablist The {@link Tablist} to set
-   */
-  public void setTablist(Tablist tablist) {
-
-    if (this.tablist != null) {
-      if (this.tablist.equals(tablist)) {
-        return;
-      }
-      ((de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist) this.tablist).removeWatchingUser(this);
-    }
-
-    this.tablist = tablist;
-    if (this.tablist == null) {
-      Tablist standard = Server.getScoreboardManager().getTablist(Server.getName());
-      this.setTablist(standard);
-      return;
-    }
-    ((de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist) tablist).addWatchingUser(this);
-
-  }
-
-  /**
-   * Sets the {@link Scoreboard} {@link DisplaySlot} sideboard
-   *
-   * @param sideboard The {@link Sideboard} to set
-   */
-  public void setSideboard(Sideboard sideboard) {
-    if (this.sideboard != null) {
-      if (this.sideboard.equals(sideboard)) {
-        return;
-      }
-      this.sideboard.removeWatchingUser(this);
-
-      for (Map.Entry<Integer, String> score : this.sideboard.getScores().entrySet()) {
-        this.removeSideboardScore(score.getKey(), score.getValue());
-      }
-
-      Server.getScoreboardManager().getPacketManager().sendPacket(this,
-          ClientboundSetObjectivePacketBuilder.ofRemove(this.sideboard.getName()));
-    }
-
-    this.sideboard = sideboard;
-
-    if (this.sideboard == null) {
-      return;
-    }
-
-    sideboard.addWatchingUser(this);
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetObjectivePacketBuilder.ofAdd(this.sideboard.getName(), this.sideboard.getTitle(),
-            ObjectiveCriteria.DUMMY, ObjectiveCriteria.DUMMY.getDefaultRenderType()));
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetDisplayObjectivePacketBuilder.ofAdd(net.minecraft.world.scores.DisplaySlot.SIDEBAR,
-            this.sideboard.getName()));
-
-    for (Map.Entry<Integer, String> entry : sideboard.getScores().entrySet()) {
-      this.setSideboardScore(entry.getKey(), entry.getValue());
-    }
-
-  }
-
-  public void setSideboardTitle(String title) {
-    if (this.sideboard == null) {
-      return;
-    }
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetObjectivePacketBuilder.ofChange(this.sideboard.getName(), title, ObjectiveCriteria.DUMMY,
-            ObjectiveCriteria.DUMMY.getDefaultRenderType()));
-  }
-
-  /**
-   * Sets a {@link Scoreboard} score
-   * <p>
-   * <p>
-   * Removes previous score in the line
-   *
-   * @param line The line of the score
-   * @param text The text to set
-   */
-  public void setSideboardScore(int line, @Nonnull String text) {
-    this.removeSideboardScore(line);
-
-    if (this.sideboard == null) {
-      return;
-    }
-
-    this.sideboardScores.put(line, text);
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundSetScorePacket(text, this.sideboard.getName(), line,
-            Optional.of(net.minecraft.network.chat.Component.literal(text)), Optional.of(BlankFormat.INSTANCE)));
-  }
-
-  /**
-   * Removes a {@link Scoreboard} score
-   *
-   * @param line The line to remove
-   * @param text The text to remove
-   */
-  public void removeSideboardScore(int line, @Nonnull String text) {
-    if (this.sideboard == null) {
-      return;
-    }
-
-    if (!this.sideboardScores.containsKey(line)) {
-      return;
-    }
-    this.sideboardScores.remove(line);
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        new ClientboundResetScorePacket(text, this.sideboard.getName()));
-  }
-
-  /**
-   * Removes a {@link Scoreboard} score
-   *
-   * @param line The line to remove
-   */
-  public void removeSideboardScore(int line) {
-    this.removeSideboardScore(line, this.sideboardScores.get(line));
-  }
-
-  /**
-   * Resets the user sideboard
-   */
-  public void resetSideboard() {
-    if (this.sideboard == null) {
-      return;
-    }
-
-    Server.getScoreboardManager().getPacketManager().sendPacket(this,
-        ClientboundSetObjectivePacketBuilder.ofRemove(this.sideboard.getName()));
-    this.sideboardScores.clear();
-    this.setSideboard(null);
-  }
-
-
-  public @NotNull Scoreboard getScoreboard() {
-    return this.getPlayer().getScoreboard();
   }
 
   /**
@@ -2135,6 +1952,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     }
   }
 
+  @Override
   public void sendPacket(Packet<?> packet) {
     if (packet == null) {
       return;
@@ -2172,4 +1990,63 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.setAttackDamage(2);
   }
 
+  @Override
+  public NameTagVisibility canSeeNameTagOf(TablistPlayer player) {
+    return NameTagVisibility.ALWAYS;
+  }
+
+  @Override
+  public void addTablistEntry(TablistPlayer player, String rank) {
+    scoreboardUser.addTablistEntry(player, rank);
+  }
+
+  @Override
+  public void addTablistEntry(TablistPlayer player) {
+    scoreboardUser.addTablistEntry(player);
+  }
+
+  @Override
+  public void removeTablistEntry(TablistPlayer player) {
+    scoreboardUser.removeTablistEntry(player);
+  }
+
+  @Override
+  public void removeTablistEntry(TablistPlayer player, String rank) {
+    scoreboardUser.removeTablistEntry(player, rank);
+  }
+
+  @Override
+  public void setTablist(Tablist tablist) {
+    scoreboardUser.setTablist(tablist);
+  }
+
+  @Override
+  public void setSideboard(Sideboard sideboard) {
+    scoreboardUser.setSideboard(sideboard);
+  }
+
+  @Override
+  public void setSideboardTitle(String title) {
+    scoreboardUser.setSideboardTitle(title);
+  }
+
+  @Override
+  public void setSideboardScore(int line, @NotNull String text) {
+    scoreboardUser.setSideboardScore(line, text);
+  }
+
+  @Override
+  public void removeSideboardScore(int line, @NotNull String text) {
+    scoreboardUser.removeSideboardScore(line, text);
+  }
+
+  @Override
+  public void removeSideboardScore(int line) {
+    scoreboardUser.removeSideboardScore(line);
+  }
+
+  @Override
+  public void resetSideboard() {
+    scoreboardUser.resetSideboard();
+  }
 }

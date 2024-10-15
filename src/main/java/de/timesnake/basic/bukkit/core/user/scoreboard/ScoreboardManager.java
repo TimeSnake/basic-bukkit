@@ -85,7 +85,7 @@ public class ScoreboardManager implements Listener,
 
   @Override
   public Sideboard registerSideboard(SideboardBuilder builder) {
-    Sideboard sideboard = new Sideboard(builder);
+    Sideboard sideboard = new Sideboard(builder, this.packetManager);
     this.sideboards.put(sideboard.getName(), sideboard);
     this.logger.info("Created sideboard '{}'", sideboard.getName());
     return sideboard;
@@ -93,12 +93,11 @@ public class ScoreboardManager implements Listener,
 
   @Override
   public ExSideboard registerExSideboard(ExSideboardBuilder builder) {
-    ExSideboard sideboard = new ExSideboard(builder);
+    ExSideboard sideboard = new ExSideboard(builder, this.packetManager);
     this.sideboards.put(sideboard.getName(), sideboard);
     this.logger.info("Created sideboard '{}'", sideboard.getName());
     return sideboard;
   }
-
 
   @Override
   public de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard getSideboard(String name) {
@@ -140,10 +139,10 @@ public class ScoreboardManager implements Listener,
   @EventHandler(priority = EventPriority.LOWEST)
   public void onUserQuit(UserQuitEvent e) {
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
-      ((Tablist) tablist).removeWatchingUser(e.getUser());
+      ((Tablist) tablist).removeViewer(e.getUser());
     }
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard sideboard : this.sideboards.values()) {
-      sideboard.removeWatchingUser(e.getUser());
+      sideboard.removeViewer(e.getUser());
     }
 
     for (de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist : this.tablists.values()) {
