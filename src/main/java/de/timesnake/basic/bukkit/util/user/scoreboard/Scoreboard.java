@@ -4,18 +4,16 @@
 
 package de.timesnake.basic.bukkit.util.user.scoreboard;
 
-import de.timesnake.basic.bukkit.util.user.User;
-
 import java.util.Set;
 
 public interface Scoreboard {
 
   String getName();
 
-  void addWatchingUser(User user);
+  void addViewer(ScoreboardViewer viewer);
 
-  void removeWatchingUser(User user);
+  void removeViewer(ScoreboardViewer viewer);
 
-  Set<User> getWatchingUsers();
+  Set<ScoreboardViewer> getViewers();
 
 }

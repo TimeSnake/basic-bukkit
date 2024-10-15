@@ -4,7 +4,6 @@
 
 package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
-import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
@@ -68,21 +67,21 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
   }
 
   @Override
-  protected void load(User user) {
-    super.load(user);
+  protected void load(ScoreboardViewer viewer) {
+    super.load(viewer);
 
     int slot = 10;
     for (TablistSlot entry : this.lastSlots) {
-      this.sendPacket(user, ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + slot,
+      this.sendPacket(viewer, ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + slot,
           Component.nullToEmpty(entry.getPrefix()),
           ChatFormatting.getByName(entry.getChatColor().toString()),
-          this.getNameTagVisibility(user, entry).getPacketTag(),
+          this.getNameTagVisibility(viewer, entry).getPacketTag(),
           List.of(entry.getPlayer().getName())));
 
       slot++;
     }
 
-    this.sendPacket(user, new ClientboundPlayerInfoUpdatePacket(
+    this.sendPacket(viewer, new ClientboundPlayerInfoUpdatePacket(
         EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
             ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
@@ -98,13 +97,13 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
             .toList()));
 
 
-    this.logger.info("Loaded tablist '{}' for user '{}'", this.name, user.getName());
+    this.logger.info("Loaded tablist '{}' for user '{}'", this.name, viewer.getName());
   }
 
   @Override
-  protected void unload(User user) {
-    this.packetManager.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
-    this.logger.info("Unloaded tablist '{}' for user '{}'", this.name, user.getName());
+  protected void unload(ScoreboardViewer viewer) {
+    this.packetManager.sendPacket(viewer, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
+    this.logger.info("Unloaded tablist '{}' for user '{}'", this.name, viewer.getName());
   }
 
   @Override
@@ -219,8 +218,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     this.lastSlots = slots;
   }
 
-  private NameTagVisibility getNameTagVisibility(User user, TablistSlot entry) {
-    return Objects.requireNonNullElse(user.canSeeNameTagOf(entry.getPlayer()), NameTagVisibility.NEVER);
+  private NameTagVisibility getNameTagVisibility(ScoreboardViewer viewer, TablistSlot entry) {
+    return Objects.requireNonNullElse(viewer.canSeeNameTagOf(entry.getPlayer()), NameTagVisibility.NEVER);
   }
 
   public TablistListEntry getTablistEntries() {

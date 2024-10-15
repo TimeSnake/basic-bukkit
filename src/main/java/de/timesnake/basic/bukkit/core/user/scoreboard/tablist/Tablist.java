@@ -10,10 +10,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
-import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserJoin;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistUserQuit;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import io.papermc.paper.adventure.AdventureComponent;
@@ -28,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.event.Listener;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -49,7 +45,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
 
   public Tablist(String name, Type type, ScoreboardPacketManager packetManager,
                  TablistUserJoin userJoin, TablistUserQuit userQuit) {
-    super(name);
+    super(name, packetManager);
     this.type = type;
     this.packetManager = packetManager;
     this.userJoin = userJoin;
@@ -69,46 +65,38 @@ public abstract class Tablist extends Scoreboard implements Listener,
   }
 
   @Override
-  public void addWatchingUser(User user) {
-    super.addWatchingUser(user);
-    this.load(user);
+  public void addViewer(ScoreboardViewer viewer) {
+    super.addViewer(viewer);
+    this.load(viewer);
   }
 
   @Override
-  public void removeWatchingUser(User user) {
-    if (this.watchingUsers.contains(user)) {
-      this.unload(user);
+  public void removeViewer(ScoreboardViewer viewer) {
+    if (this.viewers.contains(viewer)) {
+      this.unload(viewer);
     }
-    super.removeWatchingUser(user);
+    super.removeViewer(viewer);
   }
 
   @Override
   public void updateEntryValue(TablistPlayer entry, Integer value) {
-    this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(entry.getName(), this.name, value,
+    this.sendPacket(new ClientboundSetScorePacket(entry.getName(), this.name, value,
         Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(entry.getTablistName()))),
         Optional.of(BlankFormat.INSTANCE)));
   }
 
   protected void broadcastPacket(Packet<?> packet) {
-    this.sendPacket(this.watchingUsers, packet);
+    this.sendPacket(packet);
   }
 
-  protected void broadcastPacket(Function<User, Packet<?>> packetFunction) {
-    for (User user : this.watchingUsers) {
-      this.sendPacket(user, packetFunction.apply(user));
+  protected void broadcastPacket(Function<ScoreboardViewer, Packet<?>> packetFunction) {
+    for (ScoreboardViewer viewer : this.viewers) {
+      this.sendPacket(viewer, packetFunction.apply(viewer));
     }
   }
 
-  protected void sendPacket(User user, Packet<?> packet) {
-    this.packetManager.sendPacket(user, packet);
-  }
-
-  protected void sendPacket(Collection<User> users, Packet<?> packet) {
-    this.packetManager.sendPacket(users, packet);
-  }
-
   protected void updateHeaderFooter() {
-    this.sendPacket(this.watchingUsers, new ClientboundTabListPacket(Component.nullToEmpty(this.header),
+    this.sendPacket(new ClientboundTabListPacket(Component.nullToEmpty(this.header),
         Component.nullToEmpty(this.footer)));
   }
 
@@ -120,7 +108,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
     if (this.type.equals(Type.HEALTH)) {
       if (user.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
           || user.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
-        this.sendPacket(this.watchingUsers, new ClientboundSetScorePacket(user.getName(), this.name,
+        this.sendPacket(new ClientboundSetScorePacket(user.getName(), this.name,
             ((int) user.getHealth()),
             Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
             Optional.of(BlankFormat.INSTANCE)));
@@ -141,19 +129,20 @@ public abstract class Tablist extends Scoreboard implements Listener,
         1, BasicBukkit.getPlugin());
   }
 
-  protected void load(User user) {
-    this.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
+  protected void load(ScoreboardViewer viewer) {
+    this.sendPacket(viewer, ClientboundSetObjectivePacketBuilder.ofRemove(this.name));
 
-    this.sendPacket(user, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name, this.type.getPacketType(),
+    this.sendPacket(viewer, ClientboundSetObjectivePacketBuilder.ofAdd(this.name, this.name, this.type.getPacketType(),
         this.type.getPacketType().getDefaultRenderType()));
 
-    this.sendPacket(user, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(DisplaySlot.LIST, this.name));
+    this.sendPacket(viewer, ClientboundSetDisplayObjectivePacketBuilder.ofAdd(DisplaySlot.LIST, this.name));
 
-    this.sendPacket(user, new ClientboundTabListPacket(Component.literal(this.header), Component.literal(this.footer)));
+    this.sendPacket(viewer, new ClientboundTabListPacket(Component.literal(this.header),
+        Component.literal(this.footer)));
 
-    for (User u : Server.getUsers()) {
+    for (User user : Server.getUsers()) {
       if (this.type.equals(Type.HEALTH)) {
-        this.sendPacket(user, new ClientboundSetScorePacket(user.getName(), this.name,
+        this.sendPacket(viewer, new ClientboundSetScorePacket(user.getName(), this.name,
             ((int) user.getHealth()),
             Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
             Optional.of(BlankFormat.INSTANCE)));
@@ -161,6 +150,6 @@ public abstract class Tablist extends Scoreboard implements Listener,
     }
   }
 
-  protected abstract void unload(User user);
+  protected abstract void unload(ScoreboardViewer viewer);
 
 }
