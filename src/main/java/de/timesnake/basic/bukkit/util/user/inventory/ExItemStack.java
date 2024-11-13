@@ -267,18 +267,6 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   @Deprecated
-  public ExItemStack(Material material, int amount, String displayName) {
-    this(material, displayName);
-    this._setAmount(amount);
-  }
-
-  @Deprecated
-  public ExItemStack(Material material, int amount, String displayName, List<String> lore) {
-    this(material, displayName, lore);
-    this._setAmount(amount);
-  }
-
-  @Deprecated
   public ExItemStack(Material material, String displayName, List<String> lore) {
     this(material, displayName);
     this.setLore(lore);

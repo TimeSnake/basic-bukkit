@@ -229,13 +229,14 @@ public class ExWorld extends DelegatedWorld {
     public static final Restriction<Boolean> CAKE_EAT = new Restriction<>("cake_eat", false);
     public static final Restriction<Boolean> CRAFTING = new Restriction<>("crafting", false);
     public static final Restriction<Boolean> AUTO_PRIME_TNT = new Restriction<>("auto_prime_tnt", true);
+    public static final Restriction<Boolean> BED_ENTER = new Restriction<>("bed_enter", false);
     public static final Restriction<List<Material>> OPEN_INVENTORIES = new Restriction<>("open_inventories", List.of());
 
     public static final List<Restriction<?>> VALUES = List.of(BLOCK_BREAK, FLUID_COLLECT, BLOCK_PLACE, FLUID_PLACE,
         FLUID_FLOW, ENTITY_BLOCK_BREAK, ITEM_FRAME_ROTATE, DROP_PICK_ITEM, NO_PLAYER_DAMAGE, FOOD_CHANGE,
         ENTITY_EXPLODE, FIRE_SPREAD_SPEED, FIRE_SPREAD_DISTANCE, BLOCK_SPREAD, BLOCK_BURN_UP, BLOCK_IGNITE, TNT_PRIME,
         LIGHT_UP_INTERACTION, FLINT_AND_STEEL, PLACE_IN_BLOCK, FIRE_PUNCH_OUT, CAKE_EAT, CRAFTING, AUTO_PRIME_TNT,
-        OPEN_INVENTORIES);
+        BED_ENTER, OPEN_INVENTORIES);
 
     private final String name;
     private final Value defaultValue;

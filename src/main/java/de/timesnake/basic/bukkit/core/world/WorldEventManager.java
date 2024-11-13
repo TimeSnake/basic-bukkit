@@ -659,7 +659,27 @@ public class WorldEventManager implements Listener {
       return;
     }
 
+    this.logger.info("Cancelled tnt prime event");
     e.setCancelled(true);
+  }
+
+  @EventHandler
+  public void onRespawnSet(PlayerBedEnterEvent e) {
+    ExWorld world = this.worldManager.getWorld(e.getBed().getWorld());
+
+    if (world == null) {
+      return;
+    }
+
+    if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
+      return;
+    }
+
+    if (world.isRestricted(Restriction.BED_ENTER)) {
+      e.setUseBed(Result.DENY);
+      this.logger.info("Cancelled bed enter event");
+    }
+
   }
 
   @EventHandler

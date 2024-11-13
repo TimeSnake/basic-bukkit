@@ -420,11 +420,12 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
 
     // user block place event
     UserBlockPlaceEvent userEvent = new UserBlockPlaceEvent(user, e.isCancelled(), e.getBlock(), e.getBlockPlaced(),
-        e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand(), e.canBuild());
+        e.getBlockAgainst(), e.getHand(), e.getBlockReplacedState(), e.getItemInHand());
     Bukkit.getPluginManager().callEvent(userEvent);
 
-    e.setCancelled(userEvent.isCancelled());
-    e.setBuild(userEvent.canBuild());
+    boolean userEventCancelled = userEvent.isCancelled();
+    e.setCancelled(userEventCancelled);
+    e.setBuild(!userEventCancelled);
   }
 
   @EventHandler
