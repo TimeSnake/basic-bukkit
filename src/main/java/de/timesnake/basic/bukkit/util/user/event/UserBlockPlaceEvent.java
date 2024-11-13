@@ -24,12 +24,9 @@ public class UserBlockPlaceEvent extends PriorityCancelableUserEvent {
   private final EquipmentSlot hand;
   private final BlockState blockReplacedState;
   private final ItemStack itemInHand;
-  private boolean canBuild;
 
-  public UserBlockPlaceEvent(User user, boolean isCanceled, Block block, Block blockPlaced,
-      Block blockAgainst,
-      EquipmentSlot hand, BlockState blockReplacedState, ItemStack itemInHand,
-      boolean canBuild) {
+  public UserBlockPlaceEvent(User user, boolean isCanceled, Block block, Block blockPlaced, Block blockAgainst,
+                             EquipmentSlot hand, BlockState blockReplacedState, ItemStack itemInHand) {
     super(user, isCanceled);
     this.block = block;
     this.blockAgainst = blockAgainst;
@@ -37,7 +34,6 @@ public class UserBlockPlaceEvent extends PriorityCancelableUserEvent {
     this.hand = hand;
     this.blockReplacedState = blockReplacedState;
     this.itemInHand = itemInHand;
-    this.canBuild = canBuild;
   }
 
   @Override
@@ -67,13 +63,5 @@ public class UserBlockPlaceEvent extends PriorityCancelableUserEvent {
 
   public ItemStack getItemInHand() {
     return itemInHand;
-  }
-
-  public boolean canBuild() {
-    return canBuild;
-  }
-
-  public void setBuild(boolean canBuild) {
-    this.canBuild = canBuild;
   }
 }

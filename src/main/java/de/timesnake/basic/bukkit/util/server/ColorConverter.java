@@ -5,30 +5,35 @@
 package de.timesnake.basic.bukkit.util.server;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
+
 
 public class ColorConverter {
 
-  public static Material chatColor2Bed(ChatColor chatColor) {
-    return switch (chatColor) {
-      case BLACK -> Material.BLACK_BED;
-      case DARK_BLUE -> Material.BLUE_BED;
-      case DARK_GREEN -> Material.GREEN_BED;
-      case DARK_AQUA -> Material.CYAN_BED;
-      case DARK_RED -> Material.RED_BED;
-      case DARK_PURPLE -> Material.PURPLE_BED;
-      case GOLD -> Material.YELLOW_BED;
-      case GRAY -> Material.LIGHT_GRAY_BED;
-      case DARK_GRAY -> Material.GRAY_BED;
-      case BLUE -> Material.BLUE_BED;
-      case GREEN -> Material.GREEN_BED;
-      case AQUA -> Material.LIGHT_BLUE_BED;
-      case RED -> Material.RED_BED;
-      case LIGHT_PURPLE -> Material.PINK_BED;
-      case YELLOW -> Material.YELLOW_BED;
-      case WHITE -> Material.WHITE_BED;
-      default -> null;
-    };
+  public static Material chatColor2Bed(Color color) {
+    if (color.equals(Color.WHITE)) {
+      return Material.WHITE_BED;
+    } else if (color.equals(Color.SILVER)) {
+      return Material.LIGHT_GRAY_BED;
+    } else if (color.equals(Color.GRAY)) {
+      return Material.GRAY_BED;
+    } else if (color.equals(Color.BLACK)) {
+      return Material.BLACK_BED;
+    } else if (color.equals(Color.RED)) {
+      return Material.RED_BED;
+    } else if (color.equals(Color.YELLOW)) {
+      return Material.YELLOW_BED;
+    } else if (color.equals(Color.LIME)) {
+      return Material.LIME_BED;
+    } else if (color.equals(Color.GREEN)) {
+      return Material.GREEN_BED;
+    } else if (color.equals(Color.AQUA)) {
+      return Material.LIGHT_BLUE_BED;
+    } else if (color.equals(Color.BLUE)) {
+      return Material.BLUE_BED;
+    }
+    return null;
   }
 
   public static Material chatColor2Wool(ChatColor chatColor) {
