@@ -4,13 +4,16 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
+import de.timesnake.library.basic.util.Triple;
 import de.timesnake.library.basic.util.Tuple;
 import org.apache.commons.lang3.stream.IntStreams;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ExPolygon {
 
@@ -19,7 +22,9 @@ public class ExPolygon {
   private final int minHeight;
   private final int maxHeight;
   private final boolean unbounded;
-  private Collection<Tuple<Integer, Integer>> containedPoints;
+
+  private transient Triple<Integer, Integer, Integer> center;
+  private transient List<Tuple<Integer, Integer>> containedPoints;
 
   public ExPolygon(ExWorld world, Polygon polygon, int minHeight, int maxHeight) {
     this.world = world;
@@ -84,7 +89,28 @@ public class ExPolygon {
                               && this.polygon.contains(location.getX() - 1, location.getZ() - 1));
   }
 
-  public Collection<Tuple<Integer, Integer>> getPointsInside() {
+  public ExBlock getCenterBlock() {
+    if (this.center == null) {
+      this.getCenter();
+    }
+
+    return new ExBlock(this.world, this.center.getA(), this.center.getB(), this.center.getC());
+  }
+
+  public Triple<Integer, Integer, Integer> getCenter() {
+    if (this.center != null) {
+      return this.center;
+    }
+
+    int x = Arrays.stream(this.polygon.xpoints).sum() / this.polygon.npoints;
+    int y = this.minHeight + this.maxHeight / 2;
+    int z = Arrays.stream(this.polygon.ypoints).sum() / this.polygon.npoints;
+    this.center = new Triple<>(x, y, z);
+
+    return this.center;
+  }
+
+  public List<Tuple<Integer, Integer>> getPointsInside() {
     if (this.containedPoints != null) {
       return this.containedPoints;
     }
@@ -94,23 +120,33 @@ public class ExPolygon {
     Rectangle rectangle = this.polygon.getBounds();
     for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
       for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
-        if (this.polygon.contains(x, y)) {
+        if (this.polygon.contains(x, y) && this.polygon.contains(x - 1, y - 1)) {
           this.containedPoints.add(new Tuple<>(x, y));
         }
       }
     }
+
+    this.containedPoints.sort((t1, t2) -> Integer.compare(getDistanceToCenterSquared(t1),
+        getDistanceToCenterSquared(t2)));
     return this.containedPoints;
   }
 
-  private Collection<ExBlock> getBlocksInside() {
+  private int getDistanceToCenterSquared(Tuple<Integer, Integer> point) {
+    int aDelta = this.getCenter().getA() - point.getA();
+    int bDelta = this.getCenter().getC() - point.getB();
+    return Math.abs(aDelta * aDelta + bDelta * bDelta);
+  }
+
+  public Collection<ExBlock> getBlocksInside(Predicate<ExBlock> filter) {
+    return this.getBlocksInsideSortedByDistanceToCenter(filter);
+  }
+
+  public List<ExBlock> getBlocksInsideSortedByDistanceToCenter(Predicate<ExBlock> filter) {
     return this.getPointsInside().stream()
         .map(p -> this.world.getExBlockAt(p.getA(), this.minHeight, p.getB()))
         .flatMap(b -> IntStreams.range(this.maxHeight).mapToObj(i -> b.getRelative(0, i, 0)))
+        .filter(filter)
         .toList();
-  }
-
-  public Collection<ExBlock> getSolidBlocksInside() {
-    return this.getBlocksInside().stream().filter(b -> b.getBlock().isSolid()).toList();
   }
 
   public int getMaxDiameter() {
