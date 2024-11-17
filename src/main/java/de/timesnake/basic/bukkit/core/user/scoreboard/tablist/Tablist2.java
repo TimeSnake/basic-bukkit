@@ -261,8 +261,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
   public static class Builder {
 
     private final String name;
-    private de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type type =
-        de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type.DUMMY;
+    private Tablist.Type type = Type.BLANK;
     private List<TablistGroupType> groupTypes;
     private TablistGroupType colorGroupType;
 
@@ -278,7 +277,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       this.name = name;
     }
 
-    public Builder type(de.timesnake.basic.bukkit.util.user.scoreboard.Tablist.Type type) {
+    public Builder type(Tablist.Type type) {
       this.type = type;
       return this;
     }
