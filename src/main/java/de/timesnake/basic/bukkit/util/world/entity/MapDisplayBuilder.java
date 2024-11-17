@@ -211,18 +211,14 @@ public class MapDisplayBuilder {
     return items;
   }
 
-  public MapDisplay onBlock(User user, ExBlock block, BlockFace blockFace, BlockFace orientation,
-      boolean placeOnBlock) {
-    MapDisplay mapDisplay = new MapDisplay(this.onItems(), block, blockFace, orientation,
-        placeOnBlock);
+  public MapDisplay onBlock(User user, ExBlock block, BlockFace blockFace, BlockFace orientation) {
+    MapDisplay mapDisplay = new MapDisplay(this.onItems(), block, blockFace, orientation);
     Server.getEntityManager().registerEntity(mapDisplay, user);
     return mapDisplay;
   }
 
-  public MapDisplay onBlock(ExBlock block, BlockFace blockFace, BlockFace orientation,
-      boolean placeOnBlock) {
-    MapDisplay mapDisplay = new MapDisplay(this.onItems(), block, blockFace, orientation,
-        placeOnBlock);
+  public MapDisplay onBlock(ExBlock block, BlockFace blockFace, BlockFace orientation) {
+    MapDisplay mapDisplay = new MapDisplay(this.onItems(), block, blockFace, orientation);
     Server.getEntityManager().registerEntity(mapDisplay);
     return mapDisplay;
   }

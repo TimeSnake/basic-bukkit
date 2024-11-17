@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import org.bukkit.Rotation;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapView;
@@ -112,8 +113,7 @@ public class MapDisplay extends PacketEntity {
   private final ConcurrentHashMap<User, ItemFrame[][]> framesByUser = new ConcurrentHashMap<>();
 
   public MapDisplay(ExItemStack[][] maps, ExBlock baseBlock, BlockFace blockFace,
-                    BlockFace orientationUp,
-                    boolean placeOnBlock) {
+                    BlockFace orientationUp) {
     super(baseBlock.getLocation());
     this.blockFace = blockFace;
     this.orientation = orientationUp;
@@ -121,11 +121,7 @@ public class MapDisplay extends PacketEntity {
 
     this.maps = maps;
 
-    if (placeOnBlock) {
-      this.baseBlock = baseBlock.getRelative(blockFace);
-    } else {
-      this.baseBlock = baseBlock;
-    }
+    this.baseBlock = baseBlock;
 
     Vector orientationVector = this.orientation.getDirection();
 
@@ -163,7 +159,7 @@ public class MapDisplay extends PacketEntity {
             frame.setItem(map.getHandle(), false);
             frame.setInvulnerable(true);
             frame.setDirection(Direction.fromDelta(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()));
-            frame.setInvisible(true);
+            frame.setInvisible(false);
             frame.setRotation(rotationToInteger(this.rotation));
             frame.setPos(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ());
 
@@ -177,17 +173,18 @@ public class MapDisplay extends PacketEntity {
         for (int y = 0; y < maps[x].length; y++) {
           ItemFrame frame = frames[x][y];
           ExItemStack map = this.maps[x][y];
+          Block block = this.frameLocations[x][y].getBlock();
 
           MapView view = ((MapMeta) map.getItemMeta()).getMapView();
 
           frame.setItem(map.getHandle(), false);
-          frame.setInvisible(true);
+          frame.setInvisible(false);
           frame.setRotation(rotationToInteger(this.rotation.rotateClockwise()));
           frame.setRotation(rotationToInteger(this.rotation));
 
           user.sendPacket(new ClientboundAddEntityPacket(frame,
               ItemFrameRotation.blockFaceToRotation(blockFace).getNms(),
-              new BlockPos(this.location.getBlockX(), this.location.getBlockY(), this.location.getBlockZ())));
+              new BlockPos(block.getX(), block.getY(), block.getZ())));
           user.sendPacket(new ClientboundSetEntityDataPacketBuilder(frame).setAllFromEntity().build());
 
           user.sendPacket(ClientboundMapItemDataPacketBuilder.of(view, user.getCraftPlayer()));
