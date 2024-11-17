@@ -14,8 +14,12 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetDisplayObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import io.papermc.paper.adventure.AdventureComponent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.numbers.BlankFormat;
+import net.minecraft.network.chat.numbers.NumberFormat;
+import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
@@ -39,6 +43,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
   protected final TablistUserQuit userQuit;
 
   protected final Type type;
+  protected final NumberFormat format;
 
   protected String header;
   protected String footer;
@@ -50,6 +55,12 @@ public abstract class Tablist extends Scoreboard implements Listener,
     this.packetManager = packetManager;
     this.userJoin = userJoin;
     this.userQuit = userQuit;
+
+    if (type == Type.BLANK) {
+      this.format = BlankFormat.INSTANCE;
+    } else {
+      this.format = new StyledFormat(Style.EMPTY.withColor(ChatFormatting.RED));
+    }
   }
 
   @Override
@@ -80,9 +91,13 @@ public abstract class Tablist extends Scoreboard implements Listener,
 
   @Override
   public void updateEntryValue(TablistPlayer entry, Integer value) {
+    if (this.type == Type.BLANK) {
+      this.logger.warn("Score update in tablist with type blank for entry '{}'", entry.getName());
+      return;
+    }
     this.sendPacket(new ClientboundSetScorePacket(entry.getName(), this.name, value,
         Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(entry.getTablistName()))),
-        Optional.of(BlankFormat.INSTANCE)));
+        Optional.of(this.format)));
   }
 
   protected void broadcastPacket(Packet<?> packet) {
@@ -111,7 +126,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
         this.sendPacket(new ClientboundSetScorePacket(user.getName(), this.name,
             ((int) user.getHealth()),
             Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
-            Optional.of(BlankFormat.INSTANCE)));
+            Optional.of(this.format)));
       }
     }
   }
@@ -145,7 +160,7 @@ public abstract class Tablist extends Scoreboard implements Listener,
         this.sendPacket(viewer, new ClientboundSetScorePacket(user.getName(), this.name,
             ((int) user.getHealth()),
             Optional.of(new AdventureComponent(Server.getTimeDownParser().parse2Component(user.getTablistName()))),
-            Optional.of(BlankFormat.INSTANCE)));
+            Optional.of(this.format)));
       }
     }
   }

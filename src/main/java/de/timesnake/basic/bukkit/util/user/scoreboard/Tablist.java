@@ -22,10 +22,9 @@ public interface Tablist {
   void updateEntryValue(TablistPlayer entry, Integer value);
 
   enum Type {
-    DUMMY(RenderType.INTEGER, ObjectiveCriteria.DUMMY),
-    HEALTH(RenderType.HEARTS, ObjectiveCriteria.HEALTH),
-    XP(RenderType.INTEGER, ObjectiveCriteria.EXPERIENCE),
-    LEVEL(RenderType.INTEGER, ObjectiveCriteria.LEVEL);
+    BLANK(RenderType.INTEGER, ObjectiveCriteria.DUMMY),
+    INTEGER(RenderType.INTEGER, ObjectiveCriteria.DUMMY),
+    HEALTH(RenderType.HEARTS, ObjectiveCriteria.HEALTH);
 
 
     private final RenderType renderType;
