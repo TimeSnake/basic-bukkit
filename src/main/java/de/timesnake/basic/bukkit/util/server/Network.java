@@ -15,8 +15,6 @@ public interface Network extends de.timesnake.library.network.Network {
 
   int getPlayerAmount();
 
-  boolean sendUserToServer(User user, Integer server);
-
   boolean sendUserToServer(User user, String server);
 
   boolean sendUserToLobbyLast(User user);

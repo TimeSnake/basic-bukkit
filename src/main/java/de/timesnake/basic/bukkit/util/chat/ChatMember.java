@@ -18,8 +18,6 @@ public interface ChatMember {
   void sendClickableMessage(Component text, String exec, Component info,
       ClickEvent.Action action);
 
-  String getChatName();
-
   Component getChatNameComponent();
 
   boolean hasColoredChatMessagePermission();

@@ -313,18 +313,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.player.setHealth(0);
   }
 
-  /**
-   * Sets default values for user: inventory clear, block break, place unlock inventory unlock,
-   * inventory move item unlock unfix location, health to 20, food to 20, invulnerable to false,
-   * flight to false, (fly/walk) speed to normal, gamemode to adventure, level reset, fire to off,
-   * potionEffects remove collision with entities true
-   */
-  public void setDefault() {
-    this.getInventory().clear();
-    this.unlockBlockBreakPlace();
-    this.unlockInventory();
-    this.unlockInventoryItemMove();
-    this.lockLocation(false);
+  public void resetPlayerProperties() {
     this.heal();
     this.setInvulnerable(false);
     this.setAllowFlight(false);
@@ -337,7 +326,13 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.setExp(0);
     this.setFireTicks(0);
     this.removePotionEffects();
-    this.setCollitionWithEntites(true);
+  }
+
+  public void unlockAll() {
+    this.unlockBlockBreakPlace();
+    this.unlockInventory();
+    this.unlockInventoryItemMove();
+    this.unlockLocation();
   }
 
   public boolean isCollitionWithEntites() {
@@ -415,18 +410,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param plugin  The {@link Plugin} to send the message
    * @param message The message to send
    */
-  @Deprecated
-  public void sendPluginMessage(de.timesnake.library.chat.Plugin plugin,
-                                String message) {
-    this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin) + message);
-  }
-
-  /**
-   * Sends a plugin-message to the user
-   *
-   * @param plugin  The {@link Plugin} to send the message
-   * @param message The message to send
-   */
   public void sendPluginMessage(de.timesnake.library.chat.Plugin plugin,
                                 Component message) {
     this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin).append(message));
@@ -442,18 +425,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
                                   String message) {
     this.getPlayer().sendMessage(Chat.getSenderPlugin(plugin)
         .append(Server.getTimeDownParser().parse2Component(message)));
-  }
-
-  /**
-   * Gets the user chat-name
-   *
-   * @return the chat-name
-   * @deprecated in favour of {@link User#getTDChatName}
-   */
-  @Deprecated
-  @Override
-  public String getChatName() {
-    return LegacyComponentSerializer.legacySection().serialize(chatNameComponent);
   }
 
   @NotNull
@@ -896,14 +867,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     return null;
   }
 
-  /**
-   * Displays the text over the action-bar
-   *
-   * @param text The text to display
-   */
-  @Deprecated
-  public void sendActionBarText(String text) {
-    this.getPlayer().sendActionBar(Component.text(text));
+  public void sendActionBarTDText(String text) {
+    this.getPlayer().sendActionBar(Server.getTimeDownParser().parse2Component(text));
   }
 
   public void sendActionBarText(Component text) {
@@ -1080,19 +1045,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Has user permission If false, the user receives an error-message with the code by the plugin
    *
-   * @param permission The permission to has
-   * @param code       The code of the permission
-   * @param plugin     The {@link Plugin} of the permission
-   * @return if user has
-   */
-  @Deprecated
-  public boolean hasPermission(String permission, Code code, de.timesnake.library.chat.Plugin plugin) {
-    return this.asSender(plugin).hasPermission(permission, code);
-  }
-
-  /**
-   * Has user permission If false, the user receives an error-message with the code by the plugin
-   *
    * @param code   The code of the permission
    * @param plugin The {@link Plugin} of the permission
    * @return if user has
@@ -1135,15 +1087,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   /**
    * Switches the user to server
    *
-   * @param server The server port to switch
-   */
-  public void switchToServer(Integer server) {
-    Server.getNetwork().sendUserToServer(this, server);
-  }
-
-  /**
-   * Switches the user to server
-   *
    * @param server The server name to switch
    */
   public void switchToServer(String server) {
@@ -1156,7 +1099,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param server The {@link DbServer} to switch
    */
   public void switchToServer(DbServer server) {
-    Server.getNetwork().sendUserToServer(this, server.getPort());
+    Server.getNetwork().sendUserToServer(this, server.getName());
   }
 
   /**
@@ -1670,17 +1613,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.lastLocation = location;
   }
 
-  /**
-   * Gets the location of a world from the user
-   *
-   * @param world The {@link ExWorld} for the location
-   * @return the last {@link Location} of the world
-   */
-  @Deprecated
-  public Location getWorldLocation(ExWorld world) {
-    return Server.getWorldManager().getUserLocation(this, world);
-  }
-
   @Nullable
   public UserDamage getLastDamager() {
     return this.lastUserDamage;
@@ -1701,9 +1633,9 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   public void setCoins(float coins, boolean sendMessage) {
     this.coins = coins;
     this.dbUser.setCoins(coins);
-    this.sendPluginMessage(Plugin.TIME_COINS, "§6Balance changed to " + coins + " TimeCoins");
+    this.sendPluginTDMessage(Plugin.TIME_COINS, "§6Balance changed to " + coins + " TimeCoins");
     if (sendMessage) {
-      this.sendActionBarText(Chat.roundCoinAmount(coins) + " TimeCoins");
+      this.sendActionBarTDText(Chat.roundCoinAmount(coins) + " TimeCoins");
     }
   }
 
@@ -1718,7 +1650,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.coins += coins;
     this.dbUser.addCoins(coins);
     if (sendMessage) {
-      this.sendActionBarText("§6+ " + Chat.roundCoinAmount(coins) + " TimeCoins");
+      this.sendActionBarTDText("§6+ " + Chat.roundCoinAmount(coins) + " TimeCoins");
     }
   }
 
@@ -1733,7 +1665,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.coins -= coins;
     this.dbUser.removeCoins(coins);
     if (sendMessage) {
-      this.sendActionBarText("§6 -" + Chat.roundCoinAmount(coins) + " TimeCoins");
+      this.sendActionBarTDText("§6 -" + Chat.roundCoinAmount(coins) + " TimeCoins");
     }
   }
 
@@ -1744,21 +1676,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public float getCoins() {
     return this.coins;
-  }
-
-  /**
-   * Locks the location of the user
-   *
-   * @param lock enable or disable location lock
-   * @deprecated in favour of {@link #lockLocation()} and {@link #unlockLocation()}
-   */
-  @Deprecated
-  public synchronized void lockLocation(boolean lock) {
-    if (lock) {
-      this.lockLocation();
-    } else {
-      this.unlockLocation();
-    }
   }
 
   public synchronized void lockLocation() {
@@ -1978,16 +1895,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
 
   public void resetAttackSpeed() {
     this.setAttackSpeed(4);
-  }
-
-  @Deprecated
-  public void setAttackDamage(double attackDamage) {
-    this.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(attackDamage);
-  }
-
-  @Deprecated
-  public void resetAttackDamage() {
-    this.setAttackDamage(2);
   }
 
   @Override

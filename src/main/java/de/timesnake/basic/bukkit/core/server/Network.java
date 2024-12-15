@@ -67,23 +67,6 @@ public class Network extends NetworkUtils implements de.timesnake.basic.bukkit.u
   }
 
   @Override
-  public boolean sendUserToServer(User user, Integer server) {
-    UUID uuid = user.getUniqueId();
-    if (userSwitching.contains(uuid)) {
-      return false;
-    }
-    this.userSwitching.add(uuid);
-
-    Server.getChannel()
-        .sendMessage(new ChannelUserMessage<>(uuid, MessageType.User.SWITCH_PORT, server));
-
-    Server.runTaskLaterSynchrony(() -> this.userSwitching.remove(uuid), 20,
-        BasicBukkit.getPlugin());
-
-    return true;
-  }
-
-  @Override
   public boolean sendUserToServer(User user, String server) {
     UUID uuid = user.getUniqueId();
     if (userSwitching.contains(uuid)) {
