@@ -159,7 +159,7 @@ public class MapDisplay extends PacketEntity {
             frame.setItem(map.getHandle(), false);
             frame.setInvulnerable(true);
             frame.setDirection(Direction.fromDelta(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()));
-            frame.setInvisible(false);
+            frame.setInvisible(true);
             frame.setRotation(rotationToInteger(this.rotation));
             frame.setPos(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ());
 
@@ -178,7 +178,7 @@ public class MapDisplay extends PacketEntity {
           MapView view = ((MapMeta) map.getItemMeta()).getMapView();
 
           frame.setItem(map.getHandle(), false);
-          frame.setInvisible(false);
+          frame.setInvisible(true);
           frame.setRotation(rotationToInteger(this.rotation.rotateClockwise()));
           frame.setRotation(rotationToInteger(this.rotation));
 
