@@ -480,8 +480,9 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   protected ExItemStack _asQuantity(int quantity) {
-    this.setAmount(quantity);
-    return this;
+    ExItemStack clone = this.cloneWithId();
+    clone.setAmount(quantity);
+    return clone;
   }
 
   @Override
@@ -501,8 +502,7 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   protected ExItemStack _asOne() {
-    this.setAmount(1);
-    return this;
+    return this.asQuantity(1);
   }
 
   public ExItemStack setUnbreakable(boolean unbreakable) {
@@ -682,27 +682,26 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
-  @Override
-  public boolean editMeta(final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
+  public ExItemStack editExMeta(java.util.function.Consumer<? super ItemMeta> consumer) {
     this.checkImmutable();
-    return this._editMeta(consumer);
+    return this._editExMeta(consumer);
   }
 
-  protected boolean _editMeta(
-      final @NotNull java.util.function.Consumer<? super ItemMeta> consumer) {
-    return super.editMeta(consumer);
+  protected ExItemStack _editExMeta(java.util.function.Consumer<? super ItemMeta> consumer) {
+    super.editMeta(consumer);
+    return this;
   }
 
-  @Override
-  public <M extends ItemMeta> boolean editMeta(final @NotNull Class<M> metaClass,
-                                               final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
+  public <M extends ItemMeta> ExItemStack editExMeta(Class<M> metaClass,
+                                                     java.util.function.Consumer<? super M> consumer) {
     this.checkImmutable();
-    return this._editMeta(metaClass, consumer);
+    return this._editExMeta(metaClass, consumer);
   }
 
-  protected <M extends ItemMeta> boolean _editMeta(final @NotNull Class<M> metaClass,
-                                                   final @NotNull java.util.function.Consumer<@NotNull ? super M> consumer) {
-    return super.editMeta(metaClass, consumer);
+  protected <M extends ItemMeta> ExItemStack _editExMeta(Class<M> metaClass,
+                                                         java.util.function.Consumer<? super M> consumer) {
+    super.editMeta(metaClass, consumer);
+    return this;
   }
 
   @Override
