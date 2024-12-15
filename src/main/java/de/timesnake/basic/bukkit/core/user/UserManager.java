@@ -11,6 +11,8 @@ import de.timesnake.library.basic.util.UserMap;
 import de.timesnake.library.basic.util.UserSet;
 import de.timesnake.library.chat.ExTextColor;
 import net.kyori.adventure.text.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -21,6 +23,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class UserManager implements de.timesnake.basic.bukkit.util.user.UserManager {
+
+  private final Logger logger = LogManager.getLogger("user.manager");
 
   private final ConcurrentMap<UUID, User> users = new ConcurrentHashMap<>();
   private final ConcurrentMap<UUID, Future<User>> preUsers = new ConcurrentHashMap<>();
@@ -45,6 +49,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
     try {
       user = this.preUsers.get(uuid).get(3, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException e) {
+      this.logger.error("Failed to register user", e);
       user = ServerManager.getInstance().loadUser(Bukkit.getPlayer(uuid));
     } catch (TimeoutException e) {
       Bukkit.getPlayer(uuid).kick(Component.text("A fatal error occurred (user init timeout)", ExTextColor.WARNING));

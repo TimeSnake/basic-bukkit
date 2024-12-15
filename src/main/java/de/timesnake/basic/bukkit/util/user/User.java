@@ -1029,10 +1029,10 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @param status The {@link Status.User} to set
    */
   public void setStatus(Status.User status) {
-    if (this.status != status) {
-      this.dbUser.setStatus(status);
+    if (this.status.equals(status)) {
+      return;
     }
-
+    this.dbUser.setStatus(status);
     this.status = status;
   }
 
