@@ -489,7 +489,13 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (world.isExceptService() && Server.getUser(e.getEntity().getUniqueId()).isService()) {
+    User user = Server.getUser(e.getEntity().getUniqueId());
+
+    if (user == null) {
+      return;
+    }
+
+    if (world.isExceptService() && user.isService()) {
       return;
     }
 
