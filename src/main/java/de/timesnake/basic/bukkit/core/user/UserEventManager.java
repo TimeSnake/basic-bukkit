@@ -249,7 +249,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     // user move event
     UserMoveEvent event = new UserMoveEvent(user, e.isCancelled(), e.getFrom(), e.getTo());
     Bukkit.getPluginManager().callEvent(event);
-    if (!e.getFrom().getBlock().equals(e.getTo().getBlock()) && user.isLocationLocked()) {
+    if (!e.getFrom().getBlock().equals(e.getTo().getBlock()) && user.isLocationLocked() && !user.isService()) {
       e.setCancelled(true);
     } else {
       e.setCancelled(event.isCancelled());
