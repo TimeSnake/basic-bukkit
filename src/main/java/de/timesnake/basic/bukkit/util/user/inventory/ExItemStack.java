@@ -388,11 +388,11 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
   }
 
   public ExItemStack setDisplayName(String displayName) {
-    return this.setDisplayName(Component.text(displayName));
+    return this._setDisplayName(displayName);
   }
 
   protected ExItemStack _setDisplayName(String displayName) {
-    return this._setDisplayName(Component.text(displayName));
+    return this._setDisplayName(Server.getTimeDownParser().parse2Component(displayName));
   }
 
   public ExItemStack setDisplayName(Component displayName) {
