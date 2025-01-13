@@ -60,7 +60,7 @@ public class Tablist2TeamAndGroupTests {
     this.groupB = new TestTablistGroup(1, "b", "b");
 
     this.builder = new Tablist2.Builder(UUID.randomUUID().toString())
-        .type(Tablist.Type.DUMMY)
+        .type(Tablist.Type.BLANK)
         .groupTypes(types)
         .colorGroupType(TestTablistGroupType.TEST_TEAM)
         .addDefaultGroup(TestTablistGroupType.TEST_TEAM, spectatorGroup)
