@@ -788,7 +788,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public void updatePermGroup() {
     DbPermGroup dbGroup = this.getDatabase().getPermGroup();
-    if (this.permGroup.getRank().equals(dbGroup.getRank())) {
+    if (this.permGroup.getRank().equals(dbGroup.getPriority())) {
       return;
     }
 
