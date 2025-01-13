@@ -45,8 +45,8 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.10.1")
 
-    compileOnly("de.timesnake:database-bukkit:3.+")
-    compileOnly("de.timesnake:database-api:3.+")
+    compileOnly("de.timesnake:database-bukkit:4.+")
+    compileOnly("de.timesnake:database-api:4.+")
 
     compileOnly("de.timesnake:channel-bukkit:5.+")
     compileOnly("de.timesnake:channel-api:5.+")
