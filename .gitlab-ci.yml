@@ -10,24 +10,19 @@ before_script:
   - echo "timesnakePassword=$CI_JOB_TOKEN" >> $GRADLE_USER_HOME/gradle.properties
 
 
-cache:
-  paths:
-    - .gradle/wrapper
-    - .gradle/caches
-
 stages:
   - build
   - deploy
 
 build:
   stage: build
-  script: gradle --build-cache assemble
+  script: gradle assemble
   cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
     paths:
-      - build
-      - .gradle
+      - .gradle/wrapper
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
   tags:
     - gradle
   only:
@@ -41,11 +36,11 @@ publish:
   script:
     - gradle publish
   cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
     paths:
-      - build
-      - .gradle
+      - .gradle/wrapper
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
   tags:
     - gradle
 
