@@ -33,7 +33,6 @@ public class CommandManager extends CommandHandler<Sender, Argument, Arguments<A
   @Override
   public boolean onCommand(@NotNull org.bukkit.command.CommandSender cmdSender, Command cmd, @NotNull String label, String[] args) {
     this.handleCommand(new CommandSender(cmdSender), cmd.getName().toLowerCase(), args);
-
     return false;
   }
 
