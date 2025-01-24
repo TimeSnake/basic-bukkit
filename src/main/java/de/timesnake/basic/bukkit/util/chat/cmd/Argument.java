@@ -13,6 +13,7 @@ import de.timesnake.library.chat.Code.Type;
 import de.timesnake.library.commands.CommandExitException;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -51,18 +52,6 @@ public class Argument extends de.timesnake.library.commands.Argument {
     return false;
   }
 
-  public boolean isChatColor(boolean sendMessage) {
-    try {
-      ChatColor.valueOf(string.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      if (sendMessage) {
-        this.sender.sendMessageNoChatColor(string);
-      }
-      return false;
-    }
-    return true;
-  }
-
   public boolean isHexColor(boolean sendMessage) {
     try {
       Color.fromRGB(Integer.valueOf(this.string.substring(0, 2), 16),
@@ -77,16 +66,12 @@ public class Argument extends de.timesnake.library.commands.Argument {
     return true;
   }
 
-  public Player toPlayer() {
+  public @Nullable Player toPlayer() {
     return Bukkit.getPlayer(string);
   }
 
-  public User toUser() {
+  public @Nullable User toUser() {
     return Server.getUser(this.toPlayer());
-  }
-
-  public ChatColor toChatColor() {
-    return ChatColor.valueOf(string.toUpperCase());
   }
 
   public Color toColorFromHex() {

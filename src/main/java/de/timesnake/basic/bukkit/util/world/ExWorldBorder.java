@@ -166,7 +166,6 @@ public class ExWorldBorder {
   private void shrinking() {
     this.shrinking = true;
 
-
     Packet<?> packet = ClientboundSetBorderLerpSizePacketBuilder.of(this.size, this.shrinkSize,
         this.shrinkTimeTicks * 50L);
 
@@ -242,6 +241,10 @@ public class ExWorldBorder {
 
   public void setSound(boolean sound) {
     this.sound = sound;
+  }
+
+  public boolean isShrinking() {
+    return this.shrinking;
   }
 
   private void broadcastUserPacket(Packet<?> packet) {
