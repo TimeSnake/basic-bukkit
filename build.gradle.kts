@@ -117,6 +117,14 @@ tasks {
         options.encoding = "UTF-8"
         options.release = 21
     }
+
+    processResources {
+        inputs.property("version", project.version)
+
+        filesMatching("plugin.yml") {
+            expand(mapOf(Pair("version", project.version)))
+        }
+    }
 }
 
 java {
