@@ -28,6 +28,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
 
   private final ConcurrentMap<UUID, User> users = new ConcurrentHashMap<>();
   private final ConcurrentMap<UUID, Future<User>> preUsers = new ConcurrentHashMap<>();
+  private final ConcurrentMap<UUID, User> postUsers = new ConcurrentHashMap<>();
 
   /**
    * Stores the loaded user in preUsers map
@@ -63,21 +64,21 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
     return user;
   }
 
-  /**
-   * Removes the user from users
-   *
-   * @param uuid of the user
-   */
+  public final void markUserForRemoval(User user) {
+    this.postUsers.put(user.getUniqueId(), user);
+    this.users.remove(user.getUniqueId());
+  }
+
   public final void removeUser(UUID uuid) {
     de.timesnake.basic.bukkit.util.user.User user = this.getUser(uuid);
     UserSet.SETS.forEach(l -> l.removeAuto(user));
     UserMap.MAPS.forEach(l -> l.removeAuto(user));
     this.users.remove(uuid);
+    this.postUsers.remove(uuid);
   }
 
   public final Collection<User> getUsers() {
-    return this.users.values().stream().filter((u) -> !u.isQuiting())
-        .collect(Collectors.toSet());
+    return this.users.values();
   }
 
   public final Collection<User> getUsers(Predicate<User> predicate) {
@@ -108,7 +109,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getPreGameUsers() {
-    return this.getUsers((u) -> u.getStatus().equals(Status.User.PRE_GAME));
+    return this.getUsers(u -> u.hasStatus(Status.User.PRE_GAME));
   }
 
   /**
@@ -117,7 +118,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getInGameUsers() {
-    return this.getUsers((u) -> u.getStatus().equals(Status.User.IN_GAME));
+    return this.getUsers(u -> u.hasStatus(Status.User.IN_GAME));
   }
 
   /**
@@ -126,7 +127,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getOutGameUsers() {
-    return this.getUsers((u) -> u.getStatus().equals(Status.User.OUT_GAME));
+    return this.getUsers(u -> u.hasStatus(Status.User.OUT_GAME));
   }
 
   /**
@@ -135,7 +136,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getOnlineUsers() {
-    return this.getUsers((u) -> u.getStatus().equals(Status.User.ONLINE));
+    return this.getUsers(u -> u.hasStatus(Status.User.ONLINE));
   }
 
   /**
@@ -144,7 +145,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getSpectatorUsers() {
-    return this.getUsers((u) -> u.getStatus().equals(Status.User.SPECTATOR));
+    return this.getUsers(u -> u.hasStatus(Status.User.SPECTATOR));
   }
 
   /**
@@ -154,10 +155,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    */
   @Override
   public Collection<User> getInOutGameUsers() {
-    return this.getUsers((u) -> {
-      Status.User status = u.getStatus();
-      return status.equals(Status.User.OUT_GAME) || status.equals(Status.User.IN_GAME);
-    });
+    return this.getUsers(u -> u.hasStatus(Status.User.OUT_GAME, Status.User.IN_GAME));
   }
 
   /**
@@ -166,11 +164,8 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the users
    */
   public final Collection<User> getGameUsers() {
-    return this.getUsers((u) -> {
-      Status.User status = u.getStatus();
-      return status.equals(Status.User.OUT_GAME) || status.equals(Status.User.IN_GAME)
-          || status.equals(Status.User.PRE_GAME) || status.equals(Status.User.SPECTATOR);
-    });
+    return this.getUsers(u -> u.hasStatus(Status.User.OUT_GAME, Status.User.IN_GAME, Status.User.PRE_GAME,
+        Status.User.SPECTATOR));
   }
 
   /**
@@ -192,7 +187,7 @@ public class UserManager implements de.timesnake.basic.bukkit.util.user.UserMana
    * @return the user
    */
   public final User getUser(UUID uuid) {
-    return this.users.get(uuid);
+    return this.users.getOrDefault(uuid, this.postUsers.get(uuid));
   }
 
   /**

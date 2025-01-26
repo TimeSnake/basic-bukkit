@@ -86,6 +86,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class User extends UserPlayerDelegation implements ChannelListener, TablistPlayer, ChatMember, ScoreboardViewer {
 
+  private final Logger logger = LogManager.getLogger("user");
   private final Logger punishLogger = LogManager.getLogger("user.punish");
   private final Logger groupLogger = LogManager.getLogger("user.group");
 
@@ -124,8 +125,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   private LocalDateTime privacyPolicyDateTime;
 
   private float coins;
-
-  private boolean isQuiting = false;
 
   private boolean inventoryLocked;
   private boolean inventoryItemMoveLocked;
@@ -235,7 +234,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   }
 
   public final void quit() {
-    this.isQuiting = true;
     ((WorldManager) Server.getWorldManager()).saveUserLocations(this);
     Server.getChannel().removeListener(this);
     this.onQuit();
@@ -263,10 +261,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
       return Objects.equals(this.player.getUniqueId(), ((User) o).getUniqueId());
     }
     return false;
-  }
-
-  public final boolean isQuiting() {
-    return this.isQuiting;
   }
 
   //player
@@ -1700,6 +1694,12 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     return lockedLocation != null;
   }
 
+  @Override
+  public void setFlying(boolean b) {
+    super.setFlying(b);
+    this.logger.warn("Enable flying for user {} during location lock", this.getName());
+  }
+
   @ChannelHandler(type = {
       ListenerType.USER_STATUS,
       ListenerType.USER_SERVICE,
@@ -1872,9 +1872,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   @Override
   public void sendPacket(Packet<?> packet) {
     if (packet == null) {
-      return;
-    }
-    if (this.isQuiting) {
       return;
     }
 

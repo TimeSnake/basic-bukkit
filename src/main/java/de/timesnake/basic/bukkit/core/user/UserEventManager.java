@@ -113,6 +113,7 @@ public class UserEventManager implements Listener, de.timesnake.basic.bukkit.uti
     User user = Server.getUser(e.getPlayer());
 
     if (user != null) {
+      ((UserManager) Server.getUserManager()).markUserForRemoval(user);
       user.quit();
       // async user quit event
       Server.runTaskAsynchrony(() -> Bukkit.getPluginManager().callEvent(new AsyncUserQuitEvent(user)),
