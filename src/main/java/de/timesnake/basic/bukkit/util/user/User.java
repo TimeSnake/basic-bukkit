@@ -13,7 +13,6 @@ import de.timesnake.basic.bukkit.core.user.scoreboard.ScoreboardManager;
 import de.timesnake.basic.bukkit.core.world.WorldManager;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatMember;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
@@ -45,6 +44,7 @@ import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.Chat;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.entities.entity.PlayerBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -560,6 +560,18 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.sendMessage(component);
   }
 
+  public void sendClickablePluginTDMessage(de.timesnake.library.chat.Plugin plugin, String text, String exec,
+                                           String info,
+                                           net.kyori.adventure.text.event.ClickEvent.Action action) {
+    Component component = Chat.getSenderPlugin(plugin)
+        .append(Server.getTimeDownParser().parse2Component(text)
+            .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
+            .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
+                net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT,
+                Component.text(info))));
+    this.sendMessage(component);
+  }
+
   /**
    * Sends a clickable test to the user
    *
@@ -576,25 +588,6 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
                 net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, info)));
   }
 
-  /**
-   * Sends a clickable test to the user
-   *
-   * @param plugin The sender plugin
-   * @param text   The test to send
-   * @param exec   The execution, if the user clicked on the text
-   * @param info   The info to show, if the user hovers other the text
-   * @param action The action to do
-   */
-  @Deprecated
-  public void sendClickablePluginMessage(Plugin plugin, String text, String exec, String info,
-                                         net.kyori.adventure.text.event.ClickEvent.Action action) {
-    Component component = Component.text(Chat.getSenderPlugin(plugin) + text)
-        .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(action, exec))
-        .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(
-            net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT,
-            Component.text(info)));
-    this.sendMessage(component);
-  }
 
   /**
    * Sends a clickable test to the user
@@ -1676,8 +1669,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
     this.lockedLocation = this.getLocation();
     this.setWalkSpeed(Float.MIN_VALUE);
     this.setFlySpeed(Float.MIN_VALUE);
-    this.setAllowFlight(true);
-    this.setFlying(true);
+    super.setAllowFlight(true);
+    super.setFlying(true);
     this.setGravity(false);
   }
 

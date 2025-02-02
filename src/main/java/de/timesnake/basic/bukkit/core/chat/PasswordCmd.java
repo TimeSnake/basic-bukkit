@@ -17,7 +17,7 @@ import de.timesnake.library.commands.simple.Arguments;
 
 public class PasswordCmd implements CommandListener {
 
-  private final Code perm = Plugin.SERVER.createPermssionCode("password");
+  private final Code perm = Plugin.SERVER.createPermssionCode("server.password");
 
   @Override
   public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {

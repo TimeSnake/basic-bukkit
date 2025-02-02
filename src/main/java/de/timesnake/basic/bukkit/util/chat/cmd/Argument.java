@@ -5,11 +5,11 @@
 package de.timesnake.basic.bukkit.util.chat.cmd;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.Code.Type;
+import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.commands.CommandExitException;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -20,17 +20,17 @@ import java.util.function.Function;
 public class Argument extends de.timesnake.library.commands.Argument {
 
   public static final Code WORLD_TYPE_NON = new Code.Builder()
-      .setPlugin(Plugin.SYSTEM)
+      .setPlugin(Plugin.SERVER)
       .setType(Type.HELP)
       .setDescription("Not a world type")
       .build();
   public static final Code WORLD_ENVIRONMENT_NON = new Code.Builder()
-      .setPlugin(Plugin.SYSTEM)
+      .setPlugin(Plugin.SERVER)
       .setType(Type.HELP)
       .setDescription("Not a world environment")
       .build();
   public static final Code MATERIAL_NAME_NON = new Code.Builder()
-      .setPlugin(Plugin.SYSTEM)
+      .setPlugin(Plugin.SERVER)
       .setType(Type.HELP)
       .setDescription("Not a material name")
       .build();
