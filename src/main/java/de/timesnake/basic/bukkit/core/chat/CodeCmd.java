@@ -4,12 +4,12 @@
 
 package de.timesnake.basic.bukkit.core.chat;
 
-import de.timesnake.basic.bukkit.util.chat.Plugin;
 import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
 import de.timesnake.basic.bukkit.util.chat.cmd.ExCommandListener;
 import de.timesnake.basic.bukkit.util.chat.cmd.ExCompletion;
 import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.library.chat.Code;
+import de.timesnake.library.chat.Plugin;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.extended.ExArguments;
 
