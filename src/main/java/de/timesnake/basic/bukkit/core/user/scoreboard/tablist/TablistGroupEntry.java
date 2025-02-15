@@ -21,7 +21,8 @@ public class TablistGroupEntry extends TablistListEntry {
   private final TreeSet<TablistTextEntry> headers = new TreeSet<>();
   private final TreeSet<TablistTextEntry> footers = new TreeSet<>();
 
-  public TablistGroupEntry(TablistGroupType type, TablistGroup group) {
+  public TablistGroupEntry(int gapSize, TablistGroupType type, TablistGroup group) {
+    super(gapSize);
     this.type = type;
     this.group = group;
   }
@@ -61,7 +62,7 @@ public class TablistGroupEntry extends TablistListEntry {
     for (TablistEntry entry : this.headers) {
       entry.collectAsSlots(slots, entryHelper);
     }
-    super.collectAsSlots(slots, entryHelper, entryHelper.getEntryGap(this.type));
+    super.collectAsSlots(slots, entryHelper);
     for (TablistEntry entry : this.footers) {
       entry.collectAsSlots(slots, entryHelper);
     }
@@ -69,7 +70,7 @@ public class TablistGroupEntry extends TablistListEntry {
 
   @Override
   public int size(TablistEntryHelper entryHelper) {
-    return super.size(entryHelper, entryHelper.getEntryGap(this.type))
+    return super.size(entryHelper, entryHelper.getEntryGapSize(this.type))
         + this.headers.stream().mapToInt(e -> e.size(entryHelper)).sum()
         + this.footers.stream().mapToInt(e -> e.size(entryHelper)).sum();
   }

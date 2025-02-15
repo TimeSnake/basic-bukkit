@@ -6,8 +6,8 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface TablistEntryHelper {
   @NotNull
   TablistGroup getDefaultGroup(TablistGroupType type);
 
-  int getEntryGap(TablistGroupType type);
+  @Range(from = 0, to = 8)
+  int getEntryGapSize(TablistGroupType type);
 
-  TablistPlayer newGapEntry(String name, String tablistName);
 }

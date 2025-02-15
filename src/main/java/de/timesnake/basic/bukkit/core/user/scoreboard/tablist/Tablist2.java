@@ -7,11 +7,11 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetObjectivePacketBuilder;
 import de.timesnake.library.packets.core.packet.out.scoreboard.ClientboundSetPlayerTeamPacketBuilder;
-import de.timesnake.library.packets.util.packet.TablistHead;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +20,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Tablist2 extends Tablist implements TablistEntryHelper {
+
+  private static final int MIN_INDEX = 1000;
+  private static final int MAX_INDEX = 10000; // exclusive
 
   private static final TablistGroup DEFAULT_DEFAULT_GROUP = new TablistGroup() {
     @Override
@@ -33,20 +36,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     }
   };
 
-  private final TablistListEntry tablist = new TablistListEntry() {
-    @Override
-    public String toString() {
-      return "Tablist{" +
-             "entries=[" + entries.values().stream().map(TablistEntry::toString).collect(Collectors.joining(", ")) +
-             "]" +
-             '}';
-    }
-
-    @Override
-    public int compareTo(@NotNull TablistEntry o) {
-      return 0;
-    }
-  };
+  private final TablistListEntry tablist;
 
   protected final List<TablistGroupType> groupTypes;
   protected final TablistGroupType colorGroupType;
@@ -55,7 +45,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
   protected final HashMap<TablistGroupType, Integer> groupGapsByType;
   protected final HashMap<TablistGroupType, TablistGroup> defaultGroupsByType;
 
-  private List<TablistSlot> lastSlots = new ArrayList<>(0);
+  private List<TablistSlot> lastBroadcastSlots = new ArrayList<>(0);
+
 
   public Tablist2(Builder builder, ScoreboardPacketManager packetManager) {
     super(builder.name, builder.type, packetManager, builder.userJoin, builder.userQuit);
@@ -64,21 +55,49 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     this.groupDecoratorsByType = builder.groupDecoratorsByType;
     this.groupGapsByType = builder.groupGapsByType;
     this.defaultGroupsByType = builder.defaultGroupsByType;
+
+    this.tablist = new TablistListEntry(this.getEntryGapSize(null)) {
+      @Override
+      public String toString() {
+        return "Tablist{" +
+               "entries=[" + entries.values().stream().map(TablistEntry::toString).collect(Collectors.joining(", ")) +
+               "]" +
+               '}';
+      }
+
+      @Override
+      public int compareTo(@NotNull TablistEntry o) {
+        return 0;
+      }
+    };
   }
 
   @Override
   protected void load(ScoreboardViewer viewer) {
     super.load(viewer);
 
-    int slot = 10;
-    for (TablistSlot entry : this.lastSlots) {
-      this.sendPacket(viewer, ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + slot,
-          Component.nullToEmpty(entry.getPrefix()),
-          ChatFormatting.getByName(entry.getChatColor().toString()),
-          this.getNameTagVisibility(viewer, entry).getPacketTag(),
-          List.of(entry.getPlayer().getName())));
+    List<ClientboundPlayerInfoUpdatePacket.Entry> players = new ArrayList<>();
 
-      slot++;
+    for (TablistSlot slot : this.lastBroadcastSlots) {
+      TablistPlayer player = slot.getPlayer();
+
+      this.sendPacket(viewer, ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + slot.getIndex(),
+          Component.nullToEmpty(slot.getPrefix()),
+          ChatFormatting.getByName(slot.getChatColor().toString()),
+          this.getNameTagVisibility(viewer, slot).getPacketTag(),
+          List.of(player.getName())));
+
+      ServerPlayer mcPlayer = player.getMinecraftPlayer();
+
+      if (mcPlayer != null) {
+        players.add(new ClientboundPlayerInfoUpdatePacket.Entry(mcPlayer.getUUID(),
+            mcPlayer.gameProfile,
+            true, mcPlayer.connection != null ? mcPlayer.connection.latency() : 0,
+            mcPlayer.gameMode.getGameModeForPlayer(),
+            mcPlayer.getTabListDisplayName(),
+            mcPlayer.getChatSession() != null ? mcPlayer.getChatSession().asData() : null));
+      }
+
     }
 
     this.sendPacket(viewer, new ClientboundPlayerInfoUpdatePacket(
@@ -88,13 +107,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-        this.lastSlots.stream()
-            .map(s -> s.getPlayer().getMinecraftPlayer())
-            .filter(Objects::nonNull)
-            .map(p -> new ClientboundPlayerInfoUpdatePacket.Entry(p.getUUID(), p.gameProfile,
-                true, p.connection != null ? p.connection.latency() : 0, p.gameMode.getGameModeForPlayer(),
-                p.getTabListDisplayName(), p.getChatSession() != null ? p.getChatSession().asData() : null))
-            .toList()));
+        players));
 
 
     this.logger.info("Loaded tablist '{}' for user '{}'", this.name, viewer.getName());
@@ -117,7 +130,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
     if (success) {
       this.update();
-      this.logger.info("Updated tablist '{}': added '{}'", this.name, value.getTablistName());
+      this.logger.info("Tablist '{}': added '{}'", this.name, value.getTablistName());
     }
     return success;
   }
@@ -128,7 +141,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
     if (success) {
       this.update();
-      this.logger.info("Updated tablist '{}': removed '{}'", this.name, value.getTablistName());
+      this.logger.info("Tablist '{}': removed '{}'", this.name, value.getTablistName());
     }
     return success;
   }
@@ -145,77 +158,154 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
     List<TablistSlot> slots = new ArrayList<>();
     this.tablist.collectAsSlots(slots, this);
 
-    Iterator<TablistSlot> lastIt = this.lastSlots.iterator();
-    Iterator<TablistSlot> it = slots.iterator();
+    try {
+      this.recomputeSlotIndizes(slots);
+    } catch (SlotIndexSpaceExhaustedException e) {
+      this.logger.info("Tablist '{}': index space exhausted, re-assigning indizes", this.name);
+      this.assignSlotIndizes(slots, MIN_INDEX, MAX_INDEX);
+    }
 
-    Set<TablistPlayer> lastPlayers = lastSlots.stream().map(TablistSlot::getPlayer).collect(Collectors.toSet());
-    Set<TablistPlayer> currentPlayers = slots.stream().map(TablistSlot::getPlayer).collect(Collectors.toSet());
+    if (this.viewers.isEmpty()) {
+      slots.forEach(TablistSlot::unmarkAsDirty);
+      this.lastBroadcastSlots = slots;
+      return;
+    }
 
-    List<TablistPlayer> toRemove = new ArrayList<>(lastPlayers);
-    toRemove.removeAll(currentPlayers);
-    this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(toRemove.stream().map(TablistPlayer::getUniqueId).toList()));
+    Set<Integer> indizesToRemove = new HashSet<>();
+    Set<UUID> playersToRemove = new HashSet<>();
 
-    currentPlayers.removeAll(lastPlayers);
-    this.broadcastPacket(new ClientboundPlayerInfoUpdatePacket(
-        EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
-            ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
-        currentPlayers.stream()
-            .map(TablistPlayer::getMinecraftPlayer)
-            .filter(Objects::nonNull)
-            .map(p -> new ClientboundPlayerInfoUpdatePacket.Entry(p.getUUID(), p.gameProfile,
-                true, p.connection != null ? p.connection.latency() : 0, p.gameMode.getGameModeForPlayer(),
-                p.getTabListDisplayName(), p.getChatSession() != null ? p.getChatSession().asData() : null))
-            .toList()));
+    for (TablistSlot slot : this.lastBroadcastSlots) {
+      indizesToRemove.add(slot.getIndex());
+      playersToRemove.add(slot.getPlayer().getUniqueId());
+    }
 
-    int slot = 10;
+    List<ClientboundPlayerInfoUpdatePacket.Entry> dirtyPlayers = new ArrayList<>();
 
-    while (lastIt.hasNext() && it.hasNext()) {
-      TablistSlot lastEntry = lastIt.next();
-      TablistSlot newEntry = it.next();
+    for (TablistSlot slot : slots) {
+      int index = slot.getIndex();
+      TablistPlayer player = slot.getPlayer();
 
-      if (!lastEntry.equals(newEntry)) {
-        TablistPlayer newPlayer = newEntry.getPlayer();
+      playersToRemove.remove(player.getUniqueId());
+      boolean knownIndex = indizesToRemove.remove(index);
 
-        int finalSlot = slot;
-        this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofModify("" + finalSlot,
-            Component.nullToEmpty(newEntry.getPrefix()),
-            ChatFormatting.getByName(newEntry.getChatColor().toString()),
-            this.getNameTagVisibility(u, newEntry).getPacketTag()));
-
-        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer("" + slot,
-            newPlayer.getName()));
-
-        this.logger.debug("Entry update packet for tablist '{}': {} {}", this.name, slot, newPlayer.getName());
+      if (!slot.isDirty()) {
+        continue;
       }
 
-      slot++;
+      slot.unmarkAsDirty();
+
+      ServerPlayer mcPlayer = player.getMinecraftPlayer();
+
+      if (mcPlayer != null) {
+        dirtyPlayers.add(new ClientboundPlayerInfoUpdatePacket.Entry(mcPlayer.getUUID(),
+            mcPlayer.gameProfile,
+            true, mcPlayer.connection != null ? mcPlayer.connection.latency() : 0,
+            mcPlayer.gameMode.getGameModeForPlayer(),
+            mcPlayer.getTabListDisplayName(),
+            mcPlayer.getChatSession() != null ? mcPlayer.getChatSession().asData() : null));
+      }
+
+      if (knownIndex) {
+        this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofModify("" + index,
+            Component.nullToEmpty(slot.getPrefix()),
+            ChatFormatting.getByName(slot.getChatColor().toString()),
+            this.getNameTagVisibility(u, slot).getPacketTag()));
+        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer("" + slot, player.getName()));
+        this.logger.info("Team update/add player packet for tablist '{}': {} {}", this.name, index, player.getName());
+      } else {
+        this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + index,
+            Component.nullToEmpty(slot.getPrefix()),
+            ChatFormatting.getByName(slot.getChatColor().toString()),
+            this.getNameTagVisibility(u, slot).getPacketTag(),
+            List.of(player.getName())));
+        this.logger.info("Team creation packet for tablist '{}': {} {}", this.name, index, player.getName());
+      }
     }
 
-    while (lastIt.hasNext()) {
-      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofRemove("" + slot));
-      lastIt.next();
-      slot++;
+    for (Integer index : indizesToRemove) {
+      this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofRemove("" + index));
+      this.logger.info("Team delete packet for tablist '{}': {}", this.name, index);
     }
 
-    while (it.hasNext()) {
-      TablistSlot entry = it.next();
-
-      int finalSlot = slot;
-      this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + finalSlot,
-          Component.nullToEmpty(entry.getPrefix()),
-          ChatFormatting.getByName(entry.getChatColor().toString()),
-          this.getNameTagVisibility(u, entry).getPacketTag(),
-          List.of(entry.getPlayer().getName())));
-
-      this.logger.info("Entry creation packet for tablist '{}': {} {}", this.name, slot, entry.getPlayer().getName());
-      slot++;
+    if (!dirtyPlayers.isEmpty()) {
+      this.broadcastPacket(new ClientboundPlayerInfoUpdatePacket(
+          EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,
+              ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT,
+              ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
+              ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED,
+              ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
+              ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
+          dirtyPlayers));
+      this.logger.info("Player update packet for tablist '{}': {}", this.name, dirtyPlayers.stream()
+          .map(p -> p.profileId().toString()).collect(Collectors.joining(", ")));
     }
 
-    this.lastSlots = slots;
+    if (!playersToRemove.isEmpty()) {
+      this.broadcastPacket(new ClientboundPlayerInfoRemovePacket(new ArrayList<>(playersToRemove)));
+      this.logger.info("Players delete packet for tablist '{}': {}", this.name, playersToRemove.stream()
+          .map(UUID::toString).collect(Collectors.joining(", ")));
+    }
+
+    this.lastBroadcastSlots = slots;
+  }
+
+  protected void assignSlotIndizes(List<TablistSlot> slots, int startIndex, int endIndex) {
+    int diff = (endIndex - startIndex) / (slots.size() + 2);
+
+    if (diff <= 0) {
+      throw new SlotIndexSpaceExhaustedException();
+    }
+
+    TablistSlot prev = null;
+
+    int index = startIndex + diff;
+    for (TablistSlot slot : slots) {
+      if (slot.canHaveSameIndexAsNeighbor() && prev != null && prev.canHaveSameIndexAsNeighbor()) {
+        slot.setIndex(prev.getIndex() + 1);
+      } else {
+        slot.setIndex(index);
+        index += diff;
+      }
+      prev = slot;
+    }
+  }
+
+  protected void recomputeSlotIndizes(List<TablistSlot> slots) {
+    Iterator<TablistSlot> iterator = slots.iterator();
+
+    if (slots.isEmpty()) {
+      return;
+    }
+
+    TablistSlot current;
+    TablistSlot prev = null;
+
+    while (iterator.hasNext()) {
+      current = iterator.next();
+
+      if (!current.hasIndex()) {
+        if (prev != null && prev.canHaveSameIndexAsNeighbor() && current.canHaveSameIndexAsNeighbor()) {
+          current.setIndex(prev.getIndex() + 1);
+        } else {
+          List<TablistSlot> notIndexedSlots = new ArrayList<>();
+          notIndexedSlots.addLast(current);
+
+          while (iterator.hasNext()) {
+            current = iterator.next();
+            if (current.hasIndex()) {
+              break;
+            }
+            notIndexedSlots.addLast(current);
+          }
+
+          this.assignSlotIndizes(notIndexedSlots,
+              prev != null ? prev.getIndex() : MIN_INDEX,
+              current.hasIndex() ? current.getIndex() : MAX_INDEX);
+        }
+      }
+
+      prev = current;
+    }
   }
 
   private NameTagVisibility getNameTagVisibility(ScoreboardViewer viewer, TablistSlot entry) {
@@ -238,7 +328,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
 
   @Override
   public TablistEntry createGroup(TablistGroupType type, TablistGroup group) {
-    TablistGroupEntry groupEntry = new TablistGroupEntry(type, group);
+    TablistGroupEntry groupEntry = new TablistGroupEntry(this.getEntryGapSize(type), type, group);
     this.groupDecoratorsByType.getOrDefault(type, Set.of()).forEach(c -> c.accept(groupEntry));
     return groupEntry;
   }
@@ -249,19 +339,18 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
   }
 
   @Override
-  public int getEntryGap(TablistGroupType type) {
+  public int getEntryGapSize(TablistGroupType type) {
     return this.groupGapsByType.getOrDefault(type, 0);
   }
 
-  @Override
-  public TablistPlayer newGapEntry(String name, String tablistName) {
-    return new DummyTablistPlayer(name, tablistName, TablistHead.BLANK);
+  private static class SlotIndexSpaceExhaustedException extends RuntimeException {
+
   }
 
   public static class Builder {
 
     private final String name;
-    private Tablist.Type type = Type.BLANK;
+    private Type type = Type.BLANK;
     private List<TablistGroupType> groupTypes;
     private TablistGroupType colorGroupType;
 
@@ -277,7 +366,7 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
       this.name = name;
     }
 
-    public Builder type(Tablist.Type type) {
+    public Builder type(Type type) {
       this.type = type;
       return this;
     }
