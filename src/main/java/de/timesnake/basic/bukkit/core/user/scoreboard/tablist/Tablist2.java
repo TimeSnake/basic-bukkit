@@ -210,15 +210,16 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
             Component.nullToEmpty(slot.getPrefix()),
             ChatFormatting.getByName(slot.getChatColor().toString()),
             this.getNameTagVisibility(u, slot).getPacketTag()));
-        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer("" + slot, player.getName()));
-        this.logger.info("Team update/add player packet for tablist '{}': {} {}", this.name, index, player.getName());
+        this.broadcastPacket(ClientboundSetPlayerTeamPacketBuilder.ofAddPlayer("" + index, player.getName()));
+        this.logger.info("Team update/add player packet for tablist '{}': {}, player {}", this.name, index,
+            player.getName());
       } else {
         this.broadcastPacket(u -> ClientboundSetPlayerTeamPacketBuilder.ofCreate("" + index,
             Component.nullToEmpty(slot.getPrefix()),
             ChatFormatting.getByName(slot.getChatColor().toString()),
             this.getNameTagVisibility(u, slot).getPacketTag(),
             List.of(player.getName())));
-        this.logger.info("Team creation packet for tablist '{}': {} {}", this.name, index, player.getName());
+        this.logger.info("Team creation packet for tablist '{}': {}, player: {}", this.name, index, player.getName());
       }
     }
 
