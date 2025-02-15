@@ -9,7 +9,6 @@ import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,11 +49,6 @@ public class Tablist0TeamsTests {
         .setGroupGap(null, 2);
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
-      @Override
-      public TablistPlayer newGapEntry(String name, String tablistName) {
-        return new TestTablistPlayer(name, tablistName);
-      }
-
       @Override
       protected void update() {
 

@@ -78,11 +78,6 @@ public class Tablist2TeamTests {
 
     this.tablist = new Tablist2(builder, new DummyScoreboardPacketManager()) {
       @Override
-      public TablistPlayer newGapEntry(String name, String tablistName) {
-        return new TestTablistPlayer(name, tablistName);
-      }
-
-      @Override
       protected void update() {
 
       }
@@ -221,6 +216,6 @@ public class Tablist2TeamTests {
 
     tablist.getTablistEntries().collectAsSlots(slots, tablist);
 
-    return slots.stream().map(s -> s.getPlayer().getTablistName().replaceAll("§.", "")).toList();
+    return slots.stream().map(s -> s.getPlayer() != null ? s.getPlayer().getTablistName().replaceAll("§.", "") : "").toList();
   }
 }
