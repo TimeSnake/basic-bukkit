@@ -13,17 +13,21 @@ import java.util.Objects;
 
 public class TablistSlot {
 
-  private final TablistPlayer player;
+  protected TablistPlayer player;
   private final String prefix;
   private final ExTextColor chatColor;
+  protected boolean sameIndexAsNeighbor = false;
 
-  public TablistSlot(@NotNull TablistPlayer player, @Nullable String prefix, @NotNull ExTextColor chatColor) {
+  private Integer index;
+  private boolean dirty = true;
+
+  public TablistSlot(TablistPlayer player, @Nullable String prefix, @NotNull ExTextColor chatColor) {
     this.player = player;
     this.prefix = prefix;
     this.chatColor = chatColor;
   }
 
-  public @NotNull TablistPlayer getPlayer() {
+  public TablistPlayer getPlayer() {
     return player;
   }
 
@@ -33,6 +37,34 @@ public class TablistSlot {
 
   public @NotNull ExTextColor getChatColor() {
     return chatColor;
+  }
+
+  public Integer getIndex() {
+    return index;
+  }
+
+  public void setIndex(Integer index) {
+    if (Objects.equals(index, this.index)) {
+      return;
+    }
+    this.index = index;
+    this.dirty = true;
+  }
+
+  public boolean hasIndex() {
+    return this.index != null;
+  }
+
+  public boolean isDirty() {
+    return dirty;
+  }
+
+  public void unmarkAsDirty() {
+    this.dirty = false;
+  }
+
+  public boolean canHaveSameIndexAsNeighbor() {
+    return sameIndexAsNeighbor;
   }
 
   @Override

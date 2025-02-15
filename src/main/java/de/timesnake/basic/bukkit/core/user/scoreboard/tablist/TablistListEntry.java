@@ -7,35 +7,52 @@ package de.timesnake.basic.bukkit.core.user.scoreboard.tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
-import de.timesnake.library.chat.ExTextColor;
 
 import java.util.*;
 
 public abstract non-sealed class TablistListEntry extends TablistEntry {
 
   protected final SortedMap<String, TablistEntry> entries = new TreeMap<>();
+  protected final int gapSize;
+  private final HashMap<TablistEntry, List<EmtpyTablistSlot>> gapSlotsByNextEntry = new HashMap<>();
+
+  public TablistListEntry(int gapSize) {
+    this.gapSize = gapSize;
+  }
 
   public boolean addPlayer(TablistPlayer player, TablistEntryHelper entryHelper, Deque<TablistGroupType> groupTypes) {
     if (groupTypes.isEmpty()) {
       TablistPlayerEntry entry = new TablistPlayerEntry(player, entryHelper);
-      return this.entries.put(entry.getRank(), entry) == null;
+      boolean added = this.entries.put(entry.getRank(), entry) == null;
+      if (added) {
+        this.addGapSlots(entry);
+      }
+      return added;
     }
 
     TablistGroupType type = groupTypes.pop();
-    TablistGroup group;
+    TablistGroup group = player.getTablistGroup(type);
 
-    if (player.getTablistGroup(type) != null) {
-      group = player.getTablistGroup(type);
-    } else {
+    if (group == null) {
       group = entryHelper.getDefaultGroup(type);
     }
 
-    return ((TablistListEntry) this.entries.computeIfAbsent(String.valueOf(group.getTablistRank()),
-        rank -> entryHelper.createGroup(type, group))).addPlayer(player, entryHelper, groupTypes);
+    String listKey = String.valueOf(group.getTablistRank());
+    TablistEntry listEntry = this.entries.get(listKey);
+
+    if (listEntry == null) {
+      listEntry = entryHelper.createGroup(type, group);
+      this.entries.put(listKey, listEntry);
+      this.addGapSlots(listEntry);
+    }
+
+    return ((TablistListEntry) listEntry).addPlayer(player, entryHelper, groupTypes);
   }
 
   public boolean removePlayer(TablistPlayer tablistPlayer) {
-    if (this.entries.remove(tablistPlayer.getRank()) != null) {
+    TablistEntry tablistEntry = this.entries.remove(tablistPlayer.getRank());
+    if (tablistEntry != null) {
+      this.removeGapSlots(tablistEntry);
       return true;
     }
 
@@ -43,7 +60,10 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
       if (entry.getValue() instanceof TablistListEntry listEntry) {
         if (listEntry.removePlayer(tablistPlayer)) {
           if (listEntry.isEmpty()) {
-            this.entries.remove(entry.getKey());
+            tablistEntry = this.entries.remove(entry.getKey());
+            if (tablistEntry != null) {
+              this.removeGapSlots(tablistEntry);
+            }
           }
           return true;
         }
@@ -53,24 +73,41 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
     return false;
   }
 
-  @Override
-  public void collectAsSlots(List<TablistSlot> slots, TablistEntryHelper entryHelper) {
-    this.collectAsSlots(slots, entryHelper, entryHelper.getEntryGap(null));
+  protected void addGapSlots(TablistEntry nextEntry) {
+    if (this.gapSize == 0 || this.entries.size() == 1) {
+      return;
+    }
+
+    Iterator<TablistEntry> iterator = this.entries.values().iterator();
+    if (iterator.next().equals(nextEntry)) {
+      nextEntry = iterator.next();
+    }
+
+    ArrayList<EmtpyTablistSlot> slots = new ArrayList<>(this.gapSize);
+    for (int i = 0; i < this.gapSize; i++) {
+      slots.add(new EmtpyTablistSlot());
+    }
+    this.gapSlotsByNextEntry.put(nextEntry, slots);
   }
 
-  protected void collectAsSlots(List<TablistSlot> slots, TablistEntryHelper entryHelper, int gapSize) {
+  protected void removeGapSlots(TablistEntry nextEntry) {
+    if (this.gapSize == 0) {
+      return;
+    }
+    this.gapSlotsByNextEntry.remove(nextEntry);
+  }
+
+  @Override
+  public void collectAsSlots(List<TablistSlot> slots, TablistEntryHelper entryHelper) {
     if (gapSize > 0) {
       Deque<TablistEntry> queue = new ArrayDeque<>(this.entries.values());
+
       while (!queue.isEmpty()) {
         TablistEntry entry = queue.pop();
         entry.collectAsSlots(slots, entryHelper);
 
         if (!queue.isEmpty() && !queue.peek().isEmpty()) {
-          for (int i = 0; i < gapSize; i++) {
-            String name = (slots.size() / 10) + "" + (slots.size() % 10) + i;
-            String tablistName = "§" + (slots.size() / 10) + "§" + (slots.size() % 10) + "§" + i;
-            slots.add(new TablistSlot(entryHelper.newGapEntry(name, tablistName), null, ExTextColor.WHITE));
-          }
+          slots.addAll(this.gapSlotsByNextEntry.get(queue.peek()));
         }
       }
     } else {
@@ -91,7 +128,7 @@ public abstract non-sealed class TablistListEntry extends TablistEntry {
 
   @Override
   public int size(TablistEntryHelper entryHelper) {
-    return this.size(entryHelper, entryHelper.getEntryGap(null));
+    return this.size(entryHelper, entryHelper.getEntryGapSize(null));
   }
 
   protected int size(TablistEntryHelper entryHelper, int gapSize) {
