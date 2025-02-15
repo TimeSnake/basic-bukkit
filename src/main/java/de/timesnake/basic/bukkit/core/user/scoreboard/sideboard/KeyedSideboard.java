@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard.sideboard;
 
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.KeyedSideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardPacketManager;
 
 import java.util.Collections;
@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class ExSideboard extends Sideboard implements de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboard {
+public class KeyedSideboard extends Sideboard implements de.timesnake.basic.bukkit.util.user.scoreboard.KeyedSideboard {
 
   private final HashMap<LineId<?>, Integer> lineByLineId = new HashMap<>();
 
-  public ExSideboard(ExSideboardBuilder builder, ScoreboardPacketManager packetManager) {
+  public KeyedSideboard(KeyedSideboardBuilder builder, ScoreboardPacketManager packetManager) {
     super(builder, packetManager);
 
     boolean lineSpacer = builder.isLineSpacer();
