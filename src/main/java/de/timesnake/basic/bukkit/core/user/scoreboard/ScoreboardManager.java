@@ -5,7 +5,7 @@
 package de.timesnake.basic.bukkit.core.user.scoreboard;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
-import de.timesnake.basic.bukkit.core.user.scoreboard.sideboard.ExSideboard;
+import de.timesnake.basic.bukkit.core.user.scoreboard.sideboard.KeyedSideboard;
 import de.timesnake.basic.bukkit.core.user.scoreboard.sideboard.Sideboard;
 import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist;
 import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist2;
@@ -14,7 +14,7 @@ import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
-import de.timesnake.basic.bukkit.util.user.scoreboard.ExSideboardBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.KeyedSideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.SideboardBuilder;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistPlayer;
 import de.timesnake.library.network.NetworkVariables;
@@ -77,8 +77,6 @@ public class ScoreboardManager implements Listener,
 
   @Override
   public void removeTablist(String name) {
-    de.timesnake.basic.bukkit.util.user.scoreboard.Tablist tablist = this.tablists.get(name);
-
     this.tablists.remove(name);
     this.logger.info("Removed tablist '{}'", name);
   }
@@ -92,8 +90,8 @@ public class ScoreboardManager implements Listener,
   }
 
   @Override
-  public ExSideboard registerExSideboard(ExSideboardBuilder builder) {
-    ExSideboard sideboard = new ExSideboard(builder, this.packetManager);
+  public KeyedSideboard registerExSideboard(KeyedSideboardBuilder builder) {
+    KeyedSideboard sideboard = new KeyedSideboard(builder, this.packetManager);
     this.sideboards.put(sideboard.getName(), sideboard);
     this.logger.info("Created sideboard '{}'", sideboard.getName());
     return sideboard;

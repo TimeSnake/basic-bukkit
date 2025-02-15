@@ -9,7 +9,7 @@ import de.timesnake.library.chat.Chat;
 
 import java.util.function.Function;
 
-public interface ExSideboard extends Sideboard {
+public interface KeyedSideboard extends Sideboard {
 
   <V> void updateScore(LineId<V> id, V value);
 

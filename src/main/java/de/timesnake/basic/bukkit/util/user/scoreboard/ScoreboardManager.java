@@ -32,7 +32,7 @@ public interface ScoreboardManager {
 
   Sideboard registerSideboard(SideboardBuilder builder);
 
-  ExSideboard registerExSideboard(ExSideboardBuilder builder);
+  KeyedSideboard registerExSideboard(KeyedSideboardBuilder builder);
 
   Sideboard getSideboard(String name);
 
