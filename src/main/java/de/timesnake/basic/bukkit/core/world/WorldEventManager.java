@@ -724,7 +724,7 @@ public class WorldEventManager implements Listener {
   }
 
   private void scanForIgnitable(Location loc, ExWorld world, int fires) {
-    for (Block block : world.getBlocksWithinDistance(loc,
+    for (Block block : world.getBlocksWithinCubicDistance(loc,
         world.isRestricted(Restriction.FIRE_SPREAD_DISTANCE))) {
       if (!block.isEmpty()) {
         continue;

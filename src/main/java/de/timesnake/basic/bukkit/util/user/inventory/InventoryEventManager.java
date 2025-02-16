@@ -75,4 +75,13 @@ public interface InventoryEventManager {
   void excludeServiceUsersFromLocks(boolean exclude);
 
   boolean excludingServiceUsers();
+
+  /**
+   * Removes all listener for this item
+   * <p>
+   * <b>Warning</b>: This method removes all item listeners matching with this item id
+   *
+   * @param item The {@link ExItemStack} to remove the listeners from
+   */
+  void removeListeners(ExItemStack item);
 }

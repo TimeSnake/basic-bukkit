@@ -845,6 +845,10 @@ public class ExItemStack extends org.bukkit.inventory.ItemStack {
     return this;
   }
 
+  public void clearListeners() {
+    Server.getInventoryEventManager().removeListeners(this);
+  }
+
   public net.minecraft.world.item.ItemStack getHandle() {
     return CraftItemStack.asNMSCopy(this);
   }

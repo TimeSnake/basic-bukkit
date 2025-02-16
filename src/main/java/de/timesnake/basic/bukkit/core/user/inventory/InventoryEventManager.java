@@ -294,6 +294,12 @@ public class InventoryEventManager implements Listener,
   }
 
   @Override
+  public void removeListeners(ExItemStack item) {
+    this.clickListenerByItemId.remove(item.getId());
+    this.interactListenerByItemId.remove(item.getId());
+  }
+
+  @Override
   public void excludeServiceUsersFromLocks(boolean exclude) {
     this.excludeServiceUsers = exclude;
   }

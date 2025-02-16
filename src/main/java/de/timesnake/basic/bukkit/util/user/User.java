@@ -1690,7 +1690,9 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   @Override
   public void setFlying(boolean b) {
     super.setFlying(b);
-    this.logger.warn("Enable flying for user {} during location lock", this.getName());
+    if (this.isLocationLocked()) {
+      this.logger.warn("Enable flying for user {} during location lock", this.getName());
+    }
   }
 
   @ChannelHandler(type = {

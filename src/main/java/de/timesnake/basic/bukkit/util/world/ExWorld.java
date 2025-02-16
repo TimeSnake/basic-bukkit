@@ -179,7 +179,7 @@ public class ExWorld extends DelegatedWorld {
     return blocks;
   }
 
-  public Collection<Block> getBlocksWithinDistance(Location loc, int distance) {
+  public Collection<Block> getBlocksWithinCubicDistance(Location loc, int distance) {
     Set<Block> blocks = new HashSet<>();
 
     for (int x = -distance; x < distance; x++) {
@@ -187,6 +187,17 @@ public class ExWorld extends DelegatedWorld {
         for (int z = -distance; z < distance; z++) {
           blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z));
         }
+      }
+    }
+    return blocks;
+  }
+
+  public Collection<Block> getBlocksWithinCubicDistanceHorizontal(Location loc, int distance) {
+    Set<Block> blocks = new HashSet<>();
+
+    for (int x = -distance; x < distance; x++) {
+      for (int z = -distance; z < distance; z++) {
+        blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY(), loc.getBlockZ() + z));
       }
     }
     return blocks;
