@@ -41,8 +41,8 @@ public class LoggerCmd implements CommandListener {
 
   @Override
   public Completion getTabCompletion() {
-    return new Completion((sender, cmd, args) -> sender.isConsole(false) ? List.of("<name>") : List.of())
-        .addArgument(new Completion("<name>")
+    return new Completion((sender, cmd, args) -> sender.isConsole(false) ? List.of("<name>") : List.of()).allowAny()
+        .addArgument(new Completion("<name>").allowAny()
             .addArgument(new Completion(Stream.of(Level.OFF, Level.TRACE, Level.WARN, Level.INFO, Level.ALL).map(Level::name).toList())));
   }
 

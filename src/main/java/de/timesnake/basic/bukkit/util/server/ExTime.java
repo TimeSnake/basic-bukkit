@@ -4,9 +4,16 @@
 
 package de.timesnake.basic.bukkit.util.server;
 
+import java.time.Duration;
 import java.util.Objects;
 
 public record ExTime(int time, TimeUnit unit) {
+
+  private static final ExTime ZERO = new ExTime(0, TimeUnit.TICKS);
+
+  public static ExTime zero() {
+    return ZERO;
+  }
 
   public static ExTime of(int time, TimeUnit unit) {
     return new ExTime(time, unit);
@@ -26,6 +33,10 @@ public record ExTime(int time, TimeUnit unit) {
 
   public int toTicks() {
     return this.time * this.unit.getTicks();
+  }
+
+  public Duration toDuration() {
+    return Duration.ofSeconds(this.toTicks() * 20L);
   }
 
   @Override

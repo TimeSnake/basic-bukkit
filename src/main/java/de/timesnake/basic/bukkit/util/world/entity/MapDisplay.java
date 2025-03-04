@@ -132,11 +132,11 @@ public class MapDisplay extends PacketEntity {
 
     for (int x = 0; x < maps.length; x++) {
 
-      ExBlock block = this.baseBlock.getRelative(xVector.clone().multiply(x));
+      ExBlock block = this.baseBlock.getExRelative(xVector.clone().multiply(x));
 
       for (int y = 0; y < maps[x].length; y++) {
         frameLocations[x][y] = block;
-        block = block.getRelative(yVector);
+        block = block.getExRelative(yVector);
       }
     }
   }

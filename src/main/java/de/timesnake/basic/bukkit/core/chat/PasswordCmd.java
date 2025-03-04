@@ -39,7 +39,7 @@ public class PasswordCmd implements CommandListener {
   @Override
   public Completion getTabCompletion() {
     return new Completion(this.perm)
-        .addArgument(new Completion("<password>"));
+        .addArgument(new Completion("<password>").allowAny());
   }
 
   @Override

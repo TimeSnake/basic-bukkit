@@ -5,14 +5,14 @@
 package de.timesnake.basic.bukkit.util.file;
 
 import com.google.gson.*;
-import de.timesnake.basic.bukkit.util.world.ExPolygon;
+import de.timesnake.basic.bukkit.util.world.BlockPolygon;
 
 import java.lang.reflect.Type;
 
-public class ExPolygonJsonSerializer implements JsonSerializer<ExPolygon> {
+public class ExPolygonJsonSerializer implements JsonSerializer<BlockPolygon> {
 
   @Override
-  public JsonElement serialize(ExPolygon src, Type typeOfSrc, JsonSerializationContext context) {
+  public JsonElement serialize(BlockPolygon src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject json = new JsonObject();
 
     JsonArray xPoints = new JsonArray();

@@ -4,19 +4,22 @@
 
 package de.timesnake.basic.bukkit.util.world;
 
+import de.timesnake.basic.bukkit.core.world.DelegatedBlock;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ExBlock {
+public class ExBlock extends DelegatedBlock {
 
   public static final List<Vector> NEAR_BLOCKS = List.of(
       new Vector(1, 0, 0),
@@ -53,22 +56,26 @@ public class ExBlock {
     return location;
   }
 
+  public ExWorld getExWorld() {
+    return this.location.getExWorld();
+  }
+
+  @Override
   public Block getBlock() {
     return this.location.getBlock();
   }
 
-  public Material getType() {
-    return this.location.getBlock().getType();
-  }
-
+  @Override
   public int getX() {
     return this.location.getBlockX();
   }
 
+  @Override
   public int getY() {
     return this.location.getBlockY();
   }
 
+  @Override
   public int getZ() {
     return this.location.getBlockZ();
   }
@@ -92,24 +99,24 @@ public class ExBlock {
     return Objects.hash(location.getExWorld(), this.getX(), this.getY(), this.getZ());
   }
 
-  public ExBlock getRelative(BlockFace face) {
+  public ExBlock getExRelative(BlockFace face) {
     return new ExBlock(this.location.getBlock().getRelative(face));
   }
 
-  public ExBlock getRelative(Vector vector) {
+  public ExBlock getExRelative(Vector vector) {
     return this.location.clone().add(vector).getExBlock();
   }
 
-  public ExBlock getRelative(int x, int y, int z) {
+  public ExBlock getExRelative(int x, int y, int z) {
     return new ExBlock(this.location.getBlock().getRelative(x, y, z));
   }
 
   public ExBlock up() {
-    return this.getRelative(0, 1, 0);
+    return this.getExRelative(0, 1, 0);
   }
 
   public ExBlock down() {
-    return this.getRelative(0, -1, 0);
+    return this.getExRelative(0, -1, 0);
   }
 
   public boolean isBeside(Block location) {
@@ -118,7 +125,7 @@ public class ExBlock {
     }
 
     for (Vector vector : NEAR_BLOCKS) {
-      if (this.getBlock().getLocation().add(vector).getBlock().equals(location)) {
+      if (this.location.clone().add(vector).getBlock().equals(location)) {
         return true;
       }
     }
@@ -126,7 +133,31 @@ public class ExBlock {
     return false;
   }
 
-  public List<Block> getBesideBlocks() {
-    return NEAR_BLOCKS.stream().map(v -> this.location.add(v).getBlock()).collect(Collectors.toList());
+  public List<ExBlock> getBesideBlocks() {
+    return NEAR_BLOCKS.stream().map(this::getExRelative).collect(Collectors.toList());
+  }
+
+  public ExBlock getNeighbor(String direction) {
+    return this.getNeighborBlocks(Direction.parseFromString(direction)).getFirst();
+  }
+
+  public List<ExBlock> getHorizontalNeighborBlocks() {
+    return this.getNeighborBlocks(Direction.combine());
+  }
+
+  public List<ExBlock> getNeighborBlocks(String directions) {
+    return this.getNeighborBlocks(Direction.parseFromString(directions));
+  }
+
+  public List<ExBlock> getNeighborBlocks(Collection<Direction> directions) {
+    return directions.stream()
+        .map(d -> this.getExRelative(d.getVector()))
+        .toList();
+  }
+
+  public void editBlockData(Consumer<BlockData> consumer) {
+    BlockData blockData = this.getBlockData();
+    consumer.accept(blockData);
+    this.setBlockData(blockData);
   }
 }

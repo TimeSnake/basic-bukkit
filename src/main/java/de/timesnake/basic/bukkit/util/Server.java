@@ -14,8 +14,8 @@ import de.timesnake.basic.bukkit.util.chat.cmd.CommandManager;
 import de.timesnake.basic.bukkit.util.exception.WorldNotExistException;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
+import de.timesnake.basic.bukkit.util.server.ExTime;
 import de.timesnake.basic.bukkit.util.server.Network;
-import de.timesnake.basic.bukkit.util.server.TimeTask;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserEventManager;
 import de.timesnake.basic.bukkit.util.user.UserManager;
@@ -529,24 +529,29 @@ public class Server implements de.timesnake.library.basic.util.server.Server {
     return server.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
 
-  public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+  public static BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                                  org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, time, delay, period, plugin);
   }
 
-  public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+  public static BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                                   org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, time, delay, period, plugin);
   }
 
-  public static BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
+  public static BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero, int delay,
                                                  int period, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period, plugin);
   }
 
-  public static BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay,
+  public static BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero, int delay,
                                                   int period, org.bukkit.plugin.Plugin plugin) {
     return server.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period, plugin);
+  }
+
+  public static BukkitTask runTaskLoopSynchrony(Consumer<Integer> loopTask, Runnable endTask, ExTime delay,
+                                                ExTime period, int iterations, org.bukkit.plugin.Plugin plugin) {
+    return server.runTaskLoopSynchrony(loopTask, endTask, delay, period, iterations, plugin);
   }
 
   public static <Element> void runTaskLoopAsynchrony(Consumer<Element> task, Iterable<Element> iterable,

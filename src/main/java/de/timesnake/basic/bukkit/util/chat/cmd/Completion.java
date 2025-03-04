@@ -69,7 +69,7 @@ public class Completion extends de.timesnake.library.commands.Completion<Complet
     super(values.toList());
   }
 
-  public Completion(CmdFunction<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
+  public Completion(CompleteSupplier<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
     super(valuesProvider);
   }
 
@@ -86,7 +86,7 @@ public class Completion extends de.timesnake.library.commands.Completion<Complet
   }
 
   public Completion(Code permission,
-                    CmdFunction<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
+                    CompleteSupplier<Sender, Argument, Arguments<Argument>, Collection<String>> valuesProvider) {
     super(permission, valuesProvider);
   }
 

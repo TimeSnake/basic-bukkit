@@ -21,8 +21,8 @@ import de.timesnake.basic.bukkit.util.file.MaterialJsonSerializer;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.group.GroupManager;
 import de.timesnake.basic.bukkit.util.group.PermGroup;
+import de.timesnake.basic.bukkit.util.server.ExTime;
 import de.timesnake.basic.bukkit.util.server.Network;
-import de.timesnake.basic.bukkit.util.server.TimeTask;
 import de.timesnake.basic.bukkit.util.user.PvPManager;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserEventManager;
@@ -31,8 +31,8 @@ import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.inventory.InventoryEventManager;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ScoreboardManager;
+import de.timesnake.basic.bukkit.util.world.BlockPolygon;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
-import de.timesnake.basic.bukkit.util.world.ExPolygon;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.WorldManager;
 import de.timesnake.channel.util.Channel;
@@ -250,8 +250,8 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
         .setPrettyPrinting()
         .registerTypeAdapter(Material.class, new MaterialJsonSerializer())
         .registerTypeAdapter(Material.class, new MaterialJsonDeserializer())
-        .registerTypeAdapter(ExPolygon.class, new ExPolygonJsonSerializer())
-        .registerTypeAdapter(ExPolygon.class, new ExPolygonJsonDeserializer());
+        .registerTypeAdapter(BlockPolygon.class, new ExPolygonJsonSerializer())
+        .registerTypeAdapter(BlockPolygon.class, new ExPolygonJsonDeserializer());
   }
 
   public final void createUser(Player player) {
@@ -769,26 +769,33 @@ public class ServerManager implements de.timesnake.library.basic.util.server.Ser
     return this.taskManager.runTaskTimerAsynchrony(task, delay, period, plugin);
   }
 
-  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+  public BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, time, delay, period, plugin);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+  public BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                            org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, time, delay, period, plugin);
   }
 
-  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
+  public BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero, int delay,
+                                          int period,
                                           org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerSynchrony(task, time, cancelOnZero, delay, period,
         plugin);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero, int delay, int period,
+  public BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero, int delay,
+                                           int period,
                                            org.bukkit.plugin.Plugin plugin) {
     return this.taskManager.runTaskTimerAsynchrony(task, time, cancelOnZero, delay, period,
         plugin);
+  }
+
+  public BukkitTask runTaskLoopSynchrony(Consumer<Integer> loopTask, Runnable endTask, ExTime delay, ExTime period,
+                                         int iterations, org.bukkit.plugin.Plugin plugin) {
+    return this.taskManager.runTaskLoopSynchrony(loopTask, endTask, delay, period, iterations, plugin);
   }
 
   public <Element> void runTaskLoopAsynchrony(Consumer<Element> task, Iterable<Element> iterable,

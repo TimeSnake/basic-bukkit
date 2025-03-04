@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 
 import java.util.*;
@@ -157,7 +156,11 @@ public class ExWorld extends DelegatedWorld {
     return new ExBlock(this.getBlockAt(x, y, z));
   }
 
-  public Collection<Block> getBlocksWithinCubic(Location loc1, Location loc2) {
+  public ExBlock getHighestExBlockAt(int x, int z) {
+    return new ExBlock(this.getHighestBlockAt(x, z));
+  }
+
+  public Collection<ExBlock> getBlocksWithinCubic(Location loc1, Location loc2) {
     int fromX = Math.min(loc1.getBlockX(), loc2.getBlockX());
     int toX = Math.max(loc1.getBlockX(), loc2.getBlockX());
 
@@ -167,37 +170,37 @@ public class ExWorld extends DelegatedWorld {
     int fromZ = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
     int toZ = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-    Set<Block> blocks = new HashSet<>();
+    Set<ExBlock> blocks = new HashSet<>();
 
     for (int x = fromX; x <= toX; x++) {
       for (int y = fromY; y <= toY; y++) {
         for (int z = fromZ; z <= toZ; z++) {
-          blocks.add(this.getBlockAt(x, y, z));
+          blocks.add(this.getExBlockAt(x, y, z));
         }
       }
     }
     return blocks;
   }
 
-  public Collection<Block> getBlocksWithinCubicDistance(Location loc, int distance) {
-    Set<Block> blocks = new HashSet<>();
+  public Collection<ExBlock> getBlocksWithinCubicDistance(Location loc, int distance) {
+    Set<ExBlock> blocks = new HashSet<>();
 
     for (int x = -distance; x < distance; x++) {
       for (int y = -distance; y < distance; y++) {
         for (int z = -distance; z < distance; z++) {
-          blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z));
+          blocks.add(this.getExBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z));
         }
       }
     }
     return blocks;
   }
 
-  public Collection<Block> getBlocksWithinCubicDistanceHorizontal(Location loc, int distance) {
-    Set<Block> blocks = new HashSet<>();
+  public Collection<ExBlock> getBlocksWithinCubicDistanceHorizontal(Location loc, int distance) {
+    Set<ExBlock> blocks = new HashSet<>();
 
     for (int x = -distance; x < distance; x++) {
       for (int z = -distance; z < distance; z++) {
-        blocks.add(this.getBlockAt(loc.getBlockX() + x, loc.getBlockY(), loc.getBlockZ() + z));
+        blocks.add(this.getExBlockAt(loc.getBlockX() + x, loc.getBlockY(), loc.getBlockZ() + z));
       }
     }
     return blocks;

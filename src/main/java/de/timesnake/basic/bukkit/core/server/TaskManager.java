@@ -6,7 +6,7 @@ package de.timesnake.basic.bukkit.core.server;
 
 import de.timesnake.basic.bukkit.core.main.BasicBukkit;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.server.TimeTask;
+import de.timesnake.basic.bukkit.util.server.ExTime;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -80,26 +80,32 @@ public class TaskManager {
     }.runTaskTimerAsynchronously(plugin, delay, period);
   }
 
-  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, int delay, int period,
+  public BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                           Plugin plugin) {
     return new TimeBukkitRunnable(task, time, false).runTaskTimer(plugin, delay, period);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, int delay, int period,
+  public BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, int delay, int period,
                                            Plugin plugin) {
     return new TimeBukkitRunnable(task, time, false)
         .runTaskTimerAsynchronously(plugin, delay, period);
   }
 
-  public BukkitTask runTaskTimerSynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+  public BukkitTask runTaskTimerSynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero,
                                           int delay, int period, Plugin plugin) {
     return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimer(plugin, delay, period);
   }
 
-  public BukkitTask runTaskTimerAsynchrony(TimeTask task, Integer time, boolean cancelOnZero,
+  public BukkitTask runTaskTimerAsynchrony(Consumer<Integer> task, Integer time, boolean cancelOnZero,
                                            int delay, int period, Plugin plugin) {
     return new TimeBukkitRunnable(task, time, cancelOnZero).runTaskTimerAsynchronously(plugin,
         delay, period);
+  }
+
+  public BukkitTask runTaskLoopSynchrony(Consumer<Integer> loopTask, Runnable endTask, ExTime delay, ExTime period,
+                                         int iterations, Plugin plugin) {
+    return new IndexBukkitRunnable(loopTask, endTask, iterations)
+        .runTaskTimer(plugin, delay.toTicks(), period.toTicks());
   }
 
   public <Element> void runTaskLoopAsynchrony(Consumer<Element> task, Iterable<Element> iterable,
@@ -114,13 +120,38 @@ public class TaskManager {
     }
   }
 
+  private static class IndexBukkitRunnable extends BukkitRunnable {
+
+    private final Consumer<Integer> loopTask;
+    private final Runnable endTask;
+    private final int iterations;
+    private int i = 0;
+
+    IndexBukkitRunnable(Consumer<Integer> loopTask, Runnable endTask, int iterations) {
+      this.loopTask = loopTask;
+      this.endTask = endTask;
+      this.iterations = iterations;
+    }
+
+    @Override
+    public void run() {
+      this.loopTask.accept(i);
+      this.i++;
+
+      if (this.i >= iterations) {
+        this.endTask.run();
+        this.cancel();
+      }
+    }
+  }
+
   private static class TimeBukkitRunnable extends BukkitRunnable {
 
-    private final TimeTask task;
+    private final Consumer<Integer> task;
     private final boolean cancelOnZero;
     private int time;
 
-    TimeBukkitRunnable(TimeTask task, int time, boolean cancelOnZero) {
+    TimeBukkitRunnable(Consumer<Integer> task, int time, boolean cancelOnZero) {
       this.task = task;
       this.time = time;
       this.cancelOnZero = cancelOnZero;
@@ -128,7 +159,7 @@ public class TaskManager {
 
     @Override
     public void run() {
-      this.task.run(this.time);
+      this.task.accept(this.time);
 
       if (this.cancelOnZero && this.time <= 0) {
         this.cancel();
