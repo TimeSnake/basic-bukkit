@@ -48,5 +48,3 @@ publish:
       - .gradle
   tags:
     - gradle
-  only:
-    - tags
