@@ -1948,4 +1948,8 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   public void resetSideboard() {
     scoreboardUser.resetSideboard();
   }
+
+  public Sideboard getSideboard() {
+    return scoreboardUser.getSideboard();
+  }
 }

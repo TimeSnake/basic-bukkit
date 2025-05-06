@@ -234,4 +234,8 @@ public abstract class ScoreboardUser implements ScoreboardViewer {
     this.sideboardScores.clear();
     this.setSideboard(null);
   }
+
+  public Sideboard getSideboard() {
+    return sideboard;
+  }
 }
