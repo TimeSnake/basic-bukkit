@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class ExBlock extends DelegatedBlock {
 
-  public static final List<Vector> NEAR_BLOCKS = List.of(
+  public static final List<Vector> ADJACENT_BLOCKS = List.of(
       new Vector(1, 0, 0),
       new Vector(-1, 0, 0),
       new Vector(0, 1, 0),
@@ -29,13 +29,8 @@ public class ExBlock extends DelegatedBlock {
       new Vector(0, 0, 1),
       new Vector(0, 0, -1));
 
-  public static final List<Tuple<Vector, BlockFace>> NEAR_BLOCKS_WITH_FACING = List.of(
-      new Tuple<>(new Vector(1, 0, 0), BlockFace.WEST),
-      new Tuple<>(new Vector(-1, 0, 0), BlockFace.EAST),
-      new Tuple<>(new Vector(0, 1, 0), BlockFace.DOWN),
-      new Tuple<>(new Vector(0, -1, 0), BlockFace.UP),
-      new Tuple<>(new Vector(0, 0, 1), BlockFace.NORTH),
-      new Tuple<>(new Vector(0, 0, -1), BlockFace.SOUTH));
+  public static final List<BlockFace> ADJACENT_BLOCK_FACINGS=
+      List.of(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN);
 
   public static ExBlock fromBlock(Block block) {
     return new ExBlock(block);
@@ -124,7 +119,7 @@ public class ExBlock extends DelegatedBlock {
       return false;
     }
 
-    for (Vector vector : NEAR_BLOCKS) {
+    for (Vector vector : ADJACENT_BLOCKS) {
       if (this.location.clone().add(vector).getBlock().equals(location)) {
         return true;
       }
@@ -134,7 +129,7 @@ public class ExBlock extends DelegatedBlock {
   }
 
   public List<ExBlock> getBesideBlocks() {
-    return NEAR_BLOCKS.stream().map(this::getExRelative).collect(Collectors.toList());
+    return ADJACENT_BLOCKS.stream().map(this::getExRelative).collect(Collectors.toList());
   }
 
   public ExBlock getNeighbor(String direction) {

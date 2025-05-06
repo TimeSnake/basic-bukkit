@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 
 import java.util.*;
@@ -204,6 +205,15 @@ public class ExWorld extends DelegatedWorld {
       }
     }
     return blocks;
+  }
+
+  public ExBlock getRandomExBlockWithinCubicDistanceHorizontal(Location loc, int distance) {
+    return this.getRandomExBlockWithinCubicDistanceHorizontal(loc.getBlock(), distance);
+  }
+
+  public ExBlock getRandomExBlockWithinCubicDistanceHorizontal(Block block, int distance) {
+    return this.getExBlockAt(block.getX() + this.random.nextInt(2 * distance) - distance,
+        block.getY(), block.getZ() + this.random.nextInt(2 * distance) - distance);
   }
 
   @Override

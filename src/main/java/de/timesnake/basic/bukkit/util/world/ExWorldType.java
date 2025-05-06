@@ -9,6 +9,7 @@ import de.timesnake.basic.bukkit.util.exception.WorldTypeParseException;
 import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 
 import java.util.ArrayList;
@@ -191,6 +192,12 @@ public class ExWorldType {
 
     public MiniWorld(int chunkXSize, int chunkZSize) {
       super("miniworld", World.Environment.NORMAL, null, new MiniWorldGenerator(chunkXSize, chunkZSize));
+      this.chunkXSize = chunkXSize;
+      this.chunkZSize = chunkZSize;
+    }
+
+    public MiniWorld(int chunkXSize, int chunkZSize, WorldType worldType) {
+      super("miniworld", World.Environment.NORMAL, worldType, new MiniWorldGenerator(chunkXSize, chunkZSize));
       this.chunkXSize = chunkXSize;
       this.chunkZSize = chunkZSize;
     }
