@@ -328,7 +328,7 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
     }
 
     ExWorldFile file = new ExWorldFile(world.getWorldFolder(), originalWorld.getType());
-    ExWorld clonedExWorld = new ExWorld(world, originalWorld.getType(), file, originalWorld.getRestrictionValues());
+    ExWorld clonedExWorld = new ExWorld(world, originalWorld.getType(), file, originalWorld.getOptions());
     this.registerExWorld(clonedExWorld);
     this.onWorldLoad(clonedExWorld, WorldLoadActionType.CLONE);
     return clonedExWorld;

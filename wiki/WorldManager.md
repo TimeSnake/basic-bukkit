@@ -9,7 +9,7 @@ world exporting and importing on other servers.
 ### [ExWorld]
 
 The `ExWorld` class wraps the bukkit `World` class.
-The class provides the followed world restrictions.
+The class provides the followed world ExWorldOptions.
 
 The `backupWorld(World)` method allows to create a world backup. To load the world backup
 call `loadWorldBackup(World)`.
@@ -31,32 +31,10 @@ remaining valid after a
 world reset.
 The `ExBlock` class wraps the bukkit `Block` class and acts similar as the `ExLocation` class.
 
-### World-Restrictions
+### World-ExWorldOptions
 
-The `ExWorld` class provides many world restrictions to prevent actions.
-
-- `exceptService` - users with service mode are excluded from all restrictions
-- `blockBreak` - allows players to break blocks
-- `blockPlace` - allows players to place blocks
-- `blockIgnite` - allows igniting blocks
-- `blockBurnUp` - allows burning up blocks
-- `entityBlockBreak` - allows players to destroy entity blocks (like item-frames, paintings)
-- `placeInBlock` - allows players to place blocks into blocks (like turtle eggs, sea pickles,
-  candles, ender eyes)
-- `fluidCollect` - allows players to collect fluids from cauldrons
-- `fluidPlace` - allows players to place fluids in cauldrons
-- `fireSpread` - allows fire to spread to other blocks
-- `lightUpInteraction` - allows players to light up blocks (like candles, fire-camps)
-- `flintAndSteel` - allows players to use flint and steel
-- `firePunchOut` - allows players to punch out fires
-- `dropPickUpItem` - allows players to pick up and drop items
-- `playerDamage` - allows players to get damage
-- `foodChange` - allows players to lose food
-- `itemFrameRotate` - allows players to rotate item frames
-- `eatCake` - allows players to eat cakes (if not set, prevents dropping candles on cakes)
-- `crafting` - allows players to craft
-- `lockedBlockInventories` - list of materials of blocks with an inventory, which are locked (
-  players can not open it)
+The `ExWorld` class provides many world ExWorldOptions to prevent actions.
+See [ExWorldOption] for details.
 
 ### World-Border
 
@@ -72,3 +50,5 @@ be created with the
 [ExBlock]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExBlock.java
 
 [ExWorldBorder]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExWorldBorder.java
+
+[ExWorldOption]: ../src/main/java/de/timesnake/basic/bukkit/util/world/ExWorldOption.java

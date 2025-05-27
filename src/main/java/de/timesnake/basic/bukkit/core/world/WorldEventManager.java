@@ -10,8 +10,8 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
-import de.timesnake.basic.bukkit.util.world.ExWorld.Restriction;
-import de.timesnake.library.basic.util.Tuple;
+import de.timesnake.basic.bukkit.util.world.ExWorldOption;
+import de.timesnake.library.basic.util.RandomList;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,6 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import java.util.Set;
 
@@ -66,7 +65,7 @@ public class WorldEventManager implements Listener {
     if (world.isExceptService() && Server.getUser(((Player) e.getWhoClicked())).isService()) {
       return;
     }
-    if (!world.isRestricted(Restriction.CRAFTING)) {
+    if (world.getOption(ExWorldOption.ALLOW_CRAFTING)) {
       return;
     }
 
@@ -91,7 +90,7 @@ public class WorldEventManager implements Listener {
     Material blockType = clickedBlock != null ? clickedBlock.getType() : Material.AIR;
     ItemStack item = event.getItem();
 
-    if (world.isRestricted(ExWorld.Restriction.BLOCK_BREAK)) {
+    if (!world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK)) {
       if (event.getAction() == Action.PHYSICAL) {
         if (clickedBlock == null) {
           return;
@@ -104,17 +103,14 @@ public class WorldEventManager implements Listener {
       }
     }
 
-    if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction()
-        .equals(Action.RIGHT_CLICK_BLOCK)) {
-      Set<Material> filledBuckets = Set.of(Material.LAVA_BUCKET, Material.COD_BUCKET,
-          Material.AXOLOTL_BUCKET,
+    if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+      Set<Material> filledBuckets = Set.of(Material.LAVA_BUCKET, Material.COD_BUCKET, Material.AXOLOTL_BUCKET,
           Material.POWDER_SNOW_BUCKET, Material.PUFFERFISH_BUCKET, Material.SALMON_BUCKET,
           Material.TROPICAL_FISH_BUCKET, Material.WATER_BUCKET);
 
       if (item != null) {
         if (filledBuckets.contains(item.getType())) {
-          if (world.isRestricted(ExWorld.Restriction.FLUID_PLACE) && !blockType.equals(
-              Material.CAULDRON)) {
+          if (!world.getOption(ExWorldOption.ALLOW_FLUID_PLACE) && !blockType.equals(Material.CAULDRON)) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -122,11 +118,9 @@ public class WorldEventManager implements Listener {
             return;
           }
         } else if (item.getType().equals(Material.BUCKET)) {
-          Set<Material> filledCauldrons = Set.of(Material.LAVA_CAULDRON,
-              Material.WATER_CAULDRON);
+          Set<Material> filledCauldrons = Set.of(Material.LAVA_CAULDRON, Material.WATER_CAULDRON);
 
-          if (world.isRestricted(ExWorld.Restriction.FLUID_COLLECT)
-              && !filledCauldrons.contains(blockType)) {
+          if (!world.getOption(ExWorldOption.ALLOW_FLUID_COLLECT) && !filledCauldrons.contains(blockType)) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -140,7 +134,7 @@ public class WorldEventManager implements Listener {
     if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
       if (blockType.equals(Material.CAKE)) {
-        if (world.isRestricted(ExWorld.Restriction.CAKE_EAT)) {
+        if (!world.getOption(ExWorldOption.ALLOW_CAKE_EAT)) {
           event.setCancelled(true);
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
@@ -149,8 +143,7 @@ public class WorldEventManager implements Listener {
         }
       }
 
-      if (world.isRestricted(ExWorld.Restriction.OPEN_INVENTORIES).contains(blockType)
-          || world.isRestricted(Restriction.OPEN_INVENTORIES).contains(Material.AIR)) {
+      if (world.getOption(ExWorldOption.FORBIDDEN_BLOCK_INVENTORIES).contains(blockType) || world.getOption(ExWorldOption.FORBIDDEN_BLOCK_INVENTORIES).contains(Material.AIR)) {
         event.setCancelled(true);
         event.setUseInteractedBlock(Event.Result.DENY);
         event.setUseItemInHand(Event.Result.DENY);
@@ -160,13 +153,11 @@ public class WorldEventManager implements Listener {
 
       if (item != null) {
         if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-          if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
+          if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
             return;
           }
 
-          if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
-              && (Tag.CAMPFIRES.isTagged(blockType) || Tag.CANDLES.isTagged(
-              blockType))) {
+          if (world.getOption(ExWorldOption.ALLOW_LIGHT_UP_INTERACTION) && (Tag.CAMPFIRES.isTagged(blockType) || Tag.CANDLES.isTagged(blockType))) {
             return;
           }
 
@@ -175,7 +166,7 @@ public class WorldEventManager implements Listener {
           event.setUseItemInHand(Event.Result.DENY);
           this.logger.info("Cancelled interact light-up event");
         } else if (item.getType().equals(Material.SPLASH_POTION)) {
-          if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)) {
+          if (world.getOption(ExWorldOption.ALLOW_LIGHT_UP_INTERACTION)) {
             return;
           }
 
@@ -187,12 +178,11 @@ public class WorldEventManager implements Listener {
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
         } else {
-          if (!world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK)) {
+          if (world.getOption(ExWorldOption.ALLOW_PLACE_IN_BLOCK)) {
             return;
           }
 
-          if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(
-              Material.END_PORTAL_FRAME)) {
+          if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(Material.END_PORTAL_FRAME)) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -200,8 +190,7 @@ public class WorldEventManager implements Listener {
             return;
           }
 
-          if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE)
-                                                       || Tag.CANDLES.isTagged(blockType))) {
+          if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE) || Tag.CANDLES.isTagged(blockType))) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -209,8 +198,7 @@ public class WorldEventManager implements Listener {
             return;
           }
 
-          if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(
-              Material.SEA_PICKLE)) {
+          if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(Material.SEA_PICKLE)) {
             event.setCancelled(true);
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
@@ -222,7 +210,7 @@ public class WorldEventManager implements Listener {
     } else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 
       if (blockType.equals(Material.FIRE)) {
-        if (world.isRestricted(ExWorld.Restriction.FIRE_PUNCH_OUT)) {
+        if (!world.getOption(ExWorldOption.ALLOW_FIRE_PUNCH_OUT)) {
           event.setCancelled(true);
           event.setUseInteractedBlock(Event.Result.DENY);
           event.setUseItemInHand(Event.Result.DENY);
@@ -245,12 +233,11 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
-    if (e.getAction().equals(PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE)
-        && world.isRestricted(ExWorld.Restriction.ITEM_FRAME_ROTATE)) {
+    if (e.getAction().equals(PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE) && world.getOption(ExWorldOption.ALLOW_ITEM_FRAME_ROTATE)) {
       return;
     }
 
@@ -266,7 +253,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
+    if (world.getOption(ExWorldOption.ALLOW_DROP_PICK_ITEM)) {
       return;
     }
 
@@ -282,7 +269,7 @@ public class WorldEventManager implements Listener {
   public void onEntityDamage(UserDamageEvent e) {
     ExWorld world = e.getUser().getExWorld();
 
-    if (!world.isRestricted(ExWorld.Restriction.NO_PLAYER_DAMAGE)) {
+    if (world.getOption(ExWorldOption.ENABLE_PLAYER_DAMAGE)) {
       return;
     }
 
@@ -303,7 +290,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
+    if (world.getOption(ExWorldOption.ALLOW_DROP_PICK_ITEM)) {
       return;
     }
 
@@ -325,7 +312,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.DROP_PICK_ITEM)) {
+    if (world.getOption(ExWorldOption.ALLOW_DROP_PICK_ITEM)) {
       return;
     }
 
@@ -341,7 +328,7 @@ public class WorldEventManager implements Listener {
   public void onBlockBreak(UserBlockBreakEvent e) {
     ExWorld world = e.getUser().getExWorld();
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK)) {
+    if (!world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK)) {
       return;
     }
 
@@ -350,9 +337,8 @@ public class WorldEventManager implements Listener {
     }
 
     if ((e.getBlock().getType().equals(Material.FIRE)
-         || (Tag.CANDLES.isTagged(e.getBlock().getType())) && ((Candle) e.getBlock()
-        .getState()).isLit())
-        && !world.isRestricted(ExWorld.Restriction.FIRE_PUNCH_OUT)) {
+         || (Tag.CANDLES.isTagged(e.getBlock().getType()))
+            && ((Candle) e.getBlock().getState()).isLit()) && world.getOption(ExWorldOption.ALLOW_FIRE_PUNCH_OUT)) {
       return;
     }
 
@@ -368,8 +354,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
-        ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK) && world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
@@ -389,13 +374,11 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
-        ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK) && world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
-    if (e.getAttacker() != null && world.isExceptService() && e.getAttacker() instanceof Player
-        && Server.getUser(((Player) e.getAttacker())).isService()) {
+    if (e.getAttacker() != null && world.isExceptService() && e.getAttacker() instanceof Player && Server.getUser(((Player) e.getAttacker())).isService()) {
       return;
     }
 
@@ -411,13 +394,11 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
-        ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK) && world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
-    if (world.isExceptService() && e.getRemover() instanceof Player
-        && Server.getUser(((Player) e.getRemover())).isService()) {
+    if (world.isExceptService() && e.getRemover() instanceof Player && Server.getUser(((Player) e.getRemover())).isService()) {
       return;
     }
 
@@ -433,8 +414,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
-        ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK) && world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
@@ -442,12 +422,10 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)
-        && world.isRestricted(ExWorld.Restriction.ITEM_FRAME_ROTATE)) {
+    if (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) && !world.getOption(ExWorldOption.ALLOW_ITEM_FRAME_ROTATE)) {
       e.setCancelled(true);
+      this.logger.info("Cancelled interact entity event");
     }
-
-    this.logger.info("Cancelled interact entity event");
   }
 
   @EventHandler
@@ -458,13 +436,11 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BREAK) && !world.isRestricted(
-        ExWorld.Restriction.ENTITY_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK) && world.getOption(ExWorldOption.ALLOW_ENTITY_BLOCK_BREAK)) {
       return;
     }
 
-    if (!e.getEntity().getType().equals(EntityType.ARMOR_STAND) && !e.getEntity().getType()
-        .equals(EntityType.ITEM_FRAME)) {
+    if (!e.getEntity().getType().equals(EntityType.ARMOR_STAND) && !e.getEntity().getType().equals(EntityType.ITEM_FRAME)) {
       return;
     }
 
@@ -485,7 +461,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.FOOD_CHANGE)) {
+    if (world.getOption(ExWorldOption.CHANGE_FOOD)) {
       return;
     }
 
@@ -515,7 +491,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.ENTITY_EXPLODE)) {
+    if (world.getOption(ExWorldOption.ENABLE_ENTITY_EXPLOSION)) {
       return;
     }
 
@@ -535,31 +511,28 @@ public class WorldEventManager implements Listener {
     Block block = e.getBlock();
     Material blockType = block.getType();
 
-    if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(
-        Material.END_PORTAL_FRAME)) {
-      e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
+    if (item.getType().equals(Material.ENDER_EYE) && blockType.equals(Material.END_PORTAL_FRAME)) {
+      e.setCancelled(!world.getOption(ExWorldOption.ALLOW_PLACE_IN_BLOCK));
       return;
     }
 
-    if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE)
-                                                 || Tag.CANDLES.isTagged(blockType))) {
-      e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
+    if (Tag.CANDLES.isTagged(item.getType()) && (blockType.equals(Material.CAKE) || Tag.CANDLES.isTagged(blockType))) {
+      e.setCancelled(!world.getOption(ExWorldOption.ALLOW_PLACE_IN_BLOCK));
       return;
     }
 
     if (item.getType().equals(Material.SEA_PICKLE) && blockType.equals(Material.SEA_PICKLE)) {
-      e.setCancelled(world.isRestricted(ExWorld.Restriction.PLACE_IN_BLOCK));
+      e.setCancelled(!world.getOption(ExWorldOption.ALLOW_PLACE_IN_BLOCK));
       return;
     }
 
     if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-      if (!world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
+      if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
         return;
       }
 
-      if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
-          && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(
-          e.getBlock().getType()))) {
+      if (world.getOption(ExWorldOption.ALLOW_LIGHT_UP_INTERACTION)
+          && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
         return;
       }
 
@@ -567,7 +540,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (e.getBlockPlaced().getType().equals(Material.TNT) && !world.isRestricted(Restriction.AUTO_PRIME_TNT)) {
+    if (e.getBlockPlaced().getType().equals(Material.TNT) && world.getOption(ExWorldOption.AUTO_PRIME_TNT)) {
       Server.runTaskLaterSynchrony(() -> {
         if (e.getBlockPlaced().getType().equals(Material.TNT)) {
           e.getBlockPlaced().setType(Material.AIR);
@@ -576,7 +549,7 @@ public class WorldEventManager implements Listener {
       }, 1, BasicBukkit.getPlugin());
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_PLACE)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_PLACE)) {
       return;
     }
 
@@ -592,7 +565,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(Restriction.BLOCK_SPREAD)) {
+    if (world.getOption(ExWorldOption.ENABLE_BLOCK_SPREAD)) {
       return;
     }
 
@@ -608,7 +581,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.BLOCK_BURN_UP)) {
+    if (world.getOption(ExWorldOption.BLOCK_BURN_UP)) {
       return;
     }
 
@@ -624,19 +597,22 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(Restriction.BLOCK_IGNITE)) {
-      this.checkFireSpread(e.getBlock().getLocation(), world);
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_IGNITE)) {
+      if (world.getOption(ExWorldOption.FIRE_SPREAD_SPEED) == 0) {
+        e.setCancelled(true);
+        this.logger.info("Cancelled block ignite event");
+      } else {
+        this.checkFireSpread(e.getBlock().getLocation(), world);
+      }
       return;
     }
 
-    if (e.getCause().equals(IgniteCause.FLINT_AND_STEEL)
-        && !world.isRestricted(ExWorld.Restriction.FLINT_AND_STEEL)) {
+    if (e.getCause().equals(IgniteCause.FLINT_AND_STEEL) && world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.LIGHT_UP_INTERACTION)
-        && (Tag.CAMPFIRES.isTagged(e.getBlock().getType())
-            || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
+    if (world.getOption(ExWorldOption.ALLOW_LIGHT_UP_INTERACTION)
+        && (Tag.CAMPFIRES.isTagged(e.getBlock().getType()) || Tag.CANDLES.isTagged(e.getBlock().getType()))) {
       return;
     }
 
@@ -656,12 +632,11 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(ExWorld.Restriction.TNT_PRIME)) {
+    if (world.getOption(ExWorldOption.ALLOW_TNT_PRIME)) {
       return;
     }
 
-    if (world.isExceptService() && e.getPrimingEntity() instanceof Player
-        && Server.getUser(((Player) e.getPrimingEntity())).isService()) {
+    if (world.isExceptService() && e.getPrimingEntity() instanceof Player && Server.getUser(((Player) e.getPrimingEntity())).isService()) {
       return;
     }
 
@@ -681,7 +656,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (world.isRestricted(Restriction.BED_ENTER)) {
+    if (!world.getOption(ExWorldOption.ALLOW_BED_ENTER)) {
       e.setUseBed(Result.DENY);
       this.logger.info("Cancelled bed enter event");
     }
@@ -697,7 +672,7 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (!world.isRestricted(Restriction.FLUID_FLOW)) {
+    if (world.getOption(ExWorldOption.ALLOW_FLUID_FLOW)) {
       return;
     }
 
@@ -708,13 +683,13 @@ public class WorldEventManager implements Listener {
   }
 
   private void checkFireSpread(Location loc, ExWorld world) {
-    float maxFires = world.isRestricted(Restriction.FIRE_SPREAD_SPEED);
+    float maxFires = world.getOption(ExWorldOption.FIRE_SPREAD_SPEED);
 
     if (maxFires == 0) {
       return;
     }
 
-    int fires = (int) world.getRandom().nextFloat(0, maxFires);
+    int fires = Math.round(world.getRandom().nextFloat(0, maxFires));
 
     if (!loc.getNearbyPlayers(32).isEmpty()) {
       if (fires > 0) {
@@ -724,34 +699,29 @@ public class WorldEventManager implements Listener {
   }
 
   private void scanForIgnitable(Location loc, ExWorld world, int fires) {
-    for (Block block : world.getBlocksWithinCubicDistance(loc,
-        world.isRestricted(Restriction.FIRE_SPREAD_DISTANCE))) {
-      if (!block.isEmpty()) {
+    for (ExBlock block : new RandomList<>(world.getBlocksWithinCubicDistance(loc,
+        world.getOption(ExWorldOption.FIRE_SPREAD_DISTANCE)))) {
+      if (block.isEmpty() || !block.isBurnable()) {
         continue;
       }
 
-      for (Tuple<Vector, BlockFace> tuple : ExBlock.NEAR_BLOCKS_WITH_FACING) {
-        Vector vec = tuple.getA();
-        BlockFace blockFace = tuple.getB();
+      for (BlockFace face : ExBlock.ADJACENT_BLOCK_FACINGS) {
+        ExBlock adjacentBlock = block.getExRelative(face);
 
-        Block nearBlock = block.getLocation().add(vec).getBlock();
-
-        if (!nearBlock.isBurnable()) {
+        if (!adjacentBlock.isEmpty()) {
           continue;
         }
 
-        nearBlock.setType(Material.FIRE);
-        if (blockFace != BlockFace.DOWN) {
-          BlockData blockData = nearBlock.getBlockData();
-          if (blockData instanceof Fire) {
-            ((Fire) blockData).setFace(blockFace, true);
-            nearBlock.setBlockData(blockData);
-            if (--fires == 0) {
-              return;
-            }
-            break;
-          }
+        adjacentBlock.setType(Material.FIRE);
 
+        BlockData blockData = adjacentBlock.getBlockData();
+        if (blockData instanceof Fire && face != BlockFace.UP) {
+          ((Fire) blockData).setFace(face.getOppositeFace(), true);
+          adjacentBlock.setBlockData(blockData);
+          if (--fires == 0) {
+            return;
+          }
+          break;
         }
       }
     }
