@@ -5,7 +5,7 @@ plugins {
     id("java-base")
     id("java-library")
     id("maven-publish")
-    id("io.papermc.paperweight.userdev") version "1.7.2"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("xyz.jpenilla.run-paper") version "2.1.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -74,7 +74,7 @@ dependencies {
 
     api("org.freemarker:freemarker:2.3.31")
 
-    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
