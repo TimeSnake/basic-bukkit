@@ -950,7 +950,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    * @return if user status is service
    */
   public boolean isService() {
-    return this.service || this.isAirMode();
+    return this.service || Server.getStatus().equals(Status.Server.SERVICE) || this.isAirMode();
   }
 
   public void setService(boolean service) {
@@ -1495,7 +1495,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
    */
   public void heal() {
     this.getPlayer().setHealth(
-        this.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        this.getPlayer().getAttribute(Attribute.MAX_HEALTH).getBaseValue());
     this.getPlayer().setFoodLevel(20);
   }
 
@@ -1882,7 +1882,7 @@ public class User extends UserPlayerDelegation implements ChannelListener, Tabli
   }
 
   public void setAttackSpeed(double attackSpeed) {
-    this.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(attackSpeed);
+    this.getAttribute(Attribute.ATTACK_SPEED).setBaseValue(attackSpeed);
   }
 
   public void resetAttackSpeed() {

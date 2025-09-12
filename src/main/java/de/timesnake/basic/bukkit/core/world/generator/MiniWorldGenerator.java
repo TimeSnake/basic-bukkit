@@ -100,19 +100,4 @@ public class MiniWorldGenerator extends ChunkGenerator {
   public Location getFixedSpawnLocation(World world, Random random) {
     return world.getHighestBlockAt(this.chunkXSize * 16 / 2, this.chunkZSize * 16 / 2).getLocation().add(0, 1, 0);
   }
-
-  public void regenerate(World world, int chunkSizeX, int chunkSizeZ) {
-    int maxX = Math.max(this.chunkXSize, chunkSizeX);
-    int maxZ = Math.max(this.chunkZSize, chunkSizeZ);
-
-    this.chunkXSize = chunkSizeX;
-    this.chunkZSize = chunkSizeZ;
-
-    for (int x = 0; x <= maxX; x++) {
-      for (int z = 0; z <= maxZ; z++) {
-        world.regenerateChunk(x, z);
-      }
-    }
-
-  }
 }

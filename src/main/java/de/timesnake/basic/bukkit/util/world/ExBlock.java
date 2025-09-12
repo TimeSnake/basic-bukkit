@@ -6,7 +6,6 @@ package de.timesnake.basic.bukkit.util.world;
 
 import de.timesnake.basic.bukkit.core.world.DelegatedBlock;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.library.basic.util.Tuple;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

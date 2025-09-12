@@ -158,7 +158,8 @@ public class MapDisplay extends PacketEntity {
             frame.fixed = true;
             frame.setItem(map.getHandle(), false);
             frame.setInvulnerable(true);
-            frame.setDirection(Direction.fromDelta(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()));
+            frame.setDirection(Direction.getNearest(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ(),
+                Direction.UP));
             frame.setInvisible(true);
             frame.setRotation(rotationToInteger(this.rotation));
             frame.setPos(block.getBlock().getX(), block.getBlock().getY(), block.getBlock().getZ());

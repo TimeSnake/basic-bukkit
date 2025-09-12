@@ -152,8 +152,8 @@ public class WorldEventManager implements Listener {
       }
 
       if (item != null) {
-        if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-          if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
+        if (item.getType().equals(Material.FLINT_AND_STEEL) || item.getType().equals(Material.FIRE_CHARGE)) {
+          if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL_AND_FIRE_CHARGE)) {
             return;
           }
 
@@ -328,7 +328,7 @@ public class WorldEventManager implements Listener {
   public void onBlockBreak(UserBlockBreakEvent e) {
     ExWorld world = e.getUser().getExWorld();
 
-    if (!world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK)) {
+    if (world.getOption(ExWorldOption.ALLOW_BLOCK_BREAK)) {
       return;
     }
 
@@ -500,6 +500,22 @@ public class WorldEventManager implements Listener {
   }
 
   @EventHandler
+  public void onEntityExplode(BlockExplodeEvent e) {
+    ExWorld world = this.worldManager.getWorld(e.getBlock().getWorld());
+
+    if (world == null) {
+      return;
+    }
+
+    if (world.getOption(ExWorldOption.ENABLE_BLOCK_EXPLOSION)) {
+      return;
+    }
+
+    e.setCancelled(true);
+    this.logger.info("Cancelled block explode event");
+  }
+
+  @EventHandler
   public void onBlockPlace(UserBlockPlaceEvent e) {
     ExWorld world = e.getUser().getExWorld();
 
@@ -527,7 +543,7 @@ public class WorldEventManager implements Listener {
     }
 
     if (item.getType().equals(Material.FLINT_AND_STEEL)) {
-      if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
+      if (world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL_AND_FIRE_CHARGE)) {
         return;
       }
 
@@ -607,7 +623,8 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (e.getCause().equals(IgniteCause.FLINT_AND_STEEL) && world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL)) {
+    if ((e.getCause().equals(IgniteCause.FLINT_AND_STEEL) || e.getCause().equals(IgniteCause.FIREBALL))
+        && world.getOption(ExWorldOption.ALLOW_FLINT_AND_STEEL_AND_FIRE_CHARGE)) {
       return;
     }
 
@@ -616,7 +633,9 @@ public class WorldEventManager implements Listener {
       return;
     }
 
-    if (world.isExceptService() && Server.getUser(e.getPlayer()).isService()) {
+    User user = Server.getUser(e.getPlayer());
+
+    if (user != null && world.isExceptService() && user.isService()) {
       return;
     }
 

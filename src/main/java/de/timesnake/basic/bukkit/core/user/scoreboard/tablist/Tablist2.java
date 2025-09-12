@@ -95,6 +95,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
             true, mcPlayer.connection != null ? mcPlayer.connection.latency() : 0,
             mcPlayer.gameMode.getGameModeForPlayer(),
             mcPlayer.getTabListDisplayName(),
+            true,
+            slot.getIndex(),
             mcPlayer.getChatSession() != null ? mcPlayer.getChatSession().asData() : null));
       }
 
@@ -202,6 +204,8 @@ public class Tablist2 extends Tablist implements TablistEntryHelper {
             true, mcPlayer.connection != null ? mcPlayer.connection.latency() : 0,
             mcPlayer.gameMode.getGameModeForPlayer(),
             mcPlayer.getTabListDisplayName(),
+            true,
+            slot.getIndex(),
             mcPlayer.getChatSession() != null ? mcPlayer.getChatSession().asData() : null));
       }
 

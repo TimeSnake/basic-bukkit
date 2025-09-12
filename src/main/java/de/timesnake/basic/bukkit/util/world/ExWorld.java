@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -128,7 +129,7 @@ public class ExWorld extends DelegatedWorld {
     return (Value) this.options.get(option);
   }
 
-  public <Value> void setOption(ExWorldOption<Value> option, Value value) {
+  public <Value> void setOption(ExWorldOption<Value> option, @NotNull Value value) {
     this.options.put(option, value);
   }
 

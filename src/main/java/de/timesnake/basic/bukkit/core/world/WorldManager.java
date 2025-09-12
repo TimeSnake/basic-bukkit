@@ -11,10 +11,7 @@ import de.timesnake.basic.bukkit.util.world.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -408,6 +405,8 @@ public class WorldManager implements Listener, de.timesnake.basic.bukkit.util.wo
 
   private void onWorldLoad(ExWorld world, WorldLoadActionType actionType) {
     Bukkit.getPluginManager().callEvent(new ExWorldLoadEvent(world, actionType));
+    // TODO add option for games
+    world.setGameRule(GameRule.LOCATOR_BAR, false);
   }
 
   private void onWorldUnload(ExWorld world, WorldUnloadActionType actionType) {

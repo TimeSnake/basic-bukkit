@@ -41,7 +41,7 @@ public class PacketPlayer extends PacketEntity {
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,
             ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),
         new ClientboundPlayerInfoUpdatePacket.Entry(player.getUUID(), player.gameProfile, false, 0,
-            player.gameMode.getGameModeForPlayer(), player.getTabListDisplayName(), null)));
+            player.gameMode.getGameModeForPlayer(), player.getTabListDisplayName(), true, 0, null)));
 
     user.sendPacket(new ClientboundAddEntityPacket(this.player, 0, this.player.getOnPos()));
     user.sendPacket(new ClientboundSetEntityDataPacketBuilder(player).setAllFromEntity().build());

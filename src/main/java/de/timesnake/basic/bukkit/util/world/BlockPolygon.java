@@ -219,18 +219,25 @@ public class BlockPolygon {
         .toList();
   }
 
+  public List<ExBlock> getBlocksInsideOnHeight(int height, Predicate<ExBlock> filter) {
+    return this.getPointsInside().stream()
+        .map(p -> this.world.getExBlockAt(p.getA(), height, p.getB()))
+        .filter(filter)
+        .toList();
+  }
+
   /**
-   * Gets the highest not empty blocks.
+   * Gets the highest, not empty blocks.
    * <p>
    * For each point in the polygon, it searches for the highest not empty block.
    * If no empty block exists on a location, it will be skipped.
    *
    * @return Returns a list of highest not empty blocks.
    */
-  public List<ExBlock> getHighestBlocksInside() {
+  public List<ExBlock> getHighestBlocksInside(Predicate<ExBlock> filter) {
     return this.getPointsInside().stream()
         .map(p -> this.world.getHighestExBlockAt(p.getA(), p.getB()))
-        .filter(b -> !b.isEmpty())
+        .filter(b -> !b.isEmpty() && filter.test(b))
         .toList();
   }
 
